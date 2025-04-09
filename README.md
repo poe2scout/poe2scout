@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-POE2Scout is your ultimate companion tool for Path of Exile 2, providing real-time price checking, market analysis, and build tracking capabilities. It aims to help players make informed trading decisions by leveraging the official Path of Exile Trade API and presenting the data in an accessible way.
+POE2Scout is your ultimate market tool for Path of Exile 2, providing real-time item price checking. It aims to help players make informed trading decisions by leveraging the official Path of Exile Trade API and presenting the data in an accessible way.
 
 ## Features
 
@@ -148,8 +148,6 @@ Contributions are welcome! Please follow these general steps:
 7. Open a Pull Request.
 
 ## Community
-
-Join the community on Discord for discussions, bug reports, feature requests, and more!
 
 - **Discord:** [https://discord.gg/EHXVdQCpBq](https://discord.gg/EHXVdQCpBq)
 
