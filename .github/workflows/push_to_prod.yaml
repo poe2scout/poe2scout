@@ -17,7 +17,7 @@ jobs:
           
       - name: Deploy to production server
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd project/poe2market && \
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd project/poe2scout && \
           git pull && \
           echo 'POSTGRES_DB=${{ secrets.POSTGRES_DB }}
           POSTGRES_USER=${{ secrets.POSTGRES_USER }}
