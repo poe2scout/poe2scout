@@ -4,21 +4,7 @@
 
 POE2 Scout is your ultimate market tool for Path of Exile 2, providing real-time item price checking. It aims to help players make informed trading decisions by leveraging the official Path of Exile Trade API and presenting the data in an accessible way.
 
-## Features
-
-- **Real-time Market Data**: Track currency exchange rates and item prices directly from the Path of Exile 2 Trade API.
-- **Item Categories**: Browse prices for various fungible item types (Unique, Currency, etc.)
-- **Historical Price Tracking**: View price history to understand market trends and make informed trading decisions.
-- **League Support**: Fetches and displays data specific to current Path of Exile 2 leagues.
-
-## Tech Stack
-
-- **Frontend**: React with Vite, Material-UI
-- **Backend API**: FastApi
-- **Price Fetch and Item Sync Services**: Python
-- **Database**: PostgreSQL
-
-## Project Architecture
+## Project Overview
 
 The application is containerized using Docker and consists of several services defined in `docker-compose.yml`:
 
@@ -33,6 +19,18 @@ The application is containerized using Docker and consists of several services d
   - Code: `services/priceFetchService/`
 - **`db`**: The PostgreSQL database storing item information, prices, and potentially user/build data.
 - **`https-portal`**: (Production profile only) Manages SSL certificates and acts as a reverse proxy for the frontend and API.
+
+## Contributing
+
+Contributions are welcome! Please follow these general steps:
+
+1. Fork the repository on github.
+2. Clone your forked repository to your local machine.
+3. Create a new branch (`git checkout -b feature/your-feature-name`).
+4. Make your changes.
+5. Commit your changes (`git commit -m 'Add some feature'`).
+6. Push to the branch (`git push origin feature/your-feature-name`).
+7. Open a Pull Request.
 
 ## Local Development Setup
 
@@ -134,18 +132,6 @@ These services run periodically in the background in a production-like environme
     # Ensure your Python venv is active
     python -m services.itemSyncService
     ```
-
-## Contributing
-
-Contributions are welcome! Please follow these general steps:
-
-1. Fork the repository on github.
-2. Clone your forked repository to your local machine.
-3. Create a new branch (`git checkout -b feature/your-feature-name`).
-4. Make your changes.
-5. Commit your changes (`git commit -m 'Add some feature'`).
-6. Push to the branch (`git push origin feature/your-feature-name`).
-7. Open a Pull Request.
 
 ## Community
 
