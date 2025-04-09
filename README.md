@@ -1,8 +1,8 @@
-# POE2Scout
+# [![](https://poe2scout.com/favicon.ico)](#) POE2 Scout
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-POE2Scout is your ultimate market tool for Path of Exile 2, providing real-time item price checking. It aims to help players make informed trading decisions by leveraging the official Path of Exile Trade API and presenting the data in an accessible way.
+POE2 Scout is your ultimate market tool for Path of Exile 2, providing real-time item price checking. It aims to help players make informed trading decisions by leveraging the official Path of Exile Trade API and presenting the data in an accessible way.
 
 ## Features
 
