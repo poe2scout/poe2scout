@@ -9,6 +9,7 @@ import {
   Paper,
   TableSortLabel,
   TablePagination,
+  Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -35,10 +36,11 @@ import { PriceHistory } from "./TableColumnComponents/PriceHistory";
 import { ItemName } from "./TableColumnComponents/ItemName";
 import { ItemDetail } from "./ItemDetail";
 import translations from "../translationskrmapping.json";
-import { SearchAutocomplete, SearchableItem } from "./SearchAutocomplete";
+import { SearchAutocomplete } from "./SearchAutocomplete";
 import { useNavigate } from "react-router-dom";
 import { useLeague, League } from "../contexts/LeagueContext";
 import { useCategories } from "../contexts/CategoryContext";
+import { useSearchableItems } from "../hooks/useSearchableItems";
 
 // Register ChartJS components
 ChartJS.register(
@@ -122,17 +124,6 @@ const getTradeUrl = (item: ApiItem, league: League) => {
   }
 };
 
-const fetchSearchableItems = async () => {
-  const searchableItems = await fetch(`${import.meta.env.VITE_API_URL}/items/filters`);
-  const data = await searchableItems.json();
-  return data.map((item: any) => ({
-    display_name: item.display_name,
-    category: item.category,
-    identifier: item.identifier,
-  }));
-};
-
-
 export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
   const navigate = useNavigate();
   const { league } = useLeague();
@@ -144,7 +135,6 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
   const [totalItems, setTotalItems] = useState(0);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<OrderBy>("price");
-  const [searchableItems, setSearchableItems] = useState<SearchableItem[]>([]);
   const [itemSelection, setItemSelection] = useState<{
     item: ApiItem | null;
     scrollPosition: number;
@@ -152,6 +142,12 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
     item: null,
     scrollPosition: 0,
   });
+
+  const {
+    searchableItems,
+    loading: loadingSearchable,
+    error: errorSearchable
+  } = useSearchableItems();
 
   useEffect(() => {
     setItemSelection({
@@ -195,10 +191,6 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
   useEffect(() => {
     setPage(0);
     fetchItems(1, rowsPerPage, initialSearch || "");
-    fetchSearchableItems().then((items) => {
-      console.log(items);
-      setSearchableItems(items);
-    });
   }, [initialSearch, type, league, rowsPerPage]);
 
   const handleRequestSort = (property: OrderBy) => {
@@ -296,6 +288,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
         display: "flex",
         flexDirection: "column",
         minWidth: "800px",
+        margin: "25px",
       }}
     >
       <TableContainer
@@ -334,6 +327,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                   <div style={{ position: "relative", flex: 1 }}>
                     <SearchAutocomplete
                       searchableItems={searchableItems}
+                      isLoadingList={loadingSearchable}
                       placeholder={`${getTranslatedText(
                         "Search",
                         language
@@ -345,6 +339,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                       }}
                       onClear={handleClearSearch}
                     />
+                    {errorSearchable && <Typography color="error" variant="caption" sx={{ position: 'absolute', bottom: '-18px' }}>Error loading items</Typography>}
                   </div>
                 </div>
               </TableCell>
