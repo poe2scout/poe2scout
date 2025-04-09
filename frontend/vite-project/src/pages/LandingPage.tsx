@@ -50,7 +50,7 @@ interface SplashInfoResponse {
 }
 
 const getLatestPrice = (priceLogs: (PriceLog | null)[]): number | null => {
-  for (let i = priceLogs.length - 1; i >= 0; i--) {
+  for (let i = 0; i < priceLogs.length; i++) {
     if (priceLogs[i]?.price !== null && priceLogs[i]?.price !== undefined) {
       return priceLogs[i]!.price;
     }
