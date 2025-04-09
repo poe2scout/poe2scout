@@ -45,8 +45,7 @@ export function SearchAutocomplete({
       const results = searchableItems
         .filter((item) =>
           item.display_name.toLowerCase().includes(lowerSearchTerm)
-        )
-        .slice(0, 15);
+        );
       setFilteredResults(results);
       setIsOpen(results.length > 0);
     } else {
@@ -74,7 +73,7 @@ export function SearchAutocomplete({
   };
 
   const isDisabled = isLoadingList || !!initialValue;
-  const currentPlaceholder = isLoadingList ? "Loading items..." : placeholder;
+  const currentPlaceholder = placeholder;
 
   return (
     <div ref={anchorEl} style={{ position: "relative", width: "100%" }}>
@@ -101,6 +100,9 @@ export function SearchAutocomplete({
             </IconButton>
           ),
         }}
+        inputProps={{
+          autoComplete: "off",
+        }}
       />
       <Popper
         open={isOpen && filteredResults.length > 0 && !isDisabled}
@@ -108,7 +110,7 @@ export function SearchAutocomplete({
         placement="bottom-start"
         style={{ width: anchorEl.current?.clientWidth, zIndex: 1300 }}
       >
-        <Paper>
+        <Paper sx={{ maxHeight: 300, overflowY: 'auto' }}>
           {filteredResults.map((item, index) => (
             <MenuItem key={index} onMouseDown={() => handleItemClick(item)}>
               {item.display_name}

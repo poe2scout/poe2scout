@@ -25,7 +25,6 @@ const MainContent = styled("div")({
 
 const ContentArea = styled("div")<{ fullWidth?: boolean }>(() => ({
   flex: 1,
-  padding: "20px",
   overflow: "auto",
   display: "flex",
   flexDirection: "column",
@@ -123,7 +122,7 @@ function Layout() {
             language={language}
           />
         )}
-        <ContentArea fullWidth={!showSideNav}>
+        <ContentArea fullWidth={true}>
           <Outlet />
         </ContentArea>
       </MainContent>
