@@ -1,0 +1,178 @@
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+h1 {
+  margin: 0 0 20px 0;
+  text-align: left;
+  width: 100%;
+}
+
+.filters-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  width: 100%;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.MuiTableContainer-root {
+  width: 100%;
+}
+
+.MuiTableCell-root {
+  text-align: left;
+}
+
+.MuiFormControl-root {
+  min-width: 200px !important;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 10px;
+    align-items: stretch;
+  }
+
+  .filters-container {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .MuiFormControl-root {
+    width: 100%;
+  }
+}
+
+.search-input,
+.category-select {
+  padding: 0.5rem;
+  border: 1px solid #2d3748;
+  border-radius: 4px;
+  background-color: #1a202c;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.category-select {
+  min-width: 150px;
+}
+
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.item-card {
+  background-color: #2d3748;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.item-card:hover {
+  transform: translateY(-2px);
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 200px;
+  background-color: #4a5568;
+}
+
+.item-info {
+  padding: 1rem;
+}
+
+.item-info h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.item-type {
+  color: #a0aec0;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+
+.price-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.price {
+  color: #68d391;
+  font-weight: bold;
+}
+
+.timestamp {
+  color: #718096;
+  font-size: 0.8rem;
+}
+
+img {
+  filter: none !important;
+}

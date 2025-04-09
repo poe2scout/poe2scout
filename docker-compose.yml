@@ -1,0 +1,109 @@
+version: "3.8"
+
+services:
+  https-portal:
+    profiles: [prod]
+    image: steveltn/https-portal:1
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAINS: "${DOMAINS}"
+      STAGE: "${STAGE}"
+    volumes:
+      - ./https-portal/custom.conf.erb:/var/lib/nginx-conf/${DOMAINS}.conf.erb:ro
+      - ./https-portal/custom.ssl.conf.erb:/var/lib/nginx-conf/${DOMAINS}.ssl.conf.erb:ro
+      - https-portal-data:/var/lib/https-portal
+    depends_on:
+      - frontend
+
+  api:
+    profiles: [prod]
+    build:
+      context: .
+      dockerfile: services/apiService/Dockerfile
+    restart: always
+    environment:
+      - DBSTRING=${DBSTRING}
+      - LOCAL=${LOCAL}
+      - SECRET_KEY=${SECRET_KEY}
+    expose:
+      - "5000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  item-sync-service:
+    profiles: [prod]
+    build:
+      context: .
+      dockerfile: services/itemSyncService/Dockerfile
+    environment:
+      - DBSTRING=${DBSTRING}
+      - UNIQUE_ITEM_URL=${UNIQUE_ITEM_URL}
+      - CURRENCY_ITEM_URL=${CURRENCY_ITEM_URL}
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+
+  price-fetch-service:
+    profiles: [prod]
+    build:
+      context: .
+      dockerfile: services/priceFetchService/Dockerfile
+    restart: always
+    environment:
+      - DBSTRING=${DBSTRING}
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+
+  frontend:
+    profiles: [prod]
+    build: ./frontend/vite-project
+    restart: always
+    expose:
+      - "3000"
+    depends_on:
+      - api
+
+  db:
+    profiles: [prod, local]
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+    volumes:
+      - pgdata6:/var/lib/postgresql/data
+      - ./db/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  dozzle:
+    profiles: [prod]
+    image: amir20/dozzle:latest
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8080:8080"
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  https-portal-data:
+  pgdata6:

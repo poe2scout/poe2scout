@@ -1,0 +1,192 @@
+
+
+  VITE v6.0.3  ready in 168 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+4:14:31 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx
+4:14:31 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x2)
+4:14:31 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x3)
+4:14:31 PM [vite] Internal server error: Failed to resolve import "../localisations/Engl
+4:14:31 PM [vite] Internal server error: Failed to resolve import "../localisations/English.json" from "src/hooks/useItemSearch.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:3:24
+  1  |  import { useMemo } from "react";
+  2  |  import { getLocalisedItemData } from "../utils/localisation";
+  3  |  import englishData from "../localisations/English.json";
+     |                           ^
+  4  |  import koreanData from "../localisations/Korean.json";
+  5  |  import currencyData from "../localisations/currencys_with_kr.json";
+      at TransformPluginContext._formatError (file:///Users/blakegirardet/poe2market/fro
+      at TransformPluginContext._formatError (file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:47158:41)
+      at TransformPluginContext.error (file:///Users/blakegirardet/poe2market/frontend/v
+      at TransformPluginContext.error (file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:47153:16)
+      at normalizeUrl (file:///Users/blakegirardet/poe2market/frontend/vite-project/node
+      at normalizeUrl (file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:45427:23)
+      at async file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules
+      at async file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:45546:39
+      at async Promise.all (index 2)
+      at async TransformPluginContext.transform (file:///Users/blakegirardet/poe2market/
+      at async TransformPluginContext.transform (file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:45473:7)
+      at async EnvironmentPluginContainer.transform (file:///Users/blakegirardet/poe2mar
+      at async EnvironmentPluginContainer.transform (file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:47001:18)
+      at async loadAndTransform (file:///Users/blakegirardet/poe2market/frontend/vite-pr
+      at async loadAndTransform (file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:40852:27)
+4:14:31 PM [vite] (client) Pre-transform error: Failed to resolve import "../localisatio
+4:14:31 PM [vite] (client) Pre-transform error: Failed to resolve import "../localisations/English.json" from "src/hooks/useItemSearch.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:3:24
+  1  |  import { useMemo } from "react";
+  2  |  import { getLocalisedItemData } from "../utils/localisation";
+  3  |  import englishData from "../localisations/English.json";
+     |                           ^
+  4  |  import koreanData from "../localisations/Korean.json";
+  5  |  import currencyData from "../localisations/currencys_with_kr.json";
+4:14:31 PM [vite] (client) Pre-transform error: Failed to resolve import "../localisatio
+4:14:31 PM [vite] (client) Pre-transform error: Failed to resolve import "../localisations/English.json" from "src/utils/localisation.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/utils/localisation.ts:
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/utils/localisation.ts:1:24
+  1  |  import englishData from "../localisations/English.json";
+     |                           ^
+  2  |  import koreanData from "../localisations/Korean.json";
+  3  |  const localisationData = {
+4:14:37 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx
+4:14:37 PM [vite] Internal server error: Failed to resolve import "../utils/localisation
+4:14:37 PM [vite] Internal server error: Failed to resolve import "../utils/localisation" from "src/hooks/useItemSearch.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:2:37
+  1  |  import { useMemo } from "react";
+  2  |  import { getLocalisedItemData } from "../utils/localisation";
+     |                                        ^
+  3  |  import englishData from "../localisations/English.json";
+  4  |  import koreanData from "../localisations/Korean.json";
+      at TransformPluginContext._formatError (file:///Users/blakegirardet/poe2market/fro
+      at TransformPluginContext._formatError (file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:47158:41)
+      at TransformPluginContext.error (file:///Users/blakegirardet/poe2market/frontend/v
+      at TransformPluginContext.error (file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:47153:16)
+      at normalizeUrl (file:///Users/blakegirardet/poe2market/frontend/vite-project/node
+      at normalizeUrl (file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:45427:23)
+      at async file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules
+      at async file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:45546:39
+      at async Promise.all (index 1)
+      at async TransformPluginContext.transform (file:///Users/blakegirardet/poe2market/
+      at async TransformPluginContext.transform (file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:45473:7)
+      at async EnvironmentPluginContainer.transform (file:///Users/blakegirardet/poe2mar
+      at async EnvironmentPluginContainer.transform (file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:47001:18)
+      at async loadAndTransform (file:///Users/blakegirardet/poe2market/frontend/vite-pr
+      at async loadAndTransform (file:///Users/blakegirardet/poe2market/frontend/vite-project/node_modules/vite/dist/node/chunks/dep-yUJfKD1i.js:40852:27)
+4:14:37 PM [vite] (client) Pre-transform error: Failed to resolve import "../utils/local
+4:14:37 PM [vite] (client) Pre-transform error: Failed to resolve import "../utils/localisation" from "src/hooks/useItemSearch.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:2:37
+  1  |  import { useMemo } from "react";
+  2  |  import { getLocalisedItemData } from "../utils/localisation";
+     |                                        ^
+  3  |  import englishData from "../localisations/English.json";
+  4  |  import koreanData from "../localisations/Korean.json";
+4:14:59 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx
+4:15:36 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x2)
+4:15:48 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x3)
+4:15:48 PM [vite] Internal server error:   × Unterminated string constant
+    ╭─[/Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:
+    ╭─[/Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:15:1]
+ 12 │ 
+ 13 │ 
+ 14 │ 
+ 15 │ export function useItemSearch(") {
+    ·                               ────
+ 16 │   const allItems = useMemo(() => {
+ 17 │     const items: SearchItem[] = [];
+ 18 │     const data = language === "ko" ? koreanData : englishData;
+    ╰────
+  × Unexpected token `string literal () {, ") {)`. Expected yield, an identifier, [ or {
+    ╭─[/Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:
+    ╭─[/Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:15:1]
+ 12 │ 
+ 13 │ 
+ 14 │ 
+ 15 │ export function useItemSearch(") {
+    ·                               ────
+ 16 │   const allItems = useMemo(() => {
+ 17 │     const items: SearchItem[] = [];
+ 18 │     const data = language === "ko" ? koreanData : englishData;
+    ╰────
+
+
+Caused by:
+    Syntax Error
+  Plugin: vite:react-swc
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:15:1
+  
+4:15:48 PM [vite] (client) Pre-transform error:   × Unterminated string constant
+    ╭─[/Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:
+    ╭─[/Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:15:1]
+ 12 │ 
+ 13 │ 
+ 14 │ 
+ 15 │ export function useItemSearch(") {
+    ·                               ────
+ 16 │   const allItems = useMemo(() => {
+ 17 │     const items: SearchItem[] = [];
+ 18 │     const data = language === "ko" ? koreanData : englishData;
+    ╰────
+  × Unexpected token `string literal () {, ") {)`. Expected yield, an identifier, [ or {
+    ╭─[/Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:
+    ╭─[/Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:15:1]
+ 12 │ 
+ 13 │ 
+ 14 │ 
+ 15 │ export function useItemSearch(") {
+    ·                               ────
+ 16 │   const allItems = useMemo(() => {
+ 17 │     const items: SearchItem[] = [];
+ 18 │     const data = language === "ko" ? koreanData : englishData;
+    ╰────
+
+
+Caused by:
+    Syntax Error
+  Plugin: vite:react-swc
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts
+  File: /Users/blakegirardet/poe2market/frontend/vite-project/src/hooks/useItemSearch.ts:15:1
+4:15:55 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx
+4:15:56 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x2)
+4:19:07 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x3)
+4:19:10 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x4)
+4:19:10 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x5)
+4:19:25 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x6)
+4:19:27 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x7)
+4:19:27 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x8)
+4:19:31 PM [vite] (client) hmr update /src/components/ItemTable.tsx
+4:19:47 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx
+4:20:49 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x2)
+4:21:10 PM [vite] (client) hmr update /src/components/ItemTable.tsx
+4:21:21 PM [vite] (client) hmr update /src/components/ItemTable.tsx (x2)
+4:21:46 PM [vite] (client) hmr update /src/components/ItemTable.tsx (x3)
+4:22:02 PM [vite] (client) hmr update /src/components/ItemTable.tsx (x4)
+4:22:37 PM [vite] (client) hmr update /src/components/ItemTable.tsx (x5)
+4:22:45 PM [vite] (client) hmr update /src/components/ItemTable.tsx (x6)
+4:22:59 PM [vite] (client) hmr update /src/components/ItemTable.tsx (x7)
+4:23:02 PM [vite] (client) hmr update /src/components/ItemTable.tsx (x8)
+^C(.venv) blakegirardet@Blakes-MacBook-Air-2 vite-project % > vite-project@0.0.6 dev
+> vite
+
+
+  VITE v6.0.3  ready in 168 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+4:14:31 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx
+4:14:31 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x2)
+4:14:31 PM [vite] (client) hmr update /src/components/SearchAutocomplete.tsx (x3)
+4:14:31 PM [vite] Internal server error: Failed to resolve import "../localisations/Engl
+4:14:31 PM [vite] Internal server error: Failed to resolve import "../localisations/Engl
+4:14:31 PM [vite] Internal server error: Failed to resolve import "../localisations/English.json" from "src/hooks/useItemSearch.ts". Does the file exist?

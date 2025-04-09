@@ -1,0 +1,6980 @@
+[
+    {
+      "id": "accessory",
+      "label": "Accessories",
+      "entries": [
+        {
+          "type": "Crimson Amulet",
+          "text": "진홍색 목걸이"
+        },
+        {
+          "type": "Gold Amulet",
+          "text": "황금 목걸이"
+        },
+        {
+          "type": "Azure Amulet",
+          "text": "담청색 목걸이"
+        },
+        {
+          "type": "Amber Amulet",
+          "text": "호박 목걸이"
+        },
+        {
+          "type": "Jade Amulet",
+          "text": "비취 목걸이"
+        },
+        {
+          "type": "Lapis Amulet",
+          "text": "청금석 목걸이"
+        },
+        {
+          "type": "Lunar Amulet",
+          "text": "달의 목걸이"
+        },
+        {
+          "type": "Bloodstone Amulet",
+          "text": "혈석 목걸이"
+        },
+        {
+          "type": "Stellar Amulet",
+          "text": "별의 목걸이"
+        },
+        {
+          "type": "Solar Amulet",
+          "text": "태양의 목걸이"
+        },
+        {
+          "type": "Rawhide Belt",
+          "text": "생가죽 허리띠"
+        },
+        {
+          "type": "Utility Belt",
+          "text": "특수 허리띠"
+        },
+        {
+          "type": "Fine Belt",
+          "text": "섬세한 허리띠"
+        },
+        {
+          "type": "Linen Belt",
+          "text": "리넨 허리띠"
+        },
+        {
+          "type": "Wide Belt",
+          "text": "넓은 허리띠"
+        },
+        {
+          "type": "Long Belt",
+          "text": "긴 허리띠"
+        },
+        {
+          "type": "Plate Belt",
+          "text": "판금 허리띠"
+        },
+        {
+          "type": "Ornate Belt",
+          "text": "화려한 허리띠"
+        },
+        {
+          "type": "Mail Belt",
+          "text": "사슬 허리띠"
+        },
+        {
+          "type": "Double Belt",
+          "text": "이중 허리띠"
+        },
+        {
+          "type": "Heavy Belt",
+          "text": "무거운 허리띠"
+        },
+        {
+          "type": "Iron Ring",
+          "text": "철제 반지"
+        },
+        {
+          "type": "Gold Ring",
+          "text": "황금 반지"
+        },
+        {
+          "type": "Unset Ring",
+          "text": "무보석 반지"
+        },
+        {
+          "type": "Lazuli Ring",
+          "text": "청금석 반지"
+        },
+        {
+          "type": "Ruby Ring",
+          "text": "루비 반지"
+        },
+        {
+          "type": "Sapphire Ring",
+          "text": "사파이어 반지"
+        },
+        {
+          "type": "Topaz Ring",
+          "text": "토파즈 반지"
+        },
+        {
+          "type": "Amethyst Ring",
+          "text": "자수정 반지"
+        },
+        {
+          "type": "Emerald Ring",
+          "text": "에메랄드 반지"
+        },
+        {
+          "type": "Pearl Ring",
+          "text": "진주 반지"
+        },
+        {
+          "type": "Prismatic Ring",
+          "text": "분광 반지"
+        },
+        {
+          "type": "Ring",
+          "text": "반지"
+        },
+        {
+          "type": "Breach Ring",
+          "text": "균열 반지"
+        },
+        {
+          "type": "Gold Ring",
+          "text": "앤드바리우스 황금 반지",
+          "name": "Andvarius",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Stellar Amulet",
+          "text": "별의 보석 별의 목걸이",
+          "name": "Astramentis",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Solar Amulet",
+          "text": "아지스의 등불 태양의 목걸이",
+          "name": "Beacon of Azis",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Wide Belt",
+          "text": "생득권 버클 넓은 허리띠",
+          "name": "Birthright Buckle",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Amethyst Ring",
+          "text": "검은화염 자수정 반지",
+          "name": "Blackflame",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Iron Ring",
+          "text": "검은 심장 철제 반지",
+          "name": "Blackheart",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Ruby Ring",
+          "text": "물집을 잡는 결속 루비 반지",
+          "name": "Blistering Bond",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Wide Belt",
+          "text": "브리나바스 넓은 허리띠",
+          "name": "Brynabas",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Topaz Ring",
+          "text": "형제의 부름 토파즈 반지",
+          "name": "Call of the Brotherhood",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Amber Amulet",
+          "text": "학살 심장 호박 목걸이",
+          "name": "Carnage Heart",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Jade Amulet",
+          "text": "태풍의 합창 비취 목걸이",
+          "name": "Choir of the Storm",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Mail Belt",
+          "text": "겁쟁이의 유물 사슬 허리띠",
+          "name": "Coward's Legacy",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Ruby Ring",
+          "text": "살금박살 루비 반지",
+          "name": "Cracklecreep",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Emerald Ring",
+          "text": "죽음의 재촉 에메랄드 반지",
+          "name": "Death Rush",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Jade Amulet",
+          "text": "운명의 저항 비취 목걸이",
+          "name": "Defiance of Destiny",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Lazuli Ring",
+          "text": "도이드리의 파멸 청금석 반지",
+          "name": "Doedre's Damning",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Sapphire Ring",
+          "text": "꿈의 조각 사파이어 반지",
+          "name": "Dream Fragments",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Gold Amulet",
+          "text": "차율라의 눈 황금 목걸이",
+          "name": "Eye of Chayula",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Solar Amulet",
+          "text": "화염꽃 태양의 목걸이",
+          "name": "Fireflower",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Stellar Amulet",
+          "text": "익스의 집착 별의 목걸이",
+          "name": "Fixation of Yix",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Lazuli Ring",
+          "text": "빛무리 청금석 반지",
+          "name": "Glowswarm",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Heavy Belt",
+          "text": "헤드헌터 무거운 허리띠",
+          "name": "Headhunter",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Pearl Ring",
+          "text": "마음에 묶인 고리 진주 반지",
+          "name": "Heartbound Loop",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Crimson Amulet",
+          "text": "울던의 우상 진홍색 목걸이",
+          "name": "Idol of Uldurn",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Crimson Amulet",
+          "text": "이그니페리스 진홍색 목걸이",
+          "name": "Igniferis",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Plate Belt",
+          "text": "지옥불 죔쇠 판금 허리띠",
+          "name": "Infernoclasp",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Utility Belt",
+          "text": "기발함 특수 허리띠",
+          "name": "Ingenuity",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Ring",
+          "text": "칼란드라의 손길 반지",
+          "name": "Kalandra's Touch",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Linen Belt",
+          "text": "용골쓸기 리넨 허리띠",
+          "name": "Keelhaul",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Topaz Ring",
+          "text": "전광석 토파즈 반지",
+          "name": "Levinstone",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Lapis Amulet",
+          "text": "리구리움 부적 청금석 목걸이",
+          "name": "Ligurium Talisman",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Rawhide Belt",
+          "text": "메기노드의 허리띠 생가죽 허리띠",
+          "name": "Meginord's Girdle",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Rawhide Belt",
+          "text": "심야의 끈 생가죽 허리띠",
+          "name": "Midnight Braid",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Amethyst Ring",
+          "text": "밍의 심장 자수정 반지",
+          "name": "Ming's Heart",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Amethyst Ring",
+          "text": "원죄 자수정 반지",
+          "name": "Original Sin",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Gold Ring",
+          "text": "페란두스 봉인 황금 반지",
+          "name": "Perandus Seal",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Sapphire Ring",
+          "text": "폴시르켈른 사파이어 반지",
+          "name": "Polcirkeln",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Amber Amulet",
+          "text": "신성한 수지 호박 목걸이",
+          "name": "Revered Resin",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Lunar Amulet",
+          "text": "허약의 론델 달의 목걸이",
+          "name": "Rondel of Fragility",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Ornate Belt",
+          "text": "리슬라사의 감개 화려한 허리띠",
+          "name": "Ryslatha's Coil",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Lazuli Ring",
+          "text": "대재앙의 씨앗 청금석 반지",
+          "name": "Seed of Cataclysm",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Ring",
+          "text": "세케마의 결의 반지",
+          "name": "Sekhema's Resolve",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Gold Amulet",
+          "text": "독사의 알 황금 목걸이",
+          "name": "Serpent's Egg",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Fine Belt",
+          "text": "샤브론의 가방 섬세한 허리띠",
+          "name": "Shavronne's Satchel",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Pearl Ring",
+          "text": "뱀 구덩이 진주 반지",
+          "name": "Snakepit",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Long Belt",
+          "text": "영혼 올가미 긴 허리띠",
+          "name": "Soul Tether",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Stellar Amulet",
+          "text": "몸부림치는 비명 별의 목걸이",
+          "name": "Strugglescream",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Jade Amulet",
+          "text": "굳건한 부적 비취 목걸이",
+          "name": "Surefooted Sigil",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Bloodstone Amulet",
+          "text": "모루 혈석 목걸이",
+          "name": "The Anvil",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Topaz Ring",
+          "text": "굴착자 토파즈 반지",
+          "name": "The Burrower",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Azure Amulet",
+          "text": "영원한 응시 담청색 목걸이",
+          "name": "The Everlasting Gaze",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Lapis Amulet",
+          "text": "대혼란 청금석 목걸이",
+          "name": "The Pandemonius",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Emerald Ring",
+          "text": "도둑의 고통 에메랄드 반지",
+          "name": "Thief's Torment",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Azure Amulet",
+          "text": "웅힐의 조화 담청색 목걸이",
+          "name": "Ungil's Harmony",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Gold Ring",
+          "text": "벤토의 도박 황금 반지",
+          "name": "Ventor's Gamble",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Sapphire Ring",
+          "text": "형제단의 속삭임 사파이어 반지",
+          "name": "Whisper of the Brotherhood",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Amber Amulet",
+          "text": "조프의 피 호박 목걸이",
+          "name": "Xoph's Blood",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Heavy Belt",
+          "text": "제르피의 시원 무거운 허리띠",
+          "name": "Zerphi's Genesis",
+          "flags": {
+            "unique": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "armour",
+      "label": "Armour",
+      "entries": [
+        {
+          "type": "Leather Vest",
+          "text": "가죽 조끼"
+        },
+        {
+          "type": "Smuggler Coat",
+          "text": "밀수범 외투"
+        },
+        {
+          "type": "Quilted Vest",
+          "text": "누비 조끼"
+        },
+        {
+          "type": "Advanced Quilted Vest",
+          "text": "고급 누비 조끼"
+        },
+        {
+          "type": "Pathfinder Coat",
+          "text": "패스파인더 외투"
+        },
+        {
+          "type": "Advanced Pathfinder Coat",
+          "text": "고급 패스파인더 외투"
+        },
+        {
+          "type": "Expert Pathfinder Coat",
+          "text": "전문 패스파인더 외투"
+        },
+        {
+          "type": "Shrouded Vest",
+          "text": "연막의 조끼"
+        },
+        {
+          "type": "Rhoahide Coat",
+          "text": "로아가죽 외투"
+        },
+        {
+          "type": "Advanced Rhoahide Coat",
+          "text": "고급 로아가죽 외투"
+        },
+        {
+          "type": "Studded Vest",
+          "text": "징 박힌 조끼"
+        },
+        {
+          "type": "Advanced Studded Vest",
+          "text": "고급 징 박힌 조끼"
+        },
+        {
+          "type": "Expert Studded Vest",
+          "text": "전문 징 박힌 조끼"
+        },
+        {
+          "type": "Scout's Vest",
+          "text": "정찰병의 조끼"
+        },
+        {
+          "type": "Advanced Scout's Vest",
+          "text": "고급 정찰병의 조끼"
+        },
+        {
+          "type": "Serpentscale Coat",
+          "text": "뱀 비늘 외투"
+        },
+        {
+          "type": "Advanced Serpentscale Coat",
+          "text": "고급 뱀 비늘 외투"
+        },
+        {
+          "type": "Expert Serpentscale Coat",
+          "text": "전문 뱀 비늘 외투"
+        },
+        {
+          "type": "Hermit Garb",
+          "text": "은자 의복"
+        },
+        {
+          "type": "Advanced Hermit Garb",
+          "text": "고급 은자 의복"
+        },
+        {
+          "type": "Waxed Jacket",
+          "text": "밀랍재질 재킷"
+        },
+        {
+          "type": "Advanced Waxed Jacket",
+          "text": "고급 밀랍재질 재킷"
+        },
+        {
+          "type": "Expert Waxed Jacket",
+          "text": "전문 밀랍재질 재킷"
+        },
+        {
+          "type": "Marabout Garb",
+          "text": "도사 의복"
+        },
+        {
+          "type": "Advanced Marabout Garb",
+          "text": "고급 도사 의복"
+        },
+        {
+          "type": "Wayfarer Jacket",
+          "text": "나그네 재킷"
+        },
+        {
+          "type": "Advanced Wayfarer Jacket",
+          "text": "고급 나그네 재킷"
+        },
+        {
+          "type": "Expert Wayfarer Jacket",
+          "text": "전문 나그네 재킷"
+        },
+        {
+          "type": "Anchorite Garb",
+          "text": "은둔자 의복"
+        },
+        {
+          "type": "Advanced Anchorite Garb",
+          "text": "고급 은둔자 의복"
+        },
+        {
+          "type": "Scalper's Jacket",
+          "text": "두피수집가의 재킷"
+        },
+        {
+          "type": "Advanced Scalper's Jacket",
+          "text": "고급 두피수집가의 재킷"
+        },
+        {
+          "type": "Expert Scalper's Jacket",
+          "text": "전문 두피수집가의 재킷"
+        },
+        {
+          "type": "Tattered Robe",
+          "text": "조각난 로브"
+        },
+        {
+          "type": "Feathered Robe",
+          "text": "깃털 로브"
+        },
+        {
+          "type": "Advanced Feathered Robe",
+          "text": "고급 깃털 로브"
+        },
+        {
+          "type": "Hexer's Robe",
+          "text": "사술사의 로브"
+        },
+        {
+          "type": "Advanced Hexer's Robe",
+          "text": "고급 사술사의 로브"
+        },
+        {
+          "type": "Expert Hexer's Robe",
+          "text": "전문 사술사의 로브"
+        },
+        {
+          "type": "Bone Raiment",
+          "text": "뼈 의복"
+        },
+        {
+          "type": "Silk Robe",
+          "text": "실크 로브"
+        },
+        {
+          "type": "Advanced Silk Robe",
+          "text": "고급 실크 로브"
+        },
+        {
+          "type": "Keth Raiment",
+          "text": "케스 의복"
+        },
+        {
+          "type": "Advanced Keth Raiment",
+          "text": "고급 케스 의복"
+        },
+        {
+          "type": "Expert Keth Raiment",
+          "text": "전문 케스 의복"
+        },
+        {
+          "type": "Votive Raiment",
+          "text": "봉헌된 의복"
+        },
+        {
+          "type": "Advanced Votive Raiment",
+          "text": "고급 봉헌된 의복"
+        },
+        {
+          "type": "Altar Robe",
+          "text": "제단 로브"
+        },
+        {
+          "type": "Advanced Altar Robe",
+          "text": "고급 제단 로브"
+        },
+        {
+          "type": "Expert Altar Robe",
+          "text": "전문 제단 로브"
+        },
+        {
+          "type": "Rusted Cuirass",
+          "text": "녹슨 흉갑"
+        },
+        {
+          "type": "Champion Cuirass",
+          "text": "챔피언 흉갑"
+        },
+        {
+          "type": "Conqueror Plate",
+          "text": "정복자 판금 갑옷"
+        },
+        {
+          "type": "Fur Plate",
+          "text": "모피 판금 갑옷"
+        },
+        {
+          "type": "Advanced Fur Plate",
+          "text": "고급 모피 판금 갑옷"
+        },
+        {
+          "type": "Iron Cuirass",
+          "text": "철 흉갑"
+        },
+        {
+          "type": "Advanced Iron Cuirass",
+          "text": "고급 철 흉갑"
+        },
+        {
+          "type": "Expert Iron Cuirass",
+          "text": "전문 철 흉갑"
+        },
+        {
+          "type": "Raider Plate",
+          "text": "레이더 판금 갑옷"
+        },
+        {
+          "type": "Maraketh Cuirass",
+          "text": "마라케스 흉갑"
+        },
+        {
+          "type": "Advanced Maraketh Cuirass",
+          "text": "고급 마라케스 흉갑"
+        },
+        {
+          "type": "Steel Plate",
+          "text": "강철 판금 갑옷"
+        },
+        {
+          "type": "Advanced Steel Plate",
+          "text": "고급 강철 판금 갑옷"
+        },
+        {
+          "type": "Expert Steel Plate",
+          "text": "전문 강철 판금 갑옷"
+        },
+        {
+          "type": "Full Plate",
+          "text": "전신 판금 갑옷"
+        },
+        {
+          "type": "Advanced Full Plate",
+          "text": "고급 전신 판금 갑옷"
+        },
+        {
+          "type": "Vaal Cuirass",
+          "text": "바알 흉갑"
+        },
+        {
+          "type": "Advanced Vaal Cuirass",
+          "text": "고급 바알 흉갑"
+        },
+        {
+          "type": "Expert Vaal Cuirass",
+          "text": "전문 바알 흉갑"
+        },
+        {
+          "type": "Chain Mail",
+          "text": "사슬 갑옷"
+        },
+        {
+          "type": "Advanced Chain Mail",
+          "text": "고급 사슬 갑옷"
+        },
+        {
+          "type": "Rogue Armour",
+          "text": "악한 방어구"
+        },
+        {
+          "type": "Advanced Rogue Armour",
+          "text": "고급 악한 방어구"
+        },
+        {
+          "type": "Expert Rogue Armour",
+          "text": "전문 악한 방어구"
+        },
+        {
+          "type": "Vagabond Armour",
+          "text": "방랑자 방어구"
+        },
+        {
+          "type": "Advanced Vagabond Armour",
+          "text": "고급 방랑자 방어구"
+        },
+        {
+          "type": "Cloaked Mail",
+          "text": "은폐 사슬옷"
+        },
+        {
+          "type": "Expert Cloaked Mail",
+          "text": "전문 은폐 사슬옷"
+        },
+        {
+          "type": "Advanced Cloaked Mail",
+          "text": "고급 은폐 사슬옷"
+        },
+        {
+          "type": "Explorer Armour",
+          "text": "탐험가 방어구"
+        },
+        {
+          "type": "Advanced Explorer Armour",
+          "text": "고급 탐험가 방어구"
+        },
+        {
+          "type": "Scale Mail",
+          "text": "미늘 갑옷"
+        },
+        {
+          "type": "Advanced Scale Mail",
+          "text": "고급 미늘 갑옷"
+        },
+        {
+          "type": "Expert Scale Mail",
+          "text": "전문 미늘 갑옷"
+        },
+        {
+          "type": "Knight Armour",
+          "text": "기사 방어구"
+        },
+        {
+          "type": "Grand Regalia",
+          "text": "우수한 예복"
+        },
+        {
+          "type": "Garment",
+          "text": "옷"
+        },
+        {
+          "type": "Pilgrim Vestments",
+          "text": "순례자 법의"
+        },
+        {
+          "type": "Advanced Pilgrim Vestments",
+          "text": "고급 순례자 법의"
+        },
+        {
+          "type": "Pelt Mantle",
+          "text": "가죽모 외투"
+        },
+        {
+          "type": "Advanced Pelt Mantle",
+          "text": "고급 가죽모 외투"
+        },
+        {
+          "type": "Expert Pelt Mantle",
+          "text": "전문 가죽모 외투"
+        },
+        {
+          "type": "Mail Vestments",
+          "text": "사슬 법의"
+        },
+        {
+          "type": "Advanced Mail Vestments",
+          "text": "고급 사슬 법의"
+        },
+        {
+          "type": "Shaman Mantle",
+          "text": "주술사 외투"
+        },
+        {
+          "type": "Advanced Shaman Mantle",
+          "text": "고급 주술사 외투"
+        },
+        {
+          "type": "Expert Shaman Mantle",
+          "text": "전문 주술사 외투"
+        },
+        {
+          "type": "Ironclad Vestments",
+          "text": "철갑 법의"
+        },
+        {
+          "type": "Advanced Ironclad Vestments",
+          "text": "고급 철갑 법의"
+        },
+        {
+          "type": "Sacrificial Mantle",
+          "text": "희생의 외투"
+        },
+        {
+          "type": "Advanced Sacrificial Mantle",
+          "text": "고급 희생의 외투"
+        },
+        {
+          "type": "Expert Sacrificial Mantle",
+          "text": "전문 희생의 외투"
+        },
+        {
+          "type": "Gilded Vestments",
+          "text": "도금된 법의"
+        },
+        {
+          "type": "Rawhide Boots",
+          "text": "생가죽 장화"
+        },
+        {
+          "type": "Laced Boots",
+          "text": "레이스 장화"
+        },
+        {
+          "type": "Advanced Laced Boots",
+          "text": "고급 레이스 장화"
+        },
+        {
+          "type": "Expert Laced Boots",
+          "text": "전문 레이스 장화"
+        },
+        {
+          "type": "Embossed Boots",
+          "text": "양각 무늬 장화"
+        },
+        {
+          "type": "Advanced Embossed Boots",
+          "text": "고급 양각 무늬 장화"
+        },
+        {
+          "type": "Steeltoe Boots",
+          "text": "강철코 장화"
+        },
+        {
+          "type": "Advanced Steeltoe Boots",
+          "text": "고급 강철코 장화"
+        },
+        {
+          "type": "Expert Steeltoe Boots",
+          "text": "전문 강철코 장화"
+        },
+        {
+          "type": "Lizardscale Boots",
+          "text": "도마뱀비늘 장화"
+        },
+        {
+          "type": "Advanced Lizardscale Boots",
+          "text": "고급 도마뱀비늘 장화"
+        },
+        {
+          "type": "Expert Lizardscale Boots",
+          "text": "전문 도마뱀비늘 장화"
+        },
+        {
+          "type": "Frayed Shoes",
+          "text": "흐트러진 신발"
+        },
+        {
+          "type": "Advanced Frayed Shoes",
+          "text": "고급 흐트러진 신발"
+        },
+        {
+          "type": "Expert Frayed Shoes",
+          "text": "전문 흐트러진 신발"
+        },
+        {
+          "type": "Threaded Shoes",
+          "text": "실타래 신발"
+        },
+        {
+          "type": "Advanced Threaded Shoes",
+          "text": "고급 실타래 신발"
+        },
+        {
+          "type": "Expert Threaded Shoes",
+          "text": "전문 실타래 신발"
+        },
+        {
+          "type": "Hunting Shoes",
+          "text": "사냥용 신발"
+        },
+        {
+          "type": "Advanced Hunting Shoes",
+          "text": "고급 사냥용 신발"
+        },
+        {
+          "type": "Expert Hunting Shoes",
+          "text": "전문 사냥용 신발"
+        },
+        {
+          "type": "Velour Shoes",
+          "text": "벨루어 신발"
+        },
+        {
+          "type": "Straw Sandals",
+          "text": "짚 샌들"
+        },
+        {
+          "type": "Wrapped Sandals",
+          "text": "싸맨 샌들"
+        },
+        {
+          "type": "Advanced Wrapped Sandals",
+          "text": "고급 싸맨 샌들"
+        },
+        {
+          "type": "Expert Wrapped Sandals",
+          "text": "전문 싸맨 샌들"
+        },
+        {
+          "type": "Lattice Sandals",
+          "text": "격자 샌들"
+        },
+        {
+          "type": "Advanced Lattice Sandals",
+          "text": "고급 격자 샌들"
+        },
+        {
+          "type": "Silk Slippers",
+          "text": "실크 슬리퍼"
+        },
+        {
+          "type": "Advanced Silk Slippers",
+          "text": "고급 실크 슬리퍼"
+        },
+        {
+          "type": "Expert Silk Slippers",
+          "text": "전문 실크 슬리퍼"
+        },
+        {
+          "type": "Feathered Sandals",
+          "text": "깃털 샌들"
+        },
+        {
+          "type": "Advanced Feathered Sandals",
+          "text": "고급 깃털 샌들"
+        },
+        {
+          "type": "Expert Feathered Sandals",
+          "text": "전문 깃털 샌들"
+        },
+        {
+          "type": "Rough Greaves",
+          "text": "거친 각반"
+        },
+        {
+          "type": "Iron Greaves",
+          "text": "철제 각반"
+        },
+        {
+          "type": "Advanced Iron Greaves",
+          "text": "고급 철제 각반"
+        },
+        {
+          "type": "Expert Iron Greaves",
+          "text": "전문 철제 각반"
+        },
+        {
+          "type": "Bronze Greaves",
+          "text": "청동 각반"
+        },
+        {
+          "type": "Advanced Bronze Greaves",
+          "text": "고급 청동 각반"
+        },
+        {
+          "type": "Trimmed Greaves",
+          "text": "다듬은 각반"
+        },
+        {
+          "type": "Advanced Trimmed Greaves",
+          "text": "고급 다듬은 각반"
+        },
+        {
+          "type": "Expert Trimmed Greaves",
+          "text": "전문 다듬은 각반"
+        },
+        {
+          "type": "Stone Greaves",
+          "text": "돌 각반"
+        },
+        {
+          "type": "Advanced Stone Greaves",
+          "text": "고급 돌 각반"
+        },
+        {
+          "type": "Expert Stone Greaves",
+          "text": "전문 돌 각반"
+        },
+        {
+          "type": "Mail Sabatons",
+          "text": "사슬 발 덮개"
+        },
+        {
+          "type": "Advanced Mail Sabatons",
+          "text": "고급 사슬 발 덮개"
+        },
+        {
+          "type": "Expert Mail Sabatons",
+          "text": "전문 사슬 발 덮개"
+        },
+        {
+          "type": "Braced Sabatons",
+          "text": "죔쇠 발 덮개"
+        },
+        {
+          "type": "Advanced Braced Sabatons",
+          "text": "고급 죔쇠 발 덮개"
+        },
+        {
+          "type": "Expert Braced Sabatons",
+          "text": "전문 죔쇠 발 덮개"
+        },
+        {
+          "type": "Stacked Sabatons",
+          "text": "중첩된 발 덮개"
+        },
+        {
+          "type": "Advanced Stacked Sabatons",
+          "text": "고급 중첩된 발 덮개"
+        },
+        {
+          "type": "Expert Stacked Sabatons",
+          "text": "전문 중첩된 발 덮개"
+        },
+        {
+          "type": "Grand Cuisses",
+          "text": "우수한 허벅지 방어구"
+        },
+        {
+          "type": "Padded Leggings",
+          "text": "패드 레깅스"
+        },
+        {
+          "type": "Advanced Padded Leggings",
+          "text": "고급 패드 레깅스"
+        },
+        {
+          "type": "Expert Padded Leggings",
+          "text": "전문 패드 레깅스"
+        },
+        {
+          "type": "Secured Leggings",
+          "text": "보안 레깅스"
+        },
+        {
+          "type": "Advanced Secured Leggings",
+          "text": "고급 보안 레깅스"
+        },
+        {
+          "type": "Expert Secured Leggings",
+          "text": "전문 보안 레깅스"
+        },
+        {
+          "type": "Pelt Leggings",
+          "text": "가죽모 레깅스"
+        },
+        {
+          "type": "Advanced Pelt Leggings",
+          "text": "고급 가죽모 레깅스"
+        },
+        {
+          "type": "Expert Pelt Leggings",
+          "text": "전문 가죽모 레깅스"
+        },
+        {
+          "type": "Twig Focus",
+          "text": "잔가지 집중구"
+        },
+        {
+          "type": "Woven Focus",
+          "text": "엮은 집중구"
+        },
+        {
+          "type": "Advanced Woven Focus",
+          "text": "고급 엮은 집중구"
+        },
+        {
+          "type": "Antler Focus",
+          "text": "사슴 뿔 집중구"
+        },
+        {
+          "type": "Advanced Antler Focus",
+          "text": "고급 사슴 뿔 집중구"
+        },
+        {
+          "type": "Expert Antler Focus",
+          "text": "전문 사슴 뿔 집중구"
+        },
+        {
+          "type": "Engraved Focus",
+          "text": "아로새긴 집중구"
+        },
+        {
+          "type": "Tonal Focus",
+          "text": "음색 집중구"
+        },
+        {
+          "type": "Advanced Tonal Focus",
+          "text": "고급 음색 집중구"
+        },
+        {
+          "type": "Crystal Focus",
+          "text": "결정 집중구"
+        },
+        {
+          "type": "Advanced Crystal Focus",
+          "text": "고급 결정 집중구"
+        },
+        {
+          "type": "Expert Crystal Focus",
+          "text": "전문 결정 집중구"
+        },
+        {
+          "type": "Voodoo Focus",
+          "text": "주술 집중구"
+        },
+        {
+          "type": "Advanced Voodoo Focus",
+          "text": "고급 주술 집중구"
+        },
+        {
+          "type": "Plumed Focus",
+          "text": "깃털 달린 집중구"
+        },
+        {
+          "type": "Advanced Plumed Focus",
+          "text": "고급 깃털 달린 집중구"
+        },
+        {
+          "type": "Expert Plumed Focus",
+          "text": "전문 깃털 달린 집중구"
+        },
+        {
+          "type": "Suede Bracers",
+          "text": "스웨드 팔보호구"
+        },
+        {
+          "type": "Firm Bracers",
+          "text": "굳건한 팔보호구"
+        },
+        {
+          "type": "Advanced Firm Bracers",
+          "text": "고급 굳건한 팔보호구"
+        },
+        {
+          "type": "Expert Firm Bracers",
+          "text": "전문 굳건한 팔보호구"
+        },
+        {
+          "type": "Bound Bracers",
+          "text": "속박된 팔보호구"
+        },
+        {
+          "type": "Advanced Bound Bracers",
+          "text": "고급 속박된 팔보호구"
+        },
+        {
+          "type": "Sectioned Bracers",
+          "text": "절개된 팔보호구"
+        },
+        {
+          "type": "Advanced Sectioned Bracers",
+          "text": "고급 절개된 팔보호구"
+        },
+        {
+          "type": "Expert Sectioned Bracers",
+          "text": "전문 절개된 팔보호구"
+        },
+        {
+          "type": "Spined Bracers",
+          "text": "가시 팔보호구"
+        },
+        {
+          "type": "Advanced Spined Bracers",
+          "text": "고급 가시 팔보호구"
+        },
+        {
+          "type": "Expert Spined Bracers",
+          "text": "전문 가시 팔보호구"
+        },
+        {
+          "type": "Fine Bracers",
+          "text": "섬세한 팔보호구"
+        },
+        {
+          "type": "Gauze Wraps",
+          "text": "거즈 싸개"
+        },
+        {
+          "type": "Advanced Gauze Wraps",
+          "text": "고급 거즈 싸개"
+        },
+        {
+          "type": "Expert Gauze Wraps",
+          "text": "전문 거즈 싸개"
+        },
+        {
+          "type": "Linen Wraps",
+          "text": "리넨 싸개"
+        },
+        {
+          "type": "Advanced Linen Wraps",
+          "text": "고급 리넨 싸개"
+        },
+        {
+          "type": "Expert Linen Wraps",
+          "text": "전문 리넨 싸개"
+        },
+        {
+          "type": "Spiral Wraps",
+          "text": "나선 싸개"
+        },
+        {
+          "type": "Advanced Spiral Wraps",
+          "text": "고급 나선 싸개"
+        },
+        {
+          "type": "Expert Spiral Wraps",
+          "text": "전문 나선 싸개"
+        },
+        {
+          "type": "Furtive Wraps",
+          "text": "은밀한 싸개"
+        },
+        {
+          "type": "Torn Gloves",
+          "text": "찢긴 장갑"
+        },
+        {
+          "type": "Sombre Gloves",
+          "text": "암울한 장갑"
+        },
+        {
+          "type": "Advanced Sombre Gloves",
+          "text": "고급 암울한 장갑"
+        },
+        {
+          "type": "Expert Sombre Gloves",
+          "text": "전문 암울한 장갑"
+        },
+        {
+          "type": "Stitched Gloves",
+          "text": "꿰맨 장갑"
+        },
+        {
+          "type": "Advanced Stitched Gloves",
+          "text": "고급 꿰맨 장갑"
+        },
+        {
+          "type": "Jewelled Gloves",
+          "text": "보석 박힌 장갑"
+        },
+        {
+          "type": "Advanced Jewelled Gloves",
+          "text": "향상된 보석 박힌 장갑"
+        },
+        {
+          "type": "Expert Jewelled Gloves",
+          "text": "전문 보석 박힌 장갑"
+        },
+        {
+          "type": "Intricate Gloves",
+          "text": "복잡한 장갑"
+        },
+        {
+          "type": "Advanced Intricate Gloves",
+          "text": "고급 복잡한 장갑"
+        },
+        {
+          "type": "Expert Intricate Gloves",
+          "text": "전문 복잡한 장갑"
+        },
+        {
+          "type": "Stocky Mitts",
+          "text": "다부진 미트"
+        },
+        {
+          "type": "Riveted Mitts",
+          "text": "고정못 미트"
+        },
+        {
+          "type": "Advanced Riveted Mitts",
+          "text": "고급 고정못 미트"
+        },
+        {
+          "type": "Expert Riveted Mitts",
+          "text": "전문 고정못 미트"
+        },
+        {
+          "type": "Tempered Mitts",
+          "text": "단조한 미트"
+        },
+        {
+          "type": "Advanced Tempered Mitts",
+          "text": "고급 단조한 미트"
+        },
+        {
+          "type": "Bolstered Mitts",
+          "text": "발전된 미트"
+        },
+        {
+          "type": "Advanced Bolstered Mitts",
+          "text": "고급 발전된 미트"
+        },
+        {
+          "type": "Expert Bolstered Mitts",
+          "text": "전문 발전된 미트"
+        },
+        {
+          "type": "Moulded Mitts",
+          "text": "주조한 미트"
+        },
+        {
+          "type": "Advanced Moulded Mitts",
+          "text": "고급 주조한 미트"
+        },
+        {
+          "type": "Expert Moulded Mitts",
+          "text": "전문 주조한 미트"
+        },
+        {
+          "type": "Ringmail Gauntlets",
+          "text": "고리 갑옷 건틀릿"
+        },
+        {
+          "type": "Advanced Ringmail Gauntlets",
+          "text": "고급 고리 갑옷 건틀릿"
+        },
+        {
+          "type": "Expert Ringmail Gauntlets",
+          "text": "전문 고리 갑옷 건틀릿"
+        },
+        {
+          "type": "Layered Gauntlets",
+          "text": "겹겹의 건틀릿"
+        },
+        {
+          "type": "Advanced Layered Gauntlets",
+          "text": "고급 겹겹의 건틀릿"
+        },
+        {
+          "type": "Expert Layered Gauntlets",
+          "text": "전문 겹겹의 건틀릿"
+        },
+        {
+          "type": "Doubled Gauntlets",
+          "text": "이중 건틀릿"
+        },
+        {
+          "type": "Advanced Doubled Gauntlets",
+          "text": "고급 이중 건틀릿"
+        },
+        {
+          "type": "Expert Doubled Gauntlets",
+          "text": "전문 이중 건틀릿"
+        },
+        {
+          "type": "Burnished Gauntlets",
+          "text": "윤이 나는 건틀릿"
+        },
+        {
+          "type": "Grand Manchettes",
+          "text": "우수한 소맷부리"
+        },
+        {
+          "type": "Rope Cuffs",
+          "text": "밧줄 수갑"
+        },
+        {
+          "type": "Advanced Rope Cuffs",
+          "text": "고급 밧줄 수갑"
+        },
+        {
+          "type": "Expert Rope Cuffs",
+          "text": "전문 밧줄 수갑"
+        },
+        {
+          "type": "Aged Cuffs",
+          "text": "오래된 수갑"
+        },
+        {
+          "type": "Advanced Aged Cuffs",
+          "text": "고급 오래된 수갑"
+        },
+        {
+          "type": "Expert Aged Cuffs",
+          "text": "전문 오래된 수갑"
+        },
+        {
+          "type": "Goldcast Cuffs",
+          "text": "금주물 수갑"
+        },
+        {
+          "type": "Advanced Goldcast Cuffs",
+          "text": "고급 금주물 수갑"
+        },
+        {
+          "type": "Expert Goldcast Cuffs",
+          "text": "전문 금주물 수갑"
+        },
+        {
+          "type": "Shabby Hood",
+          "text": "허름한 두건"
+        },
+        {
+          "type": "Covert Hood",
+          "text": "은밀한 두건"
+        },
+        {
+          "type": "Armoured Cap",
+          "text": "장갑을 두른 모자"
+        },
+        {
+          "type": "Advanced Shabby Hood",
+          "text": "고급 허름한 두건"
+        },
+        {
+          "type": "Felt Cap",
+          "text": "펠트 모자"
+        },
+        {
+          "type": "Advanced Felt Cap",
+          "text": "고급 펠트 모자"
+        },
+        {
+          "type": "Expert Felt Cap",
+          "text": "전문 펠트 모자"
+        },
+        {
+          "type": "Lace Hood",
+          "text": "레이스 두건"
+        },
+        {
+          "type": "Advanced Lace Hood",
+          "text": "고급 레이스 두건"
+        },
+        {
+          "type": "Swathed Cap",
+          "text": "뒤덮인 모자"
+        },
+        {
+          "type": "Advanced Swathed Cap",
+          "text": "고급 뒤덮인 모자"
+        },
+        {
+          "type": "Expert Swathed Cap",
+          "text": "전문 뒤덮인 모자"
+        },
+        {
+          "type": "Hunter Hood",
+          "text": "사냥꾼 두건"
+        },
+        {
+          "type": "Advanced Hunter Hood",
+          "text": "고급 사냥꾼 두건"
+        },
+        {
+          "type": "Expert Hunter Hood",
+          "text": "전문 사냥꾼 두건"
+        },
+        {
+          "type": "Viper Cap",
+          "text": "독사 모자"
+        },
+        {
+          "type": "Hewn Mask",
+          "text": "깎아낸 가면"
+        },
+        {
+          "type": "Advanced Hewn Mask",
+          "text": "고급 깎아낸 가면"
+        },
+        {
+          "type": "Face Mask",
+          "text": "얼굴 가면"
+        },
+        {
+          "type": "Advanced Face Mask",
+          "text": "고급 얼굴 가면"
+        },
+        {
+          "type": "Expert Face Mask",
+          "text": "전문 얼굴 가면"
+        },
+        {
+          "type": "Hooded Mask",
+          "text": "두건 가면"
+        },
+        {
+          "type": "Advanced Hooded Mask",
+          "text": "고급 두건 가면"
+        },
+        {
+          "type": "Veiled Mask",
+          "text": "장막 가면"
+        },
+        {
+          "type": "Advanced Veiled Mask",
+          "text": "고급 장막 가면"
+        },
+        {
+          "type": "Expert Veiled Mask",
+          "text": "전문 장막 가면"
+        },
+        {
+          "type": "Tribal Mask",
+          "text": "부족 가면"
+        },
+        {
+          "type": "Advanced Tribal Mask",
+          "text": "고급 부족 가면"
+        },
+        {
+          "type": "Expert Tribal Mask",
+          "text": "전문 부족 가면"
+        },
+        {
+          "type": "Solid Mask",
+          "text": "단단한 가면"
+        },
+        {
+          "type": "Twig Circlet",
+          "text": "잔가지 관"
+        },
+        {
+          "type": "Advanced Twig Circlet",
+          "text": "고급 잔가지 관"
+        },
+        {
+          "type": "Wicker Tiara",
+          "text": "고리버들 티아라"
+        },
+        {
+          "type": "Advanced Wicker Tiara",
+          "text": "고급 고리버들 티아라"
+        },
+        {
+          "type": "Expert Wicker Tiara",
+          "text": "전문 고리버들 티아라"
+        },
+        {
+          "type": "Beaded Circlet",
+          "text": "구슬 관"
+        },
+        {
+          "type": "Advanced Beaded Circlet",
+          "text": "고급 구슬 관"
+        },
+        {
+          "type": "Chain Tiara",
+          "text": "사슬 티아라"
+        },
+        {
+          "type": "Advanced Chain Tiara",
+          "text": "고급 사슬 티아라"
+        },
+        {
+          "type": "Expert Chain Tiara",
+          "text": "전문 사슬 티아라"
+        },
+        {
+          "type": "Feathered Tiara",
+          "text": "깃털 티아라"
+        },
+        {
+          "type": "Advanced Feathered Tiara",
+          "text": "고급 깃털 티아라"
+        },
+        {
+          "type": "Expert Feathered Tiara",
+          "text": "전문 깃털 티아라"
+        },
+        {
+          "type": "Gold Circlet",
+          "text": "황금 관"
+        },
+        {
+          "type": "Rusted Greathelm",
+          "text": "녹슨 대헬름"
+        },
+        {
+          "type": "Advanced Rusted Greathelm",
+          "text": "고급 녹슨 대헬름"
+        },
+        {
+          "type": "Soldier Greathelm",
+          "text": "병사 대헬름"
+        },
+        {
+          "type": "Advanced Soldier Greathelm",
+          "text": "고급 병사 대헬름"
+        },
+        {
+          "type": "Expert Soldier Greathelm",
+          "text": "전문 병사 대헬름"
+        },
+        {
+          "type": "Wrapped Greathelm",
+          "text": "싸맨 대헬름"
+        },
+        {
+          "type": "Advanced Wrapped Greathelm",
+          "text": "고급 싸맨 대헬름"
+        },
+        {
+          "type": "Spired Greathelm",
+          "text": "첨탑 대헬름"
+        },
+        {
+          "type": "Advanced Spired Greathelm",
+          "text": "고급 첨탑 대헬름"
+        },
+        {
+          "type": "Expert Spired Greathelm",
+          "text": "전문 첨탑 대헬름"
+        },
+        {
+          "type": "Elite Greathelm",
+          "text": "정예병 대헬름"
+        },
+        {
+          "type": "Advanced Elite Greathelm",
+          "text": "고급 정예병 대헬름"
+        },
+        {
+          "type": "Expert Elite Greathelm",
+          "text": "전문 정예병 대헬름"
+        },
+        {
+          "type": "Warrior Greathelm",
+          "text": "전사 대헬름"
+        },
+        {
+          "type": "Brimmed Helm",
+          "text": "챙 헬름"
+        },
+        {
+          "type": "Advanced Brimmed Helm",
+          "text": "고급 챙 헬름"
+        },
+        {
+          "type": "Guarded Helm",
+          "text": "보호받는 헬름"
+        },
+        {
+          "type": "Advanced Guarded Helm",
+          "text": "고급 보호받는 헬름"
+        },
+        {
+          "type": "Expert Guarded Helm",
+          "text": "전문 보호받는 헬름"
+        },
+        {
+          "type": "Visored Helm",
+          "text": "차양 단 헬름"
+        },
+        {
+          "type": "Advanced Visored Helm",
+          "text": "고급 차양 헬름"
+        },
+        {
+          "type": "Cowled Helm",
+          "text": "고깔 헬름"
+        },
+        {
+          "type": "Advanced Cowled Helm",
+          "text": "고급 고깔 헬름"
+        },
+        {
+          "type": "Expert Cowled Helm",
+          "text": "전문 고깔 헬름"
+        },
+        {
+          "type": "Shielded Helm",
+          "text": "방패 방어 헬름"
+        },
+        {
+          "type": "Advanced Shielded Helm",
+          "text": "고급 방패 방어 헬름"
+        },
+        {
+          "type": "Expert Shielded Helm",
+          "text": "전문 방패 방어 헬름"
+        },
+        {
+          "type": "Closed Helm",
+          "text": "폐쇄형 헬름"
+        },
+        {
+          "type": "Grand Visage",
+          "text": "우수한 얼굴"
+        },
+        {
+          "type": "Iron Crown",
+          "text": "철 왕관"
+        },
+        {
+          "type": "Advanced Iron Crown",
+          "text": "고급 철 왕관"
+        },
+        {
+          "type": "Horned Crown",
+          "text": "뿔 달린 왕관"
+        },
+        {
+          "type": "Advanced Horned Crown",
+          "text": "고급 뿔 달린 왕관"
+        },
+        {
+          "type": "Expert Horned Crown",
+          "text": "전문 뿔 달린 왕관"
+        },
+        {
+          "type": "Cultist Crown",
+          "text": "광신자 왕관"
+        },
+        {
+          "type": "Advanced Cultist Crown",
+          "text": "고급 광신자 왕관"
+        },
+        {
+          "type": "Martyr Crown",
+          "text": "순교자 왕관"
+        },
+        {
+          "type": "Advanced Martyr Crown",
+          "text": "고급 순교자 왕관"
+        },
+        {
+          "type": "Expert Martyr Crown",
+          "text": "전문 순교자 왕관"
+        },
+        {
+          "type": "Heavy Crown",
+          "text": "무거운 왕관"
+        },
+        {
+          "type": "Advanced Heavy Crown",
+          "text": "고급 무거운 왕관"
+        },
+        {
+          "type": "Expert Heavy Crown",
+          "text": "전문 무거운 왕관"
+        },
+        {
+          "type": "Spiritbone Crown",
+          "text": "혼백뼈 왕관"
+        },
+        {
+          "type": "Splintered Tower Shield",
+          "text": "쪼개진 거대 방패"
+        },
+        {
+          "type": "Painted Tower Shield",
+          "text": "도색된 거대 방패"
+        },
+        {
+          "type": "Advanced Painted Tower Shield",
+          "text": "고급 도색된 거대 방패"
+        },
+        {
+          "type": "Braced Tower Shield",
+          "text": "죔쇠 거대 방패"
+        },
+        {
+          "type": "Advanced Braced Tower Shield",
+          "text": "고급 죔쇠 거대 방패"
+        },
+        {
+          "type": "Expert Braced Tower Shield",
+          "text": "전문 죔쇠 거대 방패"
+        },
+        {
+          "type": "Barricade Tower Shield",
+          "text": "방벽 거대 방패"
+        },
+        {
+          "type": "Effigial Tower Shield",
+          "text": "제웅 거대 방패"
+        },
+        {
+          "type": "Advanced Effigial Tower Shield",
+          "text": "고급 제웅 거대 방패"
+        },
+        {
+          "type": "Rampart Tower Shield",
+          "text": "성벽 거대 방패"
+        },
+        {
+          "type": "Advanced Rampart Tower Shield",
+          "text": "고급 성벽 거대 방패"
+        },
+        {
+          "type": "Expert Rampart Tower Shield",
+          "text": "전문 성벽 거대 방패"
+        },
+        {
+          "type": "Heraldric Tower Shield",
+          "text": "전령 거대 방패"
+        },
+        {
+          "type": "Advanced Heraldric Tower Shield",
+          "text": "고급 전령 거대 방패"
+        },
+        {
+          "type": "Stone Tower Shield",
+          "text": "돌 거대 방패"
+        },
+        {
+          "type": "Advanced Stone Tower Shield",
+          "text": "고급 돌 거대 방패"
+        },
+        {
+          "type": "Expert Stone Tower Shield",
+          "text": "전문 돌 거대 방패"
+        },
+        {
+          "type": "Crucible Tower Shield",
+          "text": "도가니 거대 방패"
+        },
+        {
+          "type": "Hardwood Targe",
+          "text": "견목 타지"
+        },
+        {
+          "type": "Advanced Hardwood Targe",
+          "text": "고급 견목 타지"
+        },
+        {
+          "type": "Pelage Targe",
+          "text": "털가죽 타지"
+        },
+        {
+          "type": "Advanced Pelage Targe",
+          "text": "고급 털가죽 타지"
+        },
+        {
+          "type": "Expert Pelage Targe",
+          "text": "전문 털가죽 타지"
+        },
+        {
+          "type": "Studded Targe",
+          "text": "징 박힌 타지"
+        },
+        {
+          "type": "Advanced Studded Targe",
+          "text": "고급 징 박힌 타지"
+        },
+        {
+          "type": "Crescent Targe",
+          "text": "초승달 타지"
+        },
+        {
+          "type": "Advanced Crescent Targe",
+          "text": "고급 초승달 타지"
+        },
+        {
+          "type": "Expert Crescent Targe",
+          "text": "전문 초승달 타지"
+        },
+        {
+          "type": "Chiseled Targe",
+          "text": "깎아놓은 타지"
+        },
+        {
+          "type": "Advanced Chiseled Targe",
+          "text": "고급 깎아놓은 타지"
+        },
+        {
+          "type": "Feathered Targe",
+          "text": "깃털 타지"
+        },
+        {
+          "type": "Advanced Feathered Targe",
+          "text": "고급 깃털 타지"
+        },
+        {
+          "type": "Expert Feathered Targe",
+          "text": "전문 깃털 타지"
+        },
+        {
+          "type": "Blazon Crest Shield",
+          "text": "문장 문양 방패"
+        },
+        {
+          "type": "Advanced Blazon Crest Shield",
+          "text": "고급 문장 문양 방패"
+        },
+        {
+          "type": "Sigil Crest Shield",
+          "text": "부적 문양 방패"
+        },
+        {
+          "type": "Advanced Sigil Crest Shield",
+          "text": "고급 부적 문양 방패"
+        },
+        {
+          "type": "Expert Sigil Crest Shield",
+          "text": "전문 부적 문양 방패"
+        },
+        {
+          "type": "Emblem Crest Shield",
+          "text": "상징 문양 방패"
+        },
+        {
+          "type": "Advanced Emblem Crest Shield",
+          "text": "고급 상징 문양 방패"
+        },
+        {
+          "type": "Jingling Crest Shield",
+          "text": "방울 문양 방패"
+        },
+        {
+          "type": "Advanced Jingling Crest Shield",
+          "text": "고급 방울 문양 방패"
+        },
+        {
+          "type": "Expert Jingling Crest Shield",
+          "text": "전문 방울 문양 방패"
+        },
+        {
+          "type": "Sectarian Crest Shield",
+          "text": "종파 문양 방패"
+        },
+        {
+          "type": "Advanced Sectarian Crest Shield",
+          "text": "고급 종파 문양 방패"
+        },
+        {
+          "type": "Omen Crest Shield",
+          "text": "징조 문양 방패"
+        },
+        {
+          "type": "Advanced Omen Crest Shield",
+          "text": "고급 징조 문양 방패"
+        },
+        {
+          "type": "Expert Omen Crest Shield",
+          "text": "전문 징조 문양 방패"
+        },
+        {
+          "type": "Broadhead Quiver",
+          "text": "넓은 촉 화살통"
+        },
+        {
+          "type": "Volant Quiver",
+          "text": "기민한 화살통"
+        },
+        {
+          "type": "Visceral Quiver",
+          "text": "본능적인 화살통"
+        },
+        {
+          "type": "Fire Quiver",
+          "text": "불 화살통"
+        },
+        {
+          "type": "Sacral Quiver",
+          "text": "성례 화살통"
+        },
+        {
+          "type": "Two-Point Quiver",
+          "text": "쌍촉 화살통"
+        },
+        {
+          "type": "Blunt Quiver",
+          "text": "뭉툭한 화살통"
+        },
+        {
+          "type": "Toxic Quiver",
+          "text": "맹독성 화살통"
+        },
+        {
+          "type": "Serrated Quiver",
+          "text": "톱니 화살통"
+        },
+        {
+          "type": "Primed Quiver",
+          "text": "준비된 화살통"
+        },
+        {
+          "type": "Penetrating Quiver",
+          "text": "관통 화살통"
+        },
+        {
+          "type": "Grand Cuisses",
+          "text": "아브 아이테르노 우수한 허벅지 방어구",
+          "name": "Ab Aeterno",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Burnished Gauntlets",
+          "text": "아이리스베인의 날개 윤이 나는 건틀릿",
+          "name": "Aerisvane's Wings",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Blazon Crest Shield",
+          "text": "알켐 에이라 문장 문양 방패",
+          "name": "Alkem Eira",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Armoured Cap",
+          "text": "우두머리의 울부짖음 장갑을 두른 모자",
+          "name": "Alpha's Howl",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Hermit Garb",
+          "text": "에미란의 앞치마 은자 의복",
+          "name": "Apron of Emiran",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Hardwood Targe",
+          "text": "아르빌의 바퀴 견목 타지",
+          "name": "Arvil's Wheel",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Pathfinder Coat",
+          "text": "부서진 잿더미 패스파인더 외투",
+          "name": "Ashrend",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Broadhead Quiver",
+          "text": "질식의 진노 넓은 촉 화살통",
+          "name": "Asphyxia's Wrath",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Closed Helm",
+          "text": "공격병동 폐쇄형 헬름",
+          "name": "Assailum",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Veiled Mask",
+          "text": "아차크의 시야 장막 가면",
+          "name": "Atsak's Sight",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Moulded Mitts",
+          "text": "앗지리의 예리함 주조한 미트",
+          "name": "Atziri's Acuity",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Gold Circlet",
+          "text": "앗지리의 멸시 황금 관",
+          "name": "Atziri's Disdain",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Layered Gauntlets",
+          "text": "아우르시즈 겹겹의 건틀릿",
+          "name": "Aurseize",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Velour Shoes",
+          "text": "딱정벌레 이빨 벨루어 신발",
+          "name": "Beetlebite",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Explorer Armour",
+          "text": "짐승의 소굴 탐험가 방어구",
+          "name": "Belly of the Beast",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Visceral Quiver",
+          "text": "요원한 저 너머 본능적인 화살통",
+          "name": "Beyond Reach",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Stone Greaves",
+          "text": "광분의 탄생 돌 각반",
+          "name": "Birth of Fury",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Feathered Robe",
+          "text": "독살꽃 깃털 로브",
+          "name": "Bitterbloom",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Fur Plate",
+          "text": "검은끈 모피 판금 갑옷",
+          "name": "Blackbraid",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Fire Quiver",
+          "text": "검은 섬광 불 화살통",
+          "name": "Blackgleam",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Wrapped Greathelm",
+          "text": "검은 태양 문양 싸맨 대헬름",
+          "name": "Black Sun Crest",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Linen Wraps",
+          "text": "축복받은 유대 리넨 싸개",
+          "name": "Blessed Bonds",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Goldcast Cuffs",
+          "text": "푸른불길 팔보호구 금주물 수갑",
+          "name": "Blueflame Bracers",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Lattice Sandals",
+          "text": "울러의 뼈 격자 샌들",
+          "name": "Bones of Ullr",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Rusted Cuirass",
+          "text": "가시나무 갑옷 녹슨 흉갑",
+          "name": "Bramblejack",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Laced Boots",
+          "text": "가시밭 레이스 장화",
+          "name": "Briarpatch",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Rhoahide Coat",
+          "text": "활력의 겉옷 로아가죽 외투",
+          "name": "Briskwrap",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Leather Vest",
+          "text": "가시털멧돼지 가죽 조끼",
+          "name": "Bristleboar",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Horned Crown",
+          "text": "황동의 턱수염 뿔 달린 왕관",
+          "name": "Bronzebeard",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Lizardscale Boots",
+          "text": "덤불 매복 도마뱀비늘 장화",
+          "name": "Bushwhack",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Sombre Gloves",
+          "text": "양초 제작자 암울한 장갑",
+          "name": "Candlemaker",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Engraved Focus",
+          "text": "부패하는 부름 아로새긴 집중구",
+          "name": "Carrion Call",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Silk Robe",
+          "text": "화염의 망토 실크 로브",
+          "name": "Cloak of Flame",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Chain Mail",
+          "text": "붉은색의 외투 사슬 갑옷",
+          "name": "Coat of Red",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Heavy Crown",
+          "text": "코르나타움 무거운 왕관",
+          "name": "Cornathaum",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Warrior Greathelm",
+          "text": "붉은 태양의 광환 전사 대헬름",
+          "name": "Corona of the Red Sun",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Iron Greaves",
+          "text": "시신걸음 철제 각반",
+          "name": "Corpsewade",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Gilded Vestments",
+          "text": "진홍의 예복 도금된 법의",
+          "name": "Couture of Crimson",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Jingling Crest Shield",
+          "text": "아르듀라의 문양 방울 문양 방패",
+          "name": "Crest of Ardura",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Cultist Crown",
+          "text": "창백한 왕의 왕관 광신자 왕관",
+          "name": "Crown of the Pale King",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Iron Crown",
+          "text": "승리자의 왕관 철 왕관",
+          "name": "Crown of the Victor",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Twig Circlet",
+          "text": "가시 왕관 잔가지 관",
+          "name": "Crown of Thorns",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Braced Sabatons",
+          "text": "어두운 빛의 궤적 죔쇠 발 덮개",
+          "name": "Darkray Vectors",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Doubled Gauntlets",
+          "text": "죽음의 일격 이중 건틀릿",
+          "name": "Deathblow",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Twig Focus",
+          "text": "단말마의 숨소리 잔가지 집중구",
+          "name": "Deathrattle",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Elite Greathelm",
+          "text": "죽음의 종 정예병 대헬름",
+          "name": "Deidbell",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Intricate Gloves",
+          "text": "악마 봉합자 복잡한 장갑",
+          "name": "Demon Stitcher",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Splintered Tower Shield",
+          "text": "다이오나데어 쪼개진 거대 방패",
+          "name": "Dionadair",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Stitched Gloves",
+          "text": "도이드리의 임기 꿰맨 장갑",
+          "name": "Doedre's Tenure",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Braced Tower Shield",
+          "text": "멸망문 죔쇠 거대 방패",
+          "name": "Doomgate",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Scale Mail",
+          "text": "도리아니의 프로토타입 미늘 갑옷",
+          "name": "Doryani's Prototype",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Studded Vest",
+          "text": "황혼꽃 징 박힌 조끼",
+          "name": "Dustbloom",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Iron Cuirass",
+          "text": "에디른의 엄니 철 흉갑",
+          "name": "Edyrn's Tusks",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Hunter Hood",
+          "text": "원소포식 사냥꾼 두건",
+          "name": "Elevore",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Pilgrim Vestments",
+          "text": "감싸 안는 여명 순례자 법의",
+          "name": "Enfolding Dawn",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Guarded Helm",
+          "text": "에리안의 수선 보호받는 헬름",
+          "name": "Erian's Cobble",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Soldier Greathelm",
+          "text": "에조미어의 면갑 병사 대헬름",
+          "name": "Ezomyte Peak",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Crescent Targe",
+          "text": "깃털 달린 요새 초승달 타지",
+          "name": "Feathered Fortress",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Chain Tiara",
+          "text": "금단의 응시 사슬 티아라",
+          "name": "Forbidden Gaze",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Quilted Vest",
+          "text": "여우 그림자 누비 조끼",
+          "name": "Foxshade",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Embossed Boots",
+          "text": "도박질주 양각 무늬 장화",
+          "name": "Gamblesprint",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Threaded Shoes",
+          "text": "유령의 행진 실타래 신발",
+          "name": "Ghostmarch",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Tattered Robe",
+          "text": "유령의 몸서리 조각난 로브",
+          "name": "Ghostwrithe",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Tribal Mask",
+          "text": "혼돈의 섬광 부족 가면",
+          "name": "Glimpse of Chaos",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Waxed Jacket",
+          "text": "순흑체 밀랍재질 재킷",
+          "name": "Gloomform",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Felt Cap",
+          "text": "금테 펠트 모자",
+          "name": "Goldrim",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Rope Cuffs",
+          "text": "무덤의 속박 밧줄 수갑",
+          "name": "Gravebind",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Vaal Cuirass",
+          "text": "탐욕의 포옹 바알 흉갑",
+          "name": "Greed's Embrace",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Brimmed Helm",
+          "text": "회색작품 챙 헬름",
+          "name": "Greymake",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Firm Bracers",
+          "text": "겨울의 손아귀 굳건한 팔보호구",
+          "name": "Grip of Winter",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Furtive Wraps",
+          "text": "지혜와 행동의 손아귀 은밀한 싸개",
+          "name": "Hand of Wisdom and Action",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Moulded Mitts",
+          "text": "증오의 탄생 주조한 미트",
+          "name": "Hateforge",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Rusted Greathelm",
+          "text": "빈덴의 뿔 녹슨 대헬름",
+          "name": "Horns of Bynden",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Shaman Mantle",
+          "text": "꿈의 껍데기 주술사 외투",
+          "name": "Husk of Dreams",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Mail Vestments",
+          "text": "얼음 묘지 사슬 법의",
+          "name": "Icetomb",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Sectioned Bracers",
+          "text": "게으른 손 절개된 팔보호구",
+          "name": "Idle Hands",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Shabby Hood",
+          "text": "인즈머스 허름한 두건",
+          "name": "Innsmouth",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Vagabond Armour",
+          "text": "철손아귀 방랑자 방어구",
+          "name": "Irongrasp",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Visored Helm",
+          "text": "철의 질주 차양 단 헬름",
+          "name": "Ironride",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Ringmail Gauntlets",
+          "text": "야릉그레이프 고리 갑옷 건틀릿",
+          "name": "Jarngreipr",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Conqueror Plate",
+          "text": "카옴의 심장 정복자 판금 갑옷",
+          "name": "Kaom's Heart",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Spiritbone Crown",
+          "text": "전호의 보관자 혼백뼈 왕관",
+          "name": "Keeper of the Arc",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Linen Wraps",
+          "text": "깨진 흥 리넨 싸개",
+          "name": "Killjoy",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Full Plate",
+          "text": "왕의 보호구 전신 판금 갑옷",
+          "name": "Kingsguard",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Jewelled Gloves",
+          "text": "키토코의 흐름 보석 박힌 장갑",
+          "name": "Kitoko's Current",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Hooded Mask",
+          "text": "음흉한 시선 두건 가면",
+          "name": "Leer Cast",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Rough Greaves",
+          "text": "군단의 보조 거친 각반",
+          "name": "Legionstride",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Tempered Mitts",
+          "text": "록토니얼의 손길 단조한 미트",
+          "name": "Lochtonial Caress",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Straw Sandals",
+          "text": "빛나는 발걸음 짚 샌들",
+          "name": "Luminous Pace",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Rampart Tower Shield",
+          "text": "늑대 거미 성벽 거대 방패",
+          "name": "Lycosidae",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Omen Crest Shield",
+          "text": "마훅소틀의 계책 징조 문양 방패",
+          "name": "Mahuxotl's Machination",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Fine Bracers",
+          "text": "말리가로의 기교 섬세한 팔보호구",
+          "name": "Maligaro's Virtuosity",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Face Mask",
+          "text": "혈액술사의 가면 얼굴 가면",
+          "name": "Mask of the Sanguimancer",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Feathered Tiara",
+          "text": "꿰맨 악마의 가면 깃털 티아라",
+          "name": "Mask of the Stitched Demon",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Pelage Targe",
+          "text": "근정훈장 털가죽 타지",
+          "name": "Merit of Service",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Grand Regalia",
+          "text": "모리오르 인빅투스 우수한 예복",
+          "name": "Morior Invictus",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Covert Hood",
+          "text": "미리스 욱소르 은밀한 두건",
+          "name": "Myris Uxor",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Bone Raiment",
+          "text": "강령외투 뼈 의복",
+          "name": "Necromantle",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Suede Bracers",
+          "text": "북방발 스웨드 팔보호구",
+          "name": "Northpaw",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Sigil Crest Shield",
+          "text": "참나무맹세 부적 문양 방패",
+          "name": "Oaksworn",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Stacked Sabatons",
+          "text": "오베른의 보루 중첩된 발 덮개",
+          "name": "Obern's Bastion",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Torn Gloves",
+          "text": "화가의 종 찢긴 장갑",
+          "name": "Painter's Servant",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Cloaked Mail",
+          "text": "부랑자의 포옹 은폐 사슬옷",
+          "name": "Pariah's Embrace",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Knight Armour",
+          "text": "배반 기사 방어구",
+          "name": "Perfidy",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Gauze Wraps",
+          "text": "역병손가락 거즈 싸개",
+          "name": "Plaguefinger",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Hunting Shoes",
+          "text": "위세의 발 보호대 사냥용 신발",
+          "name": "Powertread",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Explorer Armour",
+          "text": "실용주의 탐험가 방어구",
+          "name": "Pragmatism",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Keth Raiment",
+          "text": "기우 기도 케스 의복",
+          "name": "Prayers for Rain",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Serpentscale Coat",
+          "text": "콰틀의 허물 뱀 비늘 외투",
+          "name": "Quatl's Molt",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Smuggler Coat",
+          "text": "숲의 여왕 밀수범 외투",
+          "name": "Queen of the Forest",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Lace Hood",
+          "text": "찬란한 슬픔 레이스 두건",
+          "name": "Radiant Grief",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Anchorite Garb",
+          "text": "붉은섬광 도관 은둔자 의복",
+          "name": "Redflare Conduit",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Omen Crest Shield",
+          "text": "불사조의 비상 징조 문양 방패",
+          "name": "Rise of the Phoenix",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Emblem Crest Shield",
+          "text": "사펠의 골격 상징 문양 방패",
+          "name": "Saffell's Frame",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Chain Tiara",
+          "text": "모래 폭풍의 얼굴 사슬 티아라",
+          "name": "Sandstorm Visage",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Tonal Focus",
+          "text": "독사의 교훈 음색 집중구",
+          "name": "Serpent's Lesson",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Aged Cuffs",
+          "text": "불운아의 족쇄 오래된 수갑",
+          "name": "Shackles of the Wretched",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Marabout Garb",
+          "text": "시에라의 유산 도사 의복",
+          "name": "Sierran Inheritance",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Grand Manchettes",
+          "text": "시네 아이쿠오 우수한 소맷부리",
+          "name": "Sine Aequo",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Garment",
+          "text": "충신의 가죽 옷",
+          "name": "Skin of the Loyal",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Spined Bracers",
+          "text": "뱀 이빨 가시 팔보호구",
+          "name": "Snakebite",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Grand Visage",
+          "text": "솔루스 입세 우수한 얼굴",
+          "name": "Solus Ipse",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Crucible Tower Shield",
+          "text": "스발린 도가니 거대 방패",
+          "name": "Svalinn",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Silk Robe",
+          "text": "템포랄리스 실크 로브",
+          "name": "Temporalis",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Votive Raiment",
+          "text": "테츨라포칼의 갈망 봉헌된 의복",
+          "name": "Tetzlapokal's Desire",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Rogue Armour",
+          "text": "고분의 주민 악한 방어구",
+          "name": "The Barrow Dweller",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Hexer's Robe",
+          "text": "검은 의혹 사술사의 로브",
+          "name": "The Black Doubt",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Champion Cuirass",
+          "text": "황동 철갑 챔피언 흉갑",
+          "name": "The Brass Dome",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Altar Robe",
+          "text": "계약 제단 로브",
+          "name": "The Covenant",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Wayfarer Jacket",
+          "text": "춤추는 신기루 나그네 재킷",
+          "name": "The Dancing Mirage",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Wicker Tiara",
+          "text": "걸신들린 왕관 고리버들 티아라",
+          "name": "The Devouring Diadem",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Crystal Focus",
+          "text": "영원한 불꽃 결정 집중구",
+          "name": "The Eternal Spark",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Hewn Mask",
+          "text": "텅 빈 가면 깎아낸 가면",
+          "name": "The Hollow Mask",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Raider Plate",
+          "text": "이모탄 레이더 판금 갑옷",
+          "name": "The Immortan",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Bronze Greaves",
+          "text": "끝없는 추적 청동 각반",
+          "name": "The Infinite Pursuit",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Mail Sabatons",
+          "text": "무사 수행 기사 사슬 발 덮개",
+          "name": "The Knight-errant",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Scout's Vest",
+          "text": "쥐덫 정찰병의 조끼",
+          "name": "The Rat Cage",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Cowled Helm",
+          "text": "미소 짓는 기사 고깔 헬름",
+          "name": "The Smiling Knight",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Stone Tower Shield",
+          "text": "포기 돌 거대 방패",
+          "name": "The Surrender",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Solid Mask",
+          "text": "세 마리의 용 단단한 가면",
+          "name": "The Three Dragons",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Tribal Mask",
+          "text": "최정점 부족 가면",
+          "name": "The Vertex",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Shielded Helm",
+          "text": "끔찍한 기사 방패 방어 헬름",
+          "name": "The Vile Knight",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Effigial Tower Shield",
+          "text": "울부짖는 벽 제웅 거대 방패",
+          "name": "The Wailing Wall",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Woven Focus",
+          "text": "실오라기 같은 빛 엮은 집중구",
+          "name": "Threaded Light",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Spired Greathelm",
+          "text": "전율강철 첨탑 대헬름",
+          "name": "Thrillsteel",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Steeltoe Boots",
+          "text": "우레걸음 강철코 장화",
+          "name": "Thunderstep",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Maraketh Cuirass",
+          "text": "거신부패 비늘 갑옷 마라케스 흉갑",
+          "name": "Titanrot Cataphract",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Trimmed Greaves",
+          "text": "짓발가락 다듬은 각반",
+          "name": "Trampletoe",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Riveted Mitts",
+          "text": "나무손가락 고정못 미트",
+          "name": "Treefingers",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Martyr Crown",
+          "text": "밤의 장막 순교자 왕관",
+          "name": "Veil of the Night",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Beaded Circlet",
+          "text": "아야의 얼굴 구슬 관",
+          "name": "Visage of Ayah",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Ironclad Vestments",
+          "text": "볼의 보호자 철갑 법의",
+          "name": "Voll's Protector",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Secured Leggings",
+          "text": "파괴의 경야 보안 레깅스",
+          "name": "Wake of Destruction",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Steel Plate",
+          "text": "방랑하는 성유물 보관실 강철 판금 갑옷",
+          "name": "Wandering Reliquary",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Wrapped Sandals",
+          "text": "방랑벽 싸맨 샌들",
+          "name": "Wanderlust",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Feathered Sandals",
+          "text": "바람의 괴성 깃털 샌들",
+          "name": "Windscream",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Rusted Greathelm",
+          "text": "카일린의 날개 녹슨 대헬름",
+          "name": "Wings of Caelyn",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Silk Slippers",
+          "text": "기적의 발판 실크 슬리퍼",
+          "name": "Wondertrap",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Painted Tower Shield",
+          "text": "늑대의 천적 도색된 거대 방패",
+          "name": "Wulfsbane",
+          "flags": {
+            "unique": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "currency",
+      "label": "Currency",
+      "entries": [
+        {
+          "type": "Artificer's Orb",
+          "text": "숙련공의 오브"
+        },
+        {
+          "type": "Artificer's Shard",
+          "text": "숙련공의 파편"
+        },
+        {
+          "type": "Orb of Augmentation",
+          "text": "확장의 오브"
+        },
+        {
+          "type": "Exalted Orb",
+          "text": "엑잘티드 오브"
+        },
+        {
+          "type": "Lesser Jeweller's Orb",
+          "text": "하위 쥬얼러 오브"
+        },
+        {
+          "type": "Greater Jeweller's Orb",
+          "text": "상위 쥬얼러 오브"
+        },
+        {
+          "type": "Perfect Jeweller's Orb",
+          "text": "완벽한 쥬얼러 오브"
+        },
+        {
+          "type": "Simulacrum Splinter",
+          "text": "복제된 영토 파편"
+        },
+        {
+          "type": "Armourer's Scrap",
+          "text": "방어구 장인의 고철"
+        },
+        {
+          "type": "Breach Splinter",
+          "text": "균열 파편"
+        },
+        {
+          "type": "Vaal Orb",
+          "text": "바알 오브"
+        },
+        {
+          "type": "Mirror of Kalandra",
+          "text": "칼란드라의 거울"
+        },
+        {
+          "type": "Essence of Battle",
+          "text": "전투의 에센스"
+        },
+        {
+          "type": "Essence of the Infinite",
+          "text": "무한의 에센스"
+        },
+        {
+          "type": "Essence of Sorcery",
+          "text": "마술의 에센스"
+        },
+        {
+          "type": "Essence of Ruin",
+          "text": "폐허의 에센스"
+        },
+        {
+          "type": "Essence of Ice",
+          "text": "얼음의 에센스"
+        },
+        {
+          "type": "Essence of Enhancement",
+          "text": "강화의 에센스"
+        },
+        {
+          "type": "Essence of Flames",
+          "text": "화염의 에센스"
+        },
+        {
+          "type": "Essence of the Body",
+          "text": "육신의 에센스"
+        },
+        {
+          "type": "Essence of Electricity",
+          "text": "전기의 에센스"
+        },
+        {
+          "type": "Essence of the Mind",
+          "text": "정신의 에센스"
+        },
+        {
+          "type": "Essence of Torment",
+          "text": "고뇌의 에센스"
+        },
+        {
+          "type": "Essence of Haste",
+          "text": "가속의 에센스"
+        },
+        {
+          "type": "Glassblower's Bauble",
+          "text": "유리직공의 방울"
+        },
+        {
+          "type": "Gemcutter's Prism",
+          "text": "세공사의 프리즘"
+        },
+        {
+          "type": "Greater Essence of Battle",
+          "text": "상위 전투의 에센스"
+        },
+        {
+          "type": "Greater Essence of the Infinite",
+          "text": "상위 무한의 에센스"
+        },
+        {
+          "type": "Greater Essence of Sorcery",
+          "text": "상위 마술의 에센스"
+        },
+        {
+          "type": "Greater Essence of Ruin",
+          "text": "상위 폐허의 에센스"
+        },
+        {
+          "type": "Greater Essence of Ice",
+          "text": "상위 얼음의 에센스"
+        },
+        {
+          "type": "Greater Essence of Enhancement",
+          "text": "상위 강화의 에센스"
+        },
+        {
+          "type": "Greater Essence of Flames",
+          "text": "상위 화염의 에센스"
+        },
+        {
+          "type": "Greater Essence of the Body",
+          "text": "상위 육신의 에센스"
+        },
+        {
+          "type": "Greater Essence of Electricity",
+          "text": "상위 전기의 에센스"
+        },
+        {
+          "type": "Greater Essence of the Mind",
+          "text": "상위 정신의 에센스"
+        },
+        {
+          "type": "Greater Essence of Torment",
+          "text": "상위 고뇌의 에센스"
+        },
+        {
+          "type": "Greater Essence of Haste",
+          "text": "상위 가속의 에센스"
+        },
+        {
+          "type": "Scroll of Wisdom",
+          "text": "감정 주문서"
+        },
+        {
+          "type": "Reaver Catalyst",
+          "text": "강탈자 기폭제"
+        },
+        {
+          "type": "Adaptive Catalyst",
+          "text": "적응형 기폭제"
+        },
+        {
+          "type": "Sibilant Catalyst",
+          "text": "쇳소리 기폭제"
+        },
+        {
+          "type": "Chayula's Catalyst",
+          "text": "차율라의 기폭제"
+        },
+        {
+          "type": "Tul's Catalyst",
+          "text": "툴의 기폭제"
+        },
+        {
+          "type": "Carapace Catalyst",
+          "text": "갑각 기폭제"
+        },
+        {
+          "type": "Xoph's Catalyst",
+          "text": "조프의 기폭제"
+        },
+        {
+          "type": "Flesh Catalyst",
+          "text": "육체 기폭제"
+        },
+        {
+          "type": "Esh's Catalyst",
+          "text": "에쉬의 기폭제"
+        },
+        {
+          "type": "Neural Catalyst",
+          "text": "신경 기폭제"
+        },
+        {
+          "type": "Uul-Netol's Catalyst",
+          "text": "울네톨의 기폭제"
+        },
+        {
+          "type": "Skittering Catalyst",
+          "text": "달리는 기폭제"
+        },
+        {
+          "type": "Arcanist's Etcher",
+          "text": "신비학자의 식각기"
+        },
+        {
+          "type": "Divine Orb",
+          "text": "신성한 오브"
+        },
+        {
+          "type": "Exotic Coinage",
+          "text": "특이한 주화"
+        },
+        {
+          "type": "Orb of Annulment",
+          "text": "소멸의 오브"
+        },
+        {
+          "type": "Chaos Orb",
+          "text": "카오스 오브"
+        },
+        {
+          "type": "Albino Rhoa Feather",
+          "text": "흰 로아 깃털"
+        },
+        {
+          "type": "Regal Orb",
+          "text": "제왕의 오브"
+        },
+        {
+          "type": "Regal Shard",
+          "text": "제왕의 파편"
+        },
+        {
+          "type": "Orb of Chance",
+          "text": "기회의 오브"
+        },
+        {
+          "type": "Chance Shard",
+          "text": "기회의 파편"
+        },
+        {
+          "type": "Orb of Transmutation",
+          "text": "진화의 오브"
+        },
+        {
+          "type": "Transmutation Shard",
+          "text": "진화의 파편"
+        },
+        {
+          "type": "Orb of Alchemy",
+          "text": "연금술의 오브"
+        },
+        {
+          "type": "Blacksmith's Whetstone",
+          "text": "대장장이의 숫돌"
+        },
+        {
+          "type": "Distilled Ire",
+          "text": "정제된 진노"
+        },
+        {
+          "type": "Distilled Isolation",
+          "text": "정제된 고립"
+        },
+        {
+          "type": "Distilled Guilt",
+          "text": "정제된 죄책감"
+        },
+        {
+          "type": "Distilled Greed",
+          "text": "정제된 탐욕"
+        },
+        {
+          "type": "Distilled Paranoia",
+          "text": "정제된 집착"
+        },
+        {
+          "type": "Distilled Envy",
+          "text": "정제된 선망"
+        },
+        {
+          "type": "Distilled Disgust",
+          "text": "정제된 혐오"
+        },
+        {
+          "type": "Distilled Despair",
+          "text": "정제된 절망"
+        },
+        {
+          "type": "Distilled Fear",
+          "text": "정제된 두려움"
+        },
+        {
+          "type": "Distilled Suffering",
+          "text": "정제된 고통"
+        },
+        {
+          "type": "Omen of Sinistral Alchemy",
+          "text": "좌측 연금술의 징조"
+        },
+        {
+          "type": "Omen of Dextral Alchemy",
+          "text": "우측 연금술의 징조"
+        },
+        {
+          "type": "Omen of Sinistral Annulment",
+          "text": "좌측 소멸의 징조"
+        },
+        {
+          "type": "Omen of Dextral Annulment",
+          "text": "우측 소멸의 징조"
+        },
+        {
+          "type": "Omen of Greater Annulment",
+          "text": "상위 소멸의 징조"
+        },
+        {
+          "type": "Omen of Whittling",
+          "text": "절사의 징조"
+        },
+        {
+          "type": "Omen of Sinistral Erasure",
+          "text": "좌측 말소의 징조"
+        },
+        {
+          "type": "Omen of Dextral Erasure",
+          "text": "우측 말소의 징조"
+        },
+        {
+          "type": "Omen of Amelioration",
+          "text": "개량의 징조"
+        },
+        {
+          "type": "Omen of Sinistral Exaltation",
+          "text": "좌측 찬미의 징조"
+        },
+        {
+          "type": "Omen of Dextral Exaltation",
+          "text": "우측 찬미의 징조"
+        },
+        {
+          "type": "Omen of Greater Exaltation",
+          "text": "상위 찬미의 징조"
+        },
+        {
+          "type": "Omen of Resurgence",
+          "text": "재기의 징조"
+        },
+        {
+          "type": "Omen of Refreshment",
+          "text": "원기 회복의 징조"
+        },
+        {
+          "type": "Omen of Sinistral Coronation",
+          "text": "좌측 대관식의 징조"
+        },
+        {
+          "type": "Omen of Dextral Coronation",
+          "text": "우측 대관식의 징조"
+        },
+        {
+          "type": "Omen of Corruption",
+          "text": "타락의 징조"
+        },
+        {
+          "type": "Broken Circle Artifact",
+          "text": "끊어진 원 유물"
+        },
+        {
+          "type": "Black Scythe Artifact",
+          "text": "검은 낫 유물"
+        },
+        {
+          "type": "Order Artifact",
+          "text": "성배단 유물"
+        },
+        {
+          "type": "Sun Artifact",
+          "text": "태양 유물"
+        },
+        {
+          "type": "Vision Rune",
+          "text": "환영 룬"
+        },
+        {
+          "type": "Glacial Rune",
+          "text": "빙하 룬"
+        },
+        {
+          "type": "Iron Rune",
+          "text": "철 룬"
+        },
+        {
+          "type": "Desert Rune",
+          "text": "사막 룬"
+        },
+        {
+          "type": "Body Rune",
+          "text": "육신 룬"
+        },
+        {
+          "type": "Rebirth Rune",
+          "text": "부활 룬"
+        },
+        {
+          "type": "Storm Rune",
+          "text": "폭풍 룬"
+        },
+        {
+          "type": "Mind Rune",
+          "text": "정신 룬"
+        },
+        {
+          "type": "Inspiration Rune",
+          "text": "영감 룬"
+        },
+        {
+          "type": "Stone Rune",
+          "text": "돌 룬"
+        },
+        {
+          "type": "Soul Core of Opiloti",
+          "text": "오필로티의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Tacati",
+          "text": "타카티의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Ticaba",
+          "text": "티카바의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Cholotl",
+          "text": "촐로틀의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Topotante",
+          "text": "토포탄테의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Citaqualotl",
+          "text": "시타콰로틀의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Tzamoto",
+          "text": "자모토의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Puhuarte",
+          "text": "푸후알테의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Zantipi",
+          "text": "잔티피의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Azcapa",
+          "text": "아즈카파의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Jiquani",
+          "text": "지콰니의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Zalatl",
+          "text": "잘라틀의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Xopec",
+          "text": "조펙의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Quipolatl",
+          "text": "퀴폴라틀의 영혼 핵"
+        },
+        {
+          "type": "Soul Core of Atmohua",
+          "text": "앗모후아의 영혼 핵"
+        }
+      ]
+    },
+    {
+      "id": "flask",
+      "label": "Flasks",
+      "entries": [
+        {
+          "type": "Thawing Charm",
+          "text": "해동 호신부"
+        },
+        {
+          "type": "Topaz Charm",
+          "text": "토파즈 호신부"
+        },
+        {
+          "type": "Amethyst Charm",
+          "text": "자수정 호신부"
+        },
+        {
+          "type": "Golden Charm",
+          "text": "황금 호신부"
+        },
+        {
+          "type": "Staunching Charm",
+          "text": "지혈 호신부"
+        },
+        {
+          "type": "Antidote Charm",
+          "text": "해독 호신부"
+        },
+        {
+          "type": "Dousing Charm",
+          "text": "소화 호신부"
+        },
+        {
+          "type": "Grounding Charm",
+          "text": "접지 호신부"
+        },
+        {
+          "type": "Stone Charm",
+          "text": "돌 호신부"
+        },
+        {
+          "type": "Silver Charm",
+          "text": "은 호신부"
+        },
+        {
+          "type": "Ruby Charm",
+          "text": "루비 호신부"
+        },
+        {
+          "type": "Sapphire Charm",
+          "text": "사파이어 호신부"
+        },
+        {
+          "type": "Lesser Life Flask",
+          "text": "하위 생명력 플라스크"
+        },
+        {
+          "type": "Medium Life Flask",
+          "text": "중형 생명력 플라스크"
+        },
+        {
+          "type": "Greater Life Flask",
+          "text": "대용량 생명력 플라스크"
+        },
+        {
+          "type": "Grand Life Flask",
+          "text": "거대 생명력 플라스크"
+        },
+        {
+          "type": "Giant Life Flask",
+          "text": "초거대 생명력 플라스크"
+        },
+        {
+          "type": "Colossal Life Flask",
+          "text": "초대형 생명력 플라스크"
+        },
+        {
+          "type": "Gargantuan Life Flask",
+          "text": "가르강튀아 생명력 플라스크"
+        },
+        {
+          "type": "Transcendent Life Flask",
+          "text": "초월한 생명력 플라스크"
+        },
+        {
+          "type": "Ultimate Life Flask",
+          "text": "극한의 생명력 플라스크"
+        },
+        {
+          "type": "Lesser Mana Flask",
+          "text": "하위 마나 플라스크"
+        },
+        {
+          "type": "Medium Mana Flask",
+          "text": "중형 마나 플라스크"
+        },
+        {
+          "type": "Greater Mana Flask",
+          "text": "대용량 마나 플라스크"
+        },
+        {
+          "type": "Grand Mana Flask",
+          "text": "거대 마나 플라스크"
+        },
+        {
+          "type": "Giant Mana Flask",
+          "text": "초거대 마나 플라스크"
+        },
+        {
+          "type": "Colossal Mana Flask",
+          "text": "초대형 마나 플라스크"
+        },
+        {
+          "type": "Gargantuan Mana Flask",
+          "text": "가르강튀아 마나 플라스크"
+        },
+        {
+          "type": "Transcendent Mana Flask",
+          "text": "초월한 마나 플라스크"
+        },
+        {
+          "type": "Ultimate Mana Flask",
+          "text": "극한의 마나 플라스크"
+        },
+        {
+          "type": "Ultimate Mana Flask",
+          "text": "녹아내리는 소용돌이 극한의 마나 플라스크",
+          "name": "Melting Maelstrom",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Ultimate Life Flask",
+          "text": "올로스의 결의 극한의 생명력 플라스크",
+          "name": "Olroth's Resolve",
+          "flags": {
+            "unique": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "gem",
+      "label": "Gems",
+      "entries": [
+        {
+          "type": "Alchemist's Boon",
+          "text": "연금술사의 은혜"
+        },
+        {
+          "type": "Archmage",
+          "text": "대마법사"
+        },
+        {
+          "type": "Armour Piercing Rounds",
+          "text": "방어구 관통 탄환"
+        },
+        {
+          "type": "Attrition",
+          "text": "소모"
+        },
+        {
+          "type": "Berserk",
+          "text": "광폭"
+        },
+        {
+          "type": "Blink",
+          "text": "점멸"
+        },
+        {
+          "type": "Bone Cage",
+          "text": "뼈 창살"
+        },
+        {
+          "type": "Bonestorm",
+          "text": "뼈 폭풍"
+        },
+        {
+          "type": "Charge Infusion",
+          "text": "충전 주입"
+        },
+        {
+          "type": "Cluster Grenade",
+          "text": "집속 유탄"
+        },
+        {
+          "type": "Cold Snap",
+          "text": "한파"
+        },
+        {
+          "type": "Combat Frenzy",
+          "text": "전투 격분"
+        },
+        {
+          "type": "Dark Effigy",
+          "text": "어둠의 제웅"
+        },
+        {
+          "type": "Defiance Banner",
+          "text": "저항의 깃발"
+        },
+        {
+          "type": "Detonating Arrow",
+          "text": "폭발 화살"
+        },
+        {
+          "type": "Dread Banner",
+          "text": "공포의 깃발"
+        },
+        {
+          "type": "Electrocuting Arrow",
+          "text": "전기 처형의 화살"
+        },
+        {
+          "type": "Elemental Conflux",
+          "text": "원소 융합"
+        },
+        {
+          "type": "Elemental Invocation",
+          "text": "원소 기원"
+        },
+        {
+          "type": "Emergency Reload",
+          "text": "비상 재장전"
+        },
+        {
+          "type": "Explosive Grenade",
+          "text": "폭발 유탄"
+        },
+        {
+          "type": "Explosive Shot",
+          "text": "폭발성 사격"
+        },
+        {
+          "type": "Fireball",
+          "text": "화염구"
+        },
+        {
+          "type": "Flash Grenade",
+          "text": "섬광 유탄"
+        },
+        {
+          "type": "Fragmentation Rounds",
+          "text": "파편 탄환"
+        },
+        {
+          "type": "Freezing Mark",
+          "text": "동결의 징표"
+        },
+        {
+          "type": "Freezing Salvo",
+          "text": "얼어붙는 포화"
+        },
+        {
+          "type": "Frozen Locus",
+          "text": "얼어붙은 메뚜기"
+        },
+        {
+          "type": "Galvanic Shards",
+          "text": "충격 파편"
+        },
+        {
+          "type": "Gas Arrow",
+          "text": "가스 화살"
+        },
+        {
+          "type": "Gas Grenade",
+          "text": "가스 유탄"
+        },
+        {
+          "type": "Gathering Storm",
+          "text": "몰려드는 폭풍"
+        },
+        {
+          "type": "Glacial Bolt",
+          "text": "빙하 볼트"
+        },
+        {
+          "type": "Grim Feast",
+          "text": "으스스한 연회"
+        },
+        {
+          "type": "Hailstorm Rounds",
+          "text": "우박폭풍 탄환"
+        },
+        {
+          "type": "Hammer of the Gods",
+          "text": "신들의 망치"
+        },
+        {
+          "type": "Hand of Chayula",
+          "text": "차율라의 손"
+        },
+        {
+          "type": "Herald of Plague",
+          "text": "역병의 전령"
+        },
+        {
+          "type": "High Velocity Rounds",
+          "text": "고속 탄환"
+        },
+        {
+          "type": "Ice Shards",
+          "text": "얼음 파편"
+        },
+        {
+          "type": "Ice Shot",
+          "text": "얼음 화살"
+        },
+        {
+          "type": "Incendiary Shot",
+          "text": "소이 사격"
+        },
+        {
+          "type": "Lightning Rod",
+          "text": "피뢰침"
+        },
+        {
+          "type": "Magma Barrier",
+          "text": "마그마 장벽"
+        },
+        {
+          "type": "Magnetic Salvo",
+          "text": "자성 포화"
+        },
+        {
+          "type": "Mana Remnants",
+          "text": "마나 잔류물"
+        },
+        {
+          "type": "Mantra of Destruction",
+          "text": "파괴의 주문"
+        },
+        {
+          "type": "Molten Blast",
+          "text": "녹아내린 폭발"
+        },
+        {
+          "type": "Oil Grenade",
+          "text": "기름 유탄"
+        },
+        {
+          "type": "Overwhelming Presence",
+          "text": "압도적인 존재감"
+        },
+        {
+          "type": "Perfect Strike",
+          "text": "완벽한 타격"
+        },
+        {
+          "type": "Permafrost Bolts",
+          "text": "영구 결빙 볼트"
+        },
+        {
+          "type": "Plasma Blast",
+          "text": "플라스마 폭발"
+        },
+        {
+          "type": "Poisonburst Arrow",
+          "text": "독 폭발 화살"
+        },
+        {
+          "type": "Profane Ritual",
+          "text": "부정한 의식"
+        },
+        {
+          "type": "Raging Spirits",
+          "text": "격노의 유령"
+        },
+        {
+          "type": "Rapid Shot",
+          "text": "신속한 사격"
+        },
+        {
+          "type": "Reaper's Invocation",
+          "text": "수확자의 기원"
+        },
+        {
+          "type": "Resonating Shield",
+          "text": "공명하는 방패"
+        },
+        {
+          "type": "Sacrifice",
+          "text": "희생"
+        },
+        {
+          "type": "Scavenged Plating",
+          "text": "주운 판금"
+        },
+        {
+          "type": "Shard Scavenger",
+          "text": "파편 청소부"
+        },
+        {
+          "type": "Shield Wall",
+          "text": "방패의 벽"
+        },
+        {
+          "type": "Shockburst Rounds",
+          "text": "감전 파열 탄환"
+        },
+        {
+          "type": "Shockchain Arrow",
+          "text": "감전연쇄 화살"
+        },
+        {
+          "type": "Siege Cascade",
+          "text": "공성 폭포"
+        },
+        {
+          "type": "Siphoning Strike",
+          "text": "착취 타격"
+        },
+        {
+          "type": "Snipe",
+          "text": "저격"
+        },
+        {
+          "type": "Solar Orb",
+          "text": "태양의 보주"
+        },
+        {
+          "type": "Soul Offering",
+          "text": "영혼 공물"
+        },
+        {
+          "type": "Stampede",
+          "text": "쇄도"
+        },
+        {
+          "type": "Stormblast Bolts",
+          "text": "태풍 파열 볼트"
+        },
+        {
+          "type": "Stormcaller Arrow",
+          "text": "폭풍 소환사 화살"
+        },
+        {
+          "type": "Storm Wave",
+          "text": "폭풍 파도"
+        },
+        {
+          "type": "Tempest Bell",
+          "text": "폭풍의 종"
+        },
+        {
+          "type": "Time of Need",
+          "text": "긴요한 시기"
+        },
+        {
+          "type": "Tornado Shot",
+          "text": "회오리 사격"
+        },
+        {
+          "type": "Toxic Growth",
+          "text": "맹독성 종양"
+        },
+        {
+          "type": "Unearth",
+          "text": "발굴"
+        },
+        {
+          "type": "Vaulting Impact",
+          "text": "뜀틀 충격"
+        },
+        {
+          "type": "Vine Arrow",
+          "text": "덩굴 화살"
+        },
+        {
+          "type": "Voltaic Mark",
+          "text": "전도성 징표"
+        },
+        {
+          "type": "War Banner",
+          "text": "전쟁 깃발"
+        },
+        {
+          "type": "Wind Dancer",
+          "text": "바람의 무희"
+        },
+        {
+          "type": "Withering Presence",
+          "text": "고사시키는 존재"
+        },
+        {
+          "type": "Uncut Spirit Gem",
+          "text": "미가공 정신력 젬"
+        },
+        {
+          "type": "Ancestral Warrior Totem",
+          "text": "선대의 전사 토템"
+        },
+        {
+          "type": "Arc",
+          "text": "연쇄 번개"
+        },
+        {
+          "type": "Arctic Armour",
+          "text": "한기의 방어구"
+        },
+        {
+          "type": "Armour Breaker",
+          "text": "방어구 파괴자"
+        },
+        {
+          "type": "Artillery Ballista",
+          "text": "포대 쇠뇌"
+        },
+        {
+          "type": "Ball Lightning",
+          "text": "구형 번개"
+        },
+        {
+          "type": "Barrage",
+          "text": "연발 사격"
+        },
+        {
+          "type": "Barrier Invocation",
+          "text": "방어 기원"
+        },
+        {
+          "type": "Blasphemy",
+          "text": "신성 모독"
+        },
+        {
+          "type": "Bone Offering",
+          "text": "뼈 공물"
+        },
+        {
+          "type": "Boneshatter",
+          "text": "뼈 박살"
+        },
+        {
+          "type": "Cast on Critical",
+          "text": "치명타 시 시전"
+        },
+        {
+          "type": "Cast on Dodge",
+          "text": "회피 구르기 시 시전"
+        },
+        {
+          "type": "Cast on Freeze",
+          "text": "동결 시 시전"
+        },
+        {
+          "type": "Cast on Ignite",
+          "text": "점화 시 시전"
+        },
+        {
+          "type": "Cast on Minion Death",
+          "text": "소환수 사망 시 시전"
+        },
+        {
+          "type": "Cast on Shock",
+          "text": "감전 시 시전"
+        },
+        {
+          "type": "Charged Staff",
+          "text": "충전 지팡이"
+        },
+        {
+          "type": "Comet",
+          "text": "혜성"
+        },
+        {
+          "type": "Conductivity",
+          "text": "전도성"
+        },
+        {
+          "type": "Contagion",
+          "text": "전염"
+        },
+        {
+          "type": "Despair",
+          "text": "절망"
+        },
+        {
+          "type": "Detonate Dead",
+          "text": "시체 폭발"
+        },
+        {
+          "type": "Earthquake",
+          "text": "지진"
+        },
+        {
+          "type": "Earthshatter",
+          "text": "지면 분쇄"
+        },
+        {
+          "type": "Ember Fusillade",
+          "text": "불씨 일제 사격"
+        },
+        {
+          "type": "Enfeeble",
+          "text": "쇠약화"
+        },
+        {
+          "type": "Escape Shot",
+          "text": "탈출 사격"
+        },
+        {
+          "type": "Essence Drain",
+          "text": "정수 흡수"
+        },
+        {
+          "type": "Eye of Winter",
+          "text": "겨울의 눈"
+        },
+        {
+          "type": "Falling Thunder",
+          "text": "떨어지는 천둥"
+        },
+        {
+          "type": "Firestorm",
+          "text": "화염 폭풍"
+        },
+        {
+          "type": "Flameblast",
+          "text": "화염파"
+        },
+        {
+          "type": "Flame Wall",
+          "text": "화염 벽"
+        },
+        {
+          "type": "Flammability",
+          "text": "인화성"
+        },
+        {
+          "type": "Flicker Strike",
+          "text": "점멸 타격"
+        },
+        {
+          "type": "Frostbolt",
+          "text": "서리 구체"
+        },
+        {
+          "type": "Frost Bomb",
+          "text": "서리 폭탄"
+        },
+        {
+          "type": "Frost Wall",
+          "text": "서리 방벽"
+        },
+        {
+          "type": "Ghost Dance",
+          "text": "혼의 춤"
+        },
+        {
+          "type": "Glacial Cascade",
+          "text": "빙하 폭포"
+        },
+        {
+          "type": "Herald of Ash",
+          "text": "재의 전령"
+        },
+        {
+          "type": "Herald of Ice",
+          "text": "얼음의 전령"
+        },
+        {
+          "type": "Herald of Thunder",
+          "text": "천둥의 전령"
+        },
+        {
+          "type": "Hexblast",
+          "text": "사술 폭발"
+        },
+        {
+          "type": "Hypothermia",
+          "text": "체온저하"
+        },
+        {
+          "type": "Ice Nova",
+          "text": "얼음 폭발"
+        },
+        {
+          "type": "Ice Strike",
+          "text": "얼음 타격"
+        },
+        {
+          "type": "Incinerate",
+          "text": "소각"
+        },
+        {
+          "type": "Infernal Cry",
+          "text": "지옥불 함성"
+        },
+        {
+          "type": "Killing Palm",
+          "text": "살상 장법"
+        },
+        {
+          "type": "Leap Slam",
+          "text": "도약 강타"
+        },
+        {
+          "type": "Lightning Arrow",
+          "text": "번개 화살"
+        },
+        {
+          "type": "Lightning Conduit",
+          "text": "번개 도관"
+        },
+        {
+          "type": "Lightning Warp",
+          "text": "번개 차원 이동"
+        },
+        {
+          "type": "Lingering Illusion",
+          "text": "지속되는 환상"
+        },
+        {
+          "type": "Mana Tempest",
+          "text": "마나 폭풍"
+        },
+        {
+          "type": "Orb of Storms",
+          "text": "폭풍 보주"
+        },
+        {
+          "type": "Pain Offering",
+          "text": "고통의 공물"
+        },
+        {
+          "type": "Plague Bearer",
+          "text": "독성 운반자"
+        },
+        {
+          "type": "Rain of Arrows",
+          "text": "화살비"
+        },
+        {
+          "type": "Raise Zombie",
+          "text": "좀비 소환"
+        },
+        {
+          "type": "Ripwire Ballista",
+          "text": "절단선 쇠뇌"
+        },
+        {
+          "type": "Rolling Slam",
+          "text": "몰려오는 강타"
+        },
+        {
+          "type": "Seismic Cry",
+          "text": "지진 함성"
+        },
+        {
+          "type": "Shattering Palm",
+          "text": "격파 장법"
+        },
+        {
+          "type": "Shield Charge",
+          "text": "방패 돌진"
+        },
+        {
+          "type": "Shockwave Totem",
+          "text": "충격파 토템"
+        },
+        {
+          "type": "Skeletal Arsonist",
+          "text": "해골 방화범"
+        },
+        {
+          "type": "Skeletal Brute",
+          "text": "해골 돌격병"
+        },
+        {
+          "type": "Skeletal Cleric",
+          "text": "해골 성직자"
+        },
+        {
+          "type": "Skeletal Frost Mage",
+          "text": "해골 서리 마법사"
+        },
+        {
+          "type": "Skeletal Reaver",
+          "text": "해골 강탈자"
+        },
+        {
+          "type": "Skeletal Sniper",
+          "text": "해골 저격수"
+        },
+        {
+          "type": "Skeletal Storm Mage",
+          "text": "해골 폭풍 마법사"
+        },
+        {
+          "type": "Skeletal Warrior",
+          "text": "해골 전사"
+        },
+        {
+          "type": "Sniper's Mark",
+          "text": "저격수의 징표"
+        },
+        {
+          "type": "Spark",
+          "text": "전기불꽃"
+        },
+        {
+          "type": "Spiral Volley",
+          "text": "나선 사격 공세"
+        },
+        {
+          "type": "Staggering Palm",
+          "text": "충격 장법"
+        },
+        {
+          "type": "Sunder",
+          "text": "산산조각"
+        },
+        {
+          "type": "Supercharged Slam",
+          "text": "초과 충전 강타"
+        },
+        {
+          "type": "Tempest Flurry",
+          "text": "폭풍의 질풍"
+        },
+        {
+          "type": "Temporal Chains",
+          "text": "시간의 사슬"
+        },
+        {
+          "type": "Uncut Skill Gem",
+          "text": "미가공 스킬 젬"
+        },
+        {
+          "type": "Volcanic Fissure",
+          "text": "화산 균열"
+        },
+        {
+          "type": "Voltaic Grenade",
+          "text": "전도성 유탄"
+        },
+        {
+          "type": "Vulnerability",
+          "text": "취약성"
+        },
+        {
+          "type": "Wave of Frost",
+          "text": "서리의 파도"
+        },
+        {
+          "type": "Whirling Assault",
+          "text": "선회 공격"
+        },
+        {
+          "type": "Wind Blast",
+          "text": "바람 폭발"
+        },
+        {
+          "type": "Acceleration",
+          "text": "가속"
+        },
+        {
+          "type": "Aftershock",
+          "text": "여진"
+        },
+        {
+          "type": "Ambush",
+          "text": "매복"
+        },
+        {
+          "type": "Arcane Surge",
+          "text": "비전 쇄도"
+        },
+        {
+          "type": "Arcane Tempo",
+          "text": "비전의 속도"
+        },
+        {
+          "type": "Behead",
+          "text": "참수"
+        },
+        {
+          "type": "Biting Frost",
+          "text": "살을 에는 서리"
+        },
+        {
+          "type": "Blind",
+          "text": "실명"
+        },
+        {
+          "type": "Bloodlust",
+          "text": "유혈 충동"
+        },
+        {
+          "type": "Bludgeon",
+          "text": "후려갈기기"
+        },
+        {
+          "type": "Break Posture",
+          "text": "자세 파괴"
+        },
+        {
+          "type": "Brutality",
+          "text": "포악함"
+        },
+        {
+          "type": "Bullseye",
+          "text": "일발필중"
+        },
+        {
+          "type": "Burning Inscription",
+          "text": "용암 명문"
+        },
+        {
+          "type": "Bursting Plague",
+          "text": "터져 나오는 역병"
+        },
+        {
+          "type": "Cannibalism",
+          "text": "식인"
+        },
+        {
+          "type": "Chain",
+          "text": "연쇄"
+        },
+        {
+          "type": "Chaos Infusion",
+          "text": "카오스 주입"
+        },
+        {
+          "type": "Chaos Mastery",
+          "text": "카오스 숙련"
+        },
+        {
+          "type": "Clarity",
+          "text": "명상"
+        },
+        {
+          "type": "Close Combat",
+          "text": "근접 전투"
+        },
+        {
+          "type": "Cold Exposure",
+          "text": "냉기 노출"
+        },
+        {
+          "type": "Cold Infusion",
+          "text": "냉기 주입"
+        },
+        {
+          "type": "Cold Mastery",
+          "text": "냉기 숙련"
+        },
+        {
+          "type": "Cold Penetration",
+          "text": "냉기 관통"
+        },
+        {
+          "type": "Combo Finisher",
+          "text": "연계 마무리"
+        },
+        {
+          "type": "Comorbidity",
+          "text": "동반이환"
+        },
+        {
+          "type": "Concentrated Effect",
+          "text": "효과 집중"
+        },
+        {
+          "type": "Conduction",
+          "text": "전도"
+        },
+        {
+          "type": "Controlled Destruction",
+          "text": "제어된 파괴"
+        },
+        {
+          "type": "Corrosion",
+          "text": "부식"
+        },
+        {
+          "type": "Corrupting Cry",
+          "text": "타락시키는 비명"
+        },
+        {
+          "type": "Coursing Current",
+          "text": "세차게 흐르는 전류"
+        },
+        {
+          "type": "Crescendo",
+          "text": "크레센도"
+        },
+        {
+          "type": "Deadly Poison",
+          "text": "치명적인 중독"
+        },
+        {
+          "type": "Deceleration",
+          "text": "감속"
+        },
+        {
+          "type": "Deep Cuts",
+          "text": "깊은 상처"
+        },
+        {
+          "type": "Deep Freeze",
+          "text": "결빙"
+        },
+        {
+          "type": "Demolisher",
+          "text": "철거자"
+        },
+        {
+          "type": "Despoiler",
+          "text": "갈취자"
+        },
+        {
+          "type": "Devastate",
+          "text": "파괴"
+        },
+        {
+          "type": "Discombobulate",
+          "text": "혼란 유발"
+        },
+        {
+          "type": "Drain Ailments",
+          "text": "상태 이상 흡수"
+        },
+        {
+          "type": "Electrocute",
+          "text": "전기 처형"
+        },
+        {
+          "type": "Elemental Army",
+          "text": "원소의 군단"
+        },
+        {
+          "type": "Elemental Discharge",
+          "text": "원소 방출"
+        },
+        {
+          "type": "Elemental Focus",
+          "text": "원소 집중"
+        },
+        {
+          "type": "Encumbrance",
+          "text": "가탈"
+        },
+        {
+          "type": "Energy Barrier",
+          "text": "에너지 방벽"
+        },
+        {
+          "type": "Enraged Warcry",
+          "text": "격앙된 함성"
+        },
+        {
+          "type": "Envenom",
+          "text": "독액 바르기"
+        },
+        {
+          "type": "Eternal Flame",
+          "text": "영원한 화염"
+        },
+        {
+          "type": "Execute",
+          "text": "처형"
+        },
+        {
+          "type": "Exploit Weakness",
+          "text": "약점 이용"
+        },
+        {
+          "type": "Fast Forward",
+          "text": "빨리 감기"
+        },
+        {
+          "type": "Feeding Frenzy",
+          "text": "격분 주입"
+        },
+        {
+          "type": "Fiery Death",
+          "text": "불타는 죽음"
+        },
+        {
+          "type": "Fire Exposure",
+          "text": "화염 노출"
+        },
+        {
+          "type": "Fire Infusion",
+          "text": "화염 주입"
+        },
+        {
+          "type": "Fire Mastery",
+          "text": "화염 숙련"
+        },
+        {
+          "type": "Fire Penetration",
+          "text": "화염 관통"
+        },
+        {
+          "type": "Fist of War",
+          "text": "전쟁의 주먹"
+        },
+        {
+          "type": "Font of Blood",
+          "text": "피의 샘"
+        },
+        {
+          "type": "Font of Mana",
+          "text": "마나의 샘"
+        },
+        {
+          "type": "Font of Rage",
+          "text": "격노의 샘"
+        },
+        {
+          "type": "Fork",
+          "text": "갈래"
+        },
+        {
+          "type": "Fortress",
+          "text": "요새"
+        },
+        {
+          "type": "Frostfire",
+          "text": "서리화염"
+        },
+        {
+          "type": "Frost Nexus",
+          "text": "서리 연결부"
+        },
+        {
+          "type": "Glaciation",
+          "text": "빙하 작용"
+        },
+        {
+          "type": "Heavy Swing",
+          "text": "묵직한 휘두르기"
+        },
+        {
+          "type": "Heightened Curse",
+          "text": "조고된 저주"
+        },
+        {
+          "type": "Herbalism",
+          "text": "약초학"
+        },
+        {
+          "type": "Hex Bloom",
+          "text": "사술의 꽃"
+        },
+        {
+          "type": "Hourglass",
+          "text": "모래시계"
+        },
+        {
+          "type": "Ice Bite",
+          "text": "얼음 쐐기"
+        },
+        {
+          "type": "Ignition",
+          "text": "점화"
+        },
+        {
+          "type": "Immolate",
+          "text": "번제"
+        },
+        {
+          "type": "Impact Shockwave",
+          "text": "충돌 충격파"
+        },
+        {
+          "type": "Impending Doom",
+          "text": "임박한 멸망"
+        },
+        {
+          "type": "Inevitable Critical",
+          "text": "피할 수 없는 치명타"
+        },
+        {
+          "type": "Infernal Legion",
+          "text": "지옥불 군단"
+        },
+        {
+          "type": "Ingenuity",
+          "text": "기발함"
+        },
+        {
+          "type": "Inspiration",
+          "text": "영감"
+        },
+        {
+          "type": "Jagged Ground",
+          "text": "가시 지대"
+        },
+        {
+          "type": "Lacerate",
+          "text": "피부 찢기"
+        },
+        {
+          "type": "Lasting Shock",
+          "text": "이어지는 충격"
+        },
+        {
+          "type": "Life Bounty",
+          "text": "생명력 하사품"
+        },
+        {
+          "type": "Life Drain",
+          "text": "생명력 고갈"
+        },
+        {
+          "type": "Lifetap",
+          "text": "생명력 전환"
+        },
+        {
+          "type": "Life Thief",
+          "text": "생명력 도둑"
+        },
+        {
+          "type": "Lightning Exposure",
+          "text": "번개 노출"
+        },
+        {
+          "type": "Lightning Infusion",
+          "text": "번개 주입"
+        },
+        {
+          "type": "Lightning Mastery",
+          "text": "번개 숙련"
+        },
+        {
+          "type": "Lightning Penetration",
+          "text": "번개 관통"
+        },
+        {
+          "type": "Lockdown",
+          "text": "폐쇄"
+        },
+        {
+          "type": "Longshot",
+          "text": "원거리 사격"
+        },
+        {
+          "type": "Magnified Effect",
+          "text": "강해진 효과"
+        },
+        {
+          "type": "Maim",
+          "text": "힘줄 절단"
+        },
+        {
+          "type": "Mana Bounty",
+          "text": "마나 하사품"
+        },
+        {
+          "type": "Mana Flare",
+          "text": "마나 섬광"
+        },
+        {
+          "type": "Martial Tempo",
+          "text": "무도의 속도"
+        },
+        {
+          "type": "Meat Shield",
+          "text": "육탄 방어"
+        },
+        {
+          "type": "Minion Mastery",
+          "text": "소환수 숙련"
+        },
+        {
+          "type": "Mobility",
+          "text": "기동성"
+        },
+        {
+          "type": "Momentum",
+          "text": "기세"
+        },
+        {
+          "type": "Murderous Intent",
+          "text": "의도적인 살인"
+        },
+        {
+          "type": "Neural Overload",
+          "text": "신경 과부하"
+        },
+        {
+          "type": "Overabundance",
+          "text": "과잉"
+        },
+        {
+          "type": "Overcharge",
+          "text": "과충전"
+        },
+        {
+          "type": "Overpower",
+          "text": "압도"
+        },
+        {
+          "type": "Perpetual Charge",
+          "text": "영속적인 충전"
+        },
+        {
+          "type": "Persistence",
+          "text": "지속성"
+        },
+        {
+          "type": "Physical Mastery",
+          "text": "물리 숙련"
+        },
+        {
+          "type": "Pierce",
+          "text": "관통"
+        },
+        {
+          "type": "Pin",
+          "text": "고정"
+        },
+        {
+          "type": "Precision",
+          "text": "정밀함"
+        },
+        {
+          "type": "Premeditation",
+          "text": "모의"
+        },
+        {
+          "type": "Primal Armament",
+          "text": "원시적인 병기"
+        },
+        {
+          "type": "Profusion",
+          "text": "풍성"
+        },
+        {
+          "type": "Rage",
+          "text": "격노"
+        },
+        {
+          "type": "Rising Tempest",
+          "text": "밀려오는 폭풍"
+        },
+        {
+          "type": "Ruthless",
+          "text": "무자비"
+        },
+        {
+          "type": "Scattershot",
+          "text": "난사"
+        },
+        {
+          "type": "Searing Flame",
+          "text": "이글거리는 화염"
+        },
+        {
+          "type": "Second Wind",
+          "text": "새로운 활력"
+        },
+        {
+          "type": "Shock Siphon",
+          "text": "충격 착취"
+        },
+        {
+          "type": "Soul Drain",
+          "text": "영혼 고갈"
+        },
+        {
+          "type": "Soul Thief",
+          "text": "영혼 도둑"
+        },
+        {
+          "type": "Spell Echo",
+          "text": "주문 메아리"
+        },
+        {
+          "type": "Splinter",
+          "text": "파편"
+        },
+        {
+          "type": "Stormfire",
+          "text": "태풍불길"
+        },
+        {
+          "type": "Supercritical",
+          "text": "초치명타"
+        },
+        {
+          "type": "Unbreakable",
+          "text": "무적"
+        },
+        {
+          "type": "Uncut Support Gem",
+          "text": "미가공 보조 젬"
+        },
+        {
+          "type": "Unleash",
+          "text": "촉발"
+        },
+        {
+          "type": "Vitality",
+          "text": "활력"
+        },
+        {
+          "type": "Wildfire",
+          "text": "도깨비불"
+        },
+        {
+          "type": "Window of Opportunity",
+          "text": "기회의 창"
+        },
+        {
+          "type": "Wind Wave",
+          "text": "바람 파장"
+        },
+        {
+          "type": "Withering Touch",
+          "text": "위축의 손길"
+        },
+        {
+          "type": "Ablation",
+          "text": "삭마"
+        },
+        {
+          "type": "Ammo Conservation",
+          "text": "탄약 보존"
+        },
+        {
+          "type": "Ancestral Urgency",
+          "text": "선대의 다급함"
+        },
+        {
+          "type": "Armour Explosion",
+          "text": "방어구 폭발"
+        },
+        {
+          "type": "Astral Projection",
+          "text": "우주의 영사"
+        },
+        {
+          "type": "Auto Reload",
+          "text": "자동 재장전"
+        },
+        {
+          "type": "Bidding",
+          "text": "Bidding"
+        },
+        {
+          "type": "Break Endurance",
+          "text": "인내 파괴"
+        },
+        {
+          "type": "Capacitor",
+          "text": "축전기"
+        },
+        {
+          "type": "Chaotic Freeze",
+          "text": "혼돈의 동결"
+        },
+        {
+          "type": "Considered Casting",
+          "text": "신중한 시전"
+        },
+        {
+          "type": "Corpse Conservation",
+          "text": "시체 보존"
+        },
+        {
+          "type": "Culling Strike",
+          "text": "마무리 타격"
+        },
+        {
+          "type": "Culmination",
+          "text": "고조"
+        },
+        {
+          "type": "Cursed Ground",
+          "text": "저주받은 지대"
+        },
+        {
+          "type": "Danse Macabre",
+          "text": "섬뜩한 무도"
+        },
+        {
+          "type": "Dazing Cry",
+          "text": "혼미의 함성"
+        },
+        {
+          "type": "Decaying Hex",
+          "text": "쇠퇴의 사술"
+        },
+        {
+          "type": "Double Barrel",
+          "text": "더블배럴"
+        },
+        {
+          "type": "Energy Retention",
+          "text": "에너지 유지"
+        },
+        {
+          "type": "Excise",
+          "text": "절제"
+        },
+        {
+          "type": "Execrate",
+          "text": "혐오 표출"
+        },
+        {
+          "type": "Expanse",
+          "text": "광장"
+        },
+        {
+          "type": "Extraction",
+          "text": "추출"
+        },
+        {
+          "type": "Ferocity",
+          "text": "흉포함"
+        },
+        {
+          "type": "Focused Curse",
+          "text": "집중 집중구"
+        },
+        {
+          "type": "Fresh Clip",
+          "text": "새 탄창"
+        },
+        {
+          "type": "Glacier",
+          "text": "빙하"
+        },
+        {
+          "type": "Heft",
+          "text": "중량"
+        },
+        {
+          "type": "Hinder",
+          "text": "이동 방해"
+        },
+        {
+          "type": "Holy Descent",
+          "text": "상서로운 비탈"
+        },
+        {
+          "type": "Icicle",
+          "text": "고드름"
+        },
+        {
+          "type": "Impetus",
+          "text": "탄력"
+        },
+        {
+          "type": "Innervate",
+          "text": "자극"
+        },
+        {
+          "type": "Intense Agony",
+          "text": "격렬한 고통"
+        },
+        {
+          "type": "Ironwood",
+          "text": "철목"
+        },
+        {
+          "type": "Last Gasp",
+          "text": "마지막 헐떡임"
+        },
+        {
+          "type": "Leverage",
+          "text": "지렛대 효과"
+        },
+        {
+          "type": "Long Fuse",
+          "text": "긴 퓨즈"
+        },
+        {
+          "type": "Minion Instability",
+          "text": "소환수 불안정"
+        },
+        {
+          "type": "Minion Pact",
+          "text": "소환수 맹약"
+        },
+        {
+          "type": "Nimble Reload",
+          "text": "가뿐한 재장전"
+        },
+        {
+          "type": "Payload",
+          "text": "화물"
+        },
+        {
+          "type": "Potential",
+          "text": "잠재력"
+        },
+        {
+          "type": "Practiced Combo",
+          "text": "숙련된 연계"
+        },
+        {
+          "type": "Rageforged",
+          "text": "격노벼림"
+        },
+        {
+          "type": "Raging Cry",
+          "text": "격노하는 함성"
+        },
+        {
+          "type": "Ricochet",
+          "text": "튕겨 쏘기"
+        },
+        {
+          "type": "Ritualistic Curse",
+          "text": "의식의 저주"
+        },
+        {
+          "type": "Rupture",
+          "text": "파열"
+        },
+        {
+          "type": "Spell Cascade",
+          "text": "연속 주문"
+        },
+        {
+          "type": "Stomping Ground",
+          "text": "짓밟는 지대"
+        },
+        {
+          "type": "Strip Away",
+          "text": "과도한 노출"
+        },
+        {
+          "type": "Swift Affliction",
+          "text": "고통 격화"
+        },
+        {
+          "type": "Tremors",
+          "text": "Tremors"
+        },
+        {
+          "type": "Upheaval",
+          "text": "격변"
+        },
+        {
+          "type": "Wildshards",
+          "text": "난무하는 파편"
+        }
+      ]
+    },
+    {
+      "id": "jewel",
+      "label": "Jewels",
+      "entries": [
+        {
+          "type": "Emerald",
+          "text": "에메랄드"
+        },
+        {
+          "type": "Diamond",
+          "text": "다이아몬드"
+        },
+        {
+          "type": "Sapphire",
+          "text": "사파이어"
+        },
+        {
+          "type": "Time-Lost Emerald",
+          "text": "오래된 에메랄드"
+        },
+        {
+          "type": "Time-Lost Diamond",
+          "text": "오래된 다이아몬드"
+        },
+        {
+          "type": "Time-Lost Sapphire",
+          "text": "오래된 사파이어"
+        },
+        {
+          "type": "Time-Lost Ruby",
+          "text": "오래된 루비"
+        },
+        {
+          "type": "Ruby",
+          "text": "루비"
+        },
+        {
+          "type": "Timeless Jewel",
+          "text": "무궁한 주얼"
+        },
+        {
+          "type": "Time-Lost Diamond",
+          "text": "어둠에의 저항 오래된 다이아몬드",
+          "name": "Against the Darkness",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Diamond",
+          "text": "제어된 변형 다이아몬드",
+          "name": "Controlled Metamorphosis",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Diamond",
+          "text": "허무의 산물 다이아몬드",
+          "name": "From Nothing",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Ruby",
+          "text": "장대한 파장 루비",
+          "name": "Grand Spectrum",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Sapphire",
+          "text": "장대한 파장 사파이어",
+          "name": "Grand Spectrum",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Emerald",
+          "text": "장대한 파장 에메랄드",
+          "name": "Grand Spectrum",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Timeless Jewel",
+          "text": "영웅적인 비극 무궁한 주얼",
+          "name": "Heroic Tragedy",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Diamond",
+          "text": "과대망상 다이아몬드",
+          "name": "Megalomaniac",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Diamond",
+          "text": "믿음의 분광기 다이아몬드",
+          "name": "Prism of Belief",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Diamond",
+          "text": "치장한 자 다이아몬드",
+          "name": "The Adorned",
+          "flags": {
+            "unique": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "map",
+      "label": "Maps",
+      "entries": [
+        {
+          "type": "Expedition Logbook",
+          "text": "탐험 일지"
+        },
+        {
+          "type": "Simulacrum",
+          "text": "복제된 영토"
+        },
+        {
+          "type": "Breachstone",
+          "text": "균열석"
+        },
+        {
+          "type": "An Audience with the King",
+          "text": "왕 알현"
+        },
+        {
+          "type": "Waystone (Tier 1)",
+          "text": "경로석(1등급)"
+        },
+        {
+          "type": "Waystone (Tier 10)",
+          "text": "경로석(10등급)"
+        },
+        {
+          "type": "Waystone (Tier 11)",
+          "text": "경로석(11등급)"
+        },
+        {
+          "type": "Waystone (Tier 12)",
+          "text": "경로석(12등급)"
+        },
+        {
+          "type": "Waystone (Tier 13)",
+          "text": "경로석(13등급)"
+        },
+        {
+          "type": "Waystone (Tier 14)",
+          "text": "경로석(14등급)"
+        },
+        {
+          "type": "Waystone (Tier 15)",
+          "text": "경로석(15등급)"
+        },
+        {
+          "type": "Waystone (Tier 16)",
+          "text": "경로석(16등급)"
+        },
+        {
+          "type": "Waystone (Tier 2)",
+          "text": "경로석(2등급)"
+        },
+        {
+          "type": "Waystone (Tier 3)",
+          "text": "경로석(3등급)"
+        },
+        {
+          "type": "Waystone (Tier 4)",
+          "text": "경로석(4등급)"
+        },
+        {
+          "type": "Waystone (Tier 5)",
+          "text": "경로석(5등급)"
+        },
+        {
+          "type": "Waystone (Tier 6)",
+          "text": "경로석(6등급)"
+        },
+        {
+          "type": "Waystone (Tier 7)",
+          "text": "경로석(7등급)"
+        },
+        {
+          "type": "Waystone (Tier 8)",
+          "text": "경로석(8등급)"
+        },
+        {
+          "type": "Waystone (Tier 9)",
+          "text": "경로석(9등급)"
+        },
+        {
+          "type": "Ancient Crisis Fragment",
+          "text": "고대 위기 조각"
+        },
+        {
+          "type": "Faded Crisis Fragment",
+          "text": "빛바랜 위기 조각"
+        },
+        {
+          "type": "Weathered Crisis Fragment",
+          "text": "풍화된 위기 조각"
+        },
+        {
+          "type": "Test of Will Barya",
+          "text": "의지의 시험 바리야"
+        },
+        {
+          "type": "Test of Cunning Barya",
+          "text": "지혜의 시험 바리야"
+        },
+        {
+          "type": "Test of Time Barya",
+          "text": "시간의 시험 바리야"
+        },
+        {
+          "type": "Djinn Barya",
+          "text": "진 바리야"
+        },
+        {
+          "type": "Breach Precursor Tablet",
+          "text": "균열 선도자 서판"
+        },
+        {
+          "type": "Delirium Precursor Tablet",
+          "text": "환영 선도자 서판"
+        },
+        {
+          "type": "Expedition Precursor Tablet",
+          "text": "탐험 선도자 서판"
+        },
+        {
+          "type": "Precursor Tablet",
+          "text": "선도자 서판"
+        },
+        {
+          "type": "Ritual Precursor Tablet",
+          "text": "의식 선도자 서판"
+        },
+        {
+          "type": "Inscribed Ultimatum",
+          "text": "새겨진 결전"
+        },
+        {
+          "type": "Cowardly Fate",
+          "text": "비겁한 운명"
+        },
+        {
+          "type": "Deadly Fate",
+          "text": "치명적인 운명"
+        },
+        {
+          "type": "Victorious Fate",
+          "text": "승리의 운명"
+        }
+      ]
+    },
+    {
+      "id": "weapon",
+      "label": "Weapons",
+      "entries": [
+        {
+          "type": "Glass Shank",
+          "text": "유리 단도"
+        },
+        {
+          "type": "Crone Knife",
+          "text": "노파 단도"
+        },
+        {
+          "type": "Simple Dagger",
+          "text": "단순한 단검"
+        },
+        {
+          "type": "Chain Flail",
+          "text": "사슬 도리깨"
+        },
+        {
+          "type": "Twin Flail",
+          "text": "쌍둥이 도리깨"
+        },
+        {
+          "type": "Dull Hatchet",
+          "text": "무딘 손도끼"
+        },
+        {
+          "type": "Hook Axe",
+          "text": "갈고리 도끼"
+        },
+        {
+          "type": "Extended Cleaver",
+          "text": "연장 가로날도끼"
+        },
+        {
+          "type": "Bandit Hatchet",
+          "text": "도적 손도끼"
+        },
+        {
+          "type": "Wooden Club",
+          "text": "목재 곤봉"
+        },
+        {
+          "type": "Torment Club",
+          "text": "고통 곤봉"
+        },
+        {
+          "type": "Smithing Hammer",
+          "text": "대장장이 망치"
+        },
+        {
+          "type": "Advanced Smithing Hammer",
+          "text": "고급 대장장이 망치"
+        },
+        {
+          "type": "Expert Smithing Hammer",
+          "text": "전문 대장장이 망치"
+        },
+        {
+          "type": "Slim Mace",
+          "text": "좁은 철퇴"
+        },
+        {
+          "type": "Advanced Slim Mace",
+          "text": "고급 좁은 철퇴"
+        },
+        {
+          "type": "Expert Slim Mace",
+          "text": "전문 좁은 철퇴"
+        },
+        {
+          "type": "Spiked Club",
+          "text": "가시 박힌 곤봉"
+        },
+        {
+          "type": "Warpick",
+          "text": "전쟁곡괭이"
+        },
+        {
+          "type": "Advanced Warpick",
+          "text": "고급 전쟁곡괭이"
+        },
+        {
+          "type": "Expert Warpick",
+          "text": "전문 전쟁곡괭이"
+        },
+        {
+          "type": "Plated Mace",
+          "text": "판금 철퇴"
+        },
+        {
+          "type": "Advanced Plated Mace",
+          "text": "고급 판금 철퇴"
+        },
+        {
+          "type": "Expert Plated Mace",
+          "text": "전문 판금 철퇴"
+        },
+        {
+          "type": "Brigand Mace",
+          "text": "도둑 철퇴"
+        },
+        {
+          "type": "Advanced Brigand Mace",
+          "text": "고급 도둑 철퇴"
+        },
+        {
+          "type": "Expert Brigand Mace",
+          "text": "전문 도둑 철퇴"
+        },
+        {
+          "type": "Construct Hammer",
+          "text": "구조물 망치"
+        },
+        {
+          "type": "Advanced Construct Hammer",
+          "text": "고급 구조물 망치"
+        },
+        {
+          "type": "Expert Construct Hammer",
+          "text": "전문 구조물 망치"
+        },
+        {
+          "type": "Hardwood Spear",
+          "text": "견목 창"
+        },
+        {
+          "type": "Ironhead Spear",
+          "text": "철창날 창"
+        },
+        {
+          "type": "Hunting Spear",
+          "text": "사냥 창"
+        },
+        {
+          "type": "Winged Spear",
+          "text": "날개 달린 창"
+        },
+        {
+          "type": "War Spear",
+          "text": "전쟁 창"
+        },
+        {
+          "type": "Shortsword",
+          "text": "절단도"
+        },
+        {
+          "type": "Vampiric Blade",
+          "text": "흡혈 칼날"
+        },
+        {
+          "type": "Charred Shortsword",
+          "text": "까맣게 탄 절단도"
+        },
+        {
+          "type": "Rattling Sceptre",
+          "text": "덜컹대는 셉터"
+        },
+        {
+          "type": "Stoic Sceptre",
+          "text": "엄숙한 셉터"
+        },
+        {
+          "type": "Omen Sceptre",
+          "text": "징조 셉터"
+        },
+        {
+          "type": "Shrine Sceptre",
+          "text": "성소 셉터"
+        },
+        {
+          "type": "Withered Wand",
+          "text": "말라버린 마법봉"
+        },
+        {
+          "type": "Bone Wand",
+          "text": "뼈 마법봉"
+        },
+        {
+          "type": "Attuned Wand",
+          "text": "조율된 마법봉"
+        },
+        {
+          "type": "Siphoning Wand",
+          "text": "착취 마법봉"
+        },
+        {
+          "type": "Volatile Wand",
+          "text": "폭발성 마법봉"
+        },
+        {
+          "type": "Crude Bow",
+          "text": "조잡한 활"
+        },
+        {
+          "type": "Shortbow",
+          "text": "단궁"
+        },
+        {
+          "type": "Advanced Shortbow",
+          "text": "고급 단궁"
+        },
+        {
+          "type": "Expert Shortbow",
+          "text": "전문 단궁"
+        },
+        {
+          "type": "Warden Bow",
+          "text": "간수 활"
+        },
+        {
+          "type": "Advanced Warden Bow",
+          "text": "고급 간수 활"
+        },
+        {
+          "type": "Expert Warden Bow",
+          "text": "전문 간수 활"
+        },
+        {
+          "type": "Recurve Bow",
+          "text": "반곡궁"
+        },
+        {
+          "type": "Composite Bow",
+          "text": "합성궁"
+        },
+        {
+          "type": "Advanced Composite Bow",
+          "text": "고급 합성궁"
+        },
+        {
+          "type": "Expert Composite Bow",
+          "text": "전문 합성궁"
+        },
+        {
+          "type": "Dualstring Bow",
+          "text": "이중시위 활"
+        },
+        {
+          "type": "Advanced Dualstring Bow",
+          "text": "고급 이중시위 활"
+        },
+        {
+          "type": "Expert Dualstring Bow",
+          "text": "전문 이중시위 활"
+        },
+        {
+          "type": "Cultist Bow",
+          "text": "광신자 활"
+        },
+        {
+          "type": "Advanced Cultist Bow",
+          "text": "고급 광신자 활"
+        },
+        {
+          "type": "Expert Cultist Bow",
+          "text": "전문 광신자 활"
+        },
+        {
+          "type": "Zealot Bow",
+          "text": "맹신자 활"
+        },
+        {
+          "type": "Advanced Zealot Bow",
+          "text": "고급 맹신자 활"
+        },
+        {
+          "type": "Expert Zealot Bow",
+          "text": "전문 맹신자 활"
+        },
+        {
+          "type": "Makeshift Crossbow",
+          "text": "임시 석궁"
+        },
+        {
+          "type": "Tense Crossbow",
+          "text": "팽팽한 석궁"
+        },
+        {
+          "type": "Advanced Tense Crossbow",
+          "text": "고급 팽팽한 석궁"
+        },
+        {
+          "type": "Expert Tense Crossbow",
+          "text": "전문 팽팽한 석궁"
+        },
+        {
+          "type": "Sturdy Crossbow",
+          "text": "튼튼한 석궁"
+        },
+        {
+          "type": "Advanced Sturdy Crossbow",
+          "text": "고급 튼튼한 석궁"
+        },
+        {
+          "type": "Expert Sturdy Crossbow",
+          "text": "전문 튼튼한 석궁"
+        },
+        {
+          "type": "Varnished Crossbow",
+          "text": "광택 나는 석궁"
+        },
+        {
+          "type": "Advanced Varnished Crossbow",
+          "text": "고급 광택 나는 석궁"
+        },
+        {
+          "type": "Expert Varnished Crossbow",
+          "text": "전문 광택 나는 석궁"
+        },
+        {
+          "type": "Dyad Crossbow",
+          "text": "이중 석궁"
+        },
+        {
+          "type": "Advanced Dyad Crossbow",
+          "text": "고급 이중 석궁"
+        },
+        {
+          "type": "Expert Dyad Crossbow",
+          "text": "전문 이중 석궁"
+        },
+        {
+          "type": "Alloy Crossbow",
+          "text": "합금 석궁"
+        },
+        {
+          "type": "Bombard Crossbow",
+          "text": "포격 석궁"
+        },
+        {
+          "type": "Advanced Bombard Crossbow",
+          "text": "고급 포격 석궁"
+        },
+        {
+          "type": "Expert Bombard Crossbow",
+          "text": "전문 포격 석궁"
+        },
+        {
+          "type": "Construct Crossbow",
+          "text": "구조물 석궁"
+        },
+        {
+          "type": "Advanced Forlorn Crossbow",
+          "text": "고급 고독한 석궁"
+        },
+        {
+          "type": "Expert Forlorn Crossbow",
+          "text": "전문 고독한 석궁"
+        },
+        {
+          "type": "Wrapped Quarterstaff",
+          "text": "싸맨 육척봉"
+        },
+        {
+          "type": "Wyrm Quarterstaff",
+          "text": "아룡 육척봉"
+        },
+        {
+          "type": "Long Quarterstaff",
+          "text": "긴 육척봉"
+        },
+        {
+          "type": "Advanced Long Quarterstaff",
+          "text": "고급 긴 육척봉"
+        },
+        {
+          "type": "Expert Long Quarterstaff",
+          "text": "전문 긴 육척봉"
+        },
+        {
+          "type": "Gothic Quarterstaff",
+          "text": "고딕 육척봉"
+        },
+        {
+          "type": "Advanced Gothic Quarterstaff",
+          "text": "고급 고딕 육척봉"
+        },
+        {
+          "type": "Expert Gothic Quarterstaff",
+          "text": "전문 고딕 육척봉"
+        },
+        {
+          "type": "Crackling Quarterstaff",
+          "text": "치직대는 육척봉"
+        },
+        {
+          "type": "Advanced Crackling Quarterstaff",
+          "text": "고급 치직대는 육척봉"
+        },
+        {
+          "type": "Expert Crackling Quarterstaff",
+          "text": "전문 치직대는 육척봉"
+        },
+        {
+          "type": "Crescent Quarterstaff",
+          "text": "초승달 육척봉"
+        },
+        {
+          "type": "Advanced Crescent Quarterstaff",
+          "text": "고급 초승달 육척봉"
+        },
+        {
+          "type": "Expert Crescent Quarterstaff",
+          "text": "전문 초승달 육척봉"
+        },
+        {
+          "type": "Steelpoint Quarterstaff",
+          "text": "강철침 육척봉"
+        },
+        {
+          "type": "Slicing Quarterstaff",
+          "text": "저미는 육척봉"
+        },
+        {
+          "type": "Advanced Slicing Quarterstaff",
+          "text": "고급 저미는 육척봉"
+        },
+        {
+          "type": "Expert Slicing Quarterstaff",
+          "text": "전문 저미는 육척봉"
+        },
+        {
+          "type": "Barrier Quarterstaff",
+          "text": "방벽 육척봉"
+        },
+        {
+          "type": "Advanced Barrier Quarterstaff",
+          "text": "고급 방벽 육척봉"
+        },
+        {
+          "type": "Expert Barrier Quarterstaff",
+          "text": "전문 방벽 육척봉"
+        },
+        {
+          "type": "Ashen Staff",
+          "text": "잿빛 지팡이"
+        },
+        {
+          "type": "Gelid Staff",
+          "text": "극한의 지팡이"
+        },
+        {
+          "type": "Voltaic Staff",
+          "text": "전도성 지팡이"
+        },
+        {
+          "type": "Pyrophyte Staff",
+          "text": "불저항 지팡이"
+        },
+        {
+          "type": "Chiming Staff",
+          "text": "차임벨 지팡이"
+        },
+        {
+          "type": "Elegant Glaive",
+          "text": "고상한 글레이브"
+        },
+        {
+          "type": "Felled Greatclub",
+          "text": "쓰러진 대곤봉"
+        },
+        {
+          "type": "Oak Greathammer",
+          "text": "참나무 대망치"
+        },
+        {
+          "type": "Advanced Oak Greathammer",
+          "text": "고급 참나무 대망치"
+        },
+        {
+          "type": "Expert Oak Greathammer",
+          "text": "전문 참나무 대망치"
+        },
+        {
+          "type": "Forge Maul",
+          "text": "대장간 대형 망치"
+        },
+        {
+          "type": "Advanced Forge Maul",
+          "text": "고급 대장간 대형 망치"
+        },
+        {
+          "type": "Expert Forge Maul",
+          "text": "전문 대장간 대형 망치"
+        },
+        {
+          "type": "Studded Greatclub",
+          "text": "징 박힌 대곤봉"
+        },
+        {
+          "type": "Cultist Greathammer",
+          "text": "광신자 대망치"
+        },
+        {
+          "type": "Advanced Cultist Greathammer",
+          "text": "고급 광신자 대망치"
+        },
+        {
+          "type": "Expert Cultist Greathammer",
+          "text": "전문 광신자 대망치"
+        },
+        {
+          "type": "Temple Maul",
+          "text": "사원 대형 망치"
+        },
+        {
+          "type": "Advanced Temple Maul",
+          "text": "고급 사원 대형 망치"
+        },
+        {
+          "type": "Expert Temple Maul",
+          "text": "전문 사원 대형 망치"
+        },
+        {
+          "type": "Leaden Greathammer",
+          "text": "납빛 대망치"
+        },
+        {
+          "type": "Advanced Leaden Greathammer",
+          "text": "고급 납빛 대망치"
+        },
+        {
+          "type": "Expert Leaden Greathammer",
+          "text": "전문 납빛 대망치"
+        },
+        {
+          "type": "Crumbling Maul",
+          "text": "허물어지는 대형 망치"
+        },
+        {
+          "type": "Advanced Crumbling Maul",
+          "text": "고급 허물어지는 대형 망치"
+        },
+        {
+          "type": "Expert Crumbling Maul",
+          "text": "전문 허물어지는 대형 망치"
+        },
+        {
+          "type": "Corroded Longsword",
+          "text": "부식된 장검"
+        },
+        {
+          "type": "Iron Greatsword",
+          "text": "철 대검"
+        },
+        {
+          "type": "Rippled Greatsword",
+          "text": "파문 대검"
+        },
+        {
+          "type": "Studded Greatclub",
+          "text": "요동치는 두뇌 징 박힌 대곤봉",
+          "name": "Brain Rattler",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Wooden Club",
+          "text": "브린핸드의 징표 목재 곤봉",
+          "name": "Brynhand's Mark",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Leaden Greathammer",
+          "text": "초버 차버 납빛 대망치",
+          "name": "Chober Chaber",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Wyrm Quarterstaff",
+          "text": "무너지는 지평선 아룡 육척봉",
+          "name": "Collapsing Horizon",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Dualstring Bow",
+          "text": "죽음의 하프 이중시위 활",
+          "name": "Death's Harp",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Ashen Staff",
+          "text": "황혼의 불침번 잿빛 지팡이",
+          "name": "Dusk Vigil",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Voltaic Staff",
+          "text": "대지결속 전도성 지팡이",
+          "name": "Earthbound",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Volatile Wand",
+          "text": "에네준의 돌진 폭발성 마법봉",
+          "name": "Enezun's Charge",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Omen Sceptre",
+          "text": "힘의 샘 징조 셉터",
+          "name": "Font of Power",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Slim Mace",
+          "text": "서리 숨결 좁은 철퇴",
+          "name": "Frostbreath",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Shrine Sceptre",
+          "text": "인도하는 손바닥 성소 셉터",
+          "name": "Guiding Palm",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Felled Greatclub",
+          "text": "돼지사냥 쓰러진 대곤봉",
+          "name": "Hoghunt",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Oak Greathammer",
+          "text": "흐림노르의 찬가 참나무 대망치",
+          "name": "Hrimnor's Hymn",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Crone Knife",
+          "text": "미완성 노파 단도",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Ironhead Spear",
+          "text": "미완성 철창날 창",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Vampiric Blade",
+          "text": "미완성 흡혈 칼날",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Simple Dagger",
+          "text": "미완성 단순한 단검",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Chain Flail",
+          "text": "미완성 사슬 도리깨",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Twin Flail",
+          "text": "미완성 쌍둥이 도리깨",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Dull Hatchet",
+          "text": "미완성 무딘 손도끼",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Hook Axe",
+          "text": "미완성 갈고리 도끼",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Extended Cleaver",
+          "text": "미완성 연장 가로날도끼",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Bandit Hatchet",
+          "text": "미완성 도적 손도끼",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Hunting Spear",
+          "text": "미완성 사냥 창",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "War Spear",
+          "text": "미완성 전쟁 창",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Charred Shortsword",
+          "text": "미완성 까맣게 탄 절단도",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Elegant Glaive",
+          "text": "미완성 고상한 글레이브",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Corroded Longsword",
+          "text": "미완성 부식된 장검",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Iron Greatsword",
+          "text": "미완성 철 대검",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Rippled Greatsword",
+          "text": "미완성 파문 대검",
+          "name": "INCOMPLETE",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Attuned Wand",
+          "text": "생명의 가지 조율된 마법봉",
+          "name": "Lifesprig",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Crescent Quarterstaff",
+          "text": "마챠 초승달 육척봉",
+          "name": "Matsya",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Makeshift Crossbow",
+          "text": "연무의 속삭임 임시 석궁",
+          "name": "Mist Whisper",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Steelpoint Quarterstaff",
+          "text": "나지르의 심판 강철침 육척봉",
+          "name": "Nazir's Judgement",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Torment Club",
+          "text": "올로바사라 고통 곤봉",
+          "name": "Olrovasara",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Long Quarterstaff",
+          "text": "갇힌 신의 기둥 긴 육척봉",
+          "name": "Pillar of the Caged God",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Crumbling Maul",
+          "text": "퀘촐리 허물어지는 대형 망치",
+          "name": "Quecholli",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Shortbow",
+          "text": "화살 비 단궁",
+          "name": "Quill Rain",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Tense Crossbow",
+          "text": "성벽 랩터 팽팽한 석궁",
+          "name": "Rampart Raptor",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Shortsword",
+          "text": "붉은 부리 절단도",
+          "name": "Redbeak",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Shrine Sceptre",
+          "text": "신성한 불꽃 성소 셉터",
+          "name": "Sacred Flame",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Bone Wand",
+          "text": "핏빛 예언자 뼈 마법봉",
+          "name": "Sanguine Diviner",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Plated Mace",
+          "text": "눈앞의 별 판금 철퇴",
+          "name": "Seeing Stars",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Winged Spear",
+          "text": "하늘의 편린 날개 달린 창",
+          "name": "Skysliver",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Recurve Bow",
+          "text": "파편심장 반곡궁",
+          "name": "Splinterheart",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Hardwood Spear",
+          "text": "로라타의 파편 견목 창",
+          "name": "Splinter of Loratta",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Gelid Staff",
+          "text": "타린의 오한 극한의 지팡이",
+          "name": "Taryn's Shiver",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Wrapped Quarterstaff",
+          "text": "피의 가시 싸맨 육척봉",
+          "name": "The Blood Thorn",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Chiming Staff",
+          "text": "그림자의 짐 차임벨 지팡이",
+          "name": "The Burden of Shadows",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Rattling Sceptre",
+          "text": "어둠의 모독자 덜컹대는 셉터",
+          "name": "The Dark Defiler",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Pyrophyte Staff",
+          "text": "이글거리는 손길 불저항 지팡이",
+          "name": "The Searing Touch",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Gothic Quarterstaff",
+          "text": "보초 고딕 육척봉",
+          "name": "The Sentry",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Spiked Club",
+          "text": "참호목 가시 박힌 곤봉",
+          "name": "Trenchtimbre",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Forge Maul",
+          "text": "트레피나 대장간 대형 망치",
+          "name": "Trephina",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Crude Bow",
+          "text": "과부우박 조잡한 활",
+          "name": "Widowhail",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Glass Shank",
+          "text": "겨울의 추위 유리 단도",
+          "name": "Winter's Bite",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Smithing Hammer",
+          "text": "와일룬드의 말뚝 대장장이 망치",
+          "name": "Wylund's Stake",
+          "flags": {
+            "unique": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "sanctum",
+      "label": "Sanctum Research",
+      "entries": [
+        {
+          "type": "Urn Relic",
+          "text": "단지 유물"
+        },
+        {
+          "type": "Amphora Relic",
+          "text": "손잡이 항아리 유물"
+        },
+        {
+          "type": "Vase Relic",
+          "text": "화병 유물"
+        },
+        {
+          "type": "Seal Relic",
+          "text": "인장 유물"
+        },
+        {
+          "type": "Coffer Relic",
+          "text": "궤짝 유물"
+        },
+        {
+          "type": "Tapestry Relic",
+          "text": "융단 유물"
+        },
+        {
+          "type": "Incense Relic",
+          "text": "향 유물"
+        },
+        {
+          "type": "Tapestry Relic",
+          "text": "부서진 향로 융단 유물",
+          "name": "The Burden of Leadership",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Seal Relic",
+          "text": "밤의 등화 인장 유물",
+          "name": "The Changing Seasons",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Vase Relic",
+          "text": "두 번째 성체 화병 유물",
+          "name": "The Desperate Alliance",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Incense Relic",
+          "text": "마지막 불길 향 유물",
+          "name": "The Last Flame",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Amphora Relic",
+          "text": "평화주의자의 영약 손잡이 항아리 유물",
+          "name": "The Peacemaker's Draught",
+          "flags": {
+            "unique": true
+          }
+        },
+        {
+          "type": "Coffer Relic",
+          "text": "최초의 문양 궤짝 유물",
+          "name": "The Remembered Tales",
+          "flags": {
+            "unique": true
+          }
+        }
+      ]
+    }
+  ]

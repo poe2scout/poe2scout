@@ -1,0 +1,69 @@
+<% if domain.multiple_upstreams? %>
+upstream <%= domain.upstream_backend_name %> {
+    <% domain.upstreams.each do |upstream| %>
+        server <%= upstream[:address] %> <%= upstream[:parameters] %>;
+    <% end %>
+}
+<% end %>
+
+server {
+    listen <%= domain.port %> ssl;
+    <% if ENV['LISTEN_IPV6'] && ENV['LISTEN_IPV6'].downcase == 'true' %>
+    listen [::]:<%= domain.port %> ssl;
+    <% end %>
+    http2 on;
+    
+    server_name <%= domain.name %>;
+
+    ssl_certificate <%= domain.chained_cert_path %>;
+    ssl_certificate_key <%= domain.key_path %>;
+
+    ssl_session_cache shared:SSL:50m;
+    ssl_ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256;
+    ssl_prefer_server_ciphers on;
+
+    ssl_dhparam <%= dhparam_path %>;
+
+    # Send HSTS header if configured
+    <% if ENV['HSTS_MAX_AGE'] %>
+       add_header Strict-Transport-Security "max-age=<%= ENV['HSTS_MAX_AGE'] %>" always;
+    <% end %>
+
+    <% if domain.access_restriction %>
+        <% domain.access_restriction.each do |ip| %>
+            allow <%= ip %>;
+        <% end %>
+        deny all;
+    <% end %>
+
+    <% if domain.basic_auth_enabled? %>
+        auth_basic "Password";
+        auth_basic_user_file <%= domain.htaccess_path %>;
+    <% end %>
+
+    <% if ENV['CUSTOM_NGINX_SERVER_CONFIG_BLOCK'] %>
+        <%= ENV['CUSTOM_NGINX_SERVER_CONFIG_BLOCK'] %>
+    <% end %>
+
+    <% if ENV["CUSTOM_NGINX_#{domain.env_format_name}_CONFIG_BLOCK"] %>
+        <%= ENV["CUSTOM_NGINX_#{domain.env_format_name}_CONFIG_BLOCK"] %>
+    <% end %>
+
+    # Frontend routing
+    location / {
+        proxy_pass http://frontend:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Backend API routing - Handle all requests to /api
+    location /api {
+        proxy_pass http://api:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+} 

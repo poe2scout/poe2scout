@@ -1,0 +1,35 @@
+name: Push to Prod
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          
+      - name: Deploy to production server
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd project/poe2market && \
+          git pull && \
+          echo 'POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          DBSTRING=${{ secrets.DBSTRING }}
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          DOMAINS=${{ secrets.DOMAINS }}
+          STAGE=${{ secrets.STAGE }}
+          UNIQUE_ITEM_URL=https://www.pathofexile.com/api/trade2/data/items
+          CURRENCY_ITEM_URL=https://www.pathofexile.com/api/trade2/data/static
+          LOCAL=False
+          REALM=poe2' > .env && \
+          docker-compose --profile prod build && \
+          docker-compose --profile prod down && \
+          docker-compose --profile prod up -d"
