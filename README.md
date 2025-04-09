@@ -6,8 +6,6 @@ POE2 Scout is your ultimate market tool for Path of Exile 2, providing real-time
 
 ## Project Overview
 
-The application is containerized using Docker and consists of several services defined in `docker-compose.yml`:
-
 - **`frontend`**: Serves the React single-page application using Nginx.
   - Code: `frontend/vite-project/`
   - Nginx Config: `frontend/vite-project/nginx.conf`
@@ -19,6 +17,16 @@ The application is containerized using Docker and consists of several services d
   - Code: `services/priceFetchService/`
 - **`db`**: The PostgreSQL database storing item information, prices, and potentially user/build data.
 - **`https-portal`**: (Production profile only) Manages SSL certificates and acts as a reverse proxy for the frontend and API.
+
+The application is containerised using Docker for production. For running locally we run the python modules and npm run dev manually. Docker is only used locally for streamlining the db initialisation.
+
+## Api
+
+POE2 Scout has an api which is used by the website. This api is completely open for others to use as well.
+
+Please include a user-agent field with an email so I can contact you. If your usage is likely to be high (consistently several times a minute) get in touch with me and I can create specific endpoints that serve your tools needs the most efficiently.
+
+Documentation can be found at [poe2scout.com/api/swagger](https://poe2scout.com/api/swagger)
 
 ## Contributing
 
