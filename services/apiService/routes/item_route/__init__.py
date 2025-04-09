@@ -10,3 +10,4 @@ from .GetCurrencyItems import GetCurrencyItems
 from .GetFilters import GetFilters  
 from .GetAllItems import GetAllItems
 from .GetHistory import GetHistory
+from .GetLandingSplashInfo import GetLandingSplashInfo

@@ -28,6 +28,8 @@ from .SetCurrencyItemMetadata import SetCurrencyItemMetadata
 from .UpdateCurrencyIconUrl import UpdateCurrencyIconUrl
 from .GetFetchedItemIds import GetFetchedItemIds
 from .GetItemPriceHistory import GetItemPriceHistory
+from .GetCurrencyItems import GetCurrencyItems
+
 class ItemRepository:
     def __init__(self):
         self.CreateBaseItem = CreateBaseItem().execute
@@ -59,4 +61,5 @@ class ItemRepository:
         self.SetCurrencyItemMetadata = SetCurrencyItemMetadata().execute
         self.UpdateCurrencyIconUrl = UpdateCurrencyIconUrl().execute
         self.GetFetchedItemIds = GetFetchedItemIds().execute
-        self.GetItemPriceHistory = GetItemPriceHistory().execute
+        self.GetItemPriceHistory = GetItemPriceHistory().execute    
+        self.GetCurrencyItems = GetCurrencyItems().execute
