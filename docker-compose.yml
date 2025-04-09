@@ -106,4 +106,5 @@ networks:
 
 volumes:
   https-portal-data:
-  pgdata6:
+  poe2market_pgdata6:
+    external: true
