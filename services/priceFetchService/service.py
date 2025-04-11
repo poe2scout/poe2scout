@@ -120,10 +120,10 @@ async def FetchPrices(config: PriceFetchConfig, repo: ItemRepository):
             currencyItems.append(divineItem)
             currencyItems.append(exaltedItem)
 
-            for currencyItem in currencyItems:
-                if currencyItem.itemMetadata is None:
-                    logger.info(f"Syncing metadata and icon for {currencyItem.text}")
-                    await sync_metadata_and_icon(currencyItem, repo, client, BASE_URL, REALM, league.value)
+        for currencyItem in currencyItems:
+            if currencyItem.itemMetadata is None:
+                logger.info(f"Syncing metadata and icon for {currencyItem.text}")
+                await sync_metadata_and_icon(currencyItem, repo, client, BASE_URL, REALM, leagues[0].value)
 
 
 
