@@ -117,6 +117,8 @@ async def FetchPrices(config: PriceFetchConfig, repo: ItemRepository):
                 process_uniques(uniqueItems, league, repo, client, exaltedItem, divineItem, divinePrice),
                 process_currency(currencyItems, league, repo, client, exaltedItem, divineItem, divinePrice)
             )   
+            currencyItems.append(divineItem)
+            currencyItems.append(exaltedItem)
 
             for currencyItem in currencyItems:
                 if currencyItem.itemMetadata is None:
