@@ -90,8 +90,8 @@ async def FetchPrices(config: PriceFetchConfig, repo: ItemRepository):
             logger.info(f"Fetching prices for {len(itemIdsToFetch)} items")
 
             divinePrice = await repo.GetItemPrice(divineItem.itemId, league.id)
-            inListDivine = [item for item in currencyItems if item.itemId == divineItem.itemId]
 
+            inListDivine = [item for item in currencyItems if item.itemId == divineItem.itemId]
             if len(inListDivine) != 0:
                 listDivine = inListDivine[0]
                 logger.info(f"Fetching divine price for {listDivine.text} in {league.value}")
@@ -102,18 +102,28 @@ async def FetchPrices(config: PriceFetchConfig, repo: ItemRepository):
             else:
                 logger.info(f"No dviine item in currency list")
 
+            inListExalted = [item for item in currencyItems if item.itemId == exaltedItem.itemId]
+            if len(inListExalted) != 0:
+                listExalted = inListExalted[0]
+                logger.info(f"Fetching exalted price for {listExalted.text} in {league.value}")
+                currencyItems.remove(listExalted)
+                await record_price(1, listExalted.itemId, league.id, 1, repo)
+            else:
+                logger.info(f"No exalted item in currency list")
+
             divinePrice = await repo.GetItemPrice(divineItem.itemId, league.id)
 
             await asyncio.gather(
                 process_uniques(uniqueItems, league, repo, client, exaltedItem, divineItem, divinePrice),
                 process_currency(currencyItems, league, repo, client, exaltedItem, divineItem, divinePrice)
             )   
+            currencyItems.append(divineItem)
+            currencyItems.append(exaltedItem)
 
-            for currencyItem in currencyItems:
-                if currencyItem.itemMetadata is None:
-                    logger.info(f"Syncing metadata and icon for {currencyItem.text}")
-                    await sync_metadata_and_icon(currencyItem, repo, client, BASE_URL, REALM)
-
+        for currencyItem in currencyItems:
+            if currencyItem.itemMetadata is None:
+                logger.info(f"Syncing metadata and icon for {currencyItem.text}")
+                await sync_metadata_and_icon(currencyItem, repo, client, BASE_URL, REALM, leagues[0].value)
 
 
 

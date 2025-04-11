@@ -7,9 +7,9 @@ from services.libs.poe_trade_client import PoeTradeClient
 
 logger = logging.getLogger(__name__)
 
-async def sync_metadata_and_icon(want_currency: CurrencyItem, repo: ItemRepository, client: PoeTradeClient, BASE_URL: str, REALM: str):
+async def sync_metadata_and_icon(want_currency: CurrencyItem, repo: ItemRepository, client: PoeTradeClient, BASE_URL: str, REALM: str, LEAGUE: str):
 
-    query_url = f"{BASE_URL}/search/{REALM}/Standard"
+    query_url = f"{BASE_URL}/search/{REALM}/{LEAGUE}"
     query_data = {"query":
                   {"status":{"option":"online"},
                    "type":want_currency.text,
