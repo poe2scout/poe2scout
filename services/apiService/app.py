@@ -12,6 +12,11 @@ from services.apiService.routes import league_router
 import logging
 import time
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+from fastapi.responses import JSONResponse
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,6 +24,26 @@ logger = logging.getLogger(__name__)
 load_dotenv()    
 config = ApiServiceConfig.load_from_env()
 IS_LOCAL = os.getenv("local", "false").lower() == "true"
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["100/minute"],  
+)
+
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    logger.warning(
+        f"Rate limit exceeded - IP: {request.client.host}, "
+        f"Path: {request.url.path}, "
+        f"Method: {request.method}, "
+        f"Limit: {exc.limit.limit}/{exc.limit.period} seconds"
+    )
+    return JSONResponse(
+        status_code=429,
+        content={
+            "error": "Rate limit exceeded",
+            "detail": "Too many requests. Please try again later."
+        }
+    )
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -33,6 +58,10 @@ app = FastAPI(
         root_path='/api',
         lifespan=lifespan
     )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 
 if IS_LOCAL:
     logger.info("Running in local mode, enabling CORS for localhost.")
@@ -78,8 +107,6 @@ async def log_requests(request: Request, call_next):
 @app.get("/")
 def read_root():
     return {"message": "Hello World"}
-
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=5000)
