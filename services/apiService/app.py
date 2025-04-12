@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from dotenv import load_dotenv
 import os
 from services.repositories.base_repository import BaseRepository
@@ -15,7 +15,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from slowapi.middleware import SlowAPIMiddleware
 from fastapi.responses import JSONResponse
 
 logging.basicConfig(level=logging.INFO)
@@ -25,23 +24,31 @@ load_dotenv()
 config = ApiServiceConfig.load_from_env()
 IS_LOCAL = os.getenv("local", "false").lower() == "true"
 
+def get_real_ip(request: Request) -> str:
+    real_ip = request.headers.get("cf-connecting-ip")
+
+    if real_ip:
+        return real_ip
+
+    return get_remote_address(request)
+
 limiter = Limiter(
-    key_func=get_remote_address,
-    default_limits=["100/minute"],  
+    key_func=get_real_ip
 )
 
 async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    client_ip = get_real_ip(request)
     logger.warning(
-        f"Rate limit exceeded - IP: {request.client.host}, "
+        f"Custom Handler: Rate limit exceeded - IP: {client_ip}, "
         f"Path: {request.url.path}, "
         f"Method: {request.method}, "
-        f"Limit: {exc.limit.limit}/{exc.limit.period} seconds"
+        f"Limit Details: {exc.detail}"
     )
     return JSONResponse(
         status_code=429,
         content={
             "error": "Rate limit exceeded",
-            "detail": "Too many requests. Please try again later."
+            "detail": f"Limit: {exc.detail}. Please try again later."
         }
     )
 
@@ -56,12 +63,12 @@ app = FastAPI(
         description='Jupiter Api',
         docs_url='/swagger',
         root_path='/api',
-        lifespan=lifespan
+        lifespan=lifespan,
+        dependencies=[Depends(limiter.limit("100/minute"))]
     )
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
-app.add_middleware(SlowAPIMiddleware)
 
 if IS_LOCAL:
     logger.info("Running in local mode, enabling CORS for localhost.")
@@ -109,4 +116,10 @@ def read_root():
     return {"message": "Hello World"}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=5000,
+        proxy_headers=True,
+        forwarded_allow_ips='*'
+    )
