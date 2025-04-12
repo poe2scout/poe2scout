@@ -12,11 +12,11 @@ from services.apiService.routes import league_router
 import logging
 import time
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import Limiter
+from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from fastapi.responses import JSONResponse
-
+from fastapi.responses import JSONResponse, Response
+from slowapi.middleware import SlowAPIMiddleware
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -32,11 +32,7 @@ def get_real_ip(request: Request) -> str:
 
     return get_remote_address(request)
 
-limiter = Limiter(
-    key_func=get_real_ip
-)
-
-async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> Response:
     client_ip = get_real_ip(request)
     logger.warning(
         f"Custom Handler: Rate limit exceeded - IP: {client_ip}, "
@@ -44,13 +40,20 @@ async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) 
         f"Method: {request.method}, "
         f"Limit Details: {exc.detail}"
     )
-    return JSONResponse(
+
+    response = JSONResponse(
         status_code=429,
         content={
             "error": "Rate limit exceeded",
             "detail": f"Limit: {exc.detail}. Please try again later."
         }
     )
+
+    response = request.app.state.limiter._inject_headers(
+        response, request.state.view_rate_limit
+    )
+
+    return response
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -63,12 +66,17 @@ app = FastAPI(
         description='Jupiter Api',
         docs_url='/swagger',
         root_path='/api',
-        lifespan=lifespan,
-        dependencies=[Depends(limiter.limit("100/minute"))]
+        lifespan=lifespan
     )
 
+limiter = Limiter(
+    key_func=get_real_ip,
+    application_limits=["100/minute"],
+    headers_enabled=True
+)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 
 if IS_LOCAL:
     logger.info("Running in local mode, enabling CORS for localhost.")
