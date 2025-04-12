@@ -32,7 +32,7 @@ def get_real_ip(request: Request) -> str:
 
     return get_remote_address(request)
 
-async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> Response:
+def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> Response:
     client_ip = get_real_ip(request)
     logger.warning(
         f"Custom Handler: Rate limit exceeded - IP: {client_ip}, "
