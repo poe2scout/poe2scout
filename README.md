@@ -55,7 +55,7 @@ These instructions will help you get a local development environment running.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/poe2scout/poe2scout.git # Replace yourusername
+    git clone https://github.com/poe2scout/poe2scout.git # Replace /poe2scout/ with your own username if you have forked the repo 
     cd poe2scout
     ```
 
