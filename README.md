@@ -79,8 +79,11 @@ These instructions will help you get a local development environment running.
     pyenv install 3.12.3
     pyenv local 3.12.3
 
-    # Create and activate a virtual environment
-    python -m venv .venv
+    #Make sure to check that pyenv has actually updated the version of python.
+    python --version
+
+    # Create and activate a virtual environment. If python does work try python3.
+    python -m venv .venv 
     # On macOS/Linux:
     source .venv/bin/activate
     # On Windows:
