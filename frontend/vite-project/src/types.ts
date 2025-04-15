@@ -16,6 +16,18 @@ export interface UniqueItemExtended {
   currentPrice: number | null;
 }
 
+export interface UniqueBaseItem {
+  id: number;
+  iconUrl: string | null;
+  itemMetadata: ItemMetadata| null
+  itemId: number;
+  name: string;
+  apiId: string;
+  priceLogs: (PriceLogEntry | null)[];
+  currentPrice: number | null;
+  averageUniquePrice: number | null;
+}
+
 export interface CurrencyItemExtended {
   id: number;
   itemId: number;

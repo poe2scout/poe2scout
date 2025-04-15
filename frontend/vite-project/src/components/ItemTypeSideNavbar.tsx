@@ -2,20 +2,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import { CircularProgress, Drawer } from "@mui/material";
 import { Typography } from "@mui/material";
-import {
-  CATEGORY_MAPPING,
-} from "../constants";
-import { useState } from "react";
-import translations from "../translationskrmapping.json";
-import { useLeague } from "../contexts/LeagueContext";
-import { FormControl, Select, MenuItem, InputLabel } from "@mui/material";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-} from "@mui/material";
 import { useCategories } from '../contexts/CategoryContext';
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { Circle } from "@mui/icons-material";
@@ -50,33 +36,15 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
   marginTop: 0,
 }));
 
-const LeagueSelect = styled(Select)(() => ({
-  ".MuiSelect-select": {
-    padding: "4px 8px",
-    fontSize: "0.9rem",
-  },
-  ".MuiOutlinedInput-notchedOutline": {
-    borderColor: "rgba(255, 255, 255, 0.23)",
-  },
-  "&:hover .MuiOutlinedInput-notchedOutline": {
-    borderColor: "rgba(255, 255, 255, 0.4)",
-  },
-}));
 
-const LeagueContainer = styled("div")({
-  padding: "8px 16px",
-  borderBottom: "1px solid rgba(255, 255, 255, 0.12)",
-});
 
-function SideNav({ isOpen, onClose, language = "en" }: SideNavProps) {
+
+
+function SideNav({ isOpen, onClose }: SideNavProps) {
   const { uniqueCategories, currencyCategories, loading } = useCategories();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = window.matchMedia("(max-width: 600px)").matches;
-  const { league, setLeague, leagues } = useLeague();
-  const [showWarningDialog, setShowWarningDialog] = useState(false);
-  const [pendingLeague, setPendingLeague] = useState<string>("");
-
   const handleNavigation = (path: string) => {
     navigate(`/economy/${path}`);
     if (isMobile) {
@@ -84,32 +52,7 @@ function SideNav({ isOpen, onClose, language = "en" }: SideNavProps) {
     }
   };
 
-  const getTranslatedText = (key: string) => {
-    if (language === "ko" && key in translations) {
-      return translations[key as keyof typeof translations];
-    }
-    return CATEGORY_MAPPING[key] || key;
-  };
 
-  const handleLeagueChange = (newLeagueValue: string) => {
-    const newLeague = leagues.find(l => l.value === newLeagueValue);
-    if (!newLeague) return;
-    
-    if (newLeague.value.toLowerCase().includes('hardcore')) {
-      setPendingLeague(newLeagueValue);
-      setShowWarningDialog(true);
-    } else {
-      setLeague(newLeague);
-    }
-  };
-
-  const handleConfirmLeagueChange = () => {
-    const newLeague = leagues.find(l => l.value === pendingLeague);
-    if (newLeague) {
-      setLeague(newLeague);
-    }
-    setShowWarningDialog(false);
-  };
 
   if (loading) {
     return (
@@ -121,46 +64,6 @@ function SideNav({ isOpen, onClose, language = "en" }: SideNavProps) {
 
   const content = (
     <Nav>
-      <LeagueContainer>
-        <FormControl size="small" fullWidth>
-          <InputLabel id="league-select-label">
-            {getTranslatedText("League")}
-          </InputLabel>
-          <LeagueSelect
-            labelId="league-select-label"
-            id="league-select"
-            value={league.value}
-            label="League"
-            onChange={(e) => handleLeagueChange(e.target.value as string)}
-          >
-            {leagues.map((leagueOption) => (
-              <MenuItem key={leagueOption.value} value={leagueOption.value}>
-                {getTranslatedText(leagueOption.value)}
-              </MenuItem>
-            ))}
-          </LeagueSelect>
-        </FormControl>
-      </LeagueContainer>
-
-      <Dialog
-        open={showWarningDialog}
-        onClose={() => setShowWarningDialog(false)}
-      >
-        <DialogTitle>{language === "ko" ? "주의" : "Warning"}</DialogTitle>
-        <DialogContent>
-          {language === "ko"
-            ? "하드코어 리그는 현재 개발 중입니다. 일부 기능이 제대로 작동하지 않을 수 있습니다."
-            : "Hardcore league support is currently under development. Some features may not work as expected."}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowWarningDialog(false)}>
-            {language === "ko" ? "취소" : "Cancel"}
-          </Button>
-          <Button onClick={handleConfirmLeagueChange} color="primary">
-            {language === "ko" ? "계속하기" : "Continue"}
-          </Button>
-        </DialogActions>
-      </Dialog>
       <List>
         <SectionTitle>Currency</SectionTitle>
         {currencyCategories.map((category) => (
