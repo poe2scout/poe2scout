@@ -68,6 +68,13 @@ async def sync_currencies(categories: list[currencyCategory]):
                     itemMetadata={"id": currency.id, "text": currency.text}
                 )
                 base_id = await repo.CreateBaseItem(base_model)
+
+                item_model = CreateItemModel(
+                    baseItemId=base_id,
+                    itemType='base'
+                )
+                item_id = await repo.CreateItem(item_model)
+
             else:
                 base_id = next(
                     b.id for b in all_base_items if b.typeId == type_id)

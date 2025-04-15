@@ -65,6 +65,12 @@ async def sync_items(categories: list[itemCategory]):
                 )
                 base_id = await repo.CreateBaseItem(base_model)
                 all_base_items = await repo.GetAllBaseItems()
+
+                item_model = CreateItemModel(
+                    baseItemId=base_id,
+                    itemType='base'
+                )
+                item_id = await repo.CreateItem(item_model)
             else:
                 base_id = next(
                     b.id for b in all_base_items if b.typeId == type_id)

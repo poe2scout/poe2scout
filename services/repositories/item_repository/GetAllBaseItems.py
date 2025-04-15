@@ -9,10 +9,11 @@ class BaseItem(BaseModel):
     itemMetadata: Optional[dict] = None
 
 
+
 class GetAllBaseItems(BaseRepository):
     async def execute(self) -> List[BaseItem]:
         baseItem_query = """
-            SELECT "id", "typeId", "iconUrl", "itemMetadata" FROM "BaseItem"
+            SELECT "bi"."id", "bi"."typeId", "bi"."iconUrl", "bi"."itemMetadata" FROM "BaseItem" as bi
         """
 
         baseItems = await self.execute_query(

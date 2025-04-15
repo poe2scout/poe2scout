@@ -49,9 +49,6 @@ if __name__ == "__main__":
                 logger.info("Sleeping for 15 minutes")
                 await asyncio.sleep(900)  # Using asyncio.sleep instead of time.sleep
                 continue
-            except Exception as e:
-                logger.error("Service encountered an unhandled error, shutting down", exc_info=True, stack_info=True)
-                await asyncio.sleep(1500)
 
     # Single asyncio.run() call that manages the entire application lifecycle
     

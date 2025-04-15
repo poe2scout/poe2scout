@@ -3,6 +3,7 @@ from httpx import AsyncClient
 from .functions.fetch_unique import PriceFetchResult, DivinePriceFetchResult, fetch_unique, fetch_unique_divine
 from .functions.record_price import record_price
 from .functions.fetch_currency import fetch_currency
+from .functions.extract_base_item_metadata import extract_base_item_metadata
 import logging
 from .config import PriceFetchConfig
 from services.repositories.base_repository import BaseRepository
@@ -11,7 +12,10 @@ from datetime import datetime, timedelta
 from services.libs.poe_trade_client import PoeTradeClient
 from services.repositories.item_repository.GetAllUniqueItems import UniqueItem
 from services.repositories.item_repository.GetAllCurrencyItems import CurrencyItem
+from services.repositories.item_repository.GetAllUniqueBaseItems import UniqueBaseItem
 from services.repositories.item_repository.GetLeagues import League
+from .functions.fetch_base import fetch_base
+
 import asyncio
 logger = logging.getLogger(__name__)
 
@@ -62,6 +66,7 @@ async def FetchPrices(config: PriceFetchConfig, repo: ItemRepository):
     # Get all unqiue items
     leagues = await repo.GetLeagues()
     baseUniqueItems = await repo.GetAllUniqueItems()
+    uniqueBaseItems = await repo.GetAllUniqueBaseItems()
     baseCurrencyItems = await repo.GetAllCurrencyItems()
 
     exaltedItem = await repo.GetCurrencyItem("exalted")
@@ -82,13 +87,17 @@ async def FetchPrices(config: PriceFetchConfig, repo: ItemRepository):
 
             uniqueItems = [item for item in baseUniqueItems if item.itemId in itemIdsToFetch]
             currencyItems = [item for item in baseCurrencyItems if item.itemId in itemIdsToFetch]
+            uniqueBaseItems = [item for item in uniqueBaseItems if item.itemId in itemIdsToFetch]
 
+            logger.info(f"fetching {len(uniqueItems)} unique items")
+            logger.info(f"fetching {len(currencyItems)} currency items")
+            
+            logger.info(f"fetching {len(uniqueBaseItems)} base items to fetch")
+            
             if len(itemIdsToFetch) == 0:
                 logger.info(f"No items to fetch")
                 continue
                 
-            logger.info(f"Fetching prices for {len(itemIdsToFetch)} items")
-
             divinePrice = await repo.GetItemPrice(divineItem.itemId, league.id)
 
             inListDivine = [item for item in currencyItems if item.itemId == divineItem.itemId]
@@ -113,12 +122,18 @@ async def FetchPrices(config: PriceFetchConfig, repo: ItemRepository):
 
             divinePrice = await repo.GetItemPrice(divineItem.itemId, league.id)
 
+
+            if league.value == "Dawn of the Hunt":
+                await process_base_items(uniqueBaseItems, league, repo, client)
+                
             await asyncio.gather(
                 process_uniques(uniqueItems, league, repo, client, exaltedItem, divineItem, divinePrice),
                 process_currency(currencyItems, league, repo, client, exaltedItem, divineItem, divinePrice)
             )   
             currencyItems.append(divineItem)
             currencyItems.append(exaltedItem)
+
+
 
             for currencyItem in currencyItems:
                 if currencyItem.itemMetadata is None:
@@ -160,3 +175,10 @@ async def process_currency(currencyItems: list[CurrencyItem], league: League, re
                 price_result = divine_price_result
 
         await record_price(price_result.price, currencyItem.itemId, league.id, price_result.quantity, repo)
+
+async def process_base_items(baseItems: list[UniqueBaseItem], league: League, repo: ItemRepository, client: PoeTradeClient):
+    for baseItem in baseItems:
+        logger.info(f"Fetching price for {baseItem.name} in {league.value}")
+        price_result = await fetch_base(baseItem, league, repo, client)
+        logger.info(f"Price: {price_result.price}, quantity: {price_result.quantity}")
+        await record_price(price_result.price, baseItem.itemId, league.id, price_result.quantity, repo)

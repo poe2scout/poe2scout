@@ -66,7 +66,7 @@ def filter_outliers(prices: List[float]) -> List[float]:
     return final_result
 
 
-async def fetch_unique(uniqueItem: UniqueItem, league: League, repo: ItemRepository, client: AsyncClient) -> Awaitable[PriceFetchResult]:
+async def fetch_unique(uniqueItem: UniqueItem, league: League, repo: ItemRepository, client: AsyncClient) -> PriceFetchResult:
     query_url = f"{BASE_URL}/search/{REALM}/{league.value}"
     # create query string
     query_data = create_query_string(uniqueItem, currencyText="exalted")
@@ -123,7 +123,7 @@ async def fetch_unique(uniqueItem: UniqueItem, league: League, repo: ItemReposit
 
     return PriceFetchResult(price=prices[0], should_fetch_divines=should_fetch_divines, quantity=query_data['total'])
 
-async def fetch_unique_divine(uniqueItem: UniqueItem, league: League, client: PoeTradeClient, repo: ItemRepository) -> Awaitable[PriceFetchResult]:
+async def fetch_unique_divine(uniqueItem: UniqueItem, league: League, client: PoeTradeClient, repo: ItemRepository) -> DivinePriceFetchResult:
     query_url = f"{BASE_URL}/search/{REALM}/{league.value}"
     # create query string
     query_data = create_query_string(uniqueItem, currencyText="divine")

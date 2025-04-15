@@ -37,7 +37,7 @@ async def GetAllItems(league: str, item_repository: ItemRepository = Depends(get
     items = unique_items + currency_items
     item_ids = [item.itemId for item in items]
     
-    league_id = next((l.id for l in leagues if l.value == league), None)
+    league_id = next((l.id for l in leagues if l.value == league))
     
     price_logs = await item_repository.GetItemPriceLogs(item_ids, league_id)
     
