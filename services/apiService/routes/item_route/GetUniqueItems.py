@@ -7,7 +7,7 @@ import math
 from services.repositories.item_repository.GetItemPriceLogs import PriceLogEntry
 from datetime import datetime
 from typing import Optional
-
+from services.apiService.dependancies import cache_response
 from . import router
 
 
@@ -26,6 +26,7 @@ class GetUniqueItemsResponse(PaginatedResponse):
 
 
 @router.get("/unique/{category}")
+@cache_response(key=lambda kwargs: f"GetUniqueItems:{kwargs['category']}{kwargs['search']}page{kwargs['pagination'].page}perpage{kwargs['pagination'].perPage}{kwargs['pagination'].league}")
 async def GetUniqueItems(category: str, search: str = "", pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetUniqueItemsResponse:
 
     uniqueItems = await repo.GetUniqueItemsByCategory(category)

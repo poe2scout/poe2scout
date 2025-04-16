@@ -17,6 +17,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from fastapi.responses import JSONResponse, Response
 from slowapi.middleware import SlowAPIMiddleware
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -103,7 +104,7 @@ async def log_requests(request: Request, call_next):
     
     # Log request details
     logger.info(f"Request started: {request.method} {request.url}")
-    logger.info(f"Client IP: {request.client.host}")
+    logger.info(f"Client IP: {request.client.host if request.client else 'Unknown'}")
     logger.info(f"Headers: {request.headers}")
     
     # Process the request

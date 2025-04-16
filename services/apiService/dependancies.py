@@ -1,10 +1,19 @@
 from fastapi import Query, Depends
-from typing import Optional
+from typing import Optional, get_type_hints, Callable
 from dataclasses import dataclass
 from pydantic import BaseModel
-
+import json
+from functools import wraps
+from redis import asyncio as aioredis
+import os
 from services.repositories import ItemRepository
+from pydantic import TypeAdapter
 
+redis = aioredis.from_url(
+    os.getenv("REDIS_URL", "redis://localhost:6379"),
+    encoding="utf-8",
+    decode_responses=True
+)
 
 class PaginationParams(BaseModel):
     page: int
@@ -32,3 +41,31 @@ class PaginatedResponse(BaseModel):
     currentPage: int
     pages: int
     total: int
+
+def cache_response(key: Callable, ttl: int = 300):
+    """
+    Caching decorator for FastAPI endpoints that handles Pydantic models.
+    
+    Args:
+        key: Either a static string key or a function that generates the key from the endpoint parameters
+        ttl: Time to live for the cache in seconds
+    """
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            cache_key = key(kwargs)
+            print("cache_key", cache_key)
+            cached_value = await redis.get(cache_key)
+            if cached_value:
+                print("hit_Cache")
+
+                return_type = get_type_hints(func).get('return')
+                type_adapter = TypeAdapter(return_type)
+                return type_adapter.validate_json(cached_value)
+
+            response = await func(*args, **kwargs)
+            json_response = response.model_dump_json()
+            await redis.set(cache_key, json_response, ex=ttl)
+            return response
+        return wrapper
+    return decorator

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 import math
 from services.apiService.routes.item_route.GetCurrencyItems import CurrencyItemExtended
 from . import router
-
+from services.apiService.dependancies import cache_response
 
 
 
@@ -14,6 +14,7 @@ class GetCurrencyItemsResponse(BaseModel):
 
 
 @router.get("/currencyById/{apiId}")
+@cache_response(key=lambda kwargs: f"GetCurrencyItemsById:{kwargs['apiId']}")
 async def GetCurrencyItemById(apiId: str, league: str, repo: ItemRepository = Depends(get_item_repository)) -> GetCurrencyItemsResponse:
 
     currencyItem = await repo.GetCurrencyItem(apiId)
