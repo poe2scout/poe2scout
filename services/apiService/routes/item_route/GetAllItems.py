@@ -10,6 +10,9 @@ from asyncio import gather
 from urllib.parse import quote
 from pydantic import BaseModel
 from services.repositories.item_repository.GetLeagues import League
+from services.apiService.dependancies import cache_response
+from cachetools import TTLCache
+from cachetools.keys import hashkey
 
 class UniqueItemResponse(BaseModel):
     name: str
@@ -25,9 +28,16 @@ class CurrencyItemResponse(BaseModel):
     priceLogs: List[PriceLogEntry | None]
     currentPrice: float
 
+items_cache = TTLCache(maxsize=1, ttl=300)
 
 @router.get("")
 async def GetAllItems(league: str, item_repository: ItemRepository = Depends(get_item_repository)) -> list[UniqueItemResponse | CurrencyItemResponse]:
+
+    cache_key = hashkey(league)
+    
+    if cache_key in items_cache:
+        return items_cache[cache_key]
+
     unique_items, currency_items, leagues = await gather(
         item_repository.GetAllUniqueItems(),
         item_repository.GetAllCurrencyItems(),
@@ -40,7 +50,7 @@ async def GetAllItems(league: str, item_repository: ItemRepository = Depends(get
     league_id = next((l.id for l in leagues if l.value == league), None)
     if league_id is None:
         raise HTTPException(status_code=404, detail="League not found")
-     
+        
     price_logs = await item_repository.GetItemPriceLogs(item_ids, league_id)
     
     last_prices = {}
@@ -63,5 +73,7 @@ async def GetAllItems(league: str, item_repository: ItemRepository = Depends(get
         ) for item in currency_items
     ])
     
+    items_cache[cache_key] = responses
     return responses
+
 

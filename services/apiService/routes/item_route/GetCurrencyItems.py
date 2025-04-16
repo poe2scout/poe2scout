@@ -1,4 +1,4 @@
-from services.apiService.dependancies import PaginationParams, get_pagination_params, get_item_repository
+from services.apiService.dependancies import PaginationParams, get_pagination_params, get_item_repository, cache_response
 from fastapi import Depends
 from services.repositories import ItemRepository
 from pydantic import BaseModel
@@ -26,6 +26,7 @@ class GetCurrencyItemsResponse(PaginatedResponse):
 
 
 @router.get("/currency/{category}")
+@cache_response(key=lambda kwargs: f"GetCurrencyItems:{kwargs['category']}{kwargs['search']}page{kwargs['pagination'].page}perpage{kwargs['pagination'].perPage}{kwargs['pagination'].league}")
 async def GetCurrencyItems(category: str, search: str = "", pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetCurrencyItemsResponse:
 
     currencyItems = await repo.GetCurrencyItemsByCategory(category, search)

@@ -8,7 +8,7 @@ from services.repositories.item_repository.GetItemPriceLogs import PriceLogEntry
 from datetime import datetime
 from typing import Optional
 from services.apiService.routes.item_route.GetUniqueItems import UniqueItemExtended
-
+from services.apiService.dependancies import cache_response
 from . import router
 
 
@@ -24,6 +24,7 @@ class GetUniquesByBaseNameResponse(BaseModel):
 
 
 @router.get("/uniquesByBaseName/{baseName}")
+@cache_response(key=lambda kwargs: f"GetUniquesByBaseName:{kwargs['baseName']}{kwargs['league']}")
 async def GetUniquesByBaseName(baseName: str, league: str, repo: ItemRepository = Depends(get_item_repository)) -> GetUniquesByBaseNameResponse:
 
     uniqueItems = await repo.GetUniqueItemsByBaseName(baseName)

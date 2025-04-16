@@ -10,7 +10,7 @@ from typing import Optional
 from services.repositories.item_repository.GetAllUniqueBaseItems import UniqueBaseItem
 from enum import Enum
 from . import router
-
+from services.apiService.dependancies import cache_response
 class SortOptions(str, Enum):
     price = "price"
     item_name = "name"
@@ -37,6 +37,7 @@ class GetUniqueBaseItemsResponse(PaginatedResponse):
 
 
 @router.get("/uniqueBaseItems")
+@cache_response(key=lambda kwargs: f"GetUniqueBaseItems:{kwargs['search']}{kwargs['showUnChanceable']}{kwargs['sortedBy']}page{kwargs['pagination'].page}perpage{kwargs['pagination'].perPage}{kwargs['pagination'].league}")
 async def GetUniqueBaseItems(search: str = "", showUnChanceable: bool = False, sortedBy: SortOptions = SortOptions.price, pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetUniqueBaseItemsResponse:
     
     uniqueBaseItems = await repo.GetAllUniqueBaseItems()
