@@ -29,6 +29,7 @@ class UniqueBaseItemExtended(UniqueBaseItem):
     priceLogs: list[PriceLogEntry | None]
     currentPrice: Optional[float] = None
     averageUniquePrice: Optional[float] = None
+    isChanceable: Optional[bool] = False
 
 
 class GetUniqueBaseItemsResponse(PaginatedResponse):
@@ -36,11 +37,11 @@ class GetUniqueBaseItemsResponse(PaginatedResponse):
 
 
 @router.get("/uniqueBaseItems")
-async def GetUniqueBaseItems(search: str = "", sortedBy: SortOptions = SortOptions.price, pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetUniqueBaseItemsResponse:
+async def GetUniqueBaseItems(search: str = "", showUnChanceable: bool = False, sortedBy: SortOptions = SortOptions.price, pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetUniqueBaseItemsResponse:
     
     uniqueBaseItems = await repo.GetAllUniqueBaseItems()
     if search:
-        uniqueItems = [item for item in uniqueBaseItems if search.lower() in item.name.lower()]
+        uniqueBaseItems = [item for item in uniqueBaseItems if search.lower() in item.name.lower()]
     itemIds = [item.itemId for item in uniqueBaseItems]
 
     league = await repo.GetLeagueByValue(pagination.league)
@@ -50,7 +51,10 @@ async def GetUniqueBaseItems(search: str = "", sortedBy: SortOptions = SortOptio
     averageUniquePrice = await repo.GetAverageUniquePrice(itemIds, league.id)
 
     items = [UniqueBaseItemExtended(
-        **item.model_dump(), priceLogs=priceLogs[item.itemId], averageUniquePrice=averageUniquePrice[item.itemId]) for item in uniqueBaseItems]
+        **item.model_dump(), 
+        priceLogs=priceLogs[item.itemId], 
+        averageUniquePrice=averageUniquePrice[item.itemId], 
+        isChanceable=False) for item in uniqueBaseItems]
 
     itemCount = len(items)
     lastPrice = dict.fromkeys(itemIds, 0)
@@ -74,7 +78,12 @@ async def GetUniqueBaseItems(search: str = "", sortedBy: SortOptions = SortOptio
     endingIndex = startingIndex + pagination.perPage
 
     items = [UniqueBaseItemExtended(
-    **item.model_dump(exclude={'currentPrice'}), currentPrice=lastPrice[item.itemId]) for item in items]
+        **item.model_dump(exclude={'currentPrice', 'isChanceable'}), 
+        currentPrice=lastPrice[item.itemId],
+        isChanceable=bool(lastPrice[item.itemId] and averageUniquePrice[item.itemId])) for item in items]
+
+    if not showUnChanceable:
+        items = [item for item in items if item.isChanceable]
 
     if sortedBy == SortOptions.price:
         items.sort(key=lambda item: item.currentPrice if item.currentPrice else 0, reverse=True)

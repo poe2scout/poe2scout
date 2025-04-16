@@ -1,7 +1,6 @@
-
 import { styled } from "@mui/material/styles";
 import { useLeague } from "../contexts/LeagueContext";
-import { FormControl, Select, MenuItem, InputLabel } from "@mui/material";
+import { FormControl, Select, MenuItem } from "@mui/material";
 import translations from "../translationskrmapping.json";
 import { CATEGORY_MAPPING } from "../constants";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -21,6 +20,9 @@ const LeagueSelect = styled(Select)(() => ({
   }));
 const Container = styled("div")({
     padding: "8px 16px",
+    "@media (max-width: 600px)": {
+      padding: "8px 8px",
+    }
   });
 
 function LeagueContainer() {
@@ -45,20 +47,37 @@ function LeagueContainer() {
         setLeague(newLeague);
     };
 
-
-
     return (
     <Container>
-        <FormControl size="small" fullWidth>
-            <InputLabel id="league-select-label">
-                {getTranslatedText("League")}
-            </InputLabel>
+        <FormControl 
+            size="small" 
+            sx={{ 
+                width: { xs: '60px', sm: '100%' }
+            }}
+        >
             <LeagueSelect
                 labelId="league-select-label"
                 id="league-select"
                 value={league.value}
-                label="League"
                 onChange={(e) => handleLeagueChange(e.target.value as string)}
+                sx={{
+                    "& .MuiSelect-select": {
+                        paddingY: { xs: "4px", sm: "4px 8px" },
+                        minWidth: { xs: "40px", sm: "auto" },
+                        "&::before": {
+                            content: {
+                                xs: '""',
+                                sm: 'attr(data-value)'
+                            }
+                        },
+                        color: { xs: 'transparent', sm: 'inherit' }
+                    }
+                }}
+                renderValue={(value) => (
+                    <span data-value={getTranslatedText(value as string)}>
+                        {getTranslatedText(value as string)}
+                    </span>
+                )}
             >
                 {leagues.map((leagueOption) => (
                 <MenuItem key={leagueOption.value} value={leagueOption.value}>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Box,
-  Grid,
+  Grid2 as Grid,
   TextField,
   InputAdornment,
   Select,
@@ -18,10 +18,13 @@ import {
   IconButton,
   Pagination,
   Stack,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import SortIcon from '@mui/icons-material/Sort';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useLeague } from "../contexts/LeagueContext";
 import { BaseItemCard } from "../features/chance/BaseItemCard";
 import { UniqueItemExtended, UniqueBaseItem, CurrencyItemExtended } from "../types"; 
@@ -35,10 +38,28 @@ interface UniqueItemsApiResponse {
 type SortField = 'price' | 'name' | 'uniquePrice'; // Matches backend SortOptions
 type SortDirection = 'asc' | 'desc';
 
+// Add this custom hook at the top of the file, before the ChancePage component
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 export function ChancePage() {
   const { league, loading: leagueLoading } = useLeague();
   const [selectedBaseItem, setSelectedBaseItem] = useState<UniqueBaseItem | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const debouncedSearch = useDebounce(searchInput, 500);
   const [baseItems, setBaseItems] = useState<UniqueBaseItem[]>([]);
   const [uniqueItems, setUniqueItems] = useState<UniqueItemExtended[]>([]);
   const [chanceOrbPrice, setChanceOrbPrice] = useState<number | null>(null);
@@ -56,13 +77,16 @@ export function ChancePage() {
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [showUnchanceable, setShowUnchanceable] = useState(false);
+  const [isMobileExpanded, setIsMobileExpanded] = useState(false);
+
   // Fetch Base Items
   useEffect(() => {
     if (!league) return;
     setLoadingBaseItems(true);
     setError(null);
     const sortedBy = baseSortDirection === 'desc' ? baseSortField : `-${baseSortField}`;
-    fetch(`${import.meta.env.VITE_API_URL}/items/uniqueBaseItems?page=${currentPage}&perPage=${perPage}&league=${league.value}&sortedBy=${sortedBy}&search=${searchQuery}`)
+    fetch(`${import.meta.env.VITE_API_URL}/items/uniqueBaseItems?page=${currentPage}&perPage=${perPage}&league=${league.value}&sortedBy=${sortedBy}&search=${debouncedSearch}&showUnChanceable=${showUnchanceable}`)
       .then(res => {
         if (!res.ok) throw new Error("Failed to fetch base items");
         return res.json();
@@ -76,7 +100,7 @@ export function ChancePage() {
       })
       .catch(err => setError(err.message))
       .finally(() => setLoadingBaseItems(false));
-  }, [league, currentPage, baseSortField, baseSortDirection, searchQuery]);
+  }, [league, currentPage, baseSortField, baseSortDirection, debouncedSearch, showUnchanceable]);
 
   // Fetch Unique Items when Base Item changes
   useEffect(() => {
@@ -136,6 +160,14 @@ export function ChancePage() {
     setCurrentPage(page);
   };
 
+  const handleBaseItemSelect = (item: UniqueBaseItem) => {
+    setSelectedBaseItem(item);
+    // On mobile, expand the view when selecting an item
+    if (window.innerWidth < 900) { // md breakpoint
+      setIsMobileExpanded(true);
+    }
+  };
+
   if (leagueLoading) {
     return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}><CircularProgress /></Box>;
   }
@@ -145,74 +177,128 @@ export function ChancePage() {
 
   return (
     <Box sx={{ 
-      height: 'calc(100vh - 50px)', 
+      height: 'calc(100% - 10px)',
       display: 'flex', 
       flexDirection: 'column',
-      p: { xs: 1, sm: 2, md: 3 } // Responsive padding
+      p: { xs: 0.5, sm: 2, md: 3 }, // Reduced padding on mobile
+      mb: { xs: 0, sm: 1 }
     }}>
-       <Box sx={{ mb: 3 }}>
-            <Typography variant="h4" component="h1" gutterBottom>
-              Chance Orb Base Items
-            </Typography>
-            <Typography color="text.secondary">
-              View base items and their potential unique outcomes when using Chance Orbs. Select a base item to see all possible unique items.
+       <Box> 
+            <Typography marginBottom={0} fontSize={{ xs: '1.25rem', sm: '1.5rem', md: '2rem', lg: '3rem' }}>
+              Chance Orb Base Outcomes
             </Typography>
         </Box>
 
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {error && <Alert severity="error" sx={{ mb: 1 }}>{error}</Alert>}
 
-        <Grid container spacing={{ xs: 1, sm: 2, md: 3 }} sx={{ flexGrow: 1, overflow: 'hidden' }}>
+        <Grid container spacing={{ xs: 0.5, sm: 2, md: 3 }} sx={{ flexGrow: 1, overflow: 'hidden' }}>
             {/* Base Items Column */}
-            <Grid item xs={12} md={5} lg={4} xl={3} sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              height: '100%',
-              minWidth: 0 // Prevent flex items from overflowing
-            }}>
-                 <Box sx={{ display: 'flex', gap: { xs: 0.5, sm: 1 }, mb: 2 }}>
+            <Grid size={{xs: 12, md: 5, lg: 4, xl: 3}} 
+              sx={{ 
+                flexDirection: 'column', 
+                height: '100%',
+                minWidth: 0,
+                display: { xs: isMobileExpanded ? 'none' : 'flex', md: 'flex' }
+              }}
+            >
+                 <Box sx={{ 
+                    display: 'flex', 
+                    gap: { xs: 0.5, sm: 1.5 }, 
+                    flexWrap: 'wrap',
+                    mb: { xs: 0.5, sm: 1 }
+                }}>
                     <TextField
-                        placeholder="Search base items..."
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        InputProps={{
+                      margin="dense"
+                      placeholder="Search base items..."
+                      variant="outlined"
+                      size="small"
+                      sx={{ 
+                          flexGrow: 1,
+                          minWidth: { xs: '140px', sm: '200px' },  // Smaller on mobile
+                          '& .MuiOutlinedInput-root': {
+                            height: { xs: '32px', sm: '40px' }  // Smaller height on mobile
+                          }
+                      }}
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      InputProps={{
                           startAdornment: (
-                            <InputAdornment position="start">
-                              <SearchIcon />
-                            </InputAdornment>
+                              <InputAdornment position="start">
+                                  <SearchIcon sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' } }} />
+                              </InputAdornment>
                           ),
-                        }}
+                      }}
                     />
-                    <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 120 } }}>
-                        <InputLabel>Sort By</InputLabel>
+                    <FormControl margin="dense" size="small" sx={{ 
+                        minWidth: { xs: '100px', sm: '140px' },
+                        marginBottom: '0px',
+                        '& .MuiOutlinedInput-root': {
+                          height: { xs: '32px', sm: '40px' }
+                        }
+                    }}>
+                        <InputLabel sx={{ 
+                          fontSize: { xs: '0.8rem', sm: '1rem' },
+                          lineHeight: { xs: '1rem', sm: 'inherit' }
+                        }}>Sort By</InputLabel>
                         <Select
                             value={baseSortField}
                             label="Sort By"
                             onChange={(e) => setBaseSortField(e.target.value as SortField)}
                         >
-                          <MenuItem value="price">Price</MenuItem>
-                          <MenuItem value="name">Name</MenuItem>
-                          <MenuItem value="uniquePrice">Unique Price</MenuItem>
+                            <MenuItem value="price">Price</MenuItem>
+                            <MenuItem value="name">Name</MenuItem>
+                            <MenuItem value="uniquePrice">Unique Price</MenuItem>
                         </Select>
                     </FormControl>
-                    <IconButton onClick={() => setBaseSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}>
+                </Box>
+                <Box sx={{ 
+                  display: 'flex', 
+                  gap: 0.5, 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between',
+                  mb: { xs: 0.5, sm: 1 }
+                }}>
+                    <IconButton 
+                      size="small"
+                      onClick={() => setBaseSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+                      sx={{ padding: { xs: 0.5, sm: 1 } }}
+                    >
                         {baseSortDirection === 'asc' ? <SortIcon sx={{ transform: 'scaleY(-1)' }}/> : <SortIcon />}
                     </IconButton>
-                 </Box>
+                    <FormControlLabel
+                        sx={{ 
+                          minWidth: 'auto',
+                          marginRight: 0,
+                          '& .MuiTypography-root': {
+                            fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                          }
+                        }}
+                        control={
+                            <Switch
+                                size="small"
+                                checked={showUnchanceable}
+                                onChange={(e) => setShowUnchanceable(e.target.checked)}
+                            />
+                        }
+                        label={
+                            <Tooltip title="Show items that cannot be chanced">
+                                <Typography variant="body2">Show All</Typography>
+                            </Tooltip>
+                        }
+                    />
+                </Box>
 
                  <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 1 }}>
                     {loadingBaseItems ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', pt: 5 }}><CircularProgress /></Box>
                     ) : baseItems.length > 0 ? (
-                        <Grid container spacing={1}>
+                        <Grid container>
                             {baseItems.map((item) => (
-                                <Grid item xs={12} key={item.id}>
+                                <Grid size={{xs: 12}} key={item.id}>
                                     <BaseItemCard
                                         item={item}
                                         isSelected={selectedBaseItem?.id === item.id}
-                                        onClick={() => setSelectedBaseItem(item)}
+                                        onClick={() => handleBaseItemSelect(item)}
                                         league={league}
                                     />
                                 </Grid>
@@ -222,16 +308,13 @@ export function ChancePage() {
                          <Typography sx={{ textAlign: 'center', mt: 4, color: 'text.secondary' }}>No base items found.</Typography>
                     )}
                  </Box>
-
-                 {/* Add pagination controls */}
-                 <Stack spacing={2} sx={{ 
-                   mt: 2, 
-                   pb: 1,
+                 <Stack spacing={1} sx={{ 
+                   pb: { xs: 0.5, sm: 1 },
+                   pt: { xs: 0.5, sm: 1 },
                    display: 'flex',
                    alignItems: 'center',
                    borderTop: 1,
                    borderColor: 'divider',
-                   pt: 2
                  }}>
                    <Pagination 
                      count={totalPages} 
@@ -239,65 +322,122 @@ export function ChancePage() {
                      onChange={handlePageChange}
                      color="primary"
                      size="small"
-                     siblingCount={1}
+                     siblingCount={0}
                      boundaryCount={1}
                    />
                  </Stack>
             </Grid>
 
             {/* Unique Items Column */}
-            <Grid item xs={12} md={7} lg={8} xl={9} sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              height: '100%',
-              borderLeft: { md: 1 }, 
-              borderColor: { md: 'divider' }, 
-              pl: { md: 3 },
-              minWidth: 0 // Prevent flex items from overflowing
-            }}>
+            <Grid size={{xs: 12, md: 7, lg: 8, xl: 9}} 
+              sx={{ 
+                flexDirection: 'column', 
+                height: '100%',
+                borderLeft: { md: 1 }, 
+                borderColor: { md: 'divider' }, 
+                pl: { md: 3 },
+                minWidth: 0,
+                display: { xs: isMobileExpanded ? 'flex' : 'none', md: 'flex' }
+              }}
+            >
                 {selectedBaseItem ? (
                     <>
-                        <Box sx={{ mb: 2 }}>
-                            <Typography variant="h5" component="h2" gutterBottom>
-                                Unique Items from {selectedBaseItem.name}
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
-                                <Typography variant="body2" color="text.secondary">
-                                    Base price:
-                                </Typography>
-                                <PriceDisplay currentPrice={selectedBaseItem.currentPrice} divinePrice={league.divinePrice} />
-                                <Tooltip title="Current market price of the base item">
-                                    <InfoOutlinedIcon sx={{ fontSize: '1rem', color: 'text.secondary', cursor: 'help' }} />
-                                </Tooltip>
-                            </Box>
+                        {/* Add back button for mobile */}
+                        <Box sx={{ 
+                          display: { xs: 'flex', md: 'none' }, 
+                          mb: 2,
+                          alignItems: 'center',
+                          gap: 1
+                        }}>
+                          <IconButton 
+                            onClick={() => setIsMobileExpanded(false)}
+                            edge="start"
+                          >
+                            <ArrowBackIcon />
+                          </IconButton>
+                          <Typography variant="subtitle1">
+                            Back to Base Items
+                          </Typography>
                         </Box>
 
-                        <Grid container spacing={{ xs: 1, sm: 2 }} sx={{ mb: 2 }}>
-                            <Grid item xs={6}>
-                                <Card variant="outlined">
-                                    <CardContent>
-                                        <Typography variant="body2" color="text.secondary">Total Uniques</Typography>
-                                        <Typography variant="h5" component="div" fontWeight="bold">
-                                            {loadingUniqueItems ? <CircularProgress size={20} /> : uniqueItems.length}
+                        <Box sx={{ 
+                            display: 'flex', 
+                            mb: { xs: 1, sm: 2 }, 
+                            alignItems: 'center', 
+                            gap: { xs: 1, sm: 2 },
+                            flexDirection: { xs: 'column', sm: 'row' },
+                            width: '100%'
+                        }}>
+                            <Typography 
+                                variant="h5" 
+                                component="h2" 
+                                sx={{ 
+                                    fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                                    flexShrink: 0
+                                }}
+                            >
+                                Unique Items from {selectedBaseItem.name}
+                            </Typography>
+                            
+                            {/* Price cards in a row */}
+                            <Box sx={{ 
+                                display: 'flex', 
+                                gap: { xs: 1, sm: 2 }, 
+                                ml: { sm: 'auto' },
+                                width: { xs: '100%', sm: 'auto' }
+                            }}>
+                                <Card variant="outlined" sx={{ 
+                                    minWidth: { xs: 0, sm: 140 },
+                                    flex: { xs: 1, sm: 'none' },
+                                    flexWrap: { sm: 'wrap', md: 'nowrap' }
+                                }}>
+                                    <CardContent sx={{ 
+                                        flex: { xs: 1, sm: 'none' },
+                                        py: { xs: 0.5, sm: 1 }, 
+                                        px: { xs: 1, sm: 2 },
+                                        '&:last-child': { pb: { xs: 0.5, sm: 1 } }
+                                    }}>
+                                        <Typography 
+                                            variant="body2" 
+                                            color="text.secondary"
+                                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                                        >
+                                            Base price
                                         </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                            <PriceDisplay currentPrice={selectedBaseItem.currentPrice} divinePrice={league.divinePrice} />
+                                            <Tooltip title="Current market price of the base item">
+                                                <InfoOutlinedIcon sx={{ fontSize: { xs: '0.875rem', sm: '1rem' }, color: 'text.secondary', cursor: 'help' }} />
+                                            </Tooltip>
+                                        </Box>
                                     </CardContent>
                                 </Card>
-                            </Grid>
-                             <Grid item xs={6}>
-                                <Card variant="outlined">
-                                    <CardContent>
-                                        <Typography variant="body2" color="text.secondary">Chance Orb Price</Typography>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', minHeight: '28px' /* Align with Total Uniques */ }}>
-                                            {loadingChancePrice ? <CircularProgress size={20} /> :
+
+                                <Card variant="outlined" sx={{ 
+                                    minWidth: { xs: 0, sm: 140 },
+                                    flex: { xs: 1, sm: 'none' }
+                                }}>
+                                    <CardContent sx={{ 
+                                        py: { xs: 0.5, sm: 1 }, 
+                                        px: { xs: 1, sm: 2 },
+                                        '&:last-child': { pb: { xs: 0.5, sm: 1 } }
+                                    }}>
+                                        <Typography 
+                                            variant="body2" 
+                                            color="text.secondary"
+                                            sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}
+                                        >
+                                            Chance Orb Price
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', minHeight: { xs: '20px', sm: '24px' } }}>
+                                            {loadingChancePrice ? <CircularProgress size={16} /> :
                                                 <PriceDisplay currentPrice={chanceOrbPrice} divinePrice={league.divinePrice} />
                                             }
                                         </Box>
                                     </CardContent>
                                 </Card>
-                            </Grid>
-                        </Grid>
-
-                        {/* Unique Items Table/List */}
+                            </Box>
+                        </Box>
                         <Paper variant="outlined" sx={{ 
                           flexGrow: 1, 
                           display: 'flex', 

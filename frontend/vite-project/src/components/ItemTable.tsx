@@ -428,7 +428,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                     }}
                   >
                     {item.priceLogs != null && item.priceLogs.length > 0 && (
-                      <PriceHistory priceHistory={item.priceLogs} />
+                      <PriceHistory priceHistory={item.priceLogs} variant="table" />
                     )}
                   </TableCell>
                   <TableCell align="center">

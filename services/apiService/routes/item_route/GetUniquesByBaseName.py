@@ -22,6 +22,7 @@ class GetUniquesByBaseNameResponse(BaseModel):
     items: list[UniqueItemExtended]
 
 
+
 @router.get("/uniquesByBaseName/{baseName}")
 async def GetUniquesByBaseName(baseName: str, league: str, repo: ItemRepository = Depends(get_item_repository)) -> GetUniquesByBaseNameResponse:
 

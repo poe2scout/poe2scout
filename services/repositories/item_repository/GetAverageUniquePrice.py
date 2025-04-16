@@ -13,8 +13,6 @@ class PriceLogEntry(BaseModel):
 
 class GetAverageUniquePrice(BaseRepository):
     async def execute(self, itemIds: List[int], leagueId: int) -> Dict[int, Optional[float]]:
-        print(itemIds)
-        print(leagueId)
         price_log_query = """
             WITH unique_item_ids AS (
                 SELECT ib.id as "baseItemId", ui."itemId"
@@ -22,7 +20,7 @@ class GetAverageUniquePrice(BaseRepository):
 				JOIN "BaseItem" as bi on ib."baseItemId" = bi.id
                 JOIN "Item" ON "Item"."baseItemId" = bi.id AND "Item"."itemType" = 'unique'
                 JOIN "UniqueItem" as ui ON ui."itemId" = "Item".id
-                WHERE ib.id = ANY(%s)
+                WHERE ib.id = ANY(%s) AND ui."isChanceable" = TRUE
             ),
             latest_prices AS (
                 SELECT DISTINCT ON (pl."itemId") 

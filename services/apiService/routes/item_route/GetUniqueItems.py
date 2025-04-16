@@ -20,7 +20,7 @@ class PaginatedResponse(BaseModel):
 class UniqueItemExtended(UniqueItem):
     priceLogs: list[PriceLogEntry | None]
     currentPrice: Optional[float] = None
-
+    
 class GetUniqueItemsResponse(PaginatedResponse):
     items: list[UniqueItemExtended]
 

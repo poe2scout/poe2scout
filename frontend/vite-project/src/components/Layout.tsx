@@ -93,10 +93,11 @@ function Layout() {
             value={currentTab}
             onChange={(_, newValue) => handleTabChange(newValue)}
             sx={{
-              minHeight: "50px",
+              minHeight: { xs: '40px', sm: '50px' },
               "& .MuiTab-root": {
-                minHeight: "50px",
-                padding: "0 16px",
+                minHeight: { xs: '40px', sm: '50px' },
+                px: { xs: 1, sm: 2 },
+                fontSize: { xs: '0.8rem', sm: '1rem' },
                 "&:focus": {
                   outline: "none !important",
                 },
