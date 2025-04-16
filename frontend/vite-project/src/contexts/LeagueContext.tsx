@@ -24,7 +24,7 @@ export function LeagueProvider({ children }: { children: ReactNode }) {
   const [leagues, setLeagues] = useState<League[]>([]);
   const [loading, setLoading] = useState(true);
   const [league, setLeague] = useState<League>(() => {
-    const savedLeague = localStorage.getItem("newLeague");
+    const savedLeague = localStorage.getItem("league2");
     return savedLeague ? JSON.parse(savedLeague) : { value: "Standard", divinePrice: 0 };
   });
 
@@ -58,7 +58,7 @@ export function LeagueProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("newLeague", JSON.stringify(league));
+    localStorage.setItem("league2", JSON.stringify(league));
   }, [league]);
 
   return (

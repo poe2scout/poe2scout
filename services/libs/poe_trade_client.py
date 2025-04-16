@@ -87,7 +87,7 @@ class PoeTradeClient(AsyncClient):
 
     async def post(self, *args, **kwargs) -> Response:
         """Override post method with custom error handling and retries"""
-        await asyncio.sleep(21)
+        await asyncio.sleep(17)
         attempts = 0
         while attempts < self.max_retries:
             response = await super().post(*args, **kwargs)

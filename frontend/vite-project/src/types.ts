@@ -14,6 +14,20 @@ export interface UniqueItemExtended {
   itemMetadata: ItemMetadata| null;
   priceLogs: (PriceLogEntry | null)[];
   currentPrice: number | null;
+  isChanceable: boolean;
+}
+
+export interface UniqueBaseItem {
+  id: number;
+  iconUrl: string | null;
+  itemMetadata: ItemMetadata| null
+  itemId: number;
+  name: string;
+  apiId: string;
+  priceLogs: (PriceLogEntry | null)[];
+  currentPrice: number | null;
+  averageUniquePrice: number | null;
+  isChanceable: boolean;
 }
 
 export interface CurrencyItemExtended {

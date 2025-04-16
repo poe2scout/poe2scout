@@ -7,6 +7,7 @@ import math
 from services.repositories.item_repository.GetItemPriceLogs import PriceLogEntry
 from datetime import datetime
 from typing import Optional
+from services.apiService.routes.item_route.GetUniqueItems import UniqueItemExtended
 
 from . import router
 
@@ -17,25 +18,20 @@ class PaginatedResponse(BaseModel):
     total: int
 
 
-class UniqueItemExtended(UniqueItem):
-    priceLogs: list[PriceLogEntry | None]
-    currentPrice: Optional[float] = None
-    
-class GetUniqueItemsResponse(PaginatedResponse):
+class GetUniquesByBaseNameResponse(BaseModel):
     items: list[UniqueItemExtended]
 
 
-@router.get("/unique/{category}")
-async def GetUniqueItems(category: str, search: str = "", pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetUniqueItemsResponse:
 
-    uniqueItems = await repo.GetUniqueItemsByCategory(category)
-    if search:
-        uniqueItems = [item for item in uniqueItems if search.lower() in item.name.lower()]
+@router.get("/uniquesByBaseName/{baseName}")
+async def GetUniquesByBaseName(baseName: str, league: str, repo: ItemRepository = Depends(get_item_repository)) -> GetUniquesByBaseNameResponse:
+
+    uniqueItems = await repo.GetUniqueItemsByBaseName(baseName)
     itemIds = [item.itemId for item in uniqueItems]
 
-    league = await repo.GetLeagueByValue(pagination.league)
+    leagueInDb = await repo.GetLeagueByValue(league)
 
-    priceLogs = await repo.GetItemPriceLogs(itemIds, league.id)
+    priceLogs = await repo.GetItemPriceLogs(itemIds, leagueInDb.id)
 
     items = [UniqueItemExtended(
         **item.model_dump(), priceLogs=priceLogs[item.itemId]) for item in uniqueItems]
@@ -59,17 +55,11 @@ async def GetUniqueItems(category: str, search: str = "", pagination: Pagination
         ),
         reverse=True
     )
-    startingIndex = (pagination.page-1) * pagination.perPage
-    endingIndex = startingIndex + pagination.perPage
 
-    items = items[startingIndex:endingIndex]
 
     items = [UniqueItemExtended(
         **item.model_dump(exclude={'currentPrice'}), currentPrice=lastPrice[item.itemId]) for item in items]
 
-    return GetUniqueItemsResponse(
-        currentPage=pagination.page,
-        pages=math.ceil(itemCount / pagination.perPage),
-        total=itemCount,
+    return GetUniquesByBaseNameResponse(
         items=items
     )
