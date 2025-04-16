@@ -1,5 +1,5 @@
 from . import router
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from services.apiService.dependancies import get_item_repository
 from services.repositories import ItemRepository
 from services.repositories.item_repository.GetAllUniqueItems import UniqueItem
@@ -37,8 +37,10 @@ async def GetAllItems(league: str, item_repository: ItemRepository = Depends(get
     items = unique_items + currency_items
     item_ids = [item.itemId for item in items]
     
-    league_id = next((l.id for l in leagues if l.value == league))
-    
+    league_id = next((l.id for l in leagues if l.value == league), None)
+    if league_id is None:
+        raise HTTPException(status_code=404, detail="League not found")
+     
     price_logs = await item_repository.GetItemPriceLogs(item_ids, league_id)
     
     last_prices = {}
