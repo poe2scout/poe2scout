@@ -6,6 +6,7 @@ import { useState } from "react";
 import SideNav from "./ItemTypeSideNavbar";
 import { useLanguage } from "../contexts/LanguageContext";
 import translations from "../translationskrmapping.json";
+import LeagueContainer from "./LeagueContainer";
 
 const TopBar = styled("div")(({ theme }) => ({
   height: "50px",
@@ -47,7 +48,7 @@ function Layout() {
   const currentTab =
     location.pathname === "/"
       ? ""
-      : location.pathname.split("/")[1] || "economy";
+      : location.pathname.split("/")[1] || "";
   const showSideNav = currentTab === "economy";
 
   const handleTabChange = (newValue: string) => {
@@ -86,14 +87,17 @@ function Layout() {
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <LeagueContainer />
+
           <Tabs
             value={currentTab}
             onChange={(_, newValue) => handleTabChange(newValue)}
             sx={{
-              minHeight: "50px",
+              minHeight: { xs: '40px', sm: '50px' },
               "& .MuiTab-root": {
-                minHeight: "50px",
-                padding: "0 16px",
+                minHeight: { xs: '40px', sm: '50px' },
+                px: { xs: 1, sm: 2 },
+                fontSize: { xs: '0.8rem', sm: '1rem' },
                 "&:focus": {
                   outline: "none !important",
                 },
@@ -109,6 +113,11 @@ function Layout() {
             <Tab
               label={language === "ko" ? translations["Economy"] : "Economy"}
               value="economy"
+              disableRipple
+            />
+            <Tab
+              label={language === "ko" ? "찬스 오브" : "Chance orb"}
+              value="chance"
               disableRipple
             />
           </Tabs>

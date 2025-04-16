@@ -11,7 +11,7 @@ class UniqueItem(BaseModel):
     categoryApiId: str
     itemMetadata: Optional[dict] = None
     type: str
-
+    isChanceable: Optional[bool] = False
 
 class GetAllUniqueItems(BaseRepository):
     async def execute(self) -> List[UniqueItem]:

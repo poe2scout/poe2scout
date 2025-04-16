@@ -35,6 +35,7 @@ class GetAllUniqueBaseItems(BaseRepository):
                         WHERE "bi"."id" IN (SELECT "baseItemId" FROM unique_ids)
         """
 
+
         baseItems = await self.execute_query(
             baseItem_query)
         

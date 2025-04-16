@@ -4,15 +4,24 @@ import { PriceLogEntry } from "../../types";
 
 interface PriceHistoryProps {
   priceHistory?: (PriceLogEntry | null)[];
+  variant?: 'table' | 'compact';
 }
 
-const ChartContainer = styled("div")({
-  width: "160px",
-  height: "40px",
+const ChartContainer = styled("div")<{ variant?: 'table' | 'compact' }>(({ variant }) => ({
   display: "flex",
   alignItems: "center",
   gap: "16px",
-});
+  ...(variant === 'table' && {
+    width: "160px",
+    height: "40px",
+  }),
+  ...(variant === 'compact' && {
+    width: "100%",
+    minHeight: "40px",
+    gap: "8px",
+    justifyContent: "flex-end",
+  }),
+}));
 
 const PercentageChange = styled("span")<{ isPositive: boolean }>(
   ({ isPositive }) => ({
@@ -72,7 +81,8 @@ const chartOptions = {
     },
   },
   responsive: true,
-  maintainAspectRatio: false,
+  maintainAspectRatio: true,
+  aspectRatio: 4,
   plugins: {
     legend: {
       display: false,
@@ -183,14 +193,35 @@ const renderPriceChange = (
   );
 };
 
-export function PriceHistory({ priceHistory }: PriceHistoryProps) {
+export function PriceHistory({ priceHistory, variant = 'compact' }: PriceHistoryProps) {
   if (!priceHistory) return null;
 
   const normalizedData = normalizeChartData(priceHistory);
   const priceChange = calculatePriceChange(priceHistory);
 
+  const chartOptionsWithVariant = {
+    ...chartOptions,
+    maintainAspectRatio: true,
+    aspectRatio: variant === 'table' ? 4 : 2.5,
+    scales: {
+      ...chartOptions.scales,
+      x: {
+        ...chartOptions.scales.x,
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        ...chartOptions.scales.y,
+        grid: {
+          display: false,
+        },
+      },
+    },
+  };
+
   return (
-    <ChartContainer>
+    <ChartContainer variant={variant}>
       <Line
         data={{
           labels: [
@@ -222,7 +253,7 @@ export function PriceHistory({ priceHistory }: PriceHistoryProps) {
             },
           ],
         }}
-        options={chartOptions as any}
+        options={chartOptionsWithVariant as any}
       />
       {renderPriceChange(priceChange)}
     </ChartContainer>
