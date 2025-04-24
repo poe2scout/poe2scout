@@ -82,7 +82,7 @@ These instructions will help you get a local development environment running.
     #Make sure to check that pyenv has actually updated the version of python.
     python --version
 
-    # Create and activate a virtual environment. If python does work try python3.
+    # Create and activate a virtual environment. If python doesn't work try python3.
     python -m venv .venv 
     # On macOS/Linux:
     source .venv/bin/activate
