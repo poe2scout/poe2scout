@@ -4,7 +4,7 @@ from services.itemSyncService.models import *
 import logging
 import json
 from httpx import Client
-
+from asyncio import sleep
 from .functions.sync_currencies import sync_currencies
 from .functions.sync_items import sync_items
 from .config import ItemSyncConfig
@@ -23,22 +23,25 @@ headers = {
 
 async def run(config: ItemSyncConfig):
     with Client(headers=headers) as client:
-        await BaseRepository.init_pool(config.dbstring)
-        repo = ItemRepository()
+        while True:
+            await BaseRepository.init_pool(config.dbstring)
+            repo = ItemRepository()
 
-        logger.info("Fetching unique items from POE API...")
-        response = client.get(config.unique_item_url)
-        items: itemResponse = itemResponse(**response.json())
-        logger.info(
-            f"Retrieved {sum(len(cat.entries) for cat in items.result)} unique items across {len(items.result)} categories")
+            logger.info("Fetching unique items from POE API...")
+            response = client.get(config.unique_item_url)
+            items: itemResponse = itemResponse(**response.json())
+            logger.info(
+                f"Retrieved {sum(len(cat.entries) for cat in items.result)} unique items across {len(items.result)} categories")
 
-        logger.info("Fetching currency items from POE API...")
-        response = client.get(config.currency_item_url)
-        currencies: currencyResponse = currencyResponse(**response.json())
-        logger.info(
-            f"Retrieved {sum(len(cat.entries) for cat in currencies.result)} currency items across {len(currencies.result)} categories")
+            logger.info("Fetching currency items from POE API...")
+            response = client.get(config.currency_item_url)
+            currencies: currencyResponse = currencyResponse(**response.json())
+            logger.info(
+                f"Retrieved {sum(len(cat.entries) for cat in currencies.result)} currency items across {len(currencies.result)} categories")
 
-        logger.info("Starting item sync...")
-        await sync_items(items.result)
-        logger.info("Starting currency sync...")
-        await sync_currencies(currencies.result)
+            logger.info("Starting item sync...")
+            await sync_items(items.result)
+            logger.info("Starting currency sync...")
+            await sync_currencies(currencies.result)
+
+            await sleep(24 * 60 * 60)
