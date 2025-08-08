@@ -32,7 +32,7 @@ class BaseRepository:
 
     @classmethod
     @asynccontextmanager
-    async def get_db_cursor(cls):
+    async def get_db_cursor(cls, rowFactory=dict_row):
         """Get a database cursor from the connection pool"""
         if cls._pool is None:
             raise RuntimeError("Database pool not initialized")
@@ -40,7 +40,7 @@ class BaseRepository:
         try:
             async with asyncio.timeout(10):  # 10 second timeout
                 async with cls._pool.connection() as conn:
-                    async with conn.cursor(row_factory=dict_row) as cursor:
+                    async with conn.cursor(row_factory=rowFactory) as cursor:
                         logger.debug("Database cursor acquired")
                         yield cursor
                         await conn.commit()

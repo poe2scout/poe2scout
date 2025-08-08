@@ -34,6 +34,7 @@ from .UpdateBaseIconUrl import UpdateBaseItemIconUrl
 from .GetAllUniqueBaseItems import GetAllUniqueBaseItems
 from .GetUniqueItemsByBaseName import GetUniqueItemsByBaseName
 from .GetAverageUniquePrice import GetAverageUniquePrice
+from .GetSnapshotForLeague import GetSnapshotForLeague
 class ItemRepository:
     def __init__(self):
         self.CreateBaseItem = CreateBaseItem().execute
@@ -72,3 +73,4 @@ class ItemRepository:
         self.GetAllUniqueBaseItems = GetAllUniqueBaseItems().execute        
         self.GetUniqueItemsByBaseName = GetUniqueItemsByBaseName().execute
         self.GetAverageUniquePrice = GetAverageUniquePrice().execute
+        self.GetSnapshotForLeague = GetSnapshotForLeague().execute
