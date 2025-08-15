@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Awaitable
+from typing import List, Awaitable, Optional
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 from psycopg.rows import class_row
@@ -8,8 +8,9 @@ class LeagueSnapshot(BaseModel):
     price: float
     createdAt: datetime
     quantity: int
-    currencyItemText: str
-    uniqueItemText: str
+    currencyItemApiId: Optional[str]
+    currencyItemText: Optional[str]
+    uniqueItemText: Optional[str]
 
 class GetSnapshotForLeague(BaseRepository):
     async def execute(self, leagueId: int) -> List[LeagueSnapshot]:
@@ -18,7 +19,8 @@ class GetSnapshotForLeague(BaseRepository):
             SELECT pl."price"
                 , pl."createdAt"
                 , pl."quantity"
-                , ci."apiId" AS "currencyItemText"
+                , ci."apiId" AS "currencyItemApiId"
+                , ci."text" AS "currencyItemText"
                 , ui."text" AS "uniqueItemText"
             FROM "PriceLog" AS pl
             JOIN "Item" AS i ON pl."itemId" = i."id"
@@ -26,7 +28,7 @@ class GetSnapshotForLeague(BaseRepository):
             LEFT JOIN "UniqueItem" AS ui ON i."id" = ui."itemId"
             WHERE "leagueId" = %(leagueId)s
             ORDER BY "createdAt" DESC
-            """, (leagueId,))
+            """, {"leagueId": leagueId})
 
 
             return await cursor.fetchall()
