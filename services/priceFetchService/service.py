@@ -109,6 +109,7 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
                 divineTradingQuantities = []
 
                 if len(divinePairs) != 2:
+                    logger.info(divinePairs)
                     raise Exception("Got more or less than 2 pairs for divine.")
                 for divinePair in divinePairs:
                     pairs.remove(divinePair)
