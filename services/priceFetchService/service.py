@@ -111,7 +111,6 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
 
                 for divinePair in divinePairs:
                     pairs.remove(divinePair)
-                    divinePrices = []
                     if divinePair.baseItem == 'exalted':
                         divinePrices.append(divinePair.valueOfTargetItemInBaseItems)
                         divineTradingQuantities.append(divinePair.quantityOfTargetItem)
@@ -119,7 +118,7 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
                         if divinePair.baseItem != 'chaos':
                             raise Exception("Somehow got trading pair for divine that wasnt exalted or chaos")
                         divinePrices.append(divinePair.valueOfTargetItemInBaseItems * chaosPrice.value)
-                        divinePrices.append(divinePair.quantityOfTargetItem)
+                        divineTradingQuantities.append(divinePair.quantityOfTargetItem)
                 
                 divinePrice = CurrencyPrice(itemId='divine', value = sum(divinePrices)/ len(divinePrices), quantityTraded=sum(divineTradingQuantities))
                 
