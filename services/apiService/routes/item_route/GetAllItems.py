@@ -41,7 +41,7 @@ async def GetAllItems(league: str, item_repository: ItemRepository = Depends(get
     unique_items, currency_items, leagues = await gather(
         item_repository.GetAllUniqueItems(),
         item_repository.GetAllCurrencyItems(),
-        item_repository.GetLeagues()
+        item_repository.GetAllLeagues()
     )
     
     items = unique_items + currency_items

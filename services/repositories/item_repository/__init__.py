@@ -1,3 +1,4 @@
+from .GetPricesChecked import GetPricesChecked
 from .CreateBaseItem import CreateBaseItem
 from .GetAllBaseItems import GetAllBaseItems
 from .CreateCurrencyCategory import CreateCurrencyCategory
@@ -12,9 +13,9 @@ from .CreateUniqueItem import CreateUniqueItem
 from .GetAllUniqueItems import GetAllUniqueItems
 from .CreateItem import CreateItem
 from .GetAllItems import GetAllItems
-from .RecordPrice import RecordPrice
+from .RecordPrice import RecordPrice, RecordPriceBulk
 from .GetCurrencyItem import GetCurrencyItem
-from .GetLeagues import GetLeagues
+from .GetLeagues import GetAllLeagues, GetLeagues
 from .GetItemPrice import GetItemPrice
 from .GetUniqueItemsByCategory import GetUniqueItemsByCategory
 from .GetCurrencyItemsByCategory import GetCurrencyItemsByCategory
@@ -74,3 +75,6 @@ class ItemRepository:
         self.GetUniqueItemsByBaseName = GetUniqueItemsByBaseName().execute
         self.GetAverageUniquePrice = GetAverageUniquePrice().execute
         self.GetSnapshotForLeague = GetSnapshotForLeague().execute
+        self.RecordPriceBulk = RecordPriceBulk().execute
+        self.GetAllLeagues = GetAllLeagues().execute
+        self.GetPricesChecked = GetPricesChecked().execute

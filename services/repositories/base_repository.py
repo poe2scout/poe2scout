@@ -92,3 +92,11 @@ class BaseRepository:
         except Exception as e:
             logger.error(f"No-return query failed: {str(e)}")
             raise
+
+    async def execute_many(self, query, params):
+        try:
+            async with self.get_db_cursor() as cursor:
+                await cursor.executemany(query, params)
+        except Exception as e:
+            logger.error(f"Bulk query failed: {str(e)}")
+            raise

@@ -27,6 +27,8 @@ jobs:
           SECRET_KEY=${{ secrets.SECRET_KEY }}
           DOMAINS=${{ secrets.DOMAINS }}
           STAGE=${{ secrets.STAGE }}
+          POEAPI_CLIENT_ID=${{ secrets.POEAPI_CLIENT_ID }}
+          POEAPI_CLIENT_SECRET=${{ secrets.POEAPI_CLIENT_SECRET }}
           UNIQUE_ITEM_URL=https://www.pathofexile.com/api/trade2/data/items
           CURRENCY_ITEM_URL=https://www.pathofexile.com/api/trade2/data/static
           LOCAL=False

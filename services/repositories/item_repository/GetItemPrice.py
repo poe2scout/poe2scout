@@ -16,7 +16,10 @@ class GetItemPrice(BaseRepository):
             LIMIT 1
         """
 
-        price = (await self.execute_query(
-            item_query, (itemId, leagueId)))[0]["price"]
-
-        return price
+        price = await self.execute_query(
+            item_query, (itemId, leagueId))
+        
+        if len(price) == 0:
+            return 100 # Default div price in exalts. This method is / should only be called to get divine price.
+        else:
+            return price[0]["price"]
