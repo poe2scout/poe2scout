@@ -90,14 +90,15 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
             data = CurrencyExchangeResponse.model_validate(response.json())
             nextFetchTime = data.next_change_id
 
-            if (await repo.GetPricesChecked(current_timestamp)):
-                current_timestamp = nextFetchTime
-                logger.info("Price already checked for this timestamp. continuing")
-            elif (len(data.markets) == 0): # Current timestamp. Not filled in yet
+            if (len(data.markets) == 0): # Current timestamp. Not filled in yet
                 logger.error("Price history reached end. Waiting 20 mins. Shouldnt hit this.")
                 await asyncio.sleep(20*60)
             
             for league in leagues:
+                if (await repo.GetPricesChecked(current_timestamp, league.id)):
+                    logger.info("Price already checked for this timestamp and league. continuing")
+                    continue
+
                 ### Calculate baseCurrency prices (Divine, Chaos, Exalted)
                 pairs = await getLeagueData(data, league, baseCurrencies)
                 chaosPair = [pair for pair in pairs if pair.targetItem == 'chaos'][0] # only exalted - chaos
@@ -149,6 +150,8 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
                     totalQuantity = sum([item[1] for item in tuples])
 
                     for value, quantity in tuples:
+                        if totalQuantity == 0:
+                            continue
                         weightedPrice += value * (quantity / totalQuantity)
                     finalPrices[key] = CurrencyPrice(itemId=key, value=weightedPrice, quantityTraded=totalQuantity)
                 
