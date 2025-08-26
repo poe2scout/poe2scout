@@ -1,0 +1,2 @@
+ALTER TABLE "League"
+ADD COLUMN "currentLeague" BOOLEAN NOT NULL DEFAULT True;

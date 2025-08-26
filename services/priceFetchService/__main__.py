@@ -35,10 +35,9 @@ if __name__ == "__main__":
     timer = MaintenanceTimer(get_next_maintenance=calculate_poe_maintenance_time)
 
     async def main_loop():
-        # Initialize DB connection pool once
         await BaseRepository.init_pool(config.dbstring)
         repo = ItemRepository()
-        #pausing to let itemSyncService run first
+
         while True:
             try:
                 async with timer:

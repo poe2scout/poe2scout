@@ -1,4 +1,4 @@
-from typing import Optional, Awaitable
+from typing import List, Optional, Awaitable
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 
@@ -21,3 +21,15 @@ class RecordPrice(BaseRepository):
             item_query, price.model_dump())
 
         return priceLogId
+
+
+class RecordPriceBulk(BaseRepository):
+    async def execute(self, prices: List[RecordPriceModel], epoch: int):
+        item_query = """
+            INSERT INTO "PriceLog" ("itemId", "leagueId", "price", "quantity", "createdAt")
+            VALUES (%(itemId)s, %(leagueId)s, %(price)s, %(quantity)s, to_timestamp(%(createdAt)s))
+        """
+        # Add the timestamp to each price dictionary
+        priceDictList = [{**price.model_dump(), 'createdAt': epoch} for price in prices]
+
+        await self.execute_many(item_query, priceDictList)
