@@ -106,17 +106,10 @@ class PoeTradeClient(AsyncClient):
             
         raise ServiceUnavailableError(f"Max retries ({self.max_retries}) exceeded. Last status: {response.status_code}")
 
-def log_final_request(request):
-    print(f"--- Final Outgoing Request ---")
-    print(f"> {request.method} {request.url}")
-    print(f"> Headers: {request.headers}")
-    if request.content:
-        print(f"> Body: {request.content.decode()}")
-    print(f"----------------------------")
 
 class PoeApiClient(AsyncClient):
     def __init__(self, clientId: str, clientSecret: str, headers: Optional[Dict[str, str]] = None):
-        super().__init__(headers=headers, auth=PoeApiAuth(client_id=clientId, client_secret=clientSecret), event_hooks={'request': [log_final_request]})
+        super().__init__(headers=headers, auth=PoeApiAuth(client_id=clientId, client_secret=clientSecret))
         self.client_id = clientId
         self.client_secret = clientSecret
         self.max_retries = 5
@@ -224,7 +217,7 @@ class PoeApiAuth(httpx.Auth):
         return httpx.Request(
             method="POST",
             url=self.token_url,
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            headers={"Content-Type": "application/x-www-form-urlencoded", "User-Agent": "Poe2scout (b@girardet.co.nz)"},
             data={
                 "client_id": self.client_id,
                 "client_secret": self.client_secret,
