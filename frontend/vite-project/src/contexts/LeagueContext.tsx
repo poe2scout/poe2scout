@@ -20,14 +20,12 @@ interface LeagueContextType {
 
 const LeagueContext = createContext<LeagueContextType | undefined>(undefined);
 
+const DEFAULT_LEAGUE = "Dawn of the Hunt"
+
 export function LeagueProvider({ children }: { children: ReactNode }) {
   const [leagues, setLeagues] = useState<League[]>([]);
   const [loading, setLoading] = useState(true);
-  const [league, setLeague] = useState<League>(() => {
-    const savedLeague = localStorage.getItem("league2");
-    return savedLeague ? JSON.parse(savedLeague) : { value: "Standard", divinePrice: 0 };
-  });
-
+  const [league, setLeague] = useState<League>({ value: DEFAULT_LEAGUE, divinePrice: 100 });
 
   const fetchLeagues = async () => {
     try {
@@ -38,10 +36,9 @@ export function LeagueProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
       setLeagues(data);
       
-      // Find the matching league from the new data
       const updatedLeague = data.find((l: League) => l.value === league.value);
-      // Use the updated league if found, otherwise use the first available league
-      setLeague(updatedLeague || data[0]);
+
+      setLeague(updatedLeague);
     } catch (error) {
       console.error("Error fetching leagues:", error);
     } finally {

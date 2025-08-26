@@ -11,7 +11,7 @@ class LeagueResponse(BaseModel):
 
 @router.get("")
 async def GetLeagues(repo: ItemRepository = Depends(get_item_repository)) -> list[LeagueResponse]:
-    leagues = await repo.GetLeagues()
+    leagues = await repo.GetAllLeagues()
     divine_item = await repo.GetCurrencyItem("divine")
     
     responses = []
