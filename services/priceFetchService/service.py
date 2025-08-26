@@ -101,14 +101,21 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
 
                 ### Calculate baseCurrency prices (Divine, Chaos, Exalted)
                 pairs = await getLeagueData(data, league, baseCurrencies)
-                chaosPair = [pair for pair in pairs if pair.targetItem == 'chaos'][0] # only exalted - chaos
-                pairs.remove(chaosPair)
-                chaosPrice = CurrencyPrice(itemId='chaos', value=chaosPair.valueOfTargetItemInBaseItems, quantityTraded=chaosPair.quantityOfTargetItem)
-                
-                divinePairs = [pair for pair in pairs if pair.targetItem == 'divine'] # only exalted - divine and chaos - divine
-                divinePrices = []
-                divineTradingQuantities = []
+                chaosPairs = [pair for pair in pairs if pair.targetItem == 'chaos' and pair.baseItem == 'exalted'] # only exalted - chaos
 
+                chaosPrice = None
+                if len(chaosPairs) == 0:
+                    chaosPrice = CurrencyPrice(itemId='chaos', value = await repo.GetItemPrice((await repo.GetCurrencyItem('chaos')).itemId, leagueId=league.id), quantityTraded=1)
+                else:
+                    for chaosPair in chaosPairs:
+                        pairs.remove(chaosPair)
+                        chaosPrice = CurrencyPrice(itemId='chaos', value=chaosPair.valueOfTargetItemInBaseItems, quantityTraded=chaosPair.quantityOfTargetItem)
+                
+                assert chaosPrice != None
+
+                divinePairs = [pair for pair in pairs if pair.targetItem == 'divine'] # only exalted - divine and chaos - divine
+                divinePrices: List[float] = []
+                divineTradingQuantities = []
                 for divinePair in divinePairs:
                     pairs.remove(divinePair)
                     if divinePair.baseItem == 'exalted':
@@ -120,6 +127,10 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
                         divinePrices.append(divinePair.valueOfTargetItemInBaseItems * chaosPrice.value)
                         divineTradingQuantities.append(divinePair.quantityOfTargetItem)
                 
+                if len(divinePrices) == 0:
+                    divinePrices.append(await repo.GetItemPrice((await repo.GetCurrencyItem('divine')).itemId, leagueId=league.id))
+                    divineTradingQuantities.append(1)
+
                 divinePrice = CurrencyPrice(itemId='divine', value = sum(divinePrices)/ len(divinePrices), quantityTraded=sum(divineTradingQuantities))
                 
                 baseItemPrices = [exaltedPrice, chaosPrice, divinePrice]
