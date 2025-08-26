@@ -232,7 +232,7 @@ function LandingPage() {
                                   {item.text}
                                 </TableCell>
                                 <TableCell align="right" sx={{ color: "common.white", borderBottomColor: 'grey.800' }}>
-                                  {latestPrice !== null ? latestPrice : "N/A"}
+                                  {latestPrice !== null ? latestPrice.toFixed(2) : "N/A"}
                                 </TableCell>
                               </TableRow>
                             );
