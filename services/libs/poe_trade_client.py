@@ -114,6 +114,12 @@ class PoeApiClient(AsyncClient):
         self.max_retries = 5
         self.retry_delay = 300  # 5 minutes in seconds
 
+        if self.client_id == None or self.client_id == "":
+            raise ValueError
+        if self.client_secret == None or self.client_secret == "":
+            raise ValueError
+
+
     async def _handle_response(self, response: Response) -> Optional[Response]:
         """Handle different response status codes"""
         if response.status_code == 200:
