@@ -38,7 +38,7 @@ if __name__ == "__main__":
         await BaseRepository.init_pool(config.dbstring)
         repo = ItemRepository()
 
-        while False:
+        while True:
             try:
                 async with timer:
                     logger.info("Starting maintenance timer")
