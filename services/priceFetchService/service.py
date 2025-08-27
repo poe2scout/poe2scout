@@ -237,45 +237,44 @@ async def getLeagueData(data: CurrencyExchangeResponse, league: League, baseItem
     return pairs
 
 async def FetchPrices(repo: ItemRepository):
-
-    # Get all unqiue items
-    leagues = await repo.GetLeagues()
-    baseUniqueItems = await repo.GetAllUniqueItems()
-    baseCurrencyItems = await repo.GetAllCurrencyItems()
-
-    exaltedItem = await repo.GetCurrencyItem("exalted")
-    divineItem = await repo.GetCurrencyItem("divine")
-
     headers = {
         "User-Agent": "POE2SCOUT (contact: b@girardet.co.nz)"
     }
-    # Create a client
     async with PoeTradeClient(headers=headers) as client:
-        for league in leagues:
-            current_time =  datetime.now().strftime("%H")
-            fetchedItemIds: list[int] = await repo.GetFetchedItemIds(current_time, league.id)
-            itemIds = await repo.GetAllItems()
-            itemIds = [item.id for item in itemIds if item.id not in fetchedItemIds]
+        while True:
+            # Get all unqiue items
+            leagues = await repo.GetLeagues()
+            baseUniqueItems = await repo.GetAllUniqueItems()
+            baseCurrencyItems = await repo.GetAllCurrencyItems()
 
-            itemIdsToFetch = [item for item in itemIds if item not in fetchedItemIds]
+            exaltedItem = await repo.GetCurrencyItem("exalted")
+            divineItem = await repo.GetCurrencyItem("divine")
 
-            uniqueItems = [item for item in baseUniqueItems if item.itemId in itemIdsToFetch]
+            for league in leagues:
+                current_time =  datetime.now().strftime("%H")
+                fetchedItemIds: list[int] = await repo.GetFetchedItemIds(current_time, league.id)
+                itemIds = await repo.GetAllItems()
+                itemIds = [item.id for item in itemIds if item.id not in fetchedItemIds]
 
-            logger.info(f"fetching {len(uniqueItems)} unique items")
-                        
-            if len(itemIdsToFetch) == 0:
-                logger.info(f"No items to fetch")
-                continue
+                itemIdsToFetch = [item for item in itemIds if item not in fetchedItemIds]
+
+                uniqueItems = [item for item in baseUniqueItems if item.itemId in itemIdsToFetch]
+
+                logger.info(f"fetching {len(uniqueItems)} unique items")
+                            
+                if len(itemIdsToFetch) == 0:
+                    logger.info(f"No items to fetch")
+                    continue
+                    
+                divinePrice = await repo.GetItemPrice(divineItem.itemId, league.id)
+
+                await process_uniques(uniqueItems, league, repo, client, exaltedItem, divineItem, divinePrice)
                 
-            divinePrice = await repo.GetItemPrice(divineItem.itemId, league.id)
-
-            await process_uniques(uniqueItems, league, repo, client, exaltedItem, divineItem, divinePrice)
-           
-            currencyItems = [item for item in baseCurrencyItems if item.itemId in itemIdsToFetch]
-            for currencyItem in currencyItems:
-                if currencyItem.itemMetadata is None:
-                    logger.info(f"Syncing metadata and icon for {currencyItem.text}")
-                    await sync_metadata_and_icon(currencyItem, repo, client, BASE_URL, REALM, leagues[0].value)
+                currencyItems = [item for item in baseCurrencyItems if item.itemId in itemIdsToFetch]
+                for currencyItem in currencyItems:
+                    if currencyItem.itemMetadata is None:
+                        logger.info(f"Syncing metadata and icon for {currencyItem.text}")
+                        await sync_metadata_and_icon(currencyItem, repo, client, BASE_URL, REALM, leagues[0].value)
 
 
 
