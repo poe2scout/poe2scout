@@ -1,11 +1,12 @@
 import { useParams, useSearchParams } from "react-router-dom";
 import { ItemTable } from "../components/ItemTable";
-import { Box } from "@mui/material";
+import { Box, IconButton, Snackbar } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useCategories } from "../contexts/CategoryContext";
 import { CircularProgress } from "@mui/material";
 import { useLeague } from "../contexts/LeagueContext";
+import CloseIcon from '@mui/icons-material/Close';
 
 export function EconomyPage() {
   const { type } = useParams();
@@ -17,6 +18,7 @@ export function EconomyPage() {
   const {  loading: leagueLoading } = useLeague();
   // If no type is provided, wait for categories to load to determine default
   const itemType = type || (currencyCategories[0]?.apiId || "currency");
+  const [open, setOpen] = useState<boolean>(true);
 
   useEffect(() => {
     setError(null);
@@ -51,12 +53,25 @@ export function EconomyPage() {
 
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
+      <Snackbar
+        open={open}
+        message="Price fetching paused. Will resume with the new league. Currency will now be fetched from the currency exchange api. Unique prices will be fetched from only buyout listings avoiding price fixers."
+        onClose={() => setOpen(false)}
+        action={<IconButton
+              aria-label="close"
+              color="inherit"
+              sx={{ p: 0.5 }}
+              onClick={() => setOpen(false)}
+            >
+              <CloseIcon />
+            </IconButton>}
+      />
       <ItemTable
         type={itemType}
         language={language}
         initialSearch={initialSearch || undefined}
       />
-    </Box>
+    </Box> 
   );
 }
 
