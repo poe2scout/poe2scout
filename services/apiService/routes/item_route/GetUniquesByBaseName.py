@@ -32,7 +32,8 @@ async def GetUniquesByBaseName(baseName: str, league: str, repo: ItemRepository 
 
     itemsInCurrentLeague = await repo.GetItemsInCurrentLeague(leagueInDb.id)
 
-    itemIds = [item.itemId for item in uniqueItems if item.itemId in itemsInCurrentLeague]
+    uniqueItems = [uniqueItem for uniqueItem in uniqueItems if uniqueItem.itemId in itemsInCurrentLeague]
+    itemIds = [item.itemId for item in uniqueItems]
 
     priceLogs = await repo.GetItemPriceLogs(itemIds, leagueInDb.id)
 
