@@ -28,9 +28,11 @@ class GetUniquesByBaseNameResponse(BaseModel):
 async def GetUniquesByBaseName(baseName: str, league: str, repo: ItemRepository = Depends(get_item_repository)) -> GetUniquesByBaseNameResponse:
 
     uniqueItems = await repo.GetUniqueItemsByBaseName(baseName)
-    itemIds = [item.itemId for item in uniqueItems]
-
     leagueInDb = await repo.GetLeagueByValue(league)
+
+    itemsInCurrentLeague = await repo.GetItemsInCurrentLeague(leagueInDb.id)
+
+    itemIds = [item.itemId for item in uniqueItems if item.itemId in itemsInCurrentLeague]
 
     priceLogs = await repo.GetItemPriceLogs(itemIds, leagueInDb.id)
 

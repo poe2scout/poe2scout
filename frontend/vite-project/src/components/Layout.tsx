@@ -115,11 +115,6 @@ function Layout() {
               value="economy"
               disableRipple
             />
-            <Tab
-              label={language === "ko" ? "찬스 오브" : "Chance orb"}
-              value="chance"
-              disableRipple
-            />
           </Tabs>
         </div>
       </TopBar>
