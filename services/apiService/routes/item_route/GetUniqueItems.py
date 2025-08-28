@@ -36,8 +36,8 @@ async def GetUniqueItems(category: str, search: str = "", pagination: Pagination
         uniqueItems = [item for item in uniqueItems if search.lower() in item.name.lower()]
     itemsInCurrentLeague = await repo.GetItemsInCurrentLeague(league.id)
 
+    uniqueItems = [uniqueItem for uniqueItem in uniqueItems if uniqueItem.itemId in itemsInCurrentLeague]
     itemIds = [item.itemId for item in uniqueItems if item.itemId in itemsInCurrentLeague]
-
 
     priceLogs = await repo.GetItemPriceLogs(itemIds, league.id)
 
