@@ -53,19 +53,6 @@ export function EconomyPage() {
 
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
-      <Snackbar
-        open={open}
-        message="Price fetching paused. Will resume with the new league. Currency will now be fetched from the currency exchange api. Unique prices will be fetched from only buyout listings avoiding price fixers."
-        onClose={() => setOpen(false)}
-        action={<IconButton
-              aria-label="close"
-              color="inherit"
-              sx={{ p: 0.5 }}
-              onClick={() => setOpen(false)}
-            >
-              <CloseIcon />
-            </IconButton>}
-      />
       <ItemTable
         type={itemType}
         language={language}
