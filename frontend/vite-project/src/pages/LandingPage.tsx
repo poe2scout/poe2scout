@@ -175,7 +175,7 @@ function LandingPage() {
                     <Typography variant="overline" sx={{ color: "primary.light" }}>Economy</Typography>
                   </Box>
                   <TextField
-                    value="Rise of the Abbysal"
+                    value="Rise of the Abyssal"
                     variant="outlined"
                     size="small"
                     fullWidth

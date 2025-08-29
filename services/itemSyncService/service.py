@@ -1,3 +1,4 @@
+import asyncio
 import requests
 from services.repositories.base_repository import BaseRepository
 from services.itemSyncService.models import *
@@ -22,8 +23,12 @@ headers = {
 
 
 async def run(config: ItemSyncConfig):
+    has_run = 0
     with Client(headers=headers) as client:
         while True:
+            if has_run == 0:
+                has_run = 1
+                await asyncio.sleep(60*10)
             await BaseRepository.init_pool(config.dbstring)
             repo = ItemRepository()
 
