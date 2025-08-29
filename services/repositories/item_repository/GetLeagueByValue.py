@@ -9,9 +9,9 @@ class League(BaseModel):
 class GetLeagueByValue(BaseRepository):
     async def execute(self, value: str) -> League:
         if value == "Standard":
-            value = "Dawn of the Hunt"
+            value = "Rise of the Abbysal"
         if value == "Hardcore":
-            value = "HC Dawn of the Hunt"
+            value = "Rise of the Abbysal"
         league_query = """
             SELECT "id", "value" 
             FROM "League"

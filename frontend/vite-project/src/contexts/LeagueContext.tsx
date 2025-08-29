@@ -20,7 +20,7 @@ interface LeagueContextType {
 
 const LeagueContext = createContext<LeagueContextType | undefined>(undefined);
 
-const DEFAULT_LEAGUE = "Dawn of the Hunt"
+const DEFAULT_LEAGUE = "Rise of the Abbysal"
 
 export function LeagueProvider({ children }: { children: ReactNode }) {
   const [leagues, setLeagues] = useState<League[]>([]);
