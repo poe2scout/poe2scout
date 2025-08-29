@@ -26,8 +26,8 @@ async def GetCategories(item_repository: ItemRepository = Depends(get_item_repos
 
     icons = icon_dump()
 
-    uniqueCategories = [Category(**uniqueCategory.model_dump(), icon=icons[uniqueCategory.apiId.lower()]) for uniqueCategory in uniqueCategories if uniqueCategory.apiId != "currency"]
-    currencyCategories = [Category(**currencyCategory.model_dump(), icon=icons[currencyCategory.apiId.lower()]) for currencyCategory in currencyCategories if currencyCategory.apiId not in ignoreCurrencies]
+    uniqueCategories = [Category(**uniqueCategory.model_dump(), icon=icons[uniqueCategory.apiId.lower()] if uniqueCategory.apiId.lower() in icons else "") for uniqueCategory in uniqueCategories if uniqueCategory.apiId != "currency"]
+    currencyCategories = [Category(**currencyCategory.model_dump(), icon=icons[currencyCategory.apiId.lower()] if currencyCategory.apiId.lower() in icons else "") for currencyCategory in currencyCategories if currencyCategory.apiId not in ignoreCurrencies]
 
     uniqueCategories = [cat for cat in uniqueCategories if cat.apiId not in ignoreCurrencies]
     currencyCategories = [cat for cat in currencyCategories if cat.apiId not in ignoreCurrencies]
