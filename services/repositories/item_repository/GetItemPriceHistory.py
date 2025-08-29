@@ -12,9 +12,23 @@ class PriceLogEntry(BaseModel):
 
 
 class GetItemPriceHistory(BaseRepository):
-    async def execute(self, itemId: int, leagueId: int, logCount: int) -> Dict[int, List[Optional[PriceLogEntry]]]:
+    async def execute(self, itemId: int, leagueId: int, logCount: int) -> Dict[str, List[Optional[PriceLogEntry]]]:
+        lastLogTimeQuery = """
+            SELECT pl."createdAt"
+              FROM "PriceLog" AS pl
+             WHERE pl."itemId" = %s
+               AND pl."leagueId" = %s
+             ORDER BY pl."createdAt" DESC
+             LIMIT 1
+            """
+        
+        lastTime = await self.execute_query(lastLogTimeQuery, (itemId, leagueId))
 
-        now = datetime.now()
+        if len(lastTime) == 1:
+            now = lastTime[0]['createdAt']
+        else:
+            now = datetime.now()
+
         current_block = now.replace(
             hour=(now.hour // 6) * 6,
             minute=0,

@@ -30,11 +30,14 @@ class GetUniqueItemsResponse(PaginatedResponse):
 async def GetUniqueItems(category: str, search: str = "", pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetUniqueItemsResponse:
 
     uniqueItems = await repo.GetUniqueItemsByCategory(category)
+    league = await repo.GetLeagueByValue(pagination.league)
+
     if search:
         uniqueItems = [item for item in uniqueItems if search.lower() in item.name.lower()]
-    itemIds = [item.itemId for item in uniqueItems]
+    itemsInCurrentLeague = await repo.GetItemsInCurrentLeague(league.id)
 
-    league = await repo.GetLeagueByValue(pagination.league)
+    uniqueItems = [uniqueItem for uniqueItem in uniqueItems if uniqueItem.itemId in itemsInCurrentLeague]
+    itemIds = [item.itemId for item in uniqueItems]
 
     priceLogs = await repo.GetItemPriceLogs(itemIds, league.id)
 

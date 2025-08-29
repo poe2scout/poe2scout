@@ -89,7 +89,9 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
     if (!detailedHistory.length) return { labels: [], prices: [] };
 
     // Reverse the array to get chronological order (oldest to newest)
-    const chronologicalHistory = [...detailedHistory].reverse();
+    const firstValidIndexReverse = detailedHistory.findIndex(entry => entry !== null)
+
+    const chronologicalHistory = [...(detailedHistory.slice(firstValidIndexReverse))].reverse();
     
     // Find the index of the first non-null entry
     const firstValidIndex = chronologicalHistory.findIndex(entry => entry !== null);
@@ -212,6 +214,17 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
             }}
           >
             {language === "ko" ? translations["3 Months"] : "3 Months"}
+          </Button>
+          <Button
+            variant={logCount === 672 ? "contained" : "outlined"}
+            onClick={() => setLogCount(672)}
+            disableRipple
+            sx={{
+              userSelect: "none",
+              "&:focus": { outline: "none" },
+            }}
+          >
+            All
           </Button>
         </ButtonGroup>
       </HeaderContainer>

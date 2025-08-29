@@ -21,6 +21,7 @@ jobs:
           git switch release && \
           git pull && \
           echo 'POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          CFKEY=${{ secrets.CFKEY }}
           POSTGRES_USER=${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           DBSTRING=${{ secrets.DBSTRING }}
@@ -35,4 +36,8 @@ jobs:
           REALM=poe2' > .env && \
           docker-compose --profile prod build && \
           docker-compose --profile prod down && \
-          docker-compose --profile prod up -d"
+          docker-compose --profile prod up -d" && \
+          curl --location 'https://api.cloudflare.com/client/v4/zones/9cd975b5580a5b0c8aa36b7c8649ae0f/purge_cache' \
+          --header 'Content-Type: application/json' \
+          --header 'Authorization: Bearer ${{ secrets.CFKEY }}' \
+          --data '{"purge_everything": true}'

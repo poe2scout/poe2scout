@@ -11,6 +11,4 @@ from .GetFilters import GetFilters
 from .GetAllItems import GetAllItems
 from .GetHistory import GetHistory
 from .GetLandingSplashInfo import GetLandingSplashInfo
-from .GetUniqueBaseItems import GetUniqueBaseItems
-from .GetUniquesByBaseName import GetUniquesByBaseName
 from .GetCurrencyItemById import GetCurrencyItemById

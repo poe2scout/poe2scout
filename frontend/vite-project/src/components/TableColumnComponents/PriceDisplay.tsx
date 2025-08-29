@@ -11,7 +11,7 @@ interface PriceDisplayProps {
 
 const PriceContainer = styled(Box)({
   display: "flex",
-  alignItems: "center",
+  justifyContent: "flex-end",
   gap: "4px",
 });
 

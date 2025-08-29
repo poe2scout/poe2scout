@@ -30,9 +30,12 @@ class GetCurrencyItemsResponse(PaginatedResponse):
 async def GetCurrencyItems(category: str, search: str = "", pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetCurrencyItemsResponse:
 
     currencyItems = await repo.GetCurrencyItemsByCategory(category, search)
-
-    itemIds = [item.itemId for item in currencyItems]
     league = await repo.GetLeagueByValue(pagination.league)
+    itemsInCurrentLeague = await repo.GetItemsInCurrentLeague(league.id)
+
+    currencyItems = [currencyItem for currencyItem in currencyItems if currencyItem.itemId in itemsInCurrentLeague]
+    itemIds = [item.itemId for item in currencyItems]
+    
     priceLogs = await repo.GetItemPriceLogs(itemIds, league.id)
 
     items = [CurrencyItemExtended(

@@ -35,7 +35,7 @@ async def GetLandingSplashInfo(item_repository: ItemRepository = Depends(get_ite
 
     items.sort(
         key=lambda item: (
-            lastPrice[item.itemId]
+            int(lastPrice[item.itemId])
             if item.itemId in lastPrice
             else 0
         ),

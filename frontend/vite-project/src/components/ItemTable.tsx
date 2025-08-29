@@ -92,7 +92,8 @@ interface ItemTableProps {
 }
 
 const getWikiUrl = (item: ApiItem) => {
-  const wikiName = encodeURIComponent(item.text);
+  const wikiNameSource = 'name' in item ? item.name : item.text;
+  const wikiName = encodeURIComponent(wikiNameSource);
   return `https://www.poe2wiki.net/wiki/${wikiName}`;
 };
 
