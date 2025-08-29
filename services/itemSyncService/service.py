@@ -44,4 +44,4 @@ async def run(config: ItemSyncConfig):
             logger.info("Starting currency sync...")
             await sync_currencies(currencies.result)
 
-            await sleep(24 * 60 * 60)
+            await sleep( 60 * 60)

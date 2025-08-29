@@ -205,6 +205,7 @@ async def FetchPrices(repo: ItemRepository):
         while True:
             # Get all unqiue items
             leagues = await repo.GetLeagues()
+            leagues = [league for league in leagues if league.id == 3]
             baseUniqueItems = await repo.GetAllUniqueItems()
             baseCurrencyItems = await repo.GetAllCurrencyItems()
 
