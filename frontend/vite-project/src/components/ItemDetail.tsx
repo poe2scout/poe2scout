@@ -213,6 +213,17 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
           >
             {language === "ko" ? translations["3 Months"] : "3 Months"}
           </Button>
+          <Button
+            variant={logCount === 672 ? "contained" : "outlined"}
+            onClick={() => setLogCount(672)}
+            disableRipple
+            sx={{
+              userSelect: "none",
+              "&:focus": { outline: "none" },
+            }}
+          >
+            All
+          </Button>
         </ButtonGroup>
       </HeaderContainer>
 
