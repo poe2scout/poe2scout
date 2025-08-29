@@ -12,7 +12,7 @@ class PriceLogEntry(BaseModel):
 
 
 class GetItemPriceHistory(BaseRepository):
-    async def execute(self, itemId: int, leagueId: int, logCount: int) -> Dict[int, List[Optional[PriceLogEntry]]]:
+    async def execute(self, itemId: int, leagueId: int, logCount: int) -> Dict[str, List[Optional[PriceLogEntry]]]:
         lastLogTimeQuery = """
             SELECT pl."createdAt"
               FROM "PriceLog" AS pl
