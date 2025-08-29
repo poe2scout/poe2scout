@@ -24,14 +24,14 @@ async def GetHistory(itemId: int, league: str, logCount: int, item_repository: I
     newHistory: List[Optional[PricePoint]] = []
 
     logs = history['price_history']
-    if logCount >= 14:
+    if logCount >= (14*4):
         for i in range(logCount//4):
             found = 0
             price = 0.0
             time = None
             quantity = 0
             for j in range(4):
-                currentLog = logs[i+j]
+                currentLog = logs[i*4+j]
                 if currentLog != None:
                     found += 1
                     price += currentLog.price
