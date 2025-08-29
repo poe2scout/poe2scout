@@ -42,7 +42,7 @@ class PoeTradeClient(AsyncClient):
         self.max_retries = 5
         self.retry_delay = 300  # 5 minutes in seconds
 
-    async def _handle_response(self, response: Response) -> Response:
+    async def _handle_response(self, response: Response) -> Optional[Response]:
         """Handle different response status codes"""
         if response.status_code == 200:
             return response
@@ -72,6 +72,7 @@ class PoeTradeClient(AsyncClient):
     async def get(self, *args, **kwargs) -> Response:
         """Override get method with custom error handling and retries"""
         attempts = 0
+        response = None
         while attempts < self.max_retries:
             response = await super().get(*args, **kwargs)
             handled_response = await self._handle_response(response)
@@ -84,14 +85,15 @@ class PoeTradeClient(AsyncClient):
                              f"Retrying in {self.retry_delay} seconds... "
                              f"(Attempt {attempts + 1}/{self.max_retries})")
                 await asyncio.sleep(self.retry_delay)
-            
+        assert response is not None
         raise ServiceUnavailableError(f"Max retries ({self.max_retries}) exceeded. Last status: {response.status_code}")
 
     async def post(self, *args, **kwargs) -> Response:
         """Override post method with custom error handling and retries"""
-        await asyncio.sleep(17)
         attempts = 0
+        response = None
         while attempts < self.max_retries:
+            await asyncio.sleep(17)
             response = await super().post(*args, **kwargs)
             handled_response = await self._handle_response(response)
             if handled_response is not None:
@@ -103,7 +105,8 @@ class PoeTradeClient(AsyncClient):
                              f"Retrying in {self.retry_delay} seconds... "
                              f"(Attempt {attempts + 1}/{self.max_retries})")
                 await asyncio.sleep(self.retry_delay)
-            
+        
+        assert response is not None
         raise ServiceUnavailableError(f"Max retries ({self.max_retries}) exceeded. Last status: {response.status_code}")
 
 
@@ -151,6 +154,7 @@ class PoeApiClient(AsyncClient):
     async def get(self, *args, **kwargs) -> Response:
         """Override get method with custom error handling and retries"""
         attempts = 0
+        response = None
         while attempts < self.max_retries:
             response = await super().get(*args, **kwargs)
             handled_response = await self._handle_response(response)
@@ -163,13 +167,13 @@ class PoeApiClient(AsyncClient):
                              f"Retrying in {self.retry_delay} seconds... "
                              f"(Attempt {attempts + 1}/{self.max_retries})")
                 await asyncio.sleep(self.retry_delay)
-            
+        assert response is not None
         raise ServiceUnavailableError(f"Max retries ({self.max_retries}) exceeded. Last status: {response.status_code}")
 
     async def post(self, *args, **kwargs) -> Response:
         """Override post method with custom error handling and retries"""
-        await asyncio.sleep(17)
         attempts = 0
+        response = None
         while attempts < self.max_retries:
             response = await super().post(*args, **kwargs)
             handled_response = await self._handle_response(response)
@@ -182,7 +186,7 @@ class PoeApiClient(AsyncClient):
                              f"Retrying in {self.retry_delay} seconds... "
                              f"(Attempt {attempts + 1}/{self.max_retries})")
                 await asyncio.sleep(self.retry_delay)
-            
+        assert response is not None
         raise ServiceUnavailableError(f"Max retries ({self.max_retries}) exceeded. Last status: {response.status_code}")
 
 class PoeApiAuth(httpx.Auth):

@@ -1,26 +1,18 @@
-import math
 from typing import Dict, List
-
 from pydantic import BaseModel
 from services.priceFetchService.models.CurrencyExchangeResponse import CurrencyExchangeResponse, LeagueCurrencyPairData
 from services.repositories.item_repository import ItemRepository
 from services.repositories.item_repository.RecordPrice import RecordPriceModel
-from httpx import AsyncClient
-from .functions.fetch_unique import PriceFetchResult, DivinePriceFetchResult, fetch_unique, fetch_unique_divine
+from .functions.fetch_unique import PriceFetchResult, fetch_unique
 from .functions.record_price import record_price
-from .functions.fetch_currency import fetch_currency
-from .functions.extract_base_item_metadata import extract_base_item_metadata
 import logging
 from .config import PriceFetchConfig
-from services.repositories.base_repository import BaseRepository
 from .functions.sync_metadata_and_icon import sync_metadata_and_icon
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from services.libs.poe_trade_client import PoeApiClient, PoeTradeClient
 from services.repositories.item_repository.GetAllUniqueItems import UniqueItem
 from services.repositories.item_repository.GetAllCurrencyItems import CurrencyItem
-from services.repositories.item_repository.GetAllUniqueBaseItems import UniqueBaseItem
 from services.repositories.item_repository.GetLeagues import League
-from .functions.fetch_base import fetch_base
 
 import asyncio
 logger = logging.getLogger(__name__)
@@ -32,37 +24,6 @@ async def run(config: PriceFetchConfig, repo: ItemRepository):
     await asyncio.gather(FetchCurrencyExchangePrices(repo, config),
                         FetchPrices(repo))
 
-
-
-
-
-def choose_currency(exalt_price_info: PriceFetchResult, divines_price_info: DivinePriceFetchResult) -> bool:
-
-    if exalt_price_info.price <= 0:
-        should_use_exalt = False
-        return should_use_exalt
-    
-    if divines_price_info.price <= 0:
-        should_use_exalt = True
-        return should_use_exalt
-    
-    if exalt_price_info.price and exalt_price_info.quantity >= 3:
-        # Convert exalt prices to divine equivalent
-        ex_price = exalt_price_info.price / \
-            divines_price_info.price
-        divine_search_price = divines_price_info.price
-        
-        logger.info(
-            f"Exalt price: {ex_price} divs, Divine search price: {divine_search_price} divs")
-
-        # Use exalt prices if they're cheaper
-        if ex_price <= divine_search_price:
-            should_use_exalt = True
-        else:
-            should_use_exalt = False
-    else:
-        should_use_exalt = False
-    return should_use_exalt
 
 class CurrencyPrice(BaseModel):
     itemId: str
@@ -283,24 +244,45 @@ REALM = "poe2"
 
 async def process_uniques(uniqueItems: list[UniqueItem], league: League, repo: ItemRepository, client: PoeTradeClient, exaltedItem: CurrencyItem, divineItem: CurrencyItem, divinePrice: float):
     for uniqueItem in uniqueItems:
-        logger.info(f"Fetching price for {uniqueItem.name} in {league.value}")
-        exalt_price_info: PriceFetchResult = await fetch_unique(uniqueItem, league, repo, client)
-        logger.info(f"Exalt price info: {exalt_price_info}")
-        should_use_exalt = True
+        try:
+            ### Fetch price of exalt, chaos, div
+            ### Use price with highest quantity as the actual price
+            ### Gotten rid of all anti price fixing. 
+            ### After the league has progressed half a day? Turn on instant buy out only.
+            logger.info(f"Fetching price for {uniqueItem.name} in {league.value}")
+            exaltPriceFetchResult: PriceFetchResult = await fetch_unique(uniqueItem, 
+                                                                    league, 
+                                                                    repo, 
+                                                                    client,
+                                                                    'exalted')
+            chaosPriceFetchResult: PriceFetchResult = await fetch_unique(uniqueItem, 
+                                                                    league, 
+                                                                    repo, 
+                                                                    client,
+                                                                    'chaos')
+            divinePriceFetchResult: PriceFetchResult = await fetch_unique(uniqueItem, 
+                                                                    league, 
+                                                                    repo, 
+                                                                    client,
+                                                                    'divine')
+            logger.info(f"Exalt price info: {exaltPriceFetchResult}")
 
-        if exalt_price_info.should_fetch_divines:
-            logger.info(f"Fetching divines price for {uniqueItem.name} in {league.value}")
-            divines_price_info: DivinePriceFetchResult = await fetch_unique_divine(uniqueItem, league, client, repo)
-            
-            should_use_exalt = choose_currency(exalt_price_info, divines_price_info)
+            prices: List[PriceFetchResult] = [exaltPriceFetchResult, chaosPriceFetchResult, divinePriceFetchResult]
+            prices = [price for price in prices if price.price > 0]
 
-        (price, currencyItemId, quantity) = (exalt_price_info.price, exaltedItem.itemId, exalt_price_info.quantity) if should_use_exalt else (divines_price_info.price*divinePrice, divineItem.itemId, (exalt_price_info.quantity+ divines_price_info.quantity))
-        logger.info(f"Recording price for {uniqueItem.name} in {league.value} with price {price} and quantity {quantity}")
-        await record_price(price, uniqueItem.itemId, league.id, quantity, repo)
-            
-async def process_base_items(baseItems: list[UniqueBaseItem], league: League, repo: ItemRepository, client: PoeTradeClient):
-    for baseItem in baseItems:
-        logger.info(f"Fetching price for {baseItem.name} in {league.value}")
-        price_result = await fetch_base(baseItem, league, repo, client)
-        logger.info(f"Price: {price_result.price}, quantity: {price_result.quantity}")
-        await record_price(price_result.price, baseItem.itemId, league.id, price_result.quantity, repo)
+            if len(prices) == 0:
+                logger.info(f"No valid priceFetchResults for {uniqueItem}")
+                continue
+
+            sortedPrice = sorted(prices, key=lambda price: price.quantity, reverse=True)
+
+            mostListedResult = sortedPrice[0]
+
+            currency = await repo.GetCurrencyItem(mostListedResult.currency)
+            currencyPrice = await repo.GetItemPrice(currency.itemId, league.id)
+
+            (price, quantity) = (mostListedResult.price * currencyPrice, mostListedResult.quantity)
+            logger.info(f"Recording price for {uniqueItem.name} in {league.value} with price {price} and quantity {quantity}")
+            await record_price(price, uniqueItem.itemId, league.id, quantity, repo)
+        except:
+            logger.error(f"error fetching for {uniqueItem}")
