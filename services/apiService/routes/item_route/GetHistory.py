@@ -41,5 +41,6 @@ async def GetHistory(itemId: int, league: str, logCount: int, item_repository: I
                 newHistory.append(PricePoint(price=price/found, time=time, quantity=quantity))
             else:
                 newHistory.append(None)
-
-    return {'price_history': newHistory}
+        return {'price_history': newHistory}
+    else:
+        return history
