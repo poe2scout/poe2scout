@@ -16,7 +16,7 @@ class CategoryResponse(BaseModel):
     unique_categories: list[Category]
     currency_categories: list[Category]
 
-ignoreCurrencies = ['gem', 'relics']
+ignoreCurrencies = ['gem', 'relics', 'waystones']
 
 
 @router.get("/categories")
