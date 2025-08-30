@@ -57,6 +57,7 @@ services:
     build:
       context: .
       dockerfile: services/priceFetchService/Dockerfile
+    restart: always
     environment:
       - DBSTRING=${DBSTRING}
       - POEAPI_CLIENT_ID=${POEAPI_CLIENT_ID}
