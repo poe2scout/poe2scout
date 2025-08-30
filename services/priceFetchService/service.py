@@ -38,7 +38,7 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
     }
     async with PoeApiClient(config.POEAPI_CLIENT_ID, config.POEAPI_CLIENT_SECRET, headers=headers) as client:
         while True:
-            await asyncio.sleep(current_timestamp + 60 * 60 - int(datetime.now(timezone.utc).timestamp())) # Wait til next time + 5 mins
+            await asyncio.sleep(current_timestamp + 60 * 60 - int(datetime.now(timezone.utc).timestamp())) # Wait til next time
             leagues = await repo.GetLeagues()
             response = await client.get(f'https://www.pathofexile.com/api/currency-exchange/poe2/{current_timestamp}')
             if response.status_code != 200:

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def calculate_poe_maintenance_time() -> float:
     """Calculate seconds until 10 minutes before next POE maintenance window (every 6 hours)"""
     current_time = datetime.now()
-    hours_until_maintenance = 6 - (current_time.hour % 6)
+    hours_until_maintenance = 12 - (current_time.hour % 12)
     next_maintenance = current_time.replace(minute=0, second=0, microsecond=0) + timedelta(hours=hours_until_maintenance)
     maintenance_warning = next_maintenance - timedelta(minutes=10)
     return (maintenance_warning - current_time).total_seconds()
