@@ -20,7 +20,16 @@ async def GetHistory(itemId: int, league: str, logCount: int, item_repository: I
     
     leagues = await item_repository.GetAllLeagues()
     leagueId = next((l.id for l in leagues if l.value == league), None)
-    history = await item_repository.GetItemPriceHistory(itemId, leagueId, logCount)
+
+
+    isACurrency = await item_repository.IsItemACurrency(itemId)
+
+    if isACurrency and logCount < 14*4:
+        logFrequency = 1
+    else:
+        logFrequency = 6
+
+    history = await item_repository.GetItemPriceHistory(itemId, leagueId, logCount, logFrequency)
     newHistory: List[Optional[PricePoint]] = []
 
     logs = history['price_history']

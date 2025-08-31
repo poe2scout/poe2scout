@@ -12,7 +12,7 @@ class PriceLogEntry(BaseModel):
 
 
 class GetItemPriceHistory(BaseRepository):
-    async def execute(self, itemId: int, leagueId: int, logCount: int) -> Dict[str, List[Optional[PriceLogEntry]]]:
+    async def execute(self, itemId: int, leagueId: int, logCount: int, logFrequency: int) -> Dict[str, List[Optional[PriceLogEntry]]]:
         lastLogTimeQuery = """
             SELECT pl."createdAt"
               FROM "PriceLog" AS pl
@@ -30,14 +30,14 @@ class GetItemPriceHistory(BaseRepository):
             now = datetime.now()
 
         current_block = now.replace(
-            hour=(now.hour // 6) * 6,
+            hour=(now.hour // logFrequency) * logFrequency,
             minute=0,
             second=0,
             microsecond=0
         )
 
         # Generate time blocks once
-        time_blocks = [current_block - timedelta(hours=i*6) for i in range(logCount)]
+        time_blocks = [current_block - timedelta(hours=i*logFrequency) for i in range(logCount)]
 
         # Prepare block timestamps and indices
         block_timestamps = [tb for tb in time_blocks]
@@ -48,7 +48,7 @@ class GetItemPriceHistory(BaseRepository):
             WITH time_blocks AS (
                 SELECT 
                     block_start,
-                    block_start + interval '6 hours' as block_end,
+                    block_start + (%s || ' hours')::interval as block_end,
                     block_index
                 FROM unnest(%s::timestamp[], %s::int[]) AS tb(block_start, block_index)
             ),
@@ -83,6 +83,7 @@ class GetItemPriceHistory(BaseRepository):
         price_logs = await self.execute_query(
             price_log_query,
             (
+                logFrequency,
                 block_timestamps,
                 block_indices,
                 itemId,
