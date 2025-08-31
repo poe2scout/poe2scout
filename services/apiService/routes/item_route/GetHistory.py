@@ -26,6 +26,7 @@ async def GetHistory(itemId: int, league: str, logCount: int, item_repository: I
 
     if isACurrency and logCount < 14*4:
         logFrequency = 1
+        logCount = logCount * 6
     else:
         logFrequency = 6
 
