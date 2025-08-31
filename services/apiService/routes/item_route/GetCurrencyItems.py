@@ -36,7 +36,7 @@ async def GetCurrencyItems(category: str, search: str = "", pagination: Paginati
     currencyItems = [currencyItem for currencyItem in currencyItems if currencyItem.itemId in itemsInCurrentLeague]
     itemIds = [item.itemId for item in currencyItems]
     
-    priceLogs = await repo.GetItemPriceLogs(itemIds, league.id)
+    priceLogs = await repo.GetItemPriceLogs(itemIds, league.id, 1)
 
     items = [CurrencyItemExtended(
         **item.model_dump(), priceLogs=priceLogs[item.itemId]) for item in currencyItems]

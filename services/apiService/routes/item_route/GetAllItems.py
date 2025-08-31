@@ -51,7 +51,7 @@ async def GetAllItems(league: str, item_repository: ItemRepository = Depends(get
     if league_id is None:
         raise HTTPException(status_code=404, detail="League not found")
         
-    price_logs = await item_repository.GetItemPriceLogs(item_ids, league_id)
+    price_logs = await item_repository.GetItemPriceLogs(item_ids, league_id, 6)
     
     last_prices = {}
     for item_id, logs in price_logs.items():

@@ -19,7 +19,7 @@ async def GetLandingSplashInfo(item_repository: ItemRepository = Depends(get_ite
 
     itemIds = [item.itemId for item in items]
 
-    priceLogs = await item_repository.GetItemPriceLogs(itemIds, defaultLeagueId)
+    priceLogs = await item_repository.GetItemPriceLogs(itemIds, defaultLeagueId, 6)
 
     items = [CurrencyItemExtended(
         **item.model_dump(), priceLogs=priceLogs[item.itemId]) for item in items]

@@ -21,7 +21,7 @@ async def GetCurrencyItemById(apiId: str, league: str, repo: ItemRepository = De
 
     itemIds = [currencyItem.itemId]
     leagueInDb = await repo.GetLeagueByValue(league)
-    priceLogs = await repo.GetItemPriceLogs(itemIds, leagueInDb.id)
+    priceLogs = await repo.GetItemPriceLogs(itemIds, leagueInDb.id, 1)
 
     items = [CurrencyItemExtended(
         **currencyItem.model_dump(), priceLogs=priceLogs[currencyItem.itemId])]

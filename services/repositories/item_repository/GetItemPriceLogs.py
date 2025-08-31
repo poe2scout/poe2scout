@@ -12,25 +12,25 @@ class PriceLogEntry(BaseModel):
 
 
 class GetItemPriceLogs(BaseRepository):
-    async def execute(self, itemIds: List[int], leagueId: int) -> Dict[int, List[Optional[PriceLogEntry]]]:
+    async def execute(self, itemIds: List[int], leagueId: int, hourCycle: int) -> Dict[int, List[Optional[PriceLogEntry]]]:
 
         now = datetime.now()
         current_block = now.replace(
-            hour=(now.hour // 6) * 6,
+            hour=(now.hour // hourCycle) * hourCycle,
             minute=0,
             second=0,
             microsecond=0
         )
 
         # Generate time blocks once
-        time_blocks = [current_block - timedelta(hours=i*6) for i in range(7)]
+        time_blocks = [current_block - timedelta(hours=i*hourCycle) for i in range(7)]
 
         # Let PostgreSQL do the heavy lifting - finding the latest price log in each time block
         price_log_query = """
             WITH time_blocks AS (
                 SELECT 
                     block_start,
-                    block_start + interval '6 hours' as block_end,
+                    block_start + (%s || 'hours')::interval as block_end,
                     block_index
                 FROM unnest(%s::timestamp[], %s::int[]) AS tb(block_start, block_index)
             ),
@@ -80,6 +80,7 @@ class GetItemPriceLogs(BaseRepository):
         price_logs = await self.execute_query(
             price_log_query,
             (
+                hourCycle,
                 block_timestamps,
                 block_indices,
                 itemIds,
