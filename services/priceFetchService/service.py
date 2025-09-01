@@ -232,7 +232,7 @@ async def FetchPrices(repo: ItemRepository):
 
                 await process_uniques(uniqueItems, league, repo, client, exaltedItem, divineItem, divinePrice)
                 
-                currencyItems = [item for item in baseCurrencyItems if item.itemId in itemIdsToFetch]
+                currencyItems = [item for item in baseCurrencyItems]
                 for currencyItem in currencyItems:
                     if currencyItem.itemMetadata is None:
                         logger.info(f"Syncing metadata and icon for {currencyItem.text}")
