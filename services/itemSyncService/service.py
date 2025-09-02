@@ -24,6 +24,7 @@ headers = {
 
 async def run(config: ItemSyncConfig):
     has_run = 0
+    print("sss")
     with Client(headers=headers) as client:
         while True:
             if has_run == 0:

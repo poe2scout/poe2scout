@@ -1,6 +1,7 @@
 from typing import Dict, List
 from pydantic import BaseModel
-from services.priceFetchService.models.CurrencyExchangeResponse import CurrencyExchangeResponse, LeagueCurrencyPairData
+from services.libs.models.CurrencyExchangeResponse import CurrencyExchangeResponse, LeagueCurrencyPairData
+from services.repositories.currency_exchange_repository import CurrencyExchangeRepository
 from services.repositories.item_repository import ItemRepository
 from services.repositories.item_repository.RecordPrice import RecordPriceModel
 from .functions.fetch_unique import PriceFetchResult, fetch_unique
@@ -17,12 +18,11 @@ from services.repositories.item_repository.GetLeagues import League
 import asyncio
 logger = logging.getLogger(__name__)
 
-async def run(config: PriceFetchConfig, repo: ItemRepository):
+async def run(config: PriceFetchConfig, repo: ItemRepository, cxRepo: CurrencyExchangeRepository):
     # Define the schedule
 
     logger.info(f"Price fetch service started.")
-    await asyncio.gather(FetchCurrencyExchangePrices(repo, config),
-                        FetchPrices(repo))
+    await asyncio.gather(FetchCurrencyExchangePrices(repo, config, cxRepo))
 
 
 class CurrencyPrice(BaseModel):
@@ -30,18 +30,29 @@ class CurrencyPrice(BaseModel):
     value: float # In exalts
     quantityTraded: int
 
-async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchConfig):
-    current_timestamp = int(datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0).timestamp() - 60* 60)
-    
+async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchConfig, cxRepo: CurrencyExchangeRepository):
+    lastFetchEpoch = (await cxRepo.GetLastFetchedEpoch()).Epoch
+    if lastFetchEpoch:
+        current_timestamp = lastFetchEpoch + 60*60
+    else:
+        current_timestamp = None
     headers = {
         "User-Agent": "POE2SCOUT (contact: b@girardet.co.nz)"
     }
     async with PoeApiClient(config.POEAPI_CLIENT_ID, config.POEAPI_CLIENT_SECRET, headers=headers) as client:
         while True:
-            await asyncio.sleep(current_timestamp + 60 * 60 - int(datetime.now(timezone.utc).timestamp())) # Wait til next time
-            leagues = await repo.GetLeagues()
-            response = await client.get(f'https://www.pathofexile.com/api/currency-exchange/poe2/{current_timestamp}')
+            logger.info(f"Checking for currencies")
+            if current_timestamp:
+                await asyncio.sleep(current_timestamp + 60 * 60 - int(datetime.now(timezone.utc).timestamp())) # Wait til next time
+            leagues = await repo.GetAllLeagues()
+
+            if current_timestamp:
+                url = f'https://www.pathofexile.com/api/currency-exchange/poe2/{current_timestamp}'
+            else:
+                url = f'https://www.pathofexile.com/api/currency-exchange/poe2'
+            response = await client.get(url)
             if response.status_code != 200:
+                print(response.json())
                 raise Exception("GetFromApiFailure")
             
             baseCurrencies: List[str] = ['divine', 'chaos', 'exalted']
@@ -49,15 +60,18 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
             exaltedPrice = CurrencyPrice(itemId='exalted', value=1.0, quantityTraded=1)
 
             data = CurrencyExchangeResponse.model_validate(response.json())
+            current_timestamp = data.next_change_id - 60 * 60
             nextFetchTime = data.next_change_id
 
             if (len(data.markets) == 0): # Current timestamp. Not filled in yet
                 logger.error("Price history reached end. Waiting 20 mins. Shouldnt hit this.")
-                await asyncio.sleep(20*60)
-            
+                current_timestamp = data.next_change_id
+                continue
+
             for league in leagues:
                 if (await repo.GetPricesChecked(current_timestamp, league.id)):
                     logger.info("Price already checked for this timestamp and league. continuing")
+                    current_timestamp = data.next_change_id
                     continue
 
                 ### Calculate baseCurrency prices (Divine, Chaos, Exalted)
@@ -66,7 +80,13 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
 
                 chaosPrice = None
                 if len(chaosPairs) == 0:
-                    chaosPrice = CurrencyPrice(itemId='chaos', value = await repo.GetItemPrice((await repo.GetCurrencyItem('chaos')).itemId, leagueId=league.id), quantityTraded=1)
+                    logger.info("No chaos pair")
+                    itemPrice = await repo.GetItemPrice((await repo.GetCurrencyItem('chaos')).itemId, league.id)
+                    if itemPrice == 0:
+                        current_timestamp = data.next_change_id
+                        continue
+
+                    chaosPrice = CurrencyPrice(itemId='chaos', value = itemPrice, quantityTraded=0)
                 else:
                     for chaosPair in chaosPairs:
                         pairs.remove(chaosPair)
@@ -89,8 +109,13 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
                         divineTradingQuantities.append(divinePair.quantityOfTargetItem)
                 
                 if len(divinePrices) == 0:
-                    divinePrices.append(await repo.GetItemPrice((await repo.GetCurrencyItem('divine')).itemId, leagueId=league.id))
-                    divineTradingQuantities.append(1)
+                    logger.info("No divine pair")
+                    itemPrice = await repo.GetItemPrice((await repo.GetCurrencyItem('divine')).itemId, league.id)
+                    if itemPrice == 0:
+                        current_timestamp = data.next_change_id
+                        continue
+
+                    divinePrices.append(itemPrice)
 
                 divinePrice = CurrencyPrice(itemId='divine', value = sum(divinePrices)/ len(divinePrices), quantityTraded=sum(divineTradingQuantities))
                 
@@ -142,7 +167,7 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
                 
                 priceLogs = [RecordPriceModel(itemId=itemIdLookup[value.itemId], leagueId=league.id, price=value.value, quantity=value.quantityTraded) for value in finalPrices.values()]
                 await repo.RecordPriceBulk(priceLogs, current_timestamp)
-            current_timestamp = nextFetchTime
+            current_timestamp = data.next_change_id
 
 def getCurrencyPriceFromPair(pair: LeagueCurrencyPairData, baseItemPrices: List[CurrencyPrice]) -> CurrencyPrice:
     for baseItemPrice in baseItemPrices:

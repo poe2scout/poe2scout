@@ -8,10 +8,6 @@ class League(BaseModel):
 
 class GetLeagueByValue(BaseRepository):
     async def execute(self, value: str) -> League:
-        if value == "Standard":
-            value = "Rise of the Abyssal"
-        if value == "Hardcore":
-            value = "Rise of the Abyssal"
         league_query = """
             SELECT "id", "value" 
             FROM "League"

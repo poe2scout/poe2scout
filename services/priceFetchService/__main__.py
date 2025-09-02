@@ -7,6 +7,8 @@ from typing import Callable, Awaitable
 from contextlib import asynccontextmanager
 import dotenv
 import time
+
+from services.repositories.currency_exchange_repository import CurrencyExchangeRepository
 from .service import run
 from .config import PriceFetchConfig
 from services.libs.MaintenanceTimer import MaintenanceTimer
@@ -37,12 +39,13 @@ if __name__ == "__main__":
     async def main_loop():
         await BaseRepository.init_pool(config.dbstring)
         repo = ItemRepository()
+        cxRepo = CurrencyExchangeRepository()
 
         while True:
             try:
                 async with timer:
                     logger.info("Starting maintenance timer")
-                    await timer.run_cancellable(run(config, repo))
+                    await timer.run_cancellable(run(config, repo, cxRepo))
             except asyncio.CancelledError:
                 logger.info("Service stopped for maintenance window, will restart after maintenance")
                 logger.info("Sleeping for 15 minutes")
@@ -51,4 +54,4 @@ if __name__ == "__main__":
 
     # Single asyncio.run() call that manages the entire application lifecycle
     
-    asyncio.run(main_loop())
+    asyncio.run(main_loop(), debug=True)

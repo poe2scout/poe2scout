@@ -1,3 +1,6 @@
+from services.repositories.item_repository.GetCurrencyFetchStatus import GetCurrencyFetchStatus
+from .GetItemPrices import GetItemPrices
+from .GetItemPricesInRange import GetItemPricesInRange
 from .GetPricesChecked import GetPricesChecked
 from .CreateBaseItem import CreateBaseItem
 from .GetAllBaseItems import GetAllBaseItems
@@ -82,3 +85,6 @@ class ItemRepository:
         self.GetAllLeagues = GetAllLeagues().execute
         self.GetPricesChecked = GetPricesChecked().execute
         self.GetItemsInCurrentLeague = GetItemsInCurrentLeague().execute
+        self.GetItemPricesInRange = GetItemPricesInRange().execute
+        self.GetItemPrices = GetItemPrices().execute
+        self.GetCurrencyFetchStatus = GetCurrencyFetchStatus().execute

@@ -112,6 +112,11 @@ class PoeTradeClient(AsyncClient):
 
 class PoeApiClient(AsyncClient):
     def __init__(self, clientId: str, clientSecret: str, headers: Optional[Dict[str, str]] = None):
+        if headers == None:
+            print("Using default headers")
+            headers =  {
+            "User-Agent": "POE2SCOUT (contact: b@girardet.co.nz)"
+            }
         super().__init__(headers=headers, auth=PoeApiAuth(client_id=clientId, client_secret=clientSecret))
         self.client_id = clientId
         self.client_secret = clientSecret
@@ -156,8 +161,10 @@ class PoeApiClient(AsyncClient):
         attempts = 0
         response = None
         while attempts < self.max_retries:
+            await asyncio.sleep(5)
             response = await super().get(*args, **kwargs)
             handled_response = await self._handle_response(response)
+
             if handled_response is not None:
                 return handled_response
             

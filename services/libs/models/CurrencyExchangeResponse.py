@@ -8,7 +8,7 @@ class TradingPair(BaseModel):
     league: str
     market_id: str
     volume_traded: dict[str, int]
-    lowest_stock: dict[str, int]
+    highest_stock: dict[str, int]
 
 class CurrencyExchangeResponse(BaseModel):
     next_change_id: int

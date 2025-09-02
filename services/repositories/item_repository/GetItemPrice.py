@@ -20,6 +20,6 @@ class GetItemPrice(BaseRepository):
             item_query, (itemId, leagueId))
         
         if len(price) == 0:
-            return 100 # Default div price in exalts. This method is / should only be called to get divine price or chaos price.
+            return 0 # Default div price in exalts. This method is / should only be called to get divine price or chaos price.
         else:
             return price[0]["price"]

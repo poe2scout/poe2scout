@@ -55,7 +55,7 @@ def cache_response(key: Callable, ttl: int = 300):
         async def wrapper(*args, **kwargs):
             cache_key = key(kwargs)
             print("cache_key", cache_key)
-            cached_value = await redis.get(cache_key)
+            cached_value = None # await redis.get(cache_key)
             if cached_value:
                 print("hit_Cache")
 
