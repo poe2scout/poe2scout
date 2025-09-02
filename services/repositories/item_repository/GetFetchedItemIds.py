@@ -27,7 +27,6 @@ class GetFetchedItemIds(BaseRepository):
             JOIN "League" as l ON pl."leagueId" = l."id"
             WHERE pl."createdAt" > %s AND pl."createdAt" < %s AND l."id" = %s
         """
-        print(currentStart, currentEnd)
         itemIds = (await self.execute_query(
             item_query, (currentStart, currentEnd, leagueId)))
     

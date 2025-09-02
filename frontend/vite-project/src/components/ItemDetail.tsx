@@ -15,6 +15,7 @@ import { PriceLogEntry } from "../types";
 import { Chart } from "./Chart";
 import { HistogramData, LineData, Time, UTCTimestamp } from "lightweight-charts";
 import PeriodSelector from "./PeriodSelector";
+import ReferenceCurrencySelector, { BaseCurrencies } from "./ReferenceCurrencySelector";
 
 const DetailContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -43,6 +44,7 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
   const [logCount, setLogCount] = useState<number>(28);
   const [detailedHistory, setDetailedHistory] = useState<(PriceLogEntry | null)[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedReference, setSelectedReference] = useState<BaseCurrencies>('exalted')
   const { language } = useLanguage();
   const { league } = useLeague();
 
@@ -51,7 +53,7 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
       console.log('Fetching price history:', { itemId: item.id, logCount, league });
       setIsLoading(true);
       try {
-        const url = `${import.meta.env.VITE_API_URL}/items/${item.itemId}/history?logCount=${logCount}&league=${league.value}`;
+        const url = `${import.meta.env.VITE_API_URL}/items/${item.itemId}/history?logCount=${logCount}&league=${league.value}&referenceCurrency=${selectedReference}`;
         console.log('Fetch URL:', url);
         
         const response = await fetch(url);
@@ -67,7 +69,11 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
     };
 
     fetchPriceHistory();
-  }, [item.id, logCount]);
+  }, [item.id, logCount, selectedReference]);
+
+  const onSelectedReferenceChange = (newReference: BaseCurrencies) => {
+    setSelectedReference(newReference)
+  }
 
   // Process the price history data
   const processedData = useMemo((): ChartData => {
@@ -135,12 +141,18 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
             itemMetadata={item.itemMetadata}
           />
         </Box>
-        <PeriodSelector
-          currentLogCount={logCount}
-          onLogCountChange={setLogCount}
-          language={language}
-          translations={translations}
-        />
+        <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+          <PeriodSelector
+            currentLogCount={logCount}
+            onLogCountChange={setLogCount}
+            language={language}
+            translations={translations}
+          />
+          <ReferenceCurrencySelector
+            currentReference={selectedReference}
+            onReferenceChange={onSelectedReferenceChange}
+          />
+        </Box>
       </HeaderContainer>
 
       <Box sx={{ width: "100%", height: "100%" }}>
@@ -156,7 +168,7 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
             <CircularProgress />
           </Box>
         ) : (
-          <Chart lineData={processedData.lineData} histogramData={processedData.histogramData} />
+          <Chart lineData={processedData.lineData} histogramData={processedData.histogramData} selectedReference={selectedReference} />
         )}
       </Box>
     </DetailContainer>

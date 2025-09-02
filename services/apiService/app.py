@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()    
 config = ApiServiceConfig.load_from_env()
-IS_LOCAL = os.getenv("local", "false").lower() == "true"
+IS_LOCAL = os.getenv("LOCAL", "false").lower() == "true"
 
 def get_real_ip(request: Request) -> str:
     real_ip = request.headers.get("cf-connecting-ip")

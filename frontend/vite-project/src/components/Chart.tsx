@@ -1,6 +1,7 @@
 import { createChart, ColorType, LineSeries, Time, LineData, HistogramSeries, HistogramData, UTCTimestamp } from 'lightweight-charts';
 import { useEffect, useRef, useState } from 'react';
 import { fromUnixTime, format } from "date-fns";
+import { BaseCurrencies } from './ReferenceCurrencySelector';
 
 export interface ChartProps {
     lineData: LineData<Time>[];
@@ -11,6 +12,7 @@ export interface ChartProps {
         textColor?: string;
         gridColor?: string;
     };
+    selectedReference: BaseCurrencies
 }
 
 interface LegendData {
@@ -29,6 +31,7 @@ export const Chart = (props: ChartProps) => {
             textColor = 'white',
             gridColor = '#334158',
         } = {},
+        selectedReference,
     } = props;
 
     const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -155,7 +158,7 @@ export const Chart = (props: ChartProps) => {
                         <strong style={{ color: 'white' }}>
                             {legendValues.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </strong>
-                        <span style={{ color: '#aaa' }}> Exalted Orbs</span>
+                        <span style={{ color: '#aaa' }}> { selectedReference.charAt(0).toUpperCase() + selectedReference.slice(1)} Orbs</span>
                     </div>
                 )}
                 {legendValues.volume !== undefined && (

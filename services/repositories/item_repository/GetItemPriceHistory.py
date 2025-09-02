@@ -23,7 +23,6 @@ class GetItemPriceHistory(BaseRepository):
             """
         
         lastTime = await self.execute_query(lastLogTimeQuery, (itemId, leagueId))
-
         if len(lastTime) == 1:
             now = lastTime[0]['createdAt']
         else:
