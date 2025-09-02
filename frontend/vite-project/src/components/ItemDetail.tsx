@@ -14,7 +14,7 @@ import translations from "../translationskrmapping.json";
 import { useLeague } from "../contexts/LeagueContext";
 import { PriceLogEntry } from "../types";
 import { Chart } from "./Chart";
-import { LineData, Time, UTCTimestamp } from "lightweight-charts";
+import { HistogramData, LineData, Time, UTCTimestamp } from "lightweight-charts";
 
 const DetailContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -31,6 +31,11 @@ const HeaderContainer = styled(Box)({
 interface ItemDetailProps {
   item: ApiItem;
   onBack: () => void;
+}
+
+interface ChartData {
+  lineData: LineData<Time>[];
+  histogramData: HistogramData<Time>[];
 }
 
 export function ItemDetail({ item, onBack }: ItemDetailProps) {
@@ -65,8 +70,8 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
   }, [item.id, logCount]);
 
   // Process the price history data
-  const processedData = useMemo((): LineData<Time>[] => {
-    if (!detailedHistory.length) return [];
+  const processedData = useMemo((): ChartData => {
+    if (!detailedHistory.length) return {lineData: [], histogramData: []};
 
     // Reverse the array to get chronological order (oldest to newest)
     const firstValidIndexReverse = detailedHistory.findIndex(entry => entry !== null)
@@ -77,12 +82,12 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
     const firstValidIndex = chronologicalHistory.findIndex(entry => entry !== null);
     
     // If no valid entries found, return empty arrays
-    if (firstValidIndex === -1) return [];
+    if (firstValidIndex === -1) return {lineData: [], histogramData: []};
     
     // Slice the array from the first valid entry
     const validHistory = chronologicalHistory.slice(firstValidIndex);
     
-    const values = validHistory
+    const prices = validHistory
       .filter(entry => entry && entry.time && typeof entry.price === 'number')
       .map(entry => {
         return {
@@ -90,8 +95,20 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
           value: entry!.price,
         };
       });
-    console.log(values)
-    return values;
+
+    const quantities = validHistory
+      .filter(entry => entry && entry.time && typeof entry.price === 'number')
+      .map(entry => {
+        return {
+          time: new Date(entry!.time).getTime() / 1000 as UTCTimestamp,
+          value: entry!.quantity,
+        };
+      });
+
+    return {
+      lineData: prices,
+      histogramData: quantities
+    };
   }, [detailedHistory]);
 
   return (
@@ -179,7 +196,7 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
             <CircularProgress />
           </Box>
         ) : (
-          <Chart data={processedData} />
+          <Chart lineData={processedData.lineData} histogramData={processedData.histogramData} />
         )}
       </Box>
     </DetailContainer>

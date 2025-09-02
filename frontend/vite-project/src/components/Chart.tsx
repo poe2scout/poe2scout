@@ -1,9 +1,10 @@
-import { createChart, ColorType, LineSeries, Time, LineData } from 'lightweight-charts';
+import { createChart, ColorType, LineSeries, Time, LineData, HistogramSeries, HistogramData } from 'lightweight-charts';
 import { useEffect, useRef } from 'react';
 
 
 export interface ChartProps {
-    data: LineData<Time>[];
+    lineData: LineData<Time>[];
+    histogramData: HistogramData<Time>[];
     colors?: {
         backgroundColor?: string;
         lineColor?: string;
@@ -16,7 +17,8 @@ export interface ChartProps {
 
 export const Chart = (props: ChartProps) => {
     const {
-        data,
+        lineData,
+        histogramData,
         colors: {
             backgroundColor = 'rgba(255, 255, 255, 0.0)',
             lineColor = '#2962FF',
@@ -44,13 +46,38 @@ export const Chart = (props: ChartProps) => {
                     background: { type: ColorType.Solid, color: backgroundColor },
                     textColor,
                 },
+                leftPriceScale: {
+                    visible: true,
+                },
                 width: chartContainerRef.current.clientWidth,
                 height: 300,
             });
+
             chart.timeScale().fitContent();
 
-            const newSeries = chart.addSeries(LineSeries);
-            newSeries.setData(data);
+            if (lineData.length > 0){
+                const newSeries = chart.addSeries(LineSeries, {
+                    priceScaleId: 'right'
+                });
+                newSeries.setData(lineData);
+            }
+
+            if (histogramData.length > 0){
+                const histogramSeries = chart.addSeries(HistogramSeries, { 
+                    color: '#26a69a',                    
+                    priceFormat: { type: 'volume' },
+                    priceScaleId: 'left'
+                 });
+
+                histogramSeries.priceScale().applyOptions({
+                    scaleMargins: {
+                        top: 0.8, // Leave the top 80% of the chart space empty
+                        bottom: 0,
+                    },
+                })
+
+                histogramSeries.setData(histogramData);    
+            }
 
             window.addEventListener('resize', handleResize);
 
@@ -60,7 +87,7 @@ export const Chart = (props: ChartProps) => {
                 chart.remove();
             };
         },
-        [data, backgroundColor, lineColor, textColor, gridColor]
+        [lineData, histogramData, backgroundColor, lineColor, textColor, gridColor]
     );
 
     return (
