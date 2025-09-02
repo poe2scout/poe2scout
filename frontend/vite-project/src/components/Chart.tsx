@@ -110,6 +110,8 @@ export const Chart = (props: ChartProps) => {
         });
         
         histogramSeries.setData(histogramData);
+        
+        chart.timeScale().fitContent();
 
         chart.subscribeCrosshairMove(param => {
             if (!param.time || !param.seriesData.has(histogramSeries) || !param.seriesData.has(lineSeries)) {
