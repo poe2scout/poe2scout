@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import {
   Button,
-  ButtonGroup,
   Paper,
   Box,
   CircularProgress,
@@ -15,6 +14,7 @@ import { useLeague } from "../contexts/LeagueContext";
 import { PriceLogEntry } from "../types";
 import { Chart } from "./Chart";
 import { HistogramData, LineData, Time, UTCTimestamp } from "lightweight-charts";
+import PeriodSelector from "./PeriodSelector";
 
 const DetailContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -135,55 +135,15 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
             itemMetadata={item.itemMetadata}
           />
         </Box>
-        <ButtonGroup>
-          <Button
-            variant={logCount === 28 ? "contained" : "outlined"}
-            onClick={() => setLogCount(28)}
-            disableRipple
-            sx={{
-              userSelect: "none",
-              "&:focus": { outline: "none" },
-            }}
-          >
-            {language === "ko" ? translations["Week"] : "Week"}
-          </Button>
-          <Button
-            variant={logCount === 112 ? "contained" : "outlined"}
-            onClick={() => setLogCount(112)}
-            disableRipple
-            sx={{
-              userSelect: "none",
-              "&:focus": { outline: "none" },
-            }}
-          >
-            {language === "ko" ? translations["Month"] : "Month"}
-          </Button>
-          <Button
-            variant={logCount === 336 ? "contained" : "outlined"}
-            onClick={() => setLogCount(336)}
-            disableRipple
-            sx={{
-              userSelect: "none",
-              "&:focus": { outline: "none" },
-            }}
-          >
-            {language === "ko" ? translations["3 Months"] : "3 Months"}
-          </Button>
-          <Button
-            variant={logCount === 672 ? "contained" : "outlined"}
-            onClick={() => setLogCount(672)}
-            disableRipple
-            sx={{
-              userSelect: "none",
-              "&:focus": { outline: "none" },
-            }}
-          >
-            All
-          </Button>
-        </ButtonGroup>
+        <PeriodSelector
+          currentLogCount={logCount}
+          onLogCountChange={setLogCount}
+          language={language}
+          translations={translations}
+        />
       </HeaderContainer>
 
-      <Box sx={{ width: "100%" }}>
+      <Box sx={{ width: "100%", height: "100%" }}>
         {isLoading ? (
           <Box
             sx={{
