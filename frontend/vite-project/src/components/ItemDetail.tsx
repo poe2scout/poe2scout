@@ -13,28 +13,8 @@ import { useLanguage } from "../contexts/LanguageContext";
 import translations from "../translationskrmapping.json";
 import { useLeague } from "../contexts/LeagueContext";
 import { PriceLogEntry } from "../types";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
-
-// Register ChartJS components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import { Chart } from "./Chart";
+import { LineData, Time, UTCTimestamp } from "lightweight-charts";
 
 const DetailContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -85,8 +65,8 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
   }, [item.id, logCount]);
 
   // Process the price history data
-  const processedData = useMemo(() => {
-    if (!detailedHistory.length) return { labels: [], prices: [] };
+  const processedData = useMemo((): LineData<Time>[] => {
+    if (!detailedHistory.length) return [];
 
     // Reverse the array to get chronological order (oldest to newest)
     const firstValidIndexReverse = detailedHistory.findIndex(entry => entry !== null)
@@ -97,65 +77,22 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
     const firstValidIndex = chronologicalHistory.findIndex(entry => entry !== null);
     
     // If no valid entries found, return empty arrays
-    if (firstValidIndex === -1) return { labels: [], prices: [] };
+    if (firstValidIndex === -1) return [];
     
     // Slice the array from the first valid entry
     const validHistory = chronologicalHistory.slice(firstValidIndex);
     
-    let lastValidPrice = 0;
-    const prices = validHistory.map((entry) => {
-      if (!entry) {
-        return lastValidPrice; // Use the last valid price for null entries
-      }
-      lastValidPrice = entry.price;
-      return entry.price;
-    });
-
-    // Generate labels (dates) for the valid entries
-    const labels = validHistory.map((entry) => 
-      entry ? new Date(entry.time).toLocaleDateString() : ''
-    );
-
-    return { labels, prices };
+    const values = validHistory
+      .filter(entry => entry && entry.time && typeof entry.price === 'number')
+      .map(entry => {
+        return {
+          time: new Date(entry!.time).getTime() / 1000 as UTCTimestamp,
+          value: entry!.price,
+        };
+      });
+    console.log(values)
+    return values;
   }, [detailedHistory]);
-
-  const chartData = {
-    labels: processedData.labels,
-    datasets: [
-      {
-        label: 'Price History',
-        data: processedData.prices,
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1,
-        fill: false,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: function(tickValue: number | string) {
-            return typeof tickValue === 'number' ? tickValue.toFixed(2) : tickValue;
-          }
-        }
-      },
-    },
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        callbacks: {
-          label: (context: any) => `Price: ${context.parsed.y.toFixed(2)}`,
-        },
-      },
-    },
-  };
 
   return (
     <DetailContainer>
@@ -229,7 +166,7 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
         </ButtonGroup>
       </HeaderContainer>
 
-      <Box sx={{ height: 400, width: "100%" }}>
+      <Box sx={{ width: "100%" }}>
         {isLoading ? (
           <Box
             sx={{
@@ -242,7 +179,7 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
             <CircularProgress />
           </Box>
         ) : (
-          <Line data={chartData} options={chartOptions} />
+          <Chart data={processedData} />
         )}
       </Box>
     </DetailContainer>
