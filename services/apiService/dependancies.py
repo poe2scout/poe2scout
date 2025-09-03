@@ -57,8 +57,6 @@ def cache_response(key: Callable, ttl: int = 300):
             print("cache_key", cache_key)
             cached_value = None # await redis.get(cache_key)
             if cached_value:
-                print("hit_Cache")
-
                 return_type = get_type_hints(func).get('return')
                 type_adapter = TypeAdapter(return_type)
                 return type_adapter.validate_json(cached_value)
