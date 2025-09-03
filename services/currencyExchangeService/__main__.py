@@ -29,6 +29,5 @@ if __name__ == "__main__":
         async with PoeApiClient(config.POEAPI_CLIENT_ID, config.POEAPI_CLIENT_SECRET) as client:
             while True:
                 await run(config, itemRepo, cxRepo, client)
-                await asyncio.sleep(5)
     
     asyncio.run(main_loop())
