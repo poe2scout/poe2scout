@@ -167,6 +167,7 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
                         finalPrices.pop(key)
                 
                 priceLogs = [RecordPriceModel(itemId=itemIdLookup[value.itemId], leagueId=league.id, price=value.value, quantity=value.quantityTraded) for value in finalPrices.values()]
+                logger.info(f"Saving {len(priceLogs)} logs for {league.value} at {current_timestamp} or more specifically {datetime.fromtimestamp(current_timestamp)}")
                 await repo.RecordPriceBulk(priceLogs, current_timestamp)
             current_timestamp = data.next_change_id
 
