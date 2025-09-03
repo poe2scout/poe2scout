@@ -34,23 +34,13 @@ if __name__ == "__main__":
     config = PriceFetchConfig.load_from_env()
 
     # Create maintenance timer with POE-specific maintenance schedule
-    timer = MaintenanceTimer(get_next_maintenance=calculate_poe_maintenance_time)
-
     async def main_loop():
         await BaseRepository.init_pool(config.dbstring)
         repo = ItemRepository()
         cxRepo = CurrencyExchangeRepository()
-
+        print(config.dbstring)
         while True:
-            try:
-                async with timer:
-                    logger.info("Starting maintenance timer")
-                    await timer.run_cancellable(run(config, repo, cxRepo))
-            except asyncio.CancelledError:
-                logger.info("Service stopped for maintenance window, will restart after maintenance")
-                logger.info("Sleeping for 15 minutes")
-                await asyncio.sleep(900)  # Using asyncio.sleep instead of time.sleep
-                continue
+            await run(config, repo, cxRepo)
 
     # Single asyncio.run() call that manages the entire application lifecycle
     

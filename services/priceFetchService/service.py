@@ -81,7 +81,7 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
                 chaosPrice = None
                 if len(chaosPairs) == 0:
                     logger.info("No chaos pair")
-                    itemPrice = await repo.GetItemPrice((await repo.GetCurrencyItem('chaos')).itemId, league.id)
+                    itemPrice = await repo.GetItemPrice((await repo.GetCurrencyItem('chaos')).itemId, league.id, current_timestamp)
                     if itemPrice == 0:
                         current_timestamp = data.next_change_id
                         continue
@@ -110,7 +110,8 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
                 
                 if len(divinePrices) == 0:
                     logger.info("No divine pair")
-                    itemPrice = await repo.GetItemPrice((await repo.GetCurrencyItem('divine')).itemId, league.id)
+                    itemPrice = await repo.GetItemPrice((await repo.GetCurrencyItem('divine')).itemId, league.id, current_timestamp)
+                    print(f"{itemPrice} for league {league.value}")
                     if itemPrice == 0:
                         current_timestamp = data.next_change_id
                         continue

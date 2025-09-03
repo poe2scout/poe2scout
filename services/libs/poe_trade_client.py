@@ -161,7 +161,7 @@ class PoeApiClient(AsyncClient):
         attempts = 0
         response = None
         while attempts < self.max_retries:
-            await asyncio.sleep(5)
+            await asyncio.sleep(3)
             response = await super().get(*args, **kwargs)
             handled_response = await self._handle_response(response)
 
