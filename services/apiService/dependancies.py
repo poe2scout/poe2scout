@@ -1,5 +1,5 @@
 from fastapi import Query, Depends
-from typing import Optional, get_type_hints, Callable
+from typing import Annotated, Optional, get_type_hints, Callable
 from dataclasses import dataclass
 from pydantic import BaseModel
 import json
@@ -8,6 +8,8 @@ from redis import asyncio as aioredis
 import os
 from services.repositories import ItemRepository
 from pydantic import TypeAdapter
+
+from services.repositories.currency_exchange_repository import CurrencyExchangeRepository
 
 redis = aioredis.from_url(
     os.getenv("REDIS_URL", "redis://localhost:6379"),
@@ -36,6 +38,13 @@ def get_item_repository() -> ItemRepository:
 
 _item_repository = ItemRepository()
 
+def get_cx_repo() -> CurrencyExchangeRepository:
+    return _cx_repository
+
+_cx_repository = CurrencyExchangeRepository()
+
+CXRepoDep = Annotated[CurrencyExchangeRepository, Depends(get_cx_repo)]
+ItemRepoDep = Annotated[ItemRepository, Depends(get_item_repository)]
 
 class PaginatedResponse(BaseModel):
     currentPage: int

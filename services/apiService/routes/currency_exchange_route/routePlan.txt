@@ -1,8 +1,7 @@
 Pairs
-GET Pairs(League: str, Epoch: int) -> List[Pair]
-GET PairsForItem(League: str, Epoch: int, ItemId: int) -> List[Pair]
-GET PAGINATED PairHistory(League: str, Item1: int, Item2: int) -> List[PairHistory]
+GET PAGINATED SORTABLE SEARCHABLE CurrencyExchangePairs(League: str) -> List[CurrencyExchangePair]
+GET PAGINATED CurrencyExchangePairHistory(League: str, MarketId: str) -> List[PairHistory]
 
 Snapshots
-GET Snapshot(League: str, Epoch: Optional[int]) -> Snapshot (MarketCap, Volume)
-GET PAGINATED SnapshotHistory(League: str) -> List[Snapshot]
+GET CurrencyExchange(League: str) -> CurrencyExchange(MarketCap, Volume)
+GET PAGINATED CurrencyExchangeHistory(League: str) -> List[(Epoch, CurrencyExchange(MarketCap, Volume))]
