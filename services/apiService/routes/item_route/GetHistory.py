@@ -33,7 +33,6 @@ async def GetHistory(itemId: int, league: str, logCount: int, referenceCurrency:
         actualLogCount = logCount
 
     history = await item_repository.GetItemPriceHistory(itemId, leagueId, actualLogCount, logFrequency)
-    newHistory: List[Optional[PricePoint]] = []
 
     if referenceCurrency != 'exalted':
         referenceCurrencyItem = await item_repository.GetCurrencyItem(referenceCurrency)
@@ -58,24 +57,4 @@ async def GetHistory(itemId: int, league: str, logCount: int, referenceCurrency:
             newLogs.append(newLogEntry)
         history['price_history'] = newLogs
 
-    logs = history['price_history']
-    if logCount >= (14*4):
-        for i in range(logCount//4):
-            found = 0
-            price = 0.0
-            time = None
-            quantity = 0
-            for j in range(4):
-                currentLog = logs[i*4+j]
-                if currentLog != None:
-                    found += 1
-                    price += currentLog.price
-                    time = currentLog.time 
-                    quantity += currentLog.quantity
-            if time != None:
-                newHistory.append(PricePoint(price=price/found, time=time, quantity=quantity))
-            else:
-                newHistory.append(None)
-        return {'price_history': newHistory}
-    else:
-        return history
+    return history
