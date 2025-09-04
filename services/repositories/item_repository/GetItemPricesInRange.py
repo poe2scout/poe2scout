@@ -39,7 +39,6 @@ class GetItemPricesInRange(BaseRepository):
             "startTime": startTime,
             "endTime": endTime,
             }
-
             await cursor.execute(query, params)
 
             return await cursor.fetchall()
