@@ -51,15 +51,24 @@ async def run(config: CurrencyExchangeServiceConfig, itemRepo: ItemRepository, c
 
     currencyLookupByApiId = {currency.apiId: currency for currency in currencies}
 
+    leagueToPricesLookup: dict[int, List[GetItemPricesInRangeModel]] = {}
+
     for league in leagues:
-        logger.info(f"analyzing league {league}")
         itemPrices = await itemRepo.GetItemPricesInRange(
             itemIds= [item.itemId for item in currencies],
             leagueId= league.id,
             startTime= datetime.fromtimestamp(data.next_change_id - 60 * 60),
             endTime= datetime.fromtimestamp(data.next_change_id))
         
-        itemPriceLookupByItemId = {item.ItemId: item for item in itemPrices}
+        leagueToPricesLookup[league.id] = itemPrices
+
+    leaguesToFetch = [league for league in leagues if league.id in leagueToPricesLookup.keys()]
+
+    logger.info(f"leagues to fetch {leaguesToFetch}")
+    for league in leaguesToFetch:
+        logger.info(f"analyzing league {league}")
+
+        itemPriceLookupByItemId = {item.ItemId: item for item in leagueToPricesLookup[league.id]}
         
         pairs = [pair for pair in data.markets if pair.league == league.value]
 
