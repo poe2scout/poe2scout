@@ -1,3 +1,4 @@
+from services.repositories.item_repository.GetItemPrices import GetItemPrices
 from .GetPricesChecked import GetPricesChecked
 from .CreateBaseItem import CreateBaseItem
 from .GetAllBaseItems import GetAllBaseItems
@@ -82,3 +83,4 @@ class ItemRepository:
         self.GetAllLeagues = GetAllLeagues().execute
         self.GetPricesChecked = GetPricesChecked().execute
         self.GetItemsInCurrentLeague = GetItemsInCurrentLeague().execute
+        self.GetItemPrices = GetItemPrices().execute

@@ -43,14 +43,14 @@ async def GetCurrencyItems(category: str, search: str = "", pagination: Paginati
 
 
     itemCount = len(items)
-    lastPrice = dict.fromkeys(itemIds, 0)
+    lastPrice = dict.fromkeys(itemIds, 0.0)
+
+    prices = await repo.GetItemPrices(itemIds, league.id)
+
+    pricesLookup = {price.ItemId: price for price in prices}
 
     for item in items:
-        for log in item.priceLogs:
-            if log and hasattr(log, 'price'):
-                lastPrice[item.itemId] = log.price
-                break
-           
+        lastPrice[item.itemId] = pricesLookup[item.itemId].Price
 
     items.sort(
         key=lambda item: (

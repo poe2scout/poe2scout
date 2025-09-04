@@ -1,5 +1,5 @@
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel
@@ -16,7 +16,7 @@ class PricePoint(BaseModel):
     quantity: int
 
 @router.get("/{itemId}/history")
-async def GetHistory(itemId: int, league: str, logCount: int, referenceCurrency: str = 'exalted', item_repository: ItemRepository = Depends(get_item_repository)):
+async def GetHistory(itemId: int, league: str, logCount: int, endTime: datetime = datetime.now(tz=timezone.utc), referenceCurrency: str = 'exalted', item_repository: ItemRepository = Depends(get_item_repository)):
     if logCount % 4 != 0:
         return HTTPException(400, "logCount must be a multiple of 4")
     
@@ -25,18 +25,23 @@ async def GetHistory(itemId: int, league: str, logCount: int, referenceCurrency:
 
     isACurrency = await item_repository.IsItemACurrency(itemId)
 
-    if isACurrency and logCount < 14*4:
+    if isACurrency:
+
         logFrequency = 1
-        actualLogCount = logCount * 6
     else:
         logFrequency = 6
-        actualLogCount = logCount
-
-    history = await item_repository.GetItemPriceHistory(itemId, leagueId, actualLogCount, logFrequency)
+    
+    endTime = endTime.replace(
+        hour=(endTime.hour// logFrequency) * logFrequency,
+        minute=0,
+        second=0,
+        microsecond=0)
+    
+    history = await item_repository.GetItemPriceHistory(itemId, leagueId, logCount, logFrequency, endTime)
 
     if referenceCurrency != 'exalted':
         referenceCurrencyItem = await item_repository.GetCurrencyItem(referenceCurrency)
-        referenceCurrencyHistory = await item_repository.GetItemPriceHistory(referenceCurrencyItem.itemId, leagueId, actualLogCount, logFrequency)
+        referenceCurrencyHistory = await item_repository.GetItemPriceHistory(referenceCurrencyItem.itemId, leagueId, logCount, logFrequency, endTime)
 
         logs = history['price_history']
         newLogs = []

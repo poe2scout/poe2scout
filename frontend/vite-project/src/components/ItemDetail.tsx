@@ -1,10 +1,5 @@
-import { useEffect, useState, useMemo } from "react";
-import {
-  Button,
-  Paper,
-  Box,
-  CircularProgress,
-} from "@mui/material";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { Button, Paper, Box, CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { ItemName } from "./TableColumnComponents/ItemName";
 import type { ApiItem } from "../types";
@@ -13,8 +8,7 @@ import translations from "../translationskrmapping.json";
 import { useLeague } from "../contexts/LeagueContext";
 import { PriceLogEntry } from "../types";
 import { Chart } from "./Chart";
-import { HistogramData, LineData, Time, UTCTimestamp } from "lightweight-charts";
-import PeriodSelector from "./PeriodSelector";
+import { UTCTimestamp } from "lightweight-charts";
 import ReferenceCurrencySelector, { BaseCurrencies } from "./ReferenceCurrencySelector";
 
 const DetailContainer = styled(Paper)(({ theme }) => ({
@@ -34,104 +28,97 @@ interface ItemDetailProps {
   onBack: () => void;
 }
 
-interface ChartData {
-  lineData: LineData<Time>[];
-  histogramData: HistogramData<Time>[];
+interface ApiHistoryResponse {
+    price_history: PriceLogEntry[];
+    has_more: boolean;
 }
 
 export function ItemDetail({ item, onBack }: ItemDetailProps) {
-  console.log('ItemDetail render - props:', { item });
-  const [logCount, setLogCount] = useState<number>(28);
-  const [detailedHistory, setDetailedHistory] = useState<(PriceLogEntry | null)[]>([]);
+  const [logCount] = useState<number>(14*24); 
+  const [history, setHistory] = useState<PriceLogEntry[]>([]);
+
+  const [hasMore, setHasMore] = useState(true);
+  const [oldestTimestamp, setOldestTimestamp] = useState<string>(() => new Date().toISOString());
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedReference, setSelectedReference] = useState<BaseCurrencies>('exalted')
+  const [isLoadingMore, setIsLoadingMore] = useState(false); 
+
+  const [selectedReference, setSelectedReference] = useState<BaseCurrencies>('exalted');
   const { language } = useLanguage();
   const { league } = useLeague();
 
-  useEffect(() => {
-    const fetchPriceHistory = async () => {
-      console.log('Fetching price history:', { itemId: item.id, logCount, league });
-      setIsLoading(true);
-      try {
-        const url = `${import.meta.env.VITE_API_URL}/items/${item.itemId}/history?logCount=${logCount}&league=${league.value}&referenceCurrency=${selectedReference}`;
-        console.log('Fetch URL:', url);
-        
-        const response = await fetch(url);
-        const data = await response.json();
-        console.log('Fetched price history data:', data);
-        setDetailedHistory(data.price_history);
-      } catch (error) {
-        console.error("Error fetching price history:", error);
-        setDetailedHistory([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchPriceHistory = useCallback(async (isInitialLoad: boolean, cursor: string) => {
+    if (isInitialLoad) {
+        setIsLoading(true);
+    } else {
+        setIsLoadingMore(true);
+    }
+    
+    try {
+      const url = `${import.meta.env.VITE_API_URL}/items/${item.itemId}/history?logCount=${logCount}&league=${league.value}&referenceCurrency=${selectedReference}&endTime=${cursor}`;
+      console.log('Fetching URL:', url);
+      
+      const response = await fetch(url);
+      const data: ApiHistoryResponse = await response.json();
+      console.log('Fetched price history data:', data);
 
-    fetchPriceHistory();
-  }, [item.id, logCount, selectedReference]);
+      setHistory(prevHistory => isInitialLoad ? data.price_history : [...data.price_history, ...prevHistory]);
+      setHasMore(data.has_more);
+
+      if (data.price_history.length > 0) {
+        console.log("Setting oldest timestamp to " + data.price_history[0].time)
+        setOldestTimestamp(data.price_history[0].time);
+      }
+
+    } catch (error) {
+      console.error("Error fetching price history:", error);
+      setHistory([]); // Reset on error
+    } finally {
+      if (isInitialLoad) setIsLoading(false);
+      else setIsLoadingMore(false);
+    }
+  }, [item.itemId, logCount, league.value, selectedReference]);
+
+  useEffect(() => {
+    setHistory([]); 
+    setHasMore(true);
+    const initialCursor = new Date().toISOString();
+    setOldestTimestamp(initialCursor);
+
+    fetchPriceHistory(true, initialCursor);
+  }, [item.id, selectedReference, fetchPriceHistory]); // logCount could be added if you want to change page size
+
+  const handleLoadMore = useCallback(() => {
+    if (!isLoadingMore && hasMore) {
+        console.log(`handleLoadMore triggered, fetching older data...`+ oldestTimestamp);
+        fetchPriceHistory(false, oldestTimestamp);
+    }
+  }, [isLoadingMore, hasMore, oldestTimestamp, fetchPriceHistory]);
 
   const onSelectedReferenceChange = (newReference: BaseCurrencies) => {
-    setSelectedReference(newReference)
-  }
+    setSelectedReference(newReference);
+  };
 
-  // Process the price history data
-  const processedData = useMemo((): ChartData => {
-    if (!detailedHistory.length) return {lineData: [], histogramData: []};
-
-    // Reverse the array to get chronological order (oldest to newest)
-    const firstValidIndexReverse = detailedHistory.findIndex(entry => entry !== null)
-
-    const chronologicalHistory = [...(detailedHistory.slice(firstValidIndexReverse))].reverse();
+  const processedData = useMemo(() => {
+    if (!history.length) return { lineData: [], histogramData: [] };
     
-    // Find the index of the first non-null entry
-    const firstValidIndex = chronologicalHistory.findIndex(entry => entry !== null);
-    
-    // If no valid entries found, return empty arrays
-    if (firstValidIndex === -1) return {lineData: [], histogramData: []};
-    
-    // Slice the array from the first valid entry
-    const validHistory = chronologicalHistory.slice(firstValidIndex);
-    
-    const prices = validHistory
-      .filter(entry => entry && entry.time && typeof entry.price === 'number')
-      .map(entry => {
-        return {
-          time: new Date(entry!.time).getTime() / 1000 as UTCTimestamp,
-          value: entry!.price,
-        };
-      });
+    const prices = history.map(entry => ({
+      time: new Date(entry.time).getTime() / 1000 as UTCTimestamp,
+      value: entry.price,
+    }));
 
-    const quantities = validHistory
-      .filter(entry => entry && entry.time && typeof entry.price === 'number')
-      .map(entry => {
-        return {
-          time: new Date(entry!.time).getTime() / 1000 as UTCTimestamp,
-          value: entry!.quantity,
-        };
-      });
+    const quantities = history.map(entry => ({
+      time: new Date(entry.time).getTime() / 1000 as UTCTimestamp,
+      value: entry.quantity,
+    }));
 
-    return {
-      lineData: prices,
-      histogramData: quantities
-    };
-  }, [detailedHistory]);
+    return { lineData: prices, histogramData: quantities };
+  }, [history]);
 
   return (
     <DetailContainer>
       <HeaderContainer>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Button
-            variant="outlined"
-            onClick={onBack}
-            disableRipple
-            sx={{
-              userSelect: "none",
-              "&:focus": {
-                outline: "none",
-              },
-            }}
-          >
+          <Button variant="outlined" onClick={onBack} disableRipple sx={{ userSelect: "none", "&:focus": { outline: "none" } }}>
             {language === "ko" ? translations["Back to List"] : "Back to List"}
           </Button>
           <ItemName
@@ -142,12 +129,6 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
           />
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-          <PeriodSelector
-            currentLogCount={logCount}
-            onLogCountChange={setLogCount}
-            language={language}
-            translations={translations}
-          />
           <ReferenceCurrencySelector
             currentReference={selectedReference}
             onReferenceChange={onSelectedReferenceChange}
@@ -155,20 +136,20 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
         </Box>
       </HeaderContainer>
 
-      <Box sx={{ width: "100%", height: "100%" }}>
+      <Box sx={{ width: "100%", height: "500px", position: 'relative' }}>
         {isLoading ? (
-          <Box
-            sx={{
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <Box sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <CircularProgress />
           </Box>
         ) : (
-          <Chart lineData={processedData.lineData} histogramData={processedData.histogramData} selectedReference={selectedReference} />
+          <Chart
+            lineData={processedData.lineData}
+            histogramData={processedData.histogramData}
+            selectedReference={selectedReference}
+            onLoadMore={handleLoadMore}
+            hasMore={hasMore}
+            isLoadingMore={isLoadingMore}
+          />
         )}
       </Box>
     </DetailContainer>

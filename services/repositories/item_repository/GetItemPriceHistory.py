@@ -1,78 +1,65 @@
-from typing import Optional, List, Dict
-from ..base_repository import BaseRepository
+from typing import Optional, List
 from pydantic import BaseModel
-from datetime import datetime, timedelta
+from datetime import datetime
 
+from services.repositories.base_repository import BaseRepository
 
 class PriceLogEntry(BaseModel):
     price: float
     time: datetime
     quantity: int
 
+class GetItemPriceHistoryModel(BaseModel):
+    price_history: List[PriceLogEntry]
+    has_more: bool
+
 
 class GetItemPriceHistory(BaseRepository):
-    async def execute(self, itemId: int, leagueId: int, logCount: int, logFrequency: int) -> Dict[str, List[PriceLogEntry]]:
-        lastLogTimeQuery = """
-            SELECT pl."createdAt"
-              FROM "PriceLog" AS pl
-             WHERE pl."itemId" = %s
-               AND pl."leagueId" = %s
-             ORDER BY pl."createdAt" DESC
-             LIMIT 1
-            """
-        
-        lastTime = await self.execute_query(lastLogTimeQuery, (itemId, leagueId))
-        if len(lastTime) == 1:
-            now = lastTime[0]['createdAt']
-        else:
-            now = datetime.now()
-
-        current_block_start = now.replace(
-            hour=(now.hour // logFrequency) * logFrequency,
-            minute=0,
-            second=0,
-            microsecond=0
-        )
-
-        overall_start_time = current_block_start - timedelta(hours=(logCount - 1) * logFrequency)
+    async def execute(self, itemId: int, leagueId: int, logCount: int, logFrequency: int, endTime: datetime) -> GetItemPriceHistoryModel:
+        limit = logCount + 1
 
         price_log_query = """
-            WITH relevant_logs AS (
+            WITH binned_logs AS (
                 SELECT 
                     price,
                     quantity,
-                    "createdAt" as time,
-                    -- Assign each log to a time bucket and find the latest one in each bucket
+                    "createdAt",
                     ROW_NUMBER() OVER (
-                        PARTITION BY date_bin((%(logFrequency)s || ' hours')::interval, "createdAt", %(current_block_start)s::timestamp) 
+                        PARTITION BY date_bin((%(logFrequency)s || ' hours')::interval, "createdAt", %(endTime)s::timestamp) 
                         ORDER BY "createdAt" DESC
                     ) as rn
                 FROM "PriceLog"
                 WHERE 
                     "itemId" = %(itemId)s
                     AND "leagueId" = %(leagueId)s
-                    -- Pre-filter to only scan logs within the total time window of the chart
-                    AND "createdAt" >= %(overall_start_time)s
+                    AND "createdAt" < %(endTime)s
             )
             SELECT 
                 price,
                 quantity,
-                -- Standardize the timestamp to the start of its bucket for consistent output
-                date_bin((%(logFrequency)s || ' hours')::interval, time, %(current_block_start)s::timestamp) as time
-            FROM relevant_logs
-            WHERE rn = 1
-            ORDER BY time DESC;
+                date_bin((%(logFrequency)s || ' hours')::interval, "createdAt", %(endTime)s::timestamp) as time
+            FROM binned_logs
+            WHERE rn = 1 
+            ORDER BY time DESC 
+            LIMIT %(limit)s;
         """
 
         query_params = {
-            "logFrequency": logFrequency,         
-            "current_block_start": current_block_start,  
+            "logFrequency": logFrequency,
+            "endTime": endTime,
             "itemId": itemId,
             "leagueId": leagueId,
-            "overall_start_time": overall_start_time
+            "limit": limit
         }
 
         price_logs = await self.execute_query(price_log_query, query_params)
+
+        has_more = len(price_logs) > logCount
+
+        if has_more:
+            price_logs = price_logs[:logCount]
+        
+        price_logs.reverse()
 
         price_history = [
             PriceLogEntry.model_construct(
@@ -82,5 +69,5 @@ class GetItemPriceHistory(BaseRepository):
             )
             for log in price_logs
         ]
-
-        return {'price_history': price_history}
+        
+        return GetItemPriceHistoryModel(price_history=price_history, has_more=has_more)
