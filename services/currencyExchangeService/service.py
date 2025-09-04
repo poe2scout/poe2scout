@@ -59,7 +59,7 @@ async def run(config: CurrencyExchangeServiceConfig, itemRepo: ItemRepository, c
             leagueId= league.id,
             startTime= datetime.fromtimestamp(data.next_change_id - 60 * 60),
             endTime= datetime.fromtimestamp(data.next_change_id))
-        
+        print(itemPrices)
         leagueToPricesLookup[league.id] = itemPrices
 
     leaguesToFetch = [league for league in leagues if league.id in leagueToPricesLookup.keys()]
