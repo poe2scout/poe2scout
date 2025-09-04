@@ -31,7 +31,7 @@ class CurrencyPrice(BaseModel):
     quantityTraded: int
 
 async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchConfig, cxRepo: CurrencyExchangeRepository):
-    lastFetchEpoch = (await cxRepo.GetServiceCacheValue("CurrencyExchange")).Value
+    lastFetchEpoch = (await cxRepo.GetServiceCacheValue("PriceFetch_Currency")).Value
     if lastFetchEpoch:
         current_timestamp = lastFetchEpoch + 60*60
     else:
@@ -169,6 +169,7 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
                 priceLogs = [RecordPriceModel(itemId=itemIdLookup[value.itemId], leagueId=league.id, price=value.value, quantity=value.quantityTraded) for value in finalPrices.values() if value.value != 0]
                 logger.info(f"Saving {len(priceLogs)} logs for {league.value} at {current_timestamp} or more specifically {datetime.fromtimestamp(current_timestamp)}")
                 await repo.RecordPriceBulk(priceLogs, current_timestamp)
+            await cxRepo.SetServiceCacheValue("PriceFetch_Currency", current_timestamp)
             current_timestamp = data.next_change_id
 
 def getCurrencyPriceFromPair(pair: LeagueCurrencyPairData, baseItemPrices: List[CurrencyPrice]) -> CurrencyPrice:
