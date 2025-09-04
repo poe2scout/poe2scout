@@ -59,16 +59,16 @@ async def run(config: CurrencyExchangeServiceConfig, itemRepo: ItemRepository, c
             leagueId= league.id,
             startTime= datetime.fromtimestamp(data.next_change_id - 60 * 60),
             endTime= datetime.fromtimestamp(data.next_change_id))
-        itemPrices = [itemPrice for itemPrice in itemPrices if itemPrice.Price != 0]
-        print(itemPrices)
         leagueToPricesLookup[league.id] = itemPrices
 
-    leaguesToFetch = [league for league in leagues if league.id in leagueToPricesLookup.keys()]
-
-    logger.info(f"leagues to fetch {leaguesToFetch}")
-    for league in leaguesToFetch:
+    for league in leagues:
         logger.info(f"analyzing league {league}")
 
+        hasLogs = True if len([itemPrice for itemPrice in leagueToPricesLookup[league.id] if itemPrice.Price != 0]) > 0 else False 
+
+        if not hasLogs:
+            logger.info(f"Skipping league {league} cause no prices recorded at this time")
+            continue
         itemPriceLookupByItemId = {item.ItemId: item for item in leagueToPricesLookup[league.id]}
         
         pairs = [pair for pair in data.markets if pair.league == league.value]
