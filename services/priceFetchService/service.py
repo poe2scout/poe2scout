@@ -31,7 +31,7 @@ class CurrencyPrice(BaseModel):
     quantityTraded: int
 
 async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchConfig, cxRepo: CurrencyExchangeRepository):
-    lastFetchEpoch = (await cxRepo.GetLastFetchedEpoch()).Epoch
+    lastFetchEpoch = (await cxRepo.GetServiceCacheValue("PriceFetch_Currency")).Value
     if lastFetchEpoch:
         current_timestamp = lastFetchEpoch + 60*60
     else:

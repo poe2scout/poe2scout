@@ -36,3 +36,9 @@ CREATE TABLE "CurrencyExchangeSnapshotPairData" (
 
     PRIMARY KEY ("CurrencyExchangeSnapshotPairId", "CurrencyId")
 );
+
+
+CREATE TABLE "ServiceCache" (
+    "ServiceCacheId" SERIAL PRIMARY KEY,
+    "Value" integer NOT NULL
+);
