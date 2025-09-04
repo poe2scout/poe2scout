@@ -48,7 +48,6 @@ async def GetHistory(itemId: int, league: str, logCount: int, endTime: datetime 
         lastReferencePrice = 0
         for i, log in enumerate(logs):
             if log == None:
-                newLogs.append(None)
                 continue
             
             currentReferenceLog = referenceCurrencyHistory.price_history[i]
@@ -56,7 +55,6 @@ async def GetHistory(itemId: int, league: str, logCount: int, endTime: datetime 
                 lastReferencePrice = currentReferenceLog.price 
 
             if lastReferencePrice == 0:
-                newLogs.append(None)
                 continue
             newLogEntry = PriceLogEntry(price=log.price / lastReferencePrice, time = log.time, quantity = log.quantity)
             newLogs.append(newLogEntry)
