@@ -43,7 +43,7 @@ async def GetHistory(itemId: int, league: str, logCount: int, endTime: datetime 
         referenceCurrencyItem = await item_repository.GetCurrencyItem(referenceCurrency)
         referenceCurrencyHistory = await item_repository.GetItemPriceHistory(referenceCurrencyItem.itemId, leagueId, logCount, logFrequency, endTime)
 
-        logs = history['price_history']
+        logs = history.price_history
         newLogs = []
         lastReferencePrice = 0
         for i, log in enumerate(logs):
@@ -51,7 +51,7 @@ async def GetHistory(itemId: int, league: str, logCount: int, endTime: datetime 
                 newLogs.append(None)
                 continue
             
-            currentReferenceLog = referenceCurrencyHistory['price_history'][i]
+            currentReferenceLog = referenceCurrencyHistory.price_history[i]
             if currentReferenceLog != None:
                 lastReferencePrice = currentReferenceLog.price 
 
@@ -60,6 +60,6 @@ async def GetHistory(itemId: int, league: str, logCount: int, endTime: datetime 
                 continue
             newLogEntry = PriceLogEntry(price=log.price / lastReferencePrice, time = log.time, quantity = log.quantity)
             newLogs.append(newLogEntry)
-        history['price_history'] = newLogs
+        history.price_history = newLogs
 
     return history
