@@ -1,3 +1,5 @@
+from decimal import Decimal
+import sys
 from typing import Dict, List
 from pydantic import BaseModel
 from services.libs.models.CurrencyExchangeResponse import CurrencyExchangeResponse, LeagueCurrencyPairData
@@ -305,16 +307,20 @@ async def process_uniques(uniqueItems: list[UniqueItem], league: League, repo: I
             if len(prices) == 0:
                 logger.info(f"No valid priceFetchResults for {uniqueItem}")
                 continue
+            
+            lowest_price = sys.maxsize
+            quantity = 0
+            for price in prices:
+                currency = await repo.GetCurrencyItem(price.currency)
+                currencyPrice = await repo.GetItemPrice(currency.itemId, league.id)
 
-            sortedPrice = sorted(prices, key=lambda price: price.quantity, reverse=True)
+                item_price = price.price * currencyPrice
 
-            mostListedResult = sortedPrice[0]
+                if (item_price < lowest_price):
+                    lowest_price = item_price
+                    quantity = price.quantity
 
-            currency = await repo.GetCurrencyItem(mostListedResult.currency)
-            currencyPrice = await repo.GetItemPrice(currency.itemId, league.id)
-
-            (price, quantity) = (mostListedResult.price * currencyPrice, mostListedResult.quantity)
-            logger.info(f"Recording price for {uniqueItem.name} in {league.value} with price {price} and quantity {quantity}")
-            await record_price(price, uniqueItem.itemId, league.id, quantity, repo)
+            logger.info(f"Recording price for {uniqueItem.name} in {league.value} with price {lowest_price} and quantity {quantity}")
+            await record_price(lowest_price, uniqueItem.itemId, league.id, quantity, repo)
         except:
             logger.error(f"error fetching for {uniqueItem}")
