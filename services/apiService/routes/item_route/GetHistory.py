@@ -43,14 +43,16 @@ async def GetHistory(itemId: int, league: str, logCount: int, endTime: datetime 
         referenceCurrencyItem = await item_repository.GetCurrencyItem(referenceCurrency)
         referenceCurrencyHistory = await item_repository.GetItemPriceHistory(referenceCurrencyItem.itemId, leagueId, logCount, logFrequency, endTime)
 
+        referenceCurrencyHistoryLookup = {log.time: log for log in referenceCurrencyHistory.price_history}
+
         logs = history.price_history
         newLogs = []
         lastReferencePrice = 0
-        for i, log in enumerate(logs):
+        for log in logs:
             if log == None:
                 continue
             
-            currentReferenceLog = referenceCurrencyHistory.price_history[i]
+            currentReferenceLog = referenceCurrencyHistoryLookup.get(log.time)
             if currentReferenceLog != None:
                 lastReferencePrice = currentReferenceLog.price 
 
