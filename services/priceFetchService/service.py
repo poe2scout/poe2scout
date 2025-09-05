@@ -173,8 +173,13 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
                 finalPrices.pop(key)
         
         priceLogs = [RecordPriceModel(itemId=itemIdLookup[value.itemId], leagueId=league.id, price=value.value, quantity=value.quantityTraded) for value in finalPrices.values() if value.value != 0]
-        logger.info(f"Saving {len(priceLogs)} logs for {league.value} at {currentEpoch} or more specifically {datetime.fromtimestamp(currentEpoch)}")
-        await repo.RecordPriceBulk(priceLogs, currentEpoch)
+        
+        if len(priceLogs) == 1 and priceLogs[0].itemId == exaltedPrice.itemId:
+            logger.info(f"Only price is exalted. Skipping save.")
+        else:
+            logger.info(f"Saving {len(priceLogs)} logs for {league.value} at {currentEpoch} or more specifically {datetime.fromtimestamp(currentEpoch)}")
+            await repo.RecordPriceBulk(priceLogs, currentEpoch)
+            
     await cxRepo.SetServiceCacheValue("PriceFetch_Currency", currentEpoch)
 
 def getCurrencyPriceFromPair(pair: LeagueCurrencyPairData, baseItemPrices: List[CurrencyPrice]) -> CurrencyPrice:
