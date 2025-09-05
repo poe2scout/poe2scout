@@ -8,11 +8,14 @@ class GetItemsInCurrentLeague(BaseRepository):
     async def execute(self, leagueId: int) -> List[int]:
         query = \
         """
-            SELECT DISTINCT i."id"
-            FROM "Item" as i
-            JOIN "PriceLog" as pl ON i."id" = pl."itemId"
-            JOIN "League" as l ON pl."leagueId" = l."id"
-            WHERE l."id" = %s
+            SELECT i."id"
+              FROM "Item" as i
+             WHERE EXISTS (
+            SELECT 1
+              FROM "PriceLog" as pl
+             WHERE pl."itemId" = i."id"
+               AND pl."leagueId" = %s
+            );
         """
         result = (await self.execute_query(
             query, (leagueId,)))
