@@ -1,5 +1,5 @@
 from fastapi import Query, Depends
-from typing import Optional, get_type_hints, Callable
+from typing import Annotated, Optional, get_type_hints, Callable
 from dataclasses import dataclass
 from pydantic import BaseModel
 import json
@@ -8,6 +8,8 @@ from redis import asyncio as aioredis
 import os
 from services.repositories import ItemRepository
 from pydantic import TypeAdapter
+
+from services.repositories.currency_exchange_repository import CurrencyExchangeRepository
 
 redis = aioredis.from_url(
     os.getenv("REDIS_URL", "redis://localhost:6379"),
@@ -36,6 +38,13 @@ def get_item_repository() -> ItemRepository:
 
 _item_repository = ItemRepository()
 
+def get_cx_repo() -> CurrencyExchangeRepository:
+    return _cx_repository
+
+_cx_repository = CurrencyExchangeRepository()
+
+CXRepoDep = Annotated[CurrencyExchangeRepository, Depends(get_cx_repo)]
+ItemRepoDep = Annotated[ItemRepository, Depends(get_item_repository)]
 
 class PaginatedResponse(BaseModel):
     currentPage: int
@@ -54,7 +63,8 @@ def cache_response(key: Callable, ttl: int = 300):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             cache_key = key(kwargs)
-            cached_value = await redis.get(cache_key)
+            print("cache_key", cache_key)
+            cached_value = None # await redis.get(cache_key)
             if cached_value:
                 return_type = get_type_hints(func).get('return')
                 type_adapter = TypeAdapter(return_type)

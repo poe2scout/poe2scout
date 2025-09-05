@@ -1,13 +1,20 @@
 import os
-from contextlib import asynccontextmanager
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
+from typing import Any, AsyncIterator, Dict, TypeVar, overload
 from psycopg_pool import AsyncConnectionPool
 from psycopg.rows import dict_row
 import logging
 import asyncio
+from psycopg_pool import AsyncConnectionPool
+from psycopg.rows import RowFactory, dict_row, class_row
+from psycopg.cursor_async import AsyncCursor
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+RowT = TypeVar("RowT")
 
 class BaseRepository:
     _pool = None
@@ -29,6 +36,22 @@ class BaseRepository:
         except Exception as e:
             logger.error(f"Failed to initialize connection pool: {str(e)}")
             raise
+        
+    @overload
+    @classmethod
+    def get_db_cursor(
+        cls,
+    ) -> AbstractAsyncContextManager[AsyncCursor[Dict[str, Any]]]:
+        """Overload for the default case with no rowFactory."""
+        ...
+        
+    @overload
+    @classmethod
+    def get_db_cursor(
+        cls, rowFactory: RowFactory[RowT]
+    ) -> AbstractAsyncContextManager[AsyncCursor[RowT]]:
+        """Overload for the generic case with a specific rowFactory."""
+        ...
 
     @classmethod
     @asynccontextmanager

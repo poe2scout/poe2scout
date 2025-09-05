@@ -9,6 +9,7 @@ from . import ApiServiceConfig
 import uvicorn
 from services.apiService.routes import item_router
 from services.apiService.routes import league_router
+from services.apiService.routes import currency_exchange_router
 import logging
 import time
 from fastapi.middleware.cors import CORSMiddleware
@@ -94,6 +95,7 @@ if IS_LOCAL:
 # Import and include routers
 app.include_router(item_router)
 app.include_router(league_router)
+app.include_router(currency_exchange_router)
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
