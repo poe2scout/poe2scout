@@ -9,4 +9,4 @@ RUN uv pip install --system --no-cache-dir -r requirements.txt
 
 COPY services services
 
-CMD ["python", "-m", "services.priceFetchService"]
+CMD ["python", "-m", "services.currencyExchangeService"]

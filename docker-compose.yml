@@ -68,6 +68,22 @@ services:
       api:
         condition: service_started
 
+  currency-exchange-service:
+    profiles: [prod]
+    build:
+      context: .
+      dockerfile: services/currencyExchangeService/Dockerfile
+    restart: always
+    environment:
+      - DBSTRING=${DBSTRING}
+      - POEAPI_CLIENT_ID=${POEAPI_CLIENT_ID}
+      - POEAPI_CLIENT_SECRET=${POEAPI_CLIENT_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+
   frontend:
     profiles: [prod]
     build: ./frontend/vite-project
