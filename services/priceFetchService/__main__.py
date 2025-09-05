@@ -38,7 +38,7 @@ if __name__ == "__main__":
         await BaseRepository.init_pool(config.dbstring)
         repo = ItemRepository()
         cxRepo = CurrencyExchangeRepository()
-        print(config.dbstring)
+        
         while True:
             await run(config, repo, cxRepo)
 

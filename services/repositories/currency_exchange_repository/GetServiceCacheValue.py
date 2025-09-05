@@ -6,7 +6,7 @@ from psycopg.rows import class_row
 
 
 class GetServiceCacheValueModel(BaseModel):
-    Value: int | None
+    Value: int 
 
 class GetServiceCacheValue(BaseRepository):
     async def execute(self, serviceName: str) -> GetServiceCacheValueModel:
@@ -23,4 +23,4 @@ class GetServiceCacheValue(BaseRepository):
 
             await cursor.execute(query, params)
             
-            return await cursor.fetchone()  # type: ignore
+            return await cursor.fetchone() # type: ignore

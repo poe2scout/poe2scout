@@ -20,6 +20,12 @@ logger = logging.getLogger(__name__)
 async def run(config: CurrencyExchangeServiceConfig, itemRepo: ItemRepository, cxRepo: CurrencyExchangeRepository, client: PoeApiClient):
     CurrentEpochUtc = int(datetime.now(tz=timezone.utc).timestamp())
     LastFetchedEpochUtc = (await cxRepo.GetServiceCacheValue("CurrencyExchange")).Value
+    LastFetchedPriceLogEpochUtc = (await cxRepo.GetServiceCacheValue("PriceFetch_Currency")).Value
+
+    if LastFetchedPriceLogEpochUtc <= LastFetchedEpochUtc:
+        logger.info("Up to date with priceFetch")
+        await asyncio.sleep(60*10)
+
     TimeToFetchUtc = LastFetchedEpochUtc + 60 * 60 if LastFetchedEpochUtc is not None else None
 
     if TimeToFetchUtc:
