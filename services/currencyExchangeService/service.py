@@ -25,6 +25,7 @@ async def run(config: CurrencyExchangeServiceConfig, itemRepo: ItemRepository, c
     if LastFetchedPriceLogEpochUtc <= LastFetchedEpochUtc:
         logger.info("Up to date with priceFetch")
         await asyncio.sleep(60*10)
+        return
 
     TimeToFetchUtc = LastFetchedEpochUtc + 60 * 60 if LastFetchedEpochUtc is not None else None
 
@@ -49,6 +50,7 @@ async def run(config: CurrencyExchangeServiceConfig, itemRepo: ItemRepository, c
 
     if fetchStatus == False:
         logger.info("Prices not fetched yet")
+        await asyncio.sleep(60*10)
         return
     
     leagues = await itemRepo.GetAllLeagues()
