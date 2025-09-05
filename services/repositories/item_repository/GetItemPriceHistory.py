@@ -1,106 +1,73 @@
-from typing import Optional, List, Dict
-from ..base_repository import BaseRepository
+from typing import Optional, List
 from pydantic import BaseModel
-from datetime import datetime, timedelta
-import time
+from datetime import datetime
 
+from services.repositories.base_repository import BaseRepository
 
 class PriceLogEntry(BaseModel):
     price: float
     time: datetime
     quantity: int
 
+class GetItemPriceHistoryModel(BaseModel):
+    price_history: List[PriceLogEntry]
+    has_more: bool
+
 
 class GetItemPriceHistory(BaseRepository):
-    async def execute(self, itemId: int, leagueId: int, logCount: int, logFrequency: int) -> Dict[str, List[Optional[PriceLogEntry]]]:
-        lastLogTimeQuery = """
-            SELECT pl."createdAt"
-              FROM "PriceLog" AS pl
-             WHERE pl."itemId" = %s
-               AND pl."leagueId" = %s
-             ORDER BY pl."createdAt" DESC
-             LIMIT 1
-            """
-        
-        lastTime = await self.execute_query(lastLogTimeQuery, (itemId, leagueId))
-        if len(lastTime) == 1:
-            now = lastTime[0]['createdAt']
-        else:
-            now = datetime.now()
+    async def execute(self, itemId: int, leagueId: int, logCount: int, logFrequency: int, endTime: datetime) -> GetItemPriceHistoryModel:
+        limit = logCount + 1
 
-        current_block = now.replace(
-            hour=(now.hour // logFrequency) * logFrequency,
-            minute=0,
-            second=0,
-            microsecond=0
-        )
-
-        # Generate time blocks once
-        time_blocks = [current_block - timedelta(hours=i*logFrequency) for i in range(logCount)]
-
-        # Prepare block timestamps and indices
-        block_timestamps = [tb for tb in time_blocks]
-        block_indices = list(range(logCount))
-
-        # Let PostgreSQL do the heavy lifting - finding the latest price log in each time block
         price_log_query = """
-            WITH time_blocks AS (
+            WITH binned_logs AS (
                 SELECT 
-                    block_start,
-                    block_start + (%s || ' hours')::interval as block_end,
-                    block_index
-                FROM unnest(%s::timestamp[], %s::int[]) AS tb(block_start, block_index)
-            ),
-            latest_prices AS (
-                SELECT 
-                    tb.block_start,
-                    tb.block_index,
-                    pl."price",
+                    price,
+                    quantity,
+                    "createdAt",
                     ROW_NUMBER() OVER (
-                        PARTITION BY tb.block_start
-                        ORDER BY pl."createdAt" DESC
-                    ) as rn,
-                    pl."quantity"
-                FROM time_blocks tb
-                LEFT JOIN "PriceLog" pl ON 
-                    pl."itemId" = %s
-                    AND pl."leagueId" = %s
-                    AND pl."createdAt" >= tb.block_start
-                    AND pl."createdAt" < tb.block_end
+                        PARTITION BY date_bin((%(logFrequency)s || ' hours')::interval, "createdAt", %(endTime)s::timestamp) 
+                        ORDER BY "createdAt" DESC
+                    ) as rn
+                FROM "PriceLog"
+                WHERE 
+                    "itemId" = %(itemId)s
+                    AND "leagueId" = %(leagueId)s
+                    AND "createdAt" < %(endTime)s
             )
             SELECT 
-                block_index as "blockIndex",
                 price,
                 quantity,
-                block_start as "time"
-            FROM latest_prices
-            WHERE rn = 1
-            ORDER BY block_index;
+                date_bin((%(logFrequency)s || ' hours')::interval, "createdAt", %(endTime)s::timestamp) as time
+            FROM binned_logs
+            WHERE rn = 1 
+            ORDER BY time DESC 
+            LIMIT %(limit)s;
         """
 
-        # Execute the query
-        price_logs = await self.execute_query(
-            price_log_query,
-            (
-                logFrequency,
-                block_timestamps,
-                block_indices,
-                itemId,
-                leagueId
+        query_params = {
+            "logFrequency": logFrequency,
+            "endTime": endTime,
+            "itemId": itemId,
+            "leagueId": leagueId,
+            "limit": limit
+        }
+
+        price_logs = await self.execute_query(price_log_query, query_params)
+
+        has_more = len(price_logs) > logCount
+
+        if has_more:
+            price_logs = price_logs[:logCount]
+        
+        price_logs.reverse()
+
+        price_history = [
+            PriceLogEntry.model_construct(
+                price=log["price"],
+                time=log["time"],
+                quantity=log["quantity"]
             )
-        )
-
-        # Process results efficiently
-        results = {'price_history': [None] * logCount}
-
-        # Fill in actual results where we have data
-        for log in price_logs:
-            if log["price"] is not None:
-                block_index = log["blockIndex"]
-                results['price_history'][block_index] = PriceLogEntry(
-                    price=log["price"],
-                    time=log["time"],
-                    quantity=log["quantity"]
-                )
-
-        return results
+            for log in price_logs
+        ]
+        
+        return GetItemPriceHistoryModel(price_history=price_history, has_more=has_more)

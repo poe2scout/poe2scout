@@ -8,8 +8,6 @@ class GetItemPricesModel(BaseModel):
     ItemId: int
     Price: float
 
-
-
 class GetItemPrices(BaseRepository):
     async def execute(self, itemIds: List[int], leagueId: int):
         async with self.get_db_cursor(rowFactory=class_row(GetItemPricesModel)) as cursor:
