@@ -64,10 +64,12 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
     if (data.next_change_id == currentEpoch):
         logger.error("Reached the end. Somethings gone wrong.")
         await asyncio.sleep(60*10)
+        
         return
 
     if (len(data.markets) == 0): # Current timestamp. Not filled in yet
         logger.info("No pairs in markets.")
+        await cxRepo.SetServiceCacheValue("PriceFetch_Currency", currentEpoch)
         return
 
     for league in leagues:
@@ -171,7 +173,6 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
         priceLogs = [RecordPriceModel(itemId=itemIdLookup[value.itemId], leagueId=league.id, price=value.value, quantity=value.quantityTraded) for value in finalPrices.values() if value.value != 0]
         logger.info(f"Saving {len(priceLogs)} logs for {league.value} at {currentEpoch} or more specifically {datetime.fromtimestamp(currentEpoch)}")
         await repo.RecordPriceBulk(priceLogs, currentEpoch)
-
     await cxRepo.SetServiceCacheValue("PriceFetch_Currency", currentEpoch)
 
 def getCurrencyPriceFromPair(pair: LeagueCurrencyPairData, baseItemPrices: List[CurrencyPrice]) -> CurrencyPrice:

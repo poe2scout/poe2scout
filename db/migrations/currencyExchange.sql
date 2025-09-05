@@ -40,5 +40,6 @@ CREATE TABLE "CurrencyExchangeSnapshotPairData" (
 
 CREATE TABLE "ServiceCache" (
     "ServiceCacheId" SERIAL PRIMARY KEY,
+	"ServiceName" VARCHAR(100) NOT NULL,
     "Value" integer NOT NULL
 );
