@@ -24,7 +24,7 @@ class PaginationParams(BaseModel):
 
 def get_pagination_params(
     page: int = Query(default=1, ge=1, description="Page number"),
-    perPage: int = Query(default=25, ge=1, le=100, description="Items per page"),
+    perPage: int = Query(default=25, ge=1, le=10000, description="Items per page"),
     league: str = Query(default="Standard", description="League name")
 ) -> PaginationParams:
     return PaginationParams(
