@@ -316,5 +316,5 @@ async def process_uniques(uniqueItems: list[UniqueItem], league: League, repo: I
             (price, quantity) = (mostListedResult.price * currencyPrice, mostListedResult.quantity)
             logger.info(f"Recording price for {uniqueItem.name} in {league.value} with price {price} and quantity {quantity}")
             await record_price(price, uniqueItem.itemId, league.id, quantity, repo)
-        except:
-            logger.error(f"error fetching for {uniqueItem}")
+        except Exception as e:
+            logger.error(f"error fetching for {uniqueItem} || {e}")
