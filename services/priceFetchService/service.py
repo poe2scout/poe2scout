@@ -117,7 +117,6 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
         if len(divinePrices) == 0:
             logger.info("No divine pair")
             itemPrice = await repo.GetItemPrice((await repo.GetCurrencyItem('divine')).itemId, league.id, currentEpoch)
-            print(f"{itemPrice} for league {league.value}")
             if itemPrice == 0:
                 current_timestamp = data.next_change_id
                 continue
@@ -179,7 +178,7 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
         else:
             logger.info(f"Saving {len(priceLogs)} logs for {league.value} at {currentEpoch} or more specifically {datetime.fromtimestamp(currentEpoch)}")
             await repo.RecordPriceBulk(priceLogs, currentEpoch)
-            
+
     await cxRepo.SetServiceCacheValue("PriceFetch_Currency", currentEpoch)
 
 def getCurrencyPriceFromPair(pair: LeagueCurrencyPairData, baseItemPrices: List[CurrencyPrice]) -> CurrencyPrice:

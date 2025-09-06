@@ -42,10 +42,8 @@ async def run(config: CurrencyExchangeServiceConfig, itemRepo: ItemRepository, c
 
     if response.status_code != 200:
         raise Exception("GetFromApiFailure")
-    print(TimeToFetchUtc)
     data = CurrencyExchangeResponse.model_validate(response.json())
 
-    print(datetime.fromtimestamp(data.next_change_id))
     fetchStatus = await itemRepo.GetCurrencyFetchStatus(startTime=datetime.fromtimestamp(data.next_change_id))
 
     if fetchStatus == False:

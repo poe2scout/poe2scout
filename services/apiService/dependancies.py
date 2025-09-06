@@ -62,7 +62,6 @@ def cache_response(key: Callable, ttl: int = 300):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             cache_key = key(kwargs)
-            print("cache_key", cache_key)
             cached_value = None # await redis.get(cache_key)
             if cached_value:
                 return_type = get_type_hints(func).get('return')

@@ -4,7 +4,6 @@ from services.repositories import ItemRepository
 from pydantic import BaseModel
 from services.repositories.item_repository.GetAllUniqueItems import UniqueItem
 import math
-from services.repositories.item_repository.GetItemPriceLogs import PriceLogEntry
 from datetime import datetime
 from typing import Optional
 from services.apiService.dependancies import cache_response

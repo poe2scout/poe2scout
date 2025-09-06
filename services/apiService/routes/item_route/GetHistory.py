@@ -4,7 +4,8 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
-from services.repositories.item_repository.GetItemPriceHistory import PriceLogEntry
+from services.repositories.models import PriceLogEntry
+
 from . import router
 from fastapi import Depends, HTTPException
 from services.apiService.dependancies import get_item_repository

@@ -113,7 +113,6 @@ class PoeTradeClient(AsyncClient):
 class PoeApiClient(AsyncClient):
     def __init__(self, clientId: str, clientSecret: str, headers: Optional[Dict[str, str]] = None):
         if headers == None:
-            print("Using default headers")
             headers =  {
             "User-Agent": "POE2SCOUT (contact: b@girardet.co.nz)"
             }

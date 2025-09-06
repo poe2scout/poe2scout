@@ -3,7 +3,6 @@ from fastapi import Depends
 from services.repositories import ItemRepository
 from pydantic import BaseModel
 import math
-from services.repositories.item_repository.GetItemPriceLogs import PriceLogEntry
 from services.repositories.item_repository.GetAllCurrencyItems import CurrencyItem
 from datetime import datetime
 from typing import List, Optional

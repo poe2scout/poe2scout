@@ -1,10 +1,10 @@
+from services.repositories.models import PriceLogEntry
 from . import router
 from fastapi import Depends, HTTPException
 from services.apiService.dependancies import get_item_repository
 from services.repositories import ItemRepository
 from services.repositories.item_repository.GetAllUniqueItems import UniqueItem
 from services.repositories.item_repository.GetAllCurrencyItems import CurrencyItem
-from services.repositories.item_repository.GetItemPriceLogs import PriceLogEntry
 from typing import Optional, Union, List
 from asyncio import gather
 from urllib.parse import quote

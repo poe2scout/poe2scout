@@ -116,7 +116,6 @@ class EconomyCache:
         itemIds = [item.itemId for item in currencyItems]
         
         priceLogs = await self.repo.GetItemPriceLogs(itemIds, cacheKey.LeagueId)
-
         items = [CurrencyItemExtended(
             **item.model_dump(), priceLogs=priceLogs[item.itemId]) for item in currencyItems]
 

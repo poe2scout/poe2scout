@@ -3,11 +3,8 @@ from pydantic import BaseModel
 from datetime import datetime
 
 from services.repositories.base_repository import BaseRepository
+from services.repositories.models import PriceLogEntry
 
-class PriceLogEntry(BaseModel):
-    price: float
-    time: datetime
-    quantity: int
 
 class GetItemPriceHistoryModel(BaseModel):
     price_history: List[PriceLogEntry]
