@@ -1,7 +1,8 @@
 from typing import Optional, Awaitable
+
+from services.repositories.models import CurrencyItem
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
-from .GetAllCurrencyItems import CurrencyItem
 
 class GetCurrencyItemIdModel(BaseModel):
     apiId: str

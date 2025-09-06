@@ -6,8 +6,10 @@ import json
 from functools import wraps
 from redis import asyncio as aioredis
 import os
+from services.libs.models.PaginationParams import PaginationParams
 from services.repositories import ItemRepository
 from pydantic import TypeAdapter
+from .EconomyCache import EconomyCache
 
 from services.repositories.currency_exchange_repository import CurrencyExchangeRepository
 
@@ -17,10 +19,7 @@ redis = aioredis.from_url(
     decode_responses=True
 )
 
-class PaginationParams(BaseModel):
-    page: int
-    perPage: int
-    league: str
+
 
 def get_pagination_params(
     page: int = Query(default=1, ge=1, description="Page number"),
@@ -76,3 +75,11 @@ def cache_response(key: Callable, ttl: int = 300):
             return response
         return wrapper
     return decorator
+
+
+def get_economy_cache() -> EconomyCache:
+    return _economy_cache
+
+_economy_cache: EconomyCache = EconomyCache(_item_repository)
+
+EconomyCacheDep = Annotated[EconomyCache, Depends(get_economy_cache)]
