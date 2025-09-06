@@ -1,4 +1,4 @@
-from services.apiService.dependancies import EconomyCacheDep, PaginationParams, get_pagination_params, get_item_repository, cache_response
+from services.apiService.dependancies import PaginationParams, get_pagination_params, get_item_repository, cache_response
 from fastapi import Depends
 from services.repositories import ItemRepository
 from pydantic import BaseModel
@@ -6,33 +6,67 @@ import math
 from services.repositories.item_repository.GetItemPriceLogs import PriceLogEntry
 from services.repositories.item_repository.GetAllCurrencyItems import CurrencyItem
 from datetime import datetime
-from typing import List, Optional
-
-from services.repositories.models import CurrencyItemExtended
+from typing import Optional
 
 from . import router
+
 
 class PaginatedResponse(BaseModel):
     currentPage: int
     pages: int
     total: int
 
+
+class CurrencyItemExtended(CurrencyItem):
+    priceLogs: list[PriceLogEntry | None]
+    currentPrice: Optional[float] = None
+
 class GetCurrencyItemsResponse(PaginatedResponse):
     items: list[CurrencyItemExtended]
 
-#LeagueXCategory
 
 @router.get("/currency/{category}")
-async def GetCurrencyItems(category: str, econCache: EconomyCacheDep, search: str = "",  pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetCurrencyItemsResponse:
+@cache_response(key=lambda kwargs: f"GetCurrencyItems:{kwargs['category']}{kwargs['search']}page{kwargs['pagination'].page}perpage{kwargs['pagination'].perPage}{kwargs['pagination'].league}")
+async def GetCurrencyItems(category: str, search: str = "", pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetCurrencyItemsResponse:
+
+    currencyItems = await repo.GetCurrencyItemsByCategory(category, search)
     league = await repo.GetLeagueByValue(pagination.league)
+    itemsInCurrentLeague = await repo.GetItemsInCurrentLeague(league.id)
 
-    items = await econCache.GetCurrencyPage(league.id, category, search)
+    currencyItems = [currencyItem for currencyItem in currencyItems if currencyItem.itemId in itemsInCurrentLeague]
+    itemIds = [item.itemId for item in currencyItems]
+    
+    priceLogs = await repo.GetItemPriceLogs(itemIds, league.id)
+
+    items = [CurrencyItemExtended(
+        **item.model_dump(), priceLogs=priceLogs[item.itemId]) for item in currencyItems]
+
+
     itemCount = len(items)
+    lastPrice = dict.fromkeys(itemIds, 0.0)
 
+    prices = await repo.GetItemPrices(itemIds, league.id)
+
+    pricesLookup = {price.ItemId: price for price in prices}
+
+    for item in items:
+        lastPrice[item.itemId] = pricesLookup[item.itemId].Price
+
+    items.sort(
+        key=lambda item: (
+            lastPrice[item.itemId]
+            if item.itemId in lastPrice
+            else 0
+        ),
+        reverse=True
+    )
     startingIndex = (pagination.page-1) * pagination.perPage
     endingIndex = startingIndex + pagination.perPage
 
     items = items[startingIndex:endingIndex]
+
+    items = [CurrencyItemExtended(
+        **item.model_dump(exclude={'currentPrice'}), currentPrice=lastPrice[item.itemId]) for item in items]
 
     return GetCurrencyItemsResponse(
         currentPage=pagination.page,

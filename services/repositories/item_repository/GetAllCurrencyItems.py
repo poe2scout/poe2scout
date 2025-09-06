@@ -1,9 +1,16 @@
 from typing import Tuple, Optional, List
-
-from services.repositories.models import CurrencyItem
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 
+class CurrencyItem(BaseModel):
+    id: int
+    itemId: int
+    currencyCategoryId: int
+    apiId: str
+    text: str
+    categoryApiId: str
+    iconUrl: Optional[str] = None
+    itemMetadata: Optional[dict] = None
 
     
 class GetAllCurrencyItems(BaseRepository):
