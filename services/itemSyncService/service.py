@@ -23,16 +23,11 @@ headers = {
 
 
 async def run(config: ItemSyncConfig):
-    has_run = 0
-    print("sss")
+    await BaseRepository.init_pool(config.dbstring)
+    repo = ItemRepository()
     with Client(headers=headers) as client:
         while True:
-            if has_run == 0:
-                has_run = 1
-                await asyncio.sleep(60*10)
-            await BaseRepository.init_pool(config.dbstring)
-            repo = ItemRepository()
-
+            await sleep(60 * 60 * 24)
             logger.info("Fetching unique items from POE API...")
             response = client.get(config.unique_item_url)
             items: itemResponse = itemResponse(**response.json())
@@ -50,4 +45,3 @@ async def run(config: ItemSyncConfig):
             logger.info("Starting currency sync...")
             await sync_currencies(currencies.result)
 
-            await sleep(60 * 60 * 24)
