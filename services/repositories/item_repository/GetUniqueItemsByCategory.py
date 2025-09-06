@@ -4,7 +4,7 @@ from .GetAllUniqueItems import UniqueItem
 
 
 class GetUniqueItemsByCategory(BaseRepository):
-    async def execute(self, category: str, search: str = "") -> List[UniqueItem]:
+    async def execute(self, category: str) -> List[UniqueItem]:
         uniqueItem_query = """
             SELECT ui."id", ui."itemId", ic."label", ic."apiId" as "categoryApiId", ui."name", ui."text", ui."iconUrl", it."value" as type, ui."itemMetadata" FROM "UniqueItem" AS ui
             JOIN "Item" AS i ON ui."itemId" = i."id"
@@ -14,9 +14,6 @@ class GetUniqueItemsByCategory(BaseRepository):
             WHERE ic."apiId" = %s
         """
         params = (category,)
-        if search:
-            uniqueItem_query += """ AND ui."name" ILIKE %s"""
-            params += (search,)
 
         uniqueItems = await self.execute_query(
             uniqueItem_query, params)
