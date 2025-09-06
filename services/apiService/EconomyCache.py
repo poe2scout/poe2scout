@@ -1,4 +1,6 @@
 
+import asyncio
+from collections import defaultdict
 from datetime import datetime, timedelta
 import logging
 import random
@@ -27,6 +29,8 @@ class CacheKey(BaseModel):
 class EconomyCache:
     CurrencyCache: dict[CacheKey, CacheState[CurrencyItemExtended]]
     UniqueCache: dict[CacheKey, CacheState[UniqueItemExtended]]
+    
+    CurrencyLocks: dict[CacheKey, asyncio.Lock]
 
     repo: ItemRepository
 
@@ -34,19 +38,29 @@ class EconomyCache:
         self.CurrencyCache = {}
         self.UniqueCache = {}
         self.repo = repo
+        self.CurrencyLocks = defaultdict(asyncio.Lock)
 
     async def GetCurrencyPage(self, leagueId: int, category: str, search: str) -> List[CurrencyItemExtended]:
         items: List[CurrencyItemExtended]
-
         cacheKey = CacheKey(Category=category, LeagueId=leagueId)
-        if self.CurrencyCache.get(cacheKey) is not None and self.CurrencyCache[cacheKey].Expires > datetime.now():
+
+        cacheEntry = self.CurrencyCache.get(cacheKey)
+        if cacheEntry and cacheEntry.Expires > datetime.now():
             logger.info(f"HitCache for {cacheKey}")
             items = self.CurrencyCache[cacheKey].Value
         else:
-            logger.info(f"Cache empty for {cacheKey}")
-            items = await self.FetchCurrencyPage(cacheKey)
+            lock = self.CurrencyLocks[cacheKey]
+
+            async with lock:
+                cacheEntry = self.CurrencyCache.get(cacheKey)
+                if cacheEntry and cacheEntry.Expires > datetime.now():
+                    logger.info(f"HitCache (AfterLock) for {cacheKey}")
+                    items = cacheEntry.Value
+                else:
+                    logger.info(f"Cache empty for {cacheKey}, fetching from DB.")
+                    items = await self.FetchCurrencyPage(cacheKey)
         
-        if search != "":
+        if search:
             items = [item for item in items if item.text == search]
         
         return items
