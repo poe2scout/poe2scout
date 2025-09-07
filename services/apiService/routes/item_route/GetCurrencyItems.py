@@ -1,5 +1,5 @@
 from services.apiService.dependancies import EconomyCacheDep, PaginationParams, get_pagination_params, get_item_repository, cache_response
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from services.repositories import ItemRepository
 from pydantic import BaseModel
 import math
@@ -23,9 +23,12 @@ class GetCurrencyItemsResponse(PaginatedResponse):
 
 @router.get("/currency/{category}")
 async def GetCurrencyItems(category: str, econCache: EconomyCacheDep, search: str = "",  pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetCurrencyItemsResponse:
-    league = await repo.GetLeagueByValue(pagination.league)
+    leagueInDb = await repo.GetLeagueByValue(pagination.league)
 
-    items = await econCache.GetCurrencyPage(league.id, category, search)
+    if not leagueInDb:
+        raise HTTPException(400, "Invalid league name")
+
+    items = await econCache.GetCurrencyPage(leagueInDb.id, category, search)
     itemCount = len(items)
 
     startingIndex = (pagination.page-1) * pagination.perPage
