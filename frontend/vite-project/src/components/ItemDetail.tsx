@@ -34,7 +34,7 @@ interface ApiHistoryResponse {
 }
 
 export function ItemDetail({ item, onBack }: ItemDetailProps) {
-  const [logCount] = useState<number>(14*24); 
+  const [logCount, setLogCount] = useState<number>(14*24); 
   const [history, setHistory] = useState<PriceLogEntry[]>([]);
 
   const [hasMore, setHasMore] = useState(true);
@@ -68,24 +68,25 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
         console.log("Setting oldest timestamp to " + data.price_history[0].time)
         setOldestTimestamp(data.price_history[0].time);
       }
-
     } catch (error) {
       console.error("Error fetching price history:", error);
       setHistory([]); // Reset on error
     } finally {
       if (isInitialLoad) setIsLoading(false);
       else setIsLoadingMore(false);
+      setLogCount(prevLogCount => prevLogCount * 2)
     }
-  }, [item.itemId, logCount, league.value, selectedReference]);
+  }, [item.itemId, league.value, selectedReference]);
 
-  useEffect(() => {
+useEffect(() => {
     setHistory([]); 
     setHasMore(true);
     const initialCursor = new Date().toISOString();
     setOldestTimestamp(initialCursor);
+    setLogCount(14 * 24); 
 
     fetchPriceHistory(true, initialCursor);
-  }, [item.id, selectedReference, fetchPriceHistory]); // logCount could be added if you want to change page size
+}, [item.id, selectedReference, fetchPriceHistory]);
 
   const handleLoadMore = useCallback(() => {
     if (!isLoadingMore && hasMore) {
