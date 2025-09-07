@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { Button, Paper, Box, CircularProgress } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { ItemName } from "./TableColumnComponents/ItemName";
@@ -34,7 +34,7 @@ interface ApiHistoryResponse {
 }
 
 export function ItemDetail({ item, onBack }: ItemDetailProps) {
-  const [logCount, setLogCount] = useState<number>(14*24); 
+  const logCountRef = useRef<number>(14 * 24); 
   const [history, setHistory] = useState<PriceLogEntry[]>([]);
 
   const [hasMore, setHasMore] = useState(true);
@@ -54,7 +54,7 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
     }
     
     try {
-      const url = `${import.meta.env.VITE_API_URL}/items/${item.itemId}/history?logCount=${logCount}&league=${league.value}&referenceCurrency=${selectedReference}&endTime=${cursor}`;
+      const url = `${import.meta.env.VITE_API_URL}/items/${item.itemId}/history?logCount=${logCountRef.current}&league=${league.value}&referenceCurrency=${selectedReference}&endTime=${cursor}`;
       console.log('Fetching URL:', url);
       
       const response = await fetch(url);
@@ -74,7 +74,7 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
     } finally {
       if (isInitialLoad) setIsLoading(false);
       else setIsLoadingMore(false);
-      setLogCount(prevLogCount => prevLogCount * 2)
+      logCountRef.current = logCountRef.current * 2
     }
   }, [item.itemId, league.value, selectedReference]);
 
@@ -83,7 +83,7 @@ useEffect(() => {
     setHasMore(true);
     const initialCursor = new Date().toISOString();
     setOldestTimestamp(initialCursor);
-    setLogCount(14 * 24); 
+    logCountRef.current = 14 * 24; 
 
     fetchPriceHistory(true, initialCursor);
 }, [item.id, selectedReference, fetchPriceHistory]);
