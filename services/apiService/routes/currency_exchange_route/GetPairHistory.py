@@ -9,17 +9,17 @@ from fastapi import HTTPException
 from services.apiService.dependancies import CXRepoDep, ItemRepoDep
 
 @router.get("/PairHistory")
-async def GetPairHistory(league: str, currencyOneApiId: str, currencyTwoApiId: str, limit: int, item_repo:  ItemRepoDep, cx_repo: CXRepoDep, endTime: Optional[int] = None) -> GetPairHistoryModel:
+async def GetPairHistory(league: str, currencyOneItemId: int, currencyTwoItemId: int, limit: int, item_repo:  ItemRepoDep, cx_repo: CXRepoDep, endEpoch: Optional[int] = None) -> GetPairHistoryModel:
     leagueInDb = await item_repo.GetLeagueByValue(league)
 
     if not leagueInDb:
         raise HTTPException(400, "Invalid league name")
 
     getCurrencyExchangeResponse = await cx_repo.GetPairHistory(
-        currencyOneApiId,
-        currencyTwoApiId,
+        currencyOneItemId,
+        currencyTwoItemId,
         leagueInDb.id, 
-        endTime if endTime else int(datetime.now(tz=timezone.utc).timestamp()),
+        endEpoch if endEpoch else int(datetime.now(tz=timezone.utc).timestamp()),
         limit)
 
     if not getCurrencyExchangeResponse:
