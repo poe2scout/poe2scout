@@ -319,10 +319,9 @@ async def process_uniques(uniqueItems: list[UniqueItem], league: League, repo: I
                 currencyPrice = await repo.GetItemPrice(currency.itemId, league.id)
 
                 item_price = price.price * currencyPrice
-
+                quantity += price.quantity
                 if (item_price < lowest_price):
                     lowest_price = item_price
-                    quantity = price.quantity
 
             logger.info(f"Recording price for {uniqueItem.name} in {league.value} with price {lowest_price} and quantity {quantity}")
             await record_price(lowest_price, uniqueItem.itemId, league.id, quantity, repo)
