@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from psycopg.rows import class_row
 
 class PairDataDetails(BaseModel):
-    CurrencyApiId: str
+    CurrencyItemId: int
     ValueTraded: Decimal
     RelativePrice: Decimal
     StockValue: Decimal
@@ -26,13 +26,13 @@ class GetPairHistoryModel(BaseModel):
 
 class _pair_history_db_row(BaseModel):
     Epoch: int
-    C1_CurrencyApiId: str
+    CurrencyOneId: int
     C1_ValueTraded: Decimal
     C1_RelativePrice: Decimal
     C1_StockValue: Decimal
     C1_VolumeTraded: int
     C1_HighestStock: int
-    C2_CurrencyApiId: str
+    CurrencyTwoId: int
     C2_ValueTraded: Decimal
     C2_RelativePrice: Decimal
     C2_StockValue: Decimal
@@ -45,7 +45,7 @@ class GetPairHistory(BaseRepository):
     async def execute(self, currencyOneId: int, currencyTwoId: int, leagueId: int, endEpoch: int, limit: int):
         async with self.get_db_cursor(rowFactory=class_row(_pair_history_db_row)) as cursor:
             query = """
-EXPLAIN ANALYSE (
+(
     SELECT
         *
     FROM currency_exchange_history
@@ -97,14 +97,14 @@ LIMIT %(limit)s;
             returnList: List[GetCurrentSnapshotPairModel] = []
             for record in records:
                 C1PairDataDetails = PairDataDetails.model_construct(
-                    CurrencyApiId=record.C1_CurrencyApiId,
+                    CurrencyItemId=record.CurrencyOneId,
                     HighestStock=record.C1_HighestStock,
                     RelativePrice=record.C1_RelativePrice,
                     StockValue=record.C1_StockValue,
                     Valuetraded=record.C1_ValueTraded,
                     VolumeTraded=record.C1_VolumeTraded)
                 C2PairDataDetails = PairDataDetails.model_construct(
-                    CurrencyApiId=record.C2_CurrencyApiId,
+                    CurrencyItemId=record.CurrencyTwoId,
                     HighestStock=record.C2_HighestStock,
                     RelativePrice=record.C2_RelativePrice,
                     StockValue=record.C2_StockValue,
