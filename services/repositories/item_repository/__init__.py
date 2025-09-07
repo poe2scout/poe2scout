@@ -1,4 +1,3 @@
-from services.repositories.item_repository.GetAllItemHistories import GetAllItemHistories
 from services.repositories.item_repository.GetCurrencyFetchStatus import GetCurrencyFetchStatus
 from .GetItemPrices import GetItemPrices
 from .GetItemPricesInRange import GetItemPricesInRange
@@ -89,4 +88,3 @@ class ItemRepository:
         self.GetItemPricesInRange = GetItemPricesInRange().execute
         self.GetItemPrices = GetItemPrices().execute
         self.GetCurrencyFetchStatus = GetCurrencyFetchStatus().execute
-        self.GetAllItemHistories = GetAllItemHistories().execute

@@ -1,28 +1,20 @@
 from typing import Optional, List
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
-from psycopg.rows import class_row
 
 class League(BaseModel):
     id: int
     value: str
 
 class GetLeagueByValue(BaseRepository):
-    async def execute(self, value: str) -> League | None:
-        async with self.get_db_cursor(rowFactory=class_row(League)) as cursor:
-            query = """
-                SELECT "id", "value" 
-                FROM "League"
-                WHERE "value" ILIKE %(value)s
-            """
+    async def execute(self, value: str) -> League:
+        league_query = """
+            SELECT "id", "value" 
+            FROM "League"
+            WHERE "value" ILIKE %s
+        """
 
-            params = {
-                "value": value
-            }
+        league = (await self.execute_query(
+            league_query, (value,)))[0]
 
-            await cursor.execute(query, params)
-
-            league = await cursor.fetchone()
-
-
-            return league
+        return League(**league)

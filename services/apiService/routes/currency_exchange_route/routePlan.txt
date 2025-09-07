@@ -1,0 +1,7 @@
+Pairs
+GET PAGINATED SORTABLE SEARCHABLE CurrencyExchangePairs(League: str) -> List[CurrencyExchangePair]
+GET PAGINATED CurrencyExchangePairHistory(League: str, MarketId: str) -> List[PairHistory]
+
+Snapshots
+GET CurrencyExchange(League: str) -> CurrencyExchange(MarketCap, Volume)
+GET PAGINATED CurrencyExchangeHistory(League: str) -> List[(Epoch, CurrencyExchange(MarketCap, Volume))]

@@ -1,5 +1,5 @@
 from services.apiService.dependancies import PaginationParams, get_pagination_params, get_item_repository
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from services.repositories import ItemRepository
 from pydantic import BaseModel
 import math
@@ -21,9 +21,6 @@ async def GetCurrencyItemById(apiId: str, league: str, repo: ItemRepository = De
 
     itemIds = [currencyItem.itemId]
     leagueInDb = await repo.GetLeagueByValue(league)
-    if not leagueInDb:
-        raise HTTPException(400, "Invalid league name")
-    
     priceLogs = await repo.GetItemPriceLogs(itemIds, leagueInDb.id)
 
     items = [CurrencyItemExtended(
