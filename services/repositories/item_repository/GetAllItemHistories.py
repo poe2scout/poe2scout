@@ -32,23 +32,40 @@ class GetAllItemHistories(BaseRepository):
     async def execute(self, leagueId: int) -> List[ItemHistory]:
         async with self.get_db_cursor(rowFactory=class_row(_AllItemHistoriesRow)) as cursor:
             query = """
-WITH ranked_logs AS (
-    SELECT "itemId",
-           price,
-           quantity,
-           "createdAt",
-            ROW_NUMBER() OVER (
-                PARTITION BY "itemId"
-                ORDER BY "createdAt" DESC) AS rn
+WITH RECURSIVE distinct_items AS (
+    (SELECT "itemId"
+       FROM "PriceLog"
+      WHERE "leagueId" = %(leagueId)s
+      ORDER BY "itemId"
+      LIMIT 1)
+
+     UNION ALL
+
+    SELECT (
+        SELECT "itemId"
+          FROM "PriceLog"
+         WHERE "leagueId" = 5 AND "itemId" > di."itemId"
+         ORDER BY "itemId"
+         LIMIT 1
+    )
+      FROM distinct_items di
+     WHERE di."itemId" IS NOT NULL
+)
+SELECT p."itemId" AS "ItemId",
+       p."createdAt" AS "Time",
+       p.price AS "Price",
+       p.quantity AS "Quantity"
+FROM (
+    SELECT "itemId" FROM distinct_items WHERE "itemId" IS NOT NULL
+) AS items
+CROSS JOIN LATERAL (
+    SELECT "createdAt", price, quantity, "itemId"
       FROM "PriceLog"
-     WHERE "leagueId" = %(leagueId)s)
-SELECT "itemId" AS "ItemId",
-       "createdAt" AS "Time",
-       price AS "Price",
-       quantity AS "Quantity"
-  FROM ranked_logs
- WHERE rn <= 24
- ORDER BY "ItemId", "Time" DESC;
+     WHERE "leagueId" = 5 AND "PriceLog"."itemId" = items."itemId"
+     ORDER BY "createdAt" DESC
+     LIMIT 24
+) AS p
+ORDER BY p."itemId", p."createdAt" DESC;
             """
             params = {
                 "leagueId": leagueId
