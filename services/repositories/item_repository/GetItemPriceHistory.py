@@ -16,29 +16,33 @@ class GetItemPriceHistory(BaseRepository):
         limit = logCount + 1
 
         price_log_query = """
-            WITH binned_logs AS (
-                SELECT 
-                    price,
-                    quantity,
-                    "createdAt",
-                    ROW_NUMBER() OVER (
-                        PARTITION BY date_bin((%(logFrequency)s || ' hours')::interval, "createdAt", %(endTime)s::timestamp) 
-                        ORDER BY "createdAt" DESC
-                    ) as rn
-                FROM "PriceLog"
-                WHERE 
-                    "itemId" = %(itemId)s
-                    AND "leagueId" = %(leagueId)s
-                    AND "createdAt" < %(endTime)s
-            )
-            SELECT 
-                price,
-                quantity,
-                date_bin((%(logFrequency)s || ' hours')::interval, "createdAt", %(endTime)s::timestamp) as time
-            FROM binned_logs
-            WHERE rn = 1 
-            ORDER BY time DESC 
-            LIMIT %(limit)s;
+WITH ranked_logs AS (
+  SELECT
+    "itemId",
+    price,
+    quantity,
+    "createdAt",
+    ROW_NUMBER() OVER (
+      PARTITION BY "itemId"
+      ORDER BY "createdAt" DESC
+    ) AS rn
+  FROM "PriceLog"
+  WHERE
+    "leagueId" = 5
+    AND "createdAt" < current_date
+)
+SELECT
+  "itemId",
+  price,
+  quantity,
+  "createdAt" as time
+FROM ranked_logs
+WHERE
+  rn <= 24
+ORDER BY
+  "itemId",
+  time DESC;
+
         """
 
         query_params = {
