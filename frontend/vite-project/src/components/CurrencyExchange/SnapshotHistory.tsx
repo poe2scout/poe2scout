@@ -7,7 +7,7 @@ import { Chart, ChartData } from "../Chart";
 import { SnapshotHistoryChartLegend } from "./SnapshotHistoryChartLegend";
 import { LegendData } from "../ItemHistoryChartLegend";
 
-const uri = import.meta.env.VITE_API_URL;
+export const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 interface SnapshotHistoryDto {
   Data: CurrencyExchangeSnapshot[]
@@ -18,8 +18,8 @@ interface SnapshotHistoryDto {
 
 const fetchCurrencyExchangeSnapshotHistory = async (league: string, limit: number, endTime: number | null = null): Promise<SnapshotHistoryDto> => {
   const url = endTime === null 
-    ?`${uri}/currencyExchange/SnapshotHistory?league=${league}&limit=${limit.toString()}` 
-    : `${uri}/currencyExchange/SnapshotHistory?league=${league}&limit=${limit.toString()}&endTime=${endTime}`
+    ?`${VITE_API_URL}/currencyExchange/SnapshotHistory?league=${league}&limit=${limit.toString()}` 
+    : `${VITE_API_URL}/currencyExchange/SnapshotHistory?league=${league}&limit=${limit.toString()}&endTime=${endTime}`
 
   const response = await fetch(url);
   if (!response.ok) {

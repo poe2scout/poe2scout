@@ -1,8 +1,9 @@
-import { Box, CircularProgress, Alert, Paper, Typography, Stack } from "@mui/material";
+import { Box, CircularProgress, Alert, Stack } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useLeague } from "../contexts/LeagueContext";
 import SnapshotHeader from "../components/CurrencyExchange/SnapshotHeader";
 import SnapshotHistory from "../components/CurrencyExchange/SnapshotHistory";
+import SnapshotPairList from "../components/CurrencyExchange/SnapshotPairList";
 
 const uri = import.meta.env.VITE_API_URL;
 
@@ -58,7 +59,7 @@ export function CurrencyExchangePage() {
 
     if (snapshot) {
       return (
-        <>
+        <Box sx={{ flexGrow: 1, p: 2, overflowY: 'auto' }}>
           <Box sx={{ p: 2 }}>
             <Stack spacing={2}>
               <SnapshotHeader snapshot={snapshot} />
@@ -66,14 +67,10 @@ export function CurrencyExchangePage() {
             </Stack>
           </Box>
           <Box sx={{ flexGrow: 1, p: 2, overflowY: 'auto' }}>
-            <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
-              <Typography variant="h6">Trading Pairs</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Detailed pair information coming soon™
-              </Typography>
-            </Paper>
+            <SnapshotPairList snapshot={snapshot}>
+            </SnapshotPairList>
           </Box>
-        </>
+        </Box>
       );
     }
     return null;

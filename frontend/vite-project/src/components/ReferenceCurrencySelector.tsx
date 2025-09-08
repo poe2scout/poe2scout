@@ -10,6 +10,7 @@ import {
 
 
 export type BaseCurrencies = "exalted" | "divine" | "chaos";
+export const BaseCurrencyList: string[] = ["exalted", "divine" , "chaos"];
 
 interface ReferenceCurrencySelectorProps {
   currentReference: BaseCurrencies;

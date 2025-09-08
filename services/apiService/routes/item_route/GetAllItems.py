@@ -21,6 +21,7 @@ class UniqueItemResponse(BaseModel):
     categoryApiId: str
     priceLogs: List[PriceLogEntry | None]
     currentPrice: float
+    iconUrl: Optional[str]
 
 class CurrencyItemResponse(BaseModel):
     itemId: int
@@ -29,8 +30,9 @@ class CurrencyItemResponse(BaseModel):
     categoryApiId: str
     priceLogs: List[PriceLogEntry | None]
     currentPrice: float
+    iconUrl: Optional[str]
 
-items_cache = TTLCache(maxsize=1, ttl=300)
+items_cache = TTLCache(maxsize=1, ttl=60*15)
 
 @router.get("")
 async def GetAllItems(league: str, item_repository: ItemRepository = Depends(get_item_repository)) -> list[UniqueItemResponse | CurrencyItemResponse]:
