@@ -1,5 +1,5 @@
 import { format, fromUnixTime } from 'date-fns';
-import { BaseCurrencies } from './ReferenceCurrencySelector'; // Assuming this is in another file
+import { BaseCurrencies } from './ReferenceCurrencySelector';
 import { UTCTimestamp } from 'lightweight-charts';
 
 export interface LegendData {
