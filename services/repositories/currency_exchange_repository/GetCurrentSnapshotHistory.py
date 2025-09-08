@@ -6,8 +6,8 @@ from psycopg.rows import class_row
 
 class GetCurrencyExchangeHistoryData(BaseModel):
     Epoch: int
-    MarketCap: Decimal
-    Volume: Decimal
+    MarketCap: float
+    Volume: float
 
 class GetCurrencyExchangeHistoryModel(BaseModel):
     Data: List[GetCurrencyExchangeHistoryData]
@@ -44,5 +44,4 @@ class GetCurrencyExchangeHistory(BaseRepository):
                 hasMore = True
                 records.pop()
             
-            records.reverse()
             return GetCurrencyExchangeHistoryModel(Data=records, Meta={"hasMore": hasMore})

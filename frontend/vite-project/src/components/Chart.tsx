@@ -1,49 +1,47 @@
 import { createChart, ColorType, Time, LineData, HistogramData, UTCTimestamp, IChartApi, ISeriesApi, HistogramSeries, LineSeries } from 'lightweight-charts';
-import { useEffect, useRef, useState } from 'react';
-import { fromUnixTime, format } from "date-fns";
-import { BaseCurrencies } from './ReferenceCurrencySelector';
+import { useEffect, useRef } from 'react';
+import { LegendData } from './ItemHistoryChartLegend';
 
-export interface ChartProps {
+export interface ChartData {
     lineData: LineData<Time>[];
     histogramData: HistogramData<Time>[];
+}
+
+export interface ChartProps {
+    chartData: ChartData
     colors?: {
         backgroundColor?: string;
         lineColor?: string;
         textColor?: string;
         gridColor?: string;
     };
-    selectedReference: BaseCurrencies;
     onLoadMore: () => void;
     hasMore: boolean;
     isLoadingMore: boolean;
+    onLegendDataChange: (data: LegendData) => void;
+    height: number;
 }
 
-interface LegendData {
-    price?: number;
-    volume?: number;
-    time?: UTCTimestamp;
-}
 
 export const Chart = (props: ChartProps) => {
     const {
-        lineData,
-        histogramData,
+        chartData,
         colors: {
             backgroundColor = 'rgba(255, 255, 255, 0.0)',
             lineColor = '#2962FF',
             textColor = 'white',
             gridColor = '#334158',
         } = {},
-        selectedReference,
         onLoadMore,
         hasMore,
-        isLoadingMore
+        isLoadingMore,
+        onLegendDataChange,
+        height
     } = props;
 
     const chartContainerRef = useRef<HTMLDivElement>(null);
     const chartRef = useRef<IChartApi | null>(null);
     const seriesRef = useRef<{ line: ISeriesApi<"Line"> | null; histo: ISeriesApi<"Histogram"> | null }>({ line: null, histo: null });
-    const [legendValues, setLegendValues] = useState<LegendData>({});
     const loadingRef = useRef(false);
     const justLoadedRef = useRef(false);
 
@@ -60,7 +58,7 @@ export const Chart = (props: ChartProps) => {
             leftPriceScale: { visible: true, borderVisible: false },
             grid: { vertLines: { color: gridColor }, horzLines: { color: gridColor } },
             width: chartContainerRef.current.clientWidth,
-            height: 500,
+            height: height,
             timeScale: { borderVisible: false }
         });
 
@@ -94,20 +92,20 @@ export const Chart = (props: ChartProps) => {
         const handleCrosshairMove = (param: any) => {
             const data = param.seriesData;
             if (!param.time || !data.has(lineSeries) || !data.has(histogramSeries)) {
-                const lastPrice = lineData[lineData.length - 1];
-                const lastVolume = histogramData[histogramData.length - 1];
-                setLegendValues({ price: lastPrice?.value, volume: lastVolume?.value, time: lastVolume?.time as UTCTimestamp });
+                const lastPrice = chartData.lineData[chartData.lineData.length - 1];
+                const lastVolume = chartData.histogramData[chartData.histogramData.length - 1];
+                onLegendDataChange({ price: lastPrice?.value, volume: lastVolume?.value, time: lastVolume?.time as UTCTimestamp });
                 return;
             }
             const volumeData = data.get(histogramSeries) as HistogramData<Time>;
             const priceData = data.get(lineSeries) as LineData<Time>;
-            setLegendValues({ price: priceData.value, volume: volumeData.value, time: volumeData.time as UTCTimestamp });
+            onLegendDataChange({ price: priceData.value, volume: volumeData.value, time: volumeData.time as UTCTimestamp });
         };
 
         chart.subscribeCrosshairMove(handleCrosshairMove);
 
         return () => chart.unsubscribeCrosshairMove(handleCrosshairMove);
-    }, [lineData, histogramData]);
+    }, [chartData, onLegendDataChange]);
 
     useEffect(() => {
         const chart = chartRef.current;
@@ -138,36 +136,25 @@ export const Chart = (props: ChartProps) => {
         justLoadedRef.current = true;
 
         if (seriesRef.current.line) {
-            seriesRef.current.line.setData(lineData);
+            seriesRef.current.line.setData(chartData.lineData);
         }
         if (seriesRef.current.histo) {
-            seriesRef.current.histo.setData(histogramData);
+            seriesRef.current.histo.setData(chartData.histogramData);
         }
 
-        if (lineData.length > 0 && lineData.length <= 100) {
+        if (chartData.lineData.length > 0 && chartData.lineData.length <= 100) {
             chartRef.current?.timeScale().fitContent();
         }
 
-        const lastPrice = lineData[lineData.length - 1];
-        const lastVolume = histogramData[histogramData.length - 1];
-        setLegendValues({ price: lastPrice?.value, volume: lastVolume?.value, time: lastVolume?.time as UTCTimestamp });
-    }, [lineData, histogramData]);
+        const lastPrice = chartData.lineData[chartData.lineData.length - 1];
+        const lastVolume = chartData.histogramData[chartData.histogramData.length - 1];
+        onLegendDataChange({ price: lastPrice?.value, volume: lastVolume?.value, time: lastVolume?.time as UTCTimestamp });
+    }, [chartData, onLegendDataChange]);
 
     return (
-        <div style={{ position: 'relative', width: '100%' }}>
-            <div style={{ position: 'absolute', top: 12, left: 75, zIndex: 10, color: textColor, fontFamily: 'sans-serif', fontSize: '14px', pointerEvents: 'none' }}>
-                {legendValues.price !== undefined && (
-                    <div><span style={{ color: '#aaa' }}>Price: </span><strong style={{ color: 'white' }}>{legendValues.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong><span style={{ color: '#aaa' }}> {selectedReference.charAt(0).toUpperCase() + selectedReference.slice(1)} Orbs</span></div>
-                )}
-                {legendValues.volume !== undefined && (
-                    <div><span style={{ color: '#aaa' }}>Volume: </span><strong style={{ color: 'white' }}>{legendValues.volume.toLocaleString()}</strong></div>
-                )}
-                {legendValues.time !== undefined && (
-                    <div style={{ color: '#aaa', marginTop: '4px' }}>{format(fromUnixTime(legendValues.time as number), "dd MMM yyyy, HH:mm")}</div>
-                )}
-            </div>
+        <>
             {isLoadingMore && <div style={{ position: 'absolute', top: '50%', left: '20px', zIndex: 20, color: 'white' }}>Loading...</div>}
             <div ref={chartContainerRef} />
-        </div>
+        </>
     );
 };
