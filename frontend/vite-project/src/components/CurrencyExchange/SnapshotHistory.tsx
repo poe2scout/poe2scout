@@ -102,7 +102,12 @@ export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapsh
   if (isLoading) {
     return (
       <Paper elevation={3} sx={{ p: 2, height: 450, display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100%'
+        }}>
           <CircularProgress />
         </Box>
       </Paper>
@@ -116,7 +121,7 @@ export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapsh
   if (chartData.lineData.length > 0) {
     return (
       <Paper elevation={3} sx={{ p: 2, height: 450, display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+        <Box sx={{ position: 'relative', height: '100%' }}>
           <Chart
             chartData={chartData}
             onLoadMore={handleLoadMore}
