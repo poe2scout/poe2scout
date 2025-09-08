@@ -10,6 +10,7 @@ import { PriceLogEntry } from "../types";
 import { Chart } from "./Chart";
 import { UTCTimestamp } from "lightweight-charts";
 import ReferenceCurrencySelector, { BaseCurrencies } from "./ReferenceCurrencySelector";
+import { ChartLegend, LegendData } from "./ItemHistoryChartLegend";
 
 const DetailContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -41,6 +42,7 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
   const [oldestTimestamp, setOldestTimestamp] = useState<string>(() => new Date().toISOString());
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false); 
+  const [legendData, setLegendData] = useState<LegendData>({});
 
   const [selectedReference, setSelectedReference] = useState<BaseCurrencies>('exalted');
   const { language } = useLanguage();
@@ -145,14 +147,20 @@ useEffect(() => {
             <CircularProgress />
           </Box>
         ) : (
-          <Chart
-            lineData={processedData.lineData}
-            histogramData={processedData.histogramData}
-            selectedReference={selectedReference}
-            onLoadMore={handleLoadMore}
-            hasMore={hasMore}
-            isLoadingMore={isLoadingMore}
-          />
+          <div style={{ position: 'relative', width: '100%'}} >
+            <ChartLegend
+                {...legendData}
+                selectedReference={selectedReference}
+            />
+            <Chart
+              chartData={processedData}
+              onLoadMore={handleLoadMore}
+              hasMore={hasMore}
+              isLoadingMore={isLoadingMore}
+              onLegendDataChange={setLegendData}
+              height={500}
+            />          
+          </div>
         )}
       </Box>
     </DetailContainer>

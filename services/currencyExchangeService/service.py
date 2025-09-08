@@ -119,6 +119,9 @@ async def run(config: CurrencyExchangeServiceConfig, itemRepo: ItemRepository, c
         snapshot.MarketCap = Decimal(MarketCap)
 
         logger.info(f"Saving {len(snapshot.Pairs)} for {snapshot.LeagueId}")
+        if (Volume == 0 and MarketCap == 0):
+            logger.info(f"No data in snapshot. Skipping")
+            continue
         await cxRepo.CreateSnapshot(snapshot)
     await cxRepo.SetServiceCacheValue("CurrencyExchange", data.next_change_id - 60 * 60)
 
