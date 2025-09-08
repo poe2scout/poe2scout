@@ -61,12 +61,14 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
       const data: ApiHistoryResponse = await response.json();
       console.log('Fetched price history data:', data);
 
-      setHistory(prevHistory => isInitialLoad ? data.price_history : [...data.price_history, ...prevHistory]);
+      const reversedData = data.price_history.reverse()
+
+      setHistory(prevHistory => isInitialLoad ? reversedData : [...reversedData, ...prevHistory]);
       setHasMore(data.has_more);
 
       if (data.price_history.length > 0) {
-        console.log("Setting oldest timestamp to " + data.price_history[0].time)
-        setOldestTimestamp(data.price_history[0].time);
+        console.log("Setting oldest timestamp to " + reversedData[0].time)
+        setOldestTimestamp(reversedData[0].time);
       }
     } catch (error) {
       console.error("Error fetching price history:", error);
