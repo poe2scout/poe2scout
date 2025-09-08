@@ -91,9 +91,7 @@ LIMIT %(limit)s;
             if (len(records) > limit):
                 hasMore = True
                 records.pop()
-            
-            records.reverse()
-            
+                        
             returnList: List[GetCurrentSnapshotPairModel] = []
             for record in records:
                 C1PairDataDetails = PairDataDetails.model_construct(
@@ -114,4 +112,4 @@ LIMIT %(limit)s;
                 RecordModel = GetCurrentSnapshotPairModel.model_construct(Epoch=record.Epoch, Data=RecordPairData)
                 returnList.append(RecordModel)
 
-            return GetPairHistoryModel(History=returnList, Meta={"hasMore": hasMore})
+            return GetPairHistoryModel.model_construct(History=returnList, Meta={"hasMore": hasMore})

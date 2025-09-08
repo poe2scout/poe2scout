@@ -12,4 +12,3 @@ from .GetAllItems import GetAllItems
 from .GetHistory import GetHistory
 from .GetLandingSplashInfo import GetLandingSplashInfo
 from .GetCurrencyItemById import GetCurrencyItemById
-from .GetAllItemHistories import GetAllItemHistories

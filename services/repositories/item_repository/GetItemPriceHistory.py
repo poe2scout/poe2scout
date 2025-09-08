@@ -43,8 +43,6 @@ SELECT DISTINCT ON (time)
         if has_more:
             price_logs = price_logs[:logCount]
         
-        price_logs.reverse()
-
         price_history = [
             PriceLogEntry.model_construct(
                 price=log["price"],

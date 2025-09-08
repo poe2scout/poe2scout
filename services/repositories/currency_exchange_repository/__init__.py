@@ -16,4 +16,3 @@ class CurrencyExchangeRepository:
         self.SetServiceCacheValue = SetServiceCacheValue().execute
         self.GetCurrentSnapshotPairs = GetCurrentSnapshotPairs().execute
         self.GetPairHistory = GetPairHistory().execute
-        self.GetAllItemHistories = GetAllItemHistories
