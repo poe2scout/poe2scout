@@ -180,6 +180,7 @@ async def FetchCurrencyExchangePrices(repo: ItemRepository, config: PriceFetchCo
             await repo.RecordPriceBulk(priceLogs, currentEpoch)
 
     await cxRepo.SetServiceCacheValue("PriceFetch_Currency", currentEpoch)
+    await cxRepo.UpdatePairHistories()
 
 def getCurrencyPriceFromPair(pair: LeagueCurrencyPairData, baseItemPrices: List[CurrencyPrice]) -> CurrencyPrice:
     for baseItemPrice in baseItemPrices:

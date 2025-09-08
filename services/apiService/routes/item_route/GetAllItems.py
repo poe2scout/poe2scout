@@ -15,6 +15,7 @@ from cachetools import TTLCache
 from cachetools.keys import hashkey
 
 class UniqueItemResponse(BaseModel):
+    itemId: int
     name: str
     type: str
     categoryApiId: str
@@ -22,6 +23,7 @@ class UniqueItemResponse(BaseModel):
     currentPrice: float
 
 class CurrencyItemResponse(BaseModel):
+    itemId: int
     apiId: str
     text: str
     categoryApiId: str

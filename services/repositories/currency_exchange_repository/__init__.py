@@ -5,6 +5,7 @@ from services.repositories.currency_exchange_repository.GetCurrentSnapshotHistor
 from services.repositories.currency_exchange_repository.GetCurrentSnapshotPairs import GetCurrentSnapshotPairs
 from services.repositories.currency_exchange_repository.GetServiceCacheValue import GetServiceCacheValue
 from services.repositories.currency_exchange_repository.SetServiceCacheValue import SetServiceCacheValue
+from services.repositories.currency_exchange_repository.UpdatePairHistories import UpdatePairHistories
 from services.repositories.item_repository import GetAllItemHistories
 
 class CurrencyExchangeRepository:
@@ -16,3 +17,4 @@ class CurrencyExchangeRepository:
         self.SetServiceCacheValue = SetServiceCacheValue().execute
         self.GetCurrentSnapshotPairs = GetCurrentSnapshotPairs().execute
         self.GetPairHistory = GetPairHistory().execute
+        self.UpdatePairHistories = UpdatePairHistories().execute
