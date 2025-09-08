@@ -101,9 +101,11 @@ export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapsh
 
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-        <CircularProgress />
-      </Box>
+      <Paper elevation={3} sx={{ p: 2, height: 450, display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+          <CircularProgress />
+        </Box>
+      </Paper>
     );
   }
 
