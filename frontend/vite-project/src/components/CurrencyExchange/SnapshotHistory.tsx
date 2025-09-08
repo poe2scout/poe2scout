@@ -17,7 +17,11 @@ interface SnapshotHistoryDto {
 }
 
 const fetchCurrencyExchangeSnapshotHistory = async (league: string, limit: number, endTime: number | null = null): Promise<SnapshotHistoryDto> => {
-  const response = await fetch(`${uri}/currencyExchange/SnapshotHistory?league=${league}&limit=${limit.toString()}&endTime=${endTime}`);
+  const url = endTime === null 
+    ?`${uri}/currencyExchange/SnapshotHistory?league=${league}&limit=${limit.toString()}` 
+    : `${uri}/currencyExchange/SnapshotHistory?league=${league}&limit=${limit.toString()}&endTime=${endTime}`
+
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Failed to fetch data: ${response.statusText}`);
   }
@@ -39,7 +43,7 @@ export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapsh
       try {
         setIsLoading(true);
         setError(null);
-        const historyDto = await fetchCurrencyExchangeSnapshotHistory(league.value, 24 * 14, snapshot.Epoch);
+        const historyDto = await fetchCurrencyExchangeSnapshotHistory(league.value, 24 * 14);
 
         setHasMore(historyDto.Meta.hasMore);
 
