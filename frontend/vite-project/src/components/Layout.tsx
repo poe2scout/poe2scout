@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { styled } from "@mui/material/styles";
-import { Typography, IconButton, Tabs, Tab } from "@mui/material";
+import { Typography, IconButton, Tabs, Tab, Tooltip } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
 import SideNav from "./ItemTypeSideNavbar";
@@ -115,6 +115,16 @@ function Layout() {
               value="economy"
               disableRipple
             />
+            <Tooltip title="This feature is coming soon.">
+              <span>
+                <Tab
+                  label={"Currency Exchange"}
+                  value="exchange"
+                  disabled
+                  disableRipple
+                />
+              </span>
+            </Tooltip>
           </Tabs>
         </div>
       </TopBar>

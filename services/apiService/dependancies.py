@@ -1,13 +1,17 @@
 from fastapi import Query, Depends
-from typing import Optional, get_type_hints, Callable
+from typing import Annotated, Optional, get_type_hints, Callable
 from dataclasses import dataclass
 from pydantic import BaseModel
 import json
 from functools import wraps
 from redis import asyncio as aioredis
 import os
+from services.libs.models.PaginationParams import PaginationParams
 from services.repositories import ItemRepository
 from pydantic import TypeAdapter
+from .EconomyCache import EconomyCache
+
+from services.repositories.currency_exchange_repository import CurrencyExchangeRepository
 
 redis = aioredis.from_url(
     os.getenv("REDIS_URL", "redis://localhost:6379"),
@@ -15,14 +19,11 @@ redis = aioredis.from_url(
     decode_responses=True
 )
 
-class PaginationParams(BaseModel):
-    page: int
-    perPage: int
-    league: str
+
 
 def get_pagination_params(
     page: int = Query(default=1, ge=1, description="Page number"),
-    perPage: int = Query(default=25, ge=1, le=10000, description="Items per page"),
+    perPage: int = Query(default=25, ge=1, le=250, description="Items per page"),
     league: str = Query(default="Standard", description="League name")
 ) -> PaginationParams:
     return PaginationParams(
@@ -36,6 +37,13 @@ def get_item_repository() -> ItemRepository:
 
 _item_repository = ItemRepository()
 
+def get_cx_repo() -> CurrencyExchangeRepository:
+    return _cx_repository
+
+_cx_repository = CurrencyExchangeRepository()
+
+CXRepoDep = Annotated[CurrencyExchangeRepository, Depends(get_cx_repo)]
+ItemRepoDep = Annotated[ItemRepository, Depends(get_item_repository)]
 
 class PaginatedResponse(BaseModel):
     currentPage: int
@@ -54,11 +62,8 @@ def cache_response(key: Callable, ttl: int = 300):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             cache_key = key(kwargs)
-            print("cache_key", cache_key)
-            cached_value = await redis.get(cache_key)
+            cached_value = None # await redis.get(cache_key)
             if cached_value:
-                print("hit_Cache")
-
                 return_type = get_type_hints(func).get('return')
                 type_adapter = TypeAdapter(return_type)
                 return type_adapter.validate_json(cached_value)
@@ -69,3 +74,11 @@ def cache_response(key: Callable, ttl: int = 300):
             return response
         return wrapper
     return decorator
+
+
+def get_economy_cache() -> EconomyCache:
+    return _economy_cache
+
+_economy_cache: EconomyCache = EconomyCache(_item_repository)
+
+EconomyCacheDep = Annotated[EconomyCache, Depends(get_economy_cache)]

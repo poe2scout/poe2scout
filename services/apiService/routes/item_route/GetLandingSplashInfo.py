@@ -7,7 +7,7 @@ from services.repositories.item_repository.GetAllCurrencyItems import CurrencyIt
 from services.apiService.routes.item_route.GetCurrencyItems import CurrencyItemExtended
 from pydantic import BaseModel
 importantApiIds = ["mirror","divine","exalted","annul"]
-defaultLeagueId = 1
+defaultLeagueId = 3
 
 class LandingSplashInfoResponse(BaseModel):
     items: list[CurrencyItemExtended]

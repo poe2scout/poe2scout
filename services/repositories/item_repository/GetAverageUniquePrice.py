@@ -4,13 +4,6 @@ from pydantic import BaseModel
 from datetime import datetime, timedelta
 import time
 
-
-class PriceLogEntry(BaseModel):
-    price: float
-    time: datetime
-    quantity: int
-
-
 class GetAverageUniquePrice(BaseRepository):
     async def execute(self, itemIds: List[int], leagueId: int) -> Dict[int, Optional[float]]:
         price_log_query = """

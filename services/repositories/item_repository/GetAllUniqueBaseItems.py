@@ -39,5 +39,4 @@ class GetAllUniqueBaseItems(BaseRepository):
         baseItems = await self.execute_query(
             baseItem_query)
         
-        print(len(baseItems))
         return [UniqueBaseItem(**baseItem) for baseItem in baseItems]
