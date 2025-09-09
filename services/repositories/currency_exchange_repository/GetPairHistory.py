@@ -108,7 +108,11 @@ LIMIT %(limit)s;
                     StockValue=record.C2_StockValue,
                     Valuetraded=record.C2_ValueTraded,
                     VolumeTraded=record.C2_VolumeTraded)
-                RecordPairData = PairData.model_construct(CurrencyOneData=C1PairDataDetails, CurrencyTwoData=C2PairDataDetails)
+                if C1PairDataDetails.CurrencyItemId == currencyOneId:
+                    RecordPairData = PairData.model_construct(CurrencyOneData=C1PairDataDetails, CurrencyTwoData=C2PairDataDetails)
+                else:
+                    RecordPairData = PairData.model_construct(CurrencyOneData=C2PairDataDetails, CurrencyTwoData=C1PairDataDetails)
+
                 RecordModel = GetCurrentSnapshotPairModel.model_construct(Epoch=record.Epoch, Data=RecordPairData)
                 returnList.append(RecordModel)
 
