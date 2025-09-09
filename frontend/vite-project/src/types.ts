@@ -4,6 +4,17 @@ export interface PriceLogEntry {
   quantity: number;
 }
 
+export interface CurrencyItem {
+  id: number;
+  itemId: number;
+  currencyCategoryId: number;
+  apiId: string;
+  text: string; 
+  iconUrl: string | null;
+  categoryApiId: string;
+  itemMetadata: CurrencyMetadata | null;
+}
+
 export interface UniqueItemExtended {
   id: number;
   itemId: number;

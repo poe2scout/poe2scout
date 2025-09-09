@@ -9,6 +9,7 @@ from . import ApiServiceConfig
 import uvicorn
 from services.apiService.routes import item_router
 from services.apiService.routes import league_router
+from services.apiService.routes import currency_exchange_router
 import logging
 import time
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()    
 config = ApiServiceConfig.load_from_env()
-IS_LOCAL = os.getenv("local", "false").lower() == "true"
+IS_LOCAL = os.getenv("LOCAL", "false").lower() == "true"
 
 def get_real_ip(request: Request) -> str:
     real_ip = request.headers.get("cf-connecting-ip")
@@ -94,6 +95,7 @@ if IS_LOCAL:
 # Import and include routers
 app.include_router(item_router)
 app.include_router(league_router)
+app.include_router(currency_exchange_router)
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

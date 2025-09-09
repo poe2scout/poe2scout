@@ -8,6 +8,7 @@ interface ItemNameProps {
   name: string;
   isUnique: boolean;
   itemMetadata: ItemMetadata | CurrencyMetadata | null;
+  iconPostFixed?: boolean;
 }
 const ItemIcon = styled("img")({
   width: "32px",
@@ -44,6 +45,7 @@ export function ItemName({
   name,
   isUnique,
   itemMetadata,
+  iconPostFixed = false
 }: ItemNameProps) {
   const displayName = name;
   const [showMetadata, setShowMetadata] = useState(false);
@@ -58,7 +60,9 @@ export function ItemName({
         onMouseEnter={() => setShowMetadata(true)}
         onMouseLeave={() => setShowMetadata(false)}
       >
-        <ItemIcon src={imageSrc} alt={displayName} />
+        {!iconPostFixed && (
+          <ItemIcon src={imageSrc} alt={displayName} />
+        )}
         <div className="name-type-container">
           <span
             style={{ color: isUnique ? "#af6025" : "inherit", fontSize: "1.1em" }}
@@ -73,6 +77,9 @@ export function ItemName({
             </span>
           )}
         </div>
+        {iconPostFixed && (
+          <ItemIcon src={imageSrc} alt={displayName} />
+        )}
         {showMetadata && itemMetadata && (
           <ItemMetadataView
             metadata={itemMetadata}

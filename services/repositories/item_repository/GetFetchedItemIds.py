@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 class GetFetchedItemIds(BaseRepository):
     async def execute(self, currentHour: str, leagueId: int) -> list[int]:
         currentHour = int(currentHour)
-        ranges = [[0, 6], [6, 12], [12, 18], [18, 24]]
+        ranges = [[0, 12], [12, 24]]
 
         for range in ranges:
             if currentHour >= range[0] and currentHour < range[1]:
@@ -27,7 +27,6 @@ class GetFetchedItemIds(BaseRepository):
             JOIN "League" as l ON pl."leagueId" = l."id"
             WHERE pl."createdAt" > %s AND pl."createdAt" < %s AND l."id" = %s
         """
-        print(currentStart, currentEnd)
         itemIds = (await self.execute_query(
             item_query, (currentStart, currentEnd, leagueId)))
     

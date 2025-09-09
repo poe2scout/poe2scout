@@ -10,7 +10,7 @@ import { LeagueProvider } from "./contexts/LeagueContext";
 import fetchIntercept from 'fetch-intercept';
 import { CategoryProvider } from './contexts/CategoryContext';
 import { compare } from 'compare-versions';
-import ChancePage from "./pages/ChancePage";
+import CurrencyExchangePage from "./pages/CurrencyExchangePage";
 // Register fetch interceptor
 fetchIntercept.register({
     request: function(url, config) {
@@ -75,9 +75,8 @@ function App() {
                                             element={<Navigate to="/economy/currency" replace />}
                                         />
                                         <Route path=":type" element={<EconomyPage />} />
-
                                     </Route>
-                                    <Route path="chance" element={<ChancePage />} />
+                                    <Route path="exchange" element={<CurrencyExchangePage />} />
                                     <Route path="*" element={<Navigate to="/" replace />} />
                                 </Route>
                             </Routes>

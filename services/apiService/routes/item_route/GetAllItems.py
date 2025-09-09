@@ -1,10 +1,10 @@
+from services.repositories.models import PriceLogEntry
 from . import router
 from fastapi import Depends, HTTPException
 from services.apiService.dependancies import get_item_repository
 from services.repositories import ItemRepository
 from services.repositories.item_repository.GetAllUniqueItems import UniqueItem
 from services.repositories.item_repository.GetAllCurrencyItems import CurrencyItem
-from services.repositories.item_repository.GetItemPriceLogs import PriceLogEntry
 from typing import Optional, Union, List
 from asyncio import gather
 from urllib.parse import quote
@@ -15,20 +15,24 @@ from cachetools import TTLCache
 from cachetools.keys import hashkey
 
 class UniqueItemResponse(BaseModel):
+    itemId: int
     name: str
     type: str
     categoryApiId: str
     priceLogs: List[PriceLogEntry | None]
     currentPrice: float
+    iconUrl: Optional[str]
 
 class CurrencyItemResponse(BaseModel):
+    itemId: int
     apiId: str
     text: str
     categoryApiId: str
     priceLogs: List[PriceLogEntry | None]
     currentPrice: float
+    iconUrl: Optional[str]
 
-items_cache = TTLCache(maxsize=1, ttl=300)
+items_cache = TTLCache(maxsize=1, ttl=60*15)
 
 @router.get("")
 async def GetAllItems(league: str, item_repository: ItemRepository = Depends(get_item_repository)) -> list[UniqueItemResponse | CurrencyItemResponse]:

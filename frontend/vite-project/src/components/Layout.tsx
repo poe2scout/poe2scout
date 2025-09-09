@@ -115,6 +115,11 @@ function Layout() {
               value="economy"
               disableRipple
             />
+            <Tab
+              label={"Currency Exchange"}
+              value="exchange"
+              disableRipple
+            />
           </Tabs>
         </div>
       </TopBar>

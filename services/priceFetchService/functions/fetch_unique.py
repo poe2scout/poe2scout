@@ -23,7 +23,7 @@ class PriceFetchResult(BaseModel):
 def create_query_string(uniqueItem: UniqueItem, currencyText: str):
     query = {
         "query": {
-            "status": {"option": "online"},
+            "status": {"option": "securable"},
             "name": uniqueItem.name,
             "stats": [{"type": "and", "filters": []}],
             "filters": {

@@ -1,3 +1,4 @@
+import asyncio
 import requests
 from services.repositories.base_repository import BaseRepository
 from services.itemSyncService.models import *
@@ -22,11 +23,11 @@ headers = {
 
 
 async def run(config: ItemSyncConfig):
+    await BaseRepository.init_pool(config.dbstring)
+    repo = ItemRepository()
     with Client(headers=headers) as client:
         while True:
-            await BaseRepository.init_pool(config.dbstring)
-            repo = ItemRepository()
-
+            await sleep(60 * 60 * 24)
             logger.info("Fetching unique items from POE API...")
             response = client.get(config.unique_item_url)
             items: itemResponse = itemResponse(**response.json())
@@ -44,4 +45,3 @@ async def run(config: ItemSyncConfig):
             logger.info("Starting currency sync...")
             await sync_currencies(currencies.result)
 
-            await sleep(24 * 60 * 60)

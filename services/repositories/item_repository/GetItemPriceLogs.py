@@ -1,15 +1,11 @@
 from typing import Optional, List, Dict
+
+from services.repositories.models import PriceLogEntry
+
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 from datetime import datetime, timedelta
 import time
-
-
-class PriceLogEntry(BaseModel):
-    price: float
-    time: datetime
-    quantity: int
-
 
 class GetItemPriceLogs(BaseRepository):
     async def execute(self, itemIds: List[int], leagueId: int) -> Dict[int, List[Optional[PriceLogEntry]]]:

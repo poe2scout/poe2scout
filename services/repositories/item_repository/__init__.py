@@ -1,3 +1,7 @@
+from services.repositories.item_repository.GetAllItemHistories import GetAllItemHistories
+from services.repositories.item_repository.GetCurrencyFetchStatus import GetCurrencyFetchStatus
+from .GetItemPrices import GetItemPrices
+from .GetItemPricesInRange import GetItemPricesInRange
 from .GetPricesChecked import GetPricesChecked
 from .CreateBaseItem import CreateBaseItem
 from .GetAllBaseItems import GetAllBaseItems
@@ -37,6 +41,7 @@ from .GetUniqueItemsByBaseName import GetUniqueItemsByBaseName
 from .GetAverageUniquePrice import GetAverageUniquePrice
 from .GetSnapshotForLeague import GetSnapshotForLeague
 from .GetItemsInCurrentLeague import GetItemsInCurrentLeague
+from .IsItemACurrency import IsItemACurrency
 class ItemRepository:
     def __init__(self):
         self.CreateBaseItem = CreateBaseItem().execute
@@ -54,7 +59,8 @@ class ItemRepository:
         self.CreateItem = CreateItem().execute
         self.GetAllItems = GetAllItems().execute
         self.RecordPrice = RecordPrice().execute
-        self.GetCurrencyItem = GetCurrencyItem().execute
+        self.GetCurrencyItem = GetCurrencyItem().execute        
+        self.IsItemACurrency = IsItemACurrency().execute
         self.GetLeagues = GetLeagues().execute
         self.GetItemPrice = GetItemPrice().execute  
         self.GetUniqueItemsByCategory = GetUniqueItemsByCategory().execute
@@ -80,3 +86,7 @@ class ItemRepository:
         self.GetAllLeagues = GetAllLeagues().execute
         self.GetPricesChecked = GetPricesChecked().execute
         self.GetItemsInCurrentLeague = GetItemsInCurrentLeague().execute
+        self.GetItemPricesInRange = GetItemPricesInRange().execute
+        self.GetItemPrices = GetItemPrices().execute
+        self.GetCurrencyFetchStatus = GetCurrencyFetchStatus().execute
+        self.GetAllItemHistories = GetAllItemHistories().execute

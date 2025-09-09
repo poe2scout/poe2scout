@@ -57,6 +57,23 @@ services:
     build:
       context: .
       dockerfile: services/priceFetchService/Dockerfile
+    restart: always
+    environment:
+      - DBSTRING=${DBSTRING}
+      - POEAPI_CLIENT_ID=${POEAPI_CLIENT_ID}
+      - POEAPI_CLIENT_SECRET=${POEAPI_CLIENT_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+
+  currency-exchange-service:
+    profiles: [prod]
+    build:
+      context: .
+      dockerfile: services/currencyExchangeService/Dockerfile
+    restart: always
     environment:
       - DBSTRING=${DBSTRING}
       - POEAPI_CLIENT_ID=${POEAPI_CLIENT_ID}
@@ -86,9 +103,11 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
     volumes:
       - poe2market_pgdata6:/var/lib/postgresql/data
-      - ./db/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/migrations/init.sql:/docker-entrypoint-initdb.d/init.sql      
+      - ./db/conf/postgresql.conf:/etc/postgresql/postgresql.conf.d/postgresql.conf
     ports:
       - "5432:5432"
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf.d/postgresql.conf
     healthcheck:
       test: ["CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres"]
       interval: 10s
