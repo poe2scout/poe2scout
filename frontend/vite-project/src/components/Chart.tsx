@@ -67,8 +67,7 @@ export const Chart = (props: ChartProps) => {
         const lineSeries = chart.addSeries(LineSeries, { priceScaleId: 'right', color: lineColor });
         lineSeries.priceScale().applyOptions({ scaleMargins: { top: 0.15, bottom: 0.15 } });
 
-        const histogramSeries = chart.addSeries(HistogramSeries, { color: '#26a69a', priceFormat: { type: 'volume' }, priceScaleId: 'left' });
-        histogramSeries.priceScale().applyOptions({ scaleMargins: { top: 0.75, bottom: 0 } });
+        const histogramSeries = chart.addSeries(HistogramSeries, { color: '#26a69a', priceFormat: { type: 'volume' }, priceScaleId: 'left' }, 1);
 
         chartRef.current = chart;
         seriesRef.current = { line: lineSeries, histo: histogramSeries };

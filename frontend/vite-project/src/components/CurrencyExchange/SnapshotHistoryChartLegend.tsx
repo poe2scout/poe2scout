@@ -12,17 +12,21 @@ export const SnapshotHistoryChartLegend = (props: LegendData) => {
         return null;
     }
 
+    if (window.innerWidth < 500) {
+        return null;
+    }
+
     return (
-        <div style={{ position: 'absolute', top: 12, left: 75, zIndex: 10, fontFamily: 'sans-serif', fontSize: '14px', pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', top: 5, left: 10, zIndex: 10, fontFamily: 'sans-serif', fontSize: '14px', pointerEvents: 'none' }}>
             {price !== undefined && (
                 <div>
-                    <span style={{ color: '#aaa' }}>Trading volume: </span>
+                    <span style={{ color: '#aaa' }}>Market cap: </span>
                     <strong style={{ color: 'white' }}>{price.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} ex</strong>
                 </div>
             )}
             {volume !== undefined && (
                 <div>
-                    <span style={{ color: '#aaa' }}>Market cap: </span>
+                    <span style={{ color: '#aaa' }}>Trading volume: </span>
                     <strong style={{ color: 'white' }}>{volume.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} ex</strong>
                 </div>
             )}
