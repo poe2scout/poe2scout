@@ -59,7 +59,7 @@ export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapsh
                 time: entry.Epoch as UTCTimestamp,
                 value: entry.Volume,
             }));
-            setChartData({ lineData: volumes, histogramData: marketCaps });
+            setChartData({ lineData: marketCaps, histogramData: volumes });
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "An unknown error occurred.");
@@ -124,7 +124,7 @@ export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapsh
 
   if (chartData.lineData.length > 0) {
     return (
-      <Paper elevation={3} sx={{ p: 2, height: 450, display: 'flex', flexDirection: 'column' }}>
+      <Paper elevation={3} sx={{ p: 2, height: 375, display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ position: 'relative', height: '100%' }}>
           <Chart
             chartData={chartData}
@@ -132,7 +132,7 @@ export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapsh
             hasMore={hasMore}
             isLoadingMore={isLoadingMore}
             onLegendDataChange={setLegendData}
-            height={425}
+            height={350}
           />
           <SnapshotHistoryChartLegend {...legendData} />
         </Box>
