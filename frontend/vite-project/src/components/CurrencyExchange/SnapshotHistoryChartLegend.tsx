@@ -1,5 +1,5 @@
-import { format, fromUnixTime } from 'date-fns';
 import { LegendData } from '../ItemHistoryChartLegend';
+import { FormatTimeFromEpoch } from '../FormatTime';
 
 export const SnapshotHistoryChartLegend = (props: LegendData) => {
     const {
@@ -28,7 +28,7 @@ export const SnapshotHistoryChartLegend = (props: LegendData) => {
             )}
             {time !== undefined && (
                 <div style={{ color: '#aaa', marginTop: '4px' }}>
-                    {format(fromUnixTime(time as number), "dd MMM yyyy, HH:mm")}
+                    {FormatTimeFromEpoch(time as number)}
                 </div>
             )}
         </div>
