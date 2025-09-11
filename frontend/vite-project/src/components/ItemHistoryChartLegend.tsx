@@ -1,4 +1,4 @@
-import { format, fromUnixTime } from 'date-fns';
+import { FormatTimeFromEpoch } from './FormatTime';
 import { BaseCurrencies } from './ReferenceCurrencySelector';
 import { UTCTimestamp } from 'lightweight-charts';
 
@@ -43,7 +43,7 @@ export const ChartLegend = (props: ChartLegendProps) => {
             )}
             {time !== undefined && (
                 <div style={{ color: '#aaa', marginTop: '4px' }}>
-                    {format(fromUnixTime(time as number), "dd MMM yyyy, HH:mm")}
+                    {FormatTimeFromEpoch(time)}
                 </div>
             )}
         </div>

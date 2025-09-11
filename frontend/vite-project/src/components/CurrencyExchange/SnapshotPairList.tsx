@@ -1,13 +1,11 @@
-import { Typography, Paper, Stack, CircularProgress, Alert, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, TableSortLabel, TablePagination } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { Paper, CircularProgress, Alert, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, TableSortLabel, TablePagination } from "@mui/material";
 import { CurrencyExchangeSnapshot } from "../../pages/CurrencyExchangePage";
 import { League, useLeague } from "../../contexts/LeagueContext";
 import { VITE_API_URL } from "./SnapshotHistory";
 import { CurrencyItem } from "../../types";
 import { useEffect, useMemo, useState } from "react";
 import { BaseCurrencyList } from "../ReferenceCurrencySelector";
-import { ItemName } from "../TableColumnComponents/ItemName";
-import { CurrencyExchangePriceDisplay } from "./PriceDisplay";
+import { SnapshotPairRow } from "./SnapshotPairRow";
 
 interface SnapshotPairListProps {
   snapshot: CurrencyExchangeSnapshot;
@@ -48,12 +46,6 @@ export interface SnapshotPair {
 type Order = "asc" | "desc";
 type OrderBy = "pair" | "volume";
 
-const ClickableTableRow = styled(TableRow)(({ theme }) => ({
-  "&:hover": {
-    backgroundColor: theme.palette.action.hover,
-  },
-  cursor: "pointer"
-}));
 
 const fetchSnapshotPairs = async (league: League): Promise<SnapshotPair[]> => {
   const response = await fetch(`${VITE_API_URL}/currencyExchange/SnapshotPairs?league=${league.value}`);
@@ -86,7 +78,7 @@ const fetchSnapshotPairs = async (league: League): Promise<SnapshotPair[]> => {
     if (areBothCurrencyBases) {
       const isCorrectOrder = currencyOneData.VolumeTraded <= currencyTwoData.VolumeTraded
 
-      if (isCorrectOrder){
+      if (isCorrectOrder) {
         return {
           Volume: parseFloat(row.Volume),
           CurrencyOne: row.CurrencyOne,
@@ -134,7 +126,6 @@ export function SnapshotPairList({ snapshot }: SnapshotPairListProps) {
   const [orderBy, setOrderBy] = useState<OrderBy>("volume");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
-  const [hoveredPairKey, setHoveredPairKey] = useState<string | null>(null);
 
   useEffect(() => {
     const getPairs = async () => {
@@ -173,14 +164,6 @@ export function SnapshotPairList({ snapshot }: SnapshotPairListProps) {
 
   const handlePairClick = (pair: SnapshotPair) => {
     console.log("Navigating to history for:", `${pair.CurrencyOne.text} / ${pair.CurrencyTwo.text}`);
-  };
-
-  const handleMouseEnter = (key: string) => {
-    setHoveredPairKey(key);
-  };
-
-  const handleMouseLeave = () => {
-    setHoveredPairKey(null);
   };
 
   const visiblePairs = useMemo(() => {
@@ -230,7 +213,7 @@ export function SnapshotPairList({ snapshot }: SnapshotPairListProps) {
                   Trading Pair
                 </TableSortLabel>
               </TableCell>
-              <TableCell sx={{width: '400px'}} align="right">Exchange Rate</TableCell>
+              <TableCell sx={{ width: '400px' }} align="right">Exchange Rate</TableCell>
               <TableCell align="right" sortDirection={orderBy === 'volume' ? order : false}>
                 <TableSortLabel
                   active={orderBy === 'volume'}
@@ -244,30 +227,8 @@ export function SnapshotPairList({ snapshot }: SnapshotPairListProps) {
           </TableHead>
           <TableBody>
             {visiblePairs.map((pair) => {
-              const rowKey = `${pair.CurrencyOne.id}-${pair.CurrencyTwo.id}`; 
-              const isHovered = hoveredPairKey === rowKey;
-
               return (
-                <ClickableTableRow
-                  key={rowKey}
-                  onClick={() => handlePairClick(pair)}
-                  onMouseEnter={() => handleMouseEnter(rowKey)}
-                  onMouseLeave={handleMouseLeave} 
-                >
-                  <TableCell component="th" scope="row" sx={{ py: 1}}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                    <ItemName iconUrl={pair.CurrencyOne.iconUrl} name={pair.CurrencyOne.text} isUnique={false} itemMetadata={pair.CurrencyOne.itemMetadata}/>
-                    <Typography variant="body2" color="text.secondary">/ </Typography>
-                    <ItemName iconUrl={pair.CurrencyTwo.iconUrl} name={pair.CurrencyTwo.text} isUnique={false} itemMetadata={pair.CurrencyTwo.itemMetadata} iconPostFixed={true}/>
-                  </Stack>
-                 </TableCell>
-                
-                  <CurrencyExchangePriceDisplay pair={pair} isHovered={isHovered}/>
-
-                  <TableCell align="right" sx={{ py: 1 }}>
-                    <Typography variant="body2">{pair.Volume.toLocaleString(undefined, { maximumFractionDigits: 0 })}</Typography>
-                  </TableCell>
-                </ClickableTableRow>
+                <SnapshotPairRow pair={pair} onPairClick={handlePairClick} />
               );
             })}
           </TableBody>
