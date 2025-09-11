@@ -1,6 +1,7 @@
 import { Typography, Paper, Grid, Stack } from "@mui/material";
 import { CurrencyExchangeSnapshot } from "../../pages/CurrencyExchangePage";
 import { useLeague } from "../../contexts/LeagueContext";
+import { FormatTimeFromEpoch } from "../FormatTime";
 
 interface SnapshotHeaderProps {
   snapshot: CurrencyExchangeSnapshot;
@@ -28,7 +29,7 @@ export function SnapshotHeader({ snapshot }: SnapshotHeaderProps) {
             {league.value} Market
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Last updated: {new Date(snapshot.Epoch * 1000).toLocaleString()}
+            Last updated: {FormatTimeFromEpoch(snapshot.Epoch)}
           </Typography>
         </Grid>
         <Grid item xs={12} md={7}>
