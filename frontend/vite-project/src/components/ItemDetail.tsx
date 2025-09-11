@@ -107,12 +107,12 @@ useEffect(() => {
     if (!history.length) return { lineData: [], histogramData: [] };
     
     const prices = history.map(entry => ({
-      time: new Date(entry.time).getTime() / 1000 as UTCTimestamp,
+      time: new Date(entry.time + 'Z').getTime() / 1000 as UTCTimestamp,
       value: entry.price,
     }));
 
     const quantities = history.map(entry => ({
-      time: new Date(entry.time).getTime() / 1000 as UTCTimestamp,
+      time: new Date(entry.time + 'Z').getTime() / 1000 as UTCTimestamp,
       value: entry.quantity,
     }));
 
