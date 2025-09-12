@@ -16,14 +16,15 @@ class GetItemPriceHistory(BaseRepository):
         limit = logCount + 1
 
         price_log_query = """
-SELECT price,
+SELECT DISTINCT ON (time)
+       price,
        quantity,
-       "createdAt" as time
+       date_bin((%(logFrequency)s || ' hours')::interval, "createdAt", %(endTime)s::timestamp) as time
   FROM "PriceLog"
  WHERE "itemId" = %(itemId)s
        AND "leagueId" = %(leagueId)s
        AND "createdAt" < %(endTime)s
- ORDER BY "createdAt" DESC
+ ORDER BY time DESC,"createdAt" DESC
  LIMIT %(limit)s;
         """
 
