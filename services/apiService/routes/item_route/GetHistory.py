@@ -27,9 +27,16 @@ async def GetHistory(itemId: int, league: str, logCount: int, endTime: datetime 
     isACurrency = await item_repository.IsItemACurrency(itemId)
 
     if isACurrency:
+
         logFrequency = 1
     else:
         logFrequency = 6
+    
+    endTime = endTime.replace(
+        hour=(endTime.hour// logFrequency) * logFrequency,
+        minute=0,
+        second=0,
+        microsecond=0)
     
     history = await item_repository.GetItemPriceHistory(itemId, leagueId, logCount, logFrequency, endTime)
 
