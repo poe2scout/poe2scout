@@ -29,7 +29,9 @@ export function SearchAutocomplete({
   const [searchTerm, setSearchTerm] = useState(initialValue);
   const [isOpen, setIsOpen] = useState(false);
   const anchorEl = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const [filteredResults, setFilteredResults] = useState<SearchableItem[]>([]);
+  const [activeIndex, setActiveIndex] = useState<number>(-1);
 
   useEffect(() => {
     setSearchTerm(initialValue);
@@ -39,7 +41,6 @@ export function SearchAutocomplete({
   }, [initialValue]);
 
   useEffect(() => {
-    console.log(searchableItems);
     if (searchTerm && searchableItems.length > 0) {
       const lowerSearchTerm = searchTerm.toLowerCase();
       const results = searchableItems
@@ -48,11 +49,24 @@ export function SearchAutocomplete({
         );
       setFilteredResults(results);
       setIsOpen(results.length > 0);
+      setActiveIndex(-1);
     } else {
       setFilteredResults([]);
       setIsOpen(false);
     }
   }, [searchTerm, searchableItems]);
+
+  useEffect(() => {
+    if (isOpen && activeIndex >= 0 && listRef.current) {
+      const activeItem = listRef.current.children[activeIndex] as HTMLElement;
+      if (activeItem) {
+        activeItem.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }
+    }
+  }, [activeIndex, isOpen]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
@@ -66,10 +80,34 @@ export function SearchAutocomplete({
   };
 
   const handleItemClick = (item: SearchableItem) => {
-    setSearchTerm(item.display_name);
-    setFilteredResults([]);
     setIsOpen(false);
     onItemSelect(item.category, item.identifier);
+  };  
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (!isOpen || filteredResults.length === 0) return;
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        setActiveIndex((prev) => (prev + 1) % filteredResults.length);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        setActiveIndex((prev) => (prev - 1 + filteredResults.length) % filteredResults.length);
+        break;
+      case 'Enter':
+        if (activeIndex >= 0) {
+          event.preventDefault();
+          handleItemClick(filteredResults[activeIndex]);
+        }
+        break;
+      case 'Escape':
+        setIsOpen(false);
+        break;
+      default:
+        break;
+    }
   };
 
   const isDisabled = isLoadingList || !!initialValue;
@@ -81,6 +119,7 @@ export function SearchAutocomplete({
         placeholder={currentPlaceholder}
         value={searchTerm}
         onChange={(e) => handleSearchChange(e.target.value)}
+        onKeyDown={handleKeyDown}
         variant="outlined"
         size="small"
         fullWidth
@@ -109,10 +148,19 @@ export function SearchAutocomplete({
         anchorEl={anchorEl.current}
         placement="bottom-start"
         style={{ width: anchorEl.current?.clientWidth, zIndex: 1300 }}
+        onMouseEnter={() => setActiveIndex(-1)}
       >
-        <Paper sx={{ maxHeight: 300, overflowY: 'auto' }}>
+        <Paper
+          ref={listRef}
+          component="div"
+          sx={{ maxHeight: 300, overflowY: 'auto' }}
+        >
           {filteredResults.map((item, index) => (
-            <MenuItem key={index} onMouseDown={() => handleItemClick(item)}>
+            <MenuItem
+              key={item.identifier}
+              selected={index === activeIndex}
+              onMouseDown={() => handleItemClick(item)}
+            >
               {item.display_name}
             </MenuItem>
           ))}
