@@ -22,13 +22,13 @@ class GetCurrencyItemsResponse(PaginatedResponse):
 #LeagueXCategory
 
 @router.get("/currency/{category}")
-async def GetCurrencyItems(category: str, econCache: EconomyCacheDep, search: str = "",  pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetCurrencyItemsResponse:
+async def GetCurrencyItems(category: str, econCache: EconomyCacheDep, referenceCurrency: str ="exalted",  search: str = "",  pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetCurrencyItemsResponse:
     leagueInDb = await repo.GetLeagueByValue(pagination.league)
 
     if not leagueInDb:
         raise HTTPException(400, "Invalid league name")
 
-    items = await econCache.GetCurrencyPage(leagueInDb.id, category, search)
+    items = await econCache.GetCurrencyPage(leagueInDb.id, category, search, referenceCurrency)
     itemCount = len(items)
 
     startingIndex = (pagination.page-1) * pagination.perPage

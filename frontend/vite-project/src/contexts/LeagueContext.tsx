@@ -8,7 +8,14 @@ import {
 
 export interface League {
   value: string;
+  chaosDivinePrice: number;
+  exaltedDivinePrice: number;
+}
+
+interface LeagueDto {
+  value: string;
   divinePrice: number;
+  chaosDivinePrice: number;
 }
 
 interface LeagueContextType {
@@ -25,7 +32,7 @@ const DEFAULT_LEAGUE = "Rise of the Abyssal"
 export function LeagueProvider({ children }: { children: ReactNode }) {
   const [leagues, setLeagues] = useState<League[]>([]);
   const [loading, setLoading] = useState(true);
-  const [league, setLeague] = useState<League>({ value: DEFAULT_LEAGUE, divinePrice: 100 });
+  const [league, setLeague] = useState<League>({ value: DEFAULT_LEAGUE, exaltedDivinePrice: 100, chaosDivinePrice: 50 });
 
   const fetchLeagues = async () => {
     try {
@@ -33,12 +40,23 @@ export function LeagueProvider({ children }: { children: ReactNode }) {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
-      setLeagues(data);
-      
-      const updatedLeague = data.find((l: League) => l.value === league.value);
+      const data: LeagueDto[] = await response.json();
 
-      setLeague(updatedLeague);
+      const leagues = data.map((league): League => {
+        return {
+          "value": league.value,
+          "exaltedDivinePrice": league.divinePrice,
+          "chaosDivinePrice": league.chaosDivinePrice
+        }
+        
+      })
+      setLeagues(leagues);
+      
+      const updatedLeague = leagues.find((l: League) => l.value === league.value);
+
+      if (updatedLeague !== undefined){
+        setLeague(updatedLeague);
+      }
     } catch (error) {
       console.error("Error fetching leagues:", error);
     } finally {

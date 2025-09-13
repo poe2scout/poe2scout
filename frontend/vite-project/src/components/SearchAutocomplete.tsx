@@ -1,8 +1,7 @@
-import { TextField, Popper, Paper, MenuItem, IconButton } from "@mui/material";
+import { TextField, Popper, Paper, MenuItem, IconButton, Box, styled } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState, useRef, useEffect } from "react";
 
-// Define the structure of the items in the searchable list
 export interface SearchableItem {
   display_name: string;
   category: string;
@@ -17,6 +16,11 @@ interface SearchAutocompleteProps {
   searchableItems: SearchableItem[];
   isLoadingList?: boolean;
 }
+
+const Anchor = styled(Box)(({ }) => ({
+  position: 'relative',
+  padding: '6px 16px',
+}))
 
 export function SearchAutocomplete({
   onItemSelect,
@@ -114,7 +118,7 @@ export function SearchAutocomplete({
   const currentPlaceholder = placeholder;
 
   return (
-    <div ref={anchorEl} style={{ position: "relative", width: "100%" }}>
+    <Anchor ref={anchorEl}>
       <TextField
         placeholder={currentPlaceholder}
         value={searchTerm}
@@ -166,6 +170,6 @@ export function SearchAutocomplete({
           ))}
         </Paper>
       </Popper>
-    </div>
+    </Anchor>
   );
 }

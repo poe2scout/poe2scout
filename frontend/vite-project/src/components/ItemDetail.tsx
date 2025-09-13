@@ -27,6 +27,7 @@ const HeaderContainer = styled(Box)({
 interface ItemDetailProps {
   item: ApiItem;
   onBack: () => void;
+  initialReferenceCurrency: 'exalted' | 'chaos'
 }
 
 interface ApiHistoryResponse {
@@ -34,7 +35,7 @@ interface ApiHistoryResponse {
     has_more: boolean;
 }
 
-export function ItemDetail({ item, onBack }: ItemDetailProps) {
+export function ItemDetail({ item, onBack, initialReferenceCurrency }: ItemDetailProps) {
   const logCountRef = useRef<number>(14 * 24); 
   const [history, setHistory] = useState<PriceLogEntry[]>([]);
 
@@ -44,7 +45,7 @@ export function ItemDetail({ item, onBack }: ItemDetailProps) {
   const [isLoadingMore, setIsLoadingMore] = useState(false); 
   const [legendData, setLegendData] = useState<LegendData>({});
 
-  const [selectedReference, setSelectedReference] = useState<BaseCurrencies>('exalted');
+  const [selectedReference, setSelectedReference] = useState<BaseCurrencies>(initialReferenceCurrency);
   const { language } = useLanguage();
   const { league } = useLeague();
 
