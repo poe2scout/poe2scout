@@ -6,6 +6,7 @@ import { CurrencyItem } from "../../types";
 import { useEffect, useMemo, useState } from "react";
 import { BaseCurrencies, BaseCurrencyList } from "../ReferenceCurrencySelector";
 import { SnapshotPairRow } from "./SnapshotPairRow";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 interface SnapshotPairListProps {
   snapshot: CurrencyExchangeSnapshot;
@@ -117,7 +118,9 @@ const fetchSnapshotPairs = async (league: League): Promise<SnapshotPair[]> => {
   })
 }
 
-export function SnapshotPairList({ snapshot }: SnapshotPairListProps) {
+export function SnapshotPairList({snapshot }: SnapshotPairListProps) {
+  const navigate = useNavigate();
+
   const { league } = useLeague();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -163,7 +166,10 @@ export function SnapshotPairList({ snapshot }: SnapshotPairListProps) {
   };
 
   const handlePairClick = (pair: SnapshotPair) => {
-    console.log("Navigating to history for:", `${pair.CurrencyOne.text} / ${pair.CurrencyTwo.text}`);
+    const { CurrencyOne, CurrencyTwo } = pair;
+    navigate(
+      `/exchange/${CurrencyOne.itemId}/${CurrencyTwo.itemId}`
+    );
   };
 
   const visiblePairs = useMemo(() => {
