@@ -10,16 +10,24 @@ import {
 
 
 export type BaseCurrencies = "exalted" | "divine" | "chaos";
-export const BaseCurrencyList: string[] = ["exalted", "divine" , "chaos"];
+export const BaseCurrencyList: BaseCurrencies[] = ["exalted", "divine" , "chaos"];
 
 interface ReferenceCurrencySelectorProps {
   currentReference: BaseCurrencies;
+  options?: BaseCurrencies[];
   onReferenceChange: (newReference: BaseCurrencies) => void;
 }
 
+export const CurrencyNameMap: Record<BaseCurrencies, string> = {
+  exalted: "Exalted Orb",
+  divine: "Divine Orb",
+  chaos: "Chaos Orb"
+};
+
 const ReferenceCurrencySelector: React.FC<ReferenceCurrencySelectorProps> = ({
   currentReference,
-  onReferenceChange
+  onReferenceChange,
+  options = BaseCurrencyList
 }) => {
   const handlePresetChange = (event: SelectChangeEvent) => {
     const newSelection = event.target.value as BaseCurrencies;
@@ -36,15 +44,12 @@ const ReferenceCurrencySelector: React.FC<ReferenceCurrencySelectorProps> = ({
           label="Relative Currency"
           onChange={handlePresetChange}
         >
-            <MenuItem value="exalted">
-                {"Exalted orbs"}
-            </MenuItem>            
-            <MenuItem value="chaos">
-                {"Chaos orbs"}
-            </MenuItem>
-            <MenuItem value="divine">
-                {"Divine orbs"}
-            </MenuItem>
+          {options.map(option => {
+
+            return (<MenuItem value={option}>
+                {CurrencyNameMap[option]}
+            </MenuItem>         )
+          })}
         </Select>
       </FormControl>
     </Stack>

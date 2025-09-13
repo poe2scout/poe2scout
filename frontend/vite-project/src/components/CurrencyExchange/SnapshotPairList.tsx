@@ -4,7 +4,7 @@ import { League, useLeague } from "../../contexts/LeagueContext";
 import { VITE_API_URL } from "./SnapshotHistory";
 import { CurrencyItem } from "../../types";
 import { useEffect, useMemo, useState } from "react";
-import { BaseCurrencyList } from "../ReferenceCurrencySelector";
+import { BaseCurrencies, BaseCurrencyList } from "../ReferenceCurrencySelector";
 import { SnapshotPairRow } from "./SnapshotPairRow";
 
 interface SnapshotPairListProps {
@@ -71,9 +71,9 @@ const fetchSnapshotPairs = async (league: League): Promise<SnapshotPair[]> => {
       HighestStock: row.CurrencyTwoData.HighestStock
     }
 
-    const isCurrencyOneBase = BaseCurrencyList.includes(row.CurrencyOne.apiId);
+    const isCurrencyOneBase = BaseCurrencyList.includes(row.CurrencyOne.apiId as BaseCurrencies);
 
-    const areBothCurrencyBases = BaseCurrencyList.includes(row.CurrencyOne.apiId) && BaseCurrencyList.includes(row.CurrencyTwo.apiId)
+    const areBothCurrencyBases = BaseCurrencyList.includes(row.CurrencyOne.apiId as BaseCurrencies) && BaseCurrencyList.includes(row.CurrencyTwo.apiId as BaseCurrencies)
 
     if (areBothCurrencyBases) {
       const isCorrectOrder = currencyOneData.VolumeTraded <= currencyTwoData.VolumeTraded

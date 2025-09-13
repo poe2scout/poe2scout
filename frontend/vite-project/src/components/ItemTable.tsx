@@ -10,8 +10,13 @@ import {
   TableSortLabel,
   TablePagination,
   Typography,
+  Box,
+  IconButton,
+  Collapse,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import TuneIcon from "@mui/icons-material/Tune";
 
 import type {
   ApiItem,
@@ -41,8 +46,8 @@ import { useNavigate } from "react-router-dom";
 import { useLeague, League } from "../contexts/LeagueContext";
 import { useCategories } from "../contexts/CategoryContext";
 import { useSearchableItems } from "../hooks/useSearchableItems";
+import ReferenceCurrencySelector from "./ReferenceCurrencySelector";
 
-// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -56,15 +61,20 @@ ChartJS.register(
 type Order = "asc" | "desc";
 type OrderBy = "name" | "price";
 
-const ItemRow = styled(TableRow)(({ theme }) => ({
-  "& .MuiTableCell-root": {
-    borderBottom: "1px solid #333",
-    padding: "6px 16px",
-    [theme.breakpoints.down("sm")]: {
-      padding: "6px 8px",
-    },
-  },
+const ItemRow = styled(TableRow)(({ }) => ({
+  ".MuiTableRow-root": {
+    padding: '200px'
+  }
 }));
+
+const TableOptions = styled(Box)(({ }) => ({
+  display: 'flex'
+}))
+
+const StyledTableCell = styled(TableCell)(() => ({
+  padding: '8px'
+}))
+
 
 const ActionLink = styled("a")(({ theme }) => ({
   color: theme.palette.text.secondary,
@@ -80,7 +90,7 @@ const ActionLink = styled("a")(({ theme }) => ({
 
 const ActionContainer = styled("div")({
   display: "flex",
-  flexDirection: "column",
+  flexDirection: "row",
   alignItems: "center",
   gap: "2px",
 });
@@ -136,6 +146,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
   const [totalItems, setTotalItems] = useState(0);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<OrderBy>("price");
+  const [referenceCurrency, setReferenceCurrency] = useState<"exalted" | "chaos">("exalted")
   const [itemSelection, setItemSelection] = useState<{
     item: ApiItem | null;
     scrollPosition: number;
@@ -143,6 +154,12 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
     item: null,
     scrollPosition: 0,
   });
+
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
+  const [mobileOptionsOpen, setMobileOptionsOpen] = useState(false);
+
+  console.log(isSmallScreen)
 
   const {
     searchableItems,
@@ -164,7 +181,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
 
     const apiUrl = `${
       import.meta.env.VITE_API_URL
-    }/items/${endpointType}/${type}?page=${currentPage}&perPage=${perPage}&league=${league.value}&search=${search}`;
+    }/items/${endpointType}/${type}?page=${currentPage}&perPage=${perPage}&league=${league.value}&search=${search}&referenceCurrency=${referenceCurrency}`;
 
     try {
       const response = await fetch(apiUrl);
@@ -192,7 +209,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
   useEffect(() => {
     setPage(0);
     fetchItems(1, rowsPerPage, initialSearch || "");
-  }, [initialSearch, type, league, rowsPerPage]);
+  }, [initialSearch, type, league, rowsPerPage, referenceCurrency]);
 
   const handleRequestSort = (property: OrderBy) => {
     const isAsc = orderBy === property && order === "asc";
@@ -264,6 +281,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
     return (
       <ItemDetail
         item={itemSelection.item}
+        initialReferenceCurrency={referenceCurrency}
         onBack={() => {
           setItemSelection((prev) => ({
             item: null,
@@ -285,13 +303,15 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
   return (
     <Paper
       sx={{
-        height: "85vh",
+        height: "93vh",
         display: "flex",
         flexDirection: "column",
         minWidth: "800px",
-        margin: "25px",
       }}
-    >
+    >        
+      <TableOptions>
+
+      </TableOptions>
       <TableContainer
         sx={{ flexGrow: 1, overflowX: "auto", minWidth: "800px" }}
       >
@@ -308,43 +328,79 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
         >
           <TableHead>
             <TableRow>
-              <TableCell
+              <StyledTableCell
                 sx={{
-                  minWidth: "200px",
+                  minWidth: "150px",
                   width: "auto",
                   overflow: "hidden",
                 }}
               >
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
-                >
-                  <TableSortLabel
-                    active={orderBy === "name"}
-                    direction={orderBy === "name" ? order : "asc"}
-                    onClick={() => handleRequestSort("name")}
-                  >
-                    {getTranslatedText("Item", language)}
-                  </TableSortLabel>
-                  <div style={{ position: "relative", flex: 1 }}>
-                    <SearchAutocomplete
-                      searchableItems={searchableItems}
-                      isLoadingList={loadingSearchable}
-                      placeholder={`${getTranslatedText(
-                        "Search",
-                        language
-                      )} ${getTranslatedText("Item", language)}`}
-                      initialValue={initialSearch || ""}
-                      onItemSelect={(category, localisationName) => {
-                        const searchParam = encodeURIComponent(localisationName);
-                        navigate(`/economy/${category}?search=${searchParam}`, { replace: true });
-                      }}
-                      onClear={handleClearSearch}
-                    />
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                    <TableSortLabel
+                      active={orderBy === "name"}
+                      direction={orderBy === "name" ? order : "asc"}
+                      onClick={() => handleRequestSort("name")}
+                    >
+                      {getTranslatedText("Item", language)}
+                    </TableSortLabel>
                     {errorSearchable && <Typography color="error" variant="caption" sx={{ position: 'absolute', bottom: '-18px' }}>Error loading items</Typography>}
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell
+                    
+                    {isSmallScreen ? (
+                      <IconButton onClick={() => setMobileOptionsOpen(!mobileOptionsOpen)} sx={{ ml: 1 }}>
+                        <TuneIcon />
+                      </IconButton>
+                    ) : (
+                      <>
+                      <Box sx={{ flex: 1, minWidth: '200px' }}>
+                      <SearchAutocomplete
+                        searchableItems={searchableItems}
+                        isLoadingList={loadingSearchable}
+                        placeholder={`${getTranslatedText("Search", language)} ${getTranslatedText("Item", language)}`}
+                        initialValue={initialSearch || ""}
+                        onItemSelect={(category, localisationName) => {
+                          const searchParam = encodeURIComponent(localisationName);
+                          navigate(`/economy/${category}?search=${searchParam}`, { replace: true });
+                        }}
+                        onClear={handleClearSearch}
+                      />
+                    </Box>
+                      <ReferenceCurrencySelector
+                        currentReference={referenceCurrency}
+                        onReferenceChange={(item) => setReferenceCurrency(item as 'exalted'| 'chaos')}
+                        options={['exalted','chaos']}
+                      />
+                      </>
+                    )}
+                  </Box>
+
+                  {isSmallScreen && (
+                    <Collapse in={mobileOptionsOpen} timeout="auto" unmountOnExit>
+                      <Box sx={{ flex: 1, minWidth: '200px' }}>
+                      <SearchAutocomplete
+                        searchableItems={searchableItems}
+                        isLoadingList={loadingSearchable}
+                        placeholder={`${getTranslatedText("Search", language)} ${getTranslatedText("Item", language)}`}
+                        initialValue={initialSearch || ""}
+                        onItemSelect={(category, localisationName) => {
+                          const searchParam = encodeURIComponent(localisationName);
+                          navigate(`/economy/${category}?search=${searchParam}`, { replace: true });
+                        }}
+                        onClear={handleClearSearch}
+                      />
+                    </Box>
+                      <Box sx={{ pt: 2, pl: '16px', pr: '16px' }}>
+                      <ReferenceCurrencySelector
+                        currentReference={referenceCurrency}
+                        onReferenceChange={(item) => setReferenceCurrency(item as 'exalted'| 'chaos')}
+                        options={['exalted','chaos']}
+                      />
+                      </Box>
+                    </Collapse>
+                  )}
+                </Box>
+              </StyledTableCell>
+              <StyledTableCell
                 sx={{
                   width: "120px",
                   minWidth: "120px",
@@ -358,8 +414,8 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                 >
                   {getTranslatedText("Price", language)}
                 </TableSortLabel>
-              </TableCell>
-              <TableCell
+              </StyledTableCell>
+              <StyledTableCell
                 sx={{
                   width: "80px",
                   minWidth: "80px",
@@ -367,8 +423,8 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                 }}
               >
                 {getTranslatedText("Quantity", language)}
-              </TableCell>
-              <TableCell
+              </StyledTableCell>
+              <StyledTableCell
                 sx={{
                   width: "250px",
                   minWidth: "250px",
@@ -377,8 +433,8 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                 }}
               >
                 {getTranslatedText("Price History", language)}
-              </TableCell>
-              <TableCell
+              </StyledTableCell>
+              <StyledTableCell
                 sx={{
                   width: "100px",
                   minWidth: "100px",
@@ -387,24 +443,24 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                 }}
               >
                 {getTranslatedText("Actions", language)}
-              </TableCell>
+              </StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell
+                <StyledTableCell
                   colSpan={5}
                   align="center"
                   style={{ padding: "40px" }}
                 >
                   <CircularProgress />
-                </TableCell>
+                </StyledTableCell>
               </TableRow>
             ) : (
               filteredItems.map((item: ApiItem) => (
                 <ItemRow key={item.id}>
-                  <TableCell>
+                  <StyledTableCell>
                     <div
                       onClick={() => handleItemSelect(item)}
                       style={{ cursor: "pointer" }}
@@ -416,14 +472,14 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                         itemMetadata={item.itemMetadata}
                       />
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <PriceDisplay currentPrice={item.currentPrice} divinePrice={league.divinePrice} />
-                  </TableCell>
-                  <TableCell>
+                  </StyledTableCell>
+                  <StyledTableCell>
+                    <PriceDisplay currentPrice={item.currentPrice} divinePrice={referenceCurrency == 'exalted' ? league.exaltedDivinePrice : league.chaosDivinePrice} referenceCurrency={referenceCurrency}/>
+                  </StyledTableCell>
+                  <StyledTableCell>
                     {item.priceLogs?.[0]?.quantity ?? "N/A"}
-                  </TableCell>
-                  <TableCell
+                  </StyledTableCell>
+                  <StyledTableCell
                     sx={{
                       display: { md: "table-cell" },
                     }}
@@ -431,8 +487,8 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                     {item.priceLogs != null && item.priceLogs.length > 0 && (
                       <PriceHistory priceHistory={item.priceLogs} variant="table" />
                     )}
-                  </TableCell>
-                  <TableCell align="center">
+                  </StyledTableCell>
+                  <StyledTableCell align="center">
                     <ActionContainer>
                       <ActionLink
                         href={getWikiUrl(item)}
@@ -441,6 +497,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                       >
                         {getTranslatedText("Wiki", language)}
                       </ActionLink>
+                      /
                       <ActionLink
                         href={getTradeUrl(item, league)}
                         target="_blank"
@@ -449,7 +506,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                         {getTranslatedText("Trade", language)}
                       </ActionLink>
                     </ActionContainer>
-                  </TableCell>
+                  </StyledTableCell>
                 </ItemRow>
               ))
             )}

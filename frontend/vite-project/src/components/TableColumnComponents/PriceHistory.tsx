@@ -12,15 +12,10 @@ const ChartContainer = styled("div")<{ variant?: 'table' | 'compact' }>(({ varia
   alignItems: "center",
   gap: "16px",
   ...(variant === 'table' && {
-    width: "160px",
+    width: "150px",
     height: "40px",
   }),
-  ...(variant === 'compact' && {
-    width: "100%",
-    minHeight: "40px",
-    gap: "8px",
-    justifyContent: "flex-end",
-  }),
+
 }));
 
 const PercentageChange = styled("span")<{ isPositive: boolean }>(

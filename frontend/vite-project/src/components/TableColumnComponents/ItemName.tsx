@@ -53,7 +53,6 @@ export function ItemName({
   const imageSrc = iconUrl ? iconUrl : "/img/placeholder-icon.png";
 
   
-  console.log(imageSrc);
   return (
       <ItemNameContainer
         ref={containerRef}

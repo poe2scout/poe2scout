@@ -9,7 +9,7 @@ import translations from "../translationskrmapping.json";
 import LeagueContainer from "./LeagueContainer";
 
 const TopBar = styled("div")(({ theme }) => ({
-  height: "50px",
+  height: "7vh",
   backgroundColor: theme.palette.background.paper,
   borderBottom: `1px solid ${theme.palette.divider}`,
   display: "flex",
@@ -20,7 +20,7 @@ const TopBar = styled("div")(({ theme }) => ({
 
 const MainContent = styled("div")({
   display: "flex",
-  height: "calc(100vh - 50px)",
+  height: "calc(100vh - 7vh)",
   overflow: "hidden",
 });
 
