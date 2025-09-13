@@ -23,6 +23,9 @@ class GetCurrencyItemsResponse(PaginatedResponse):
 
 @router.get("/currency/{category}")
 async def GetCurrencyItems(category: str, econCache: EconomyCacheDep, referenceCurrency: str ="exalted",  search: str = "",  pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetCurrencyItemsResponse:
+    if referenceCurrency not in ["exalted", "chaos"]:
+        raise HTTPException(400, "reference currency must be exalted or chaos")
+    
     leagueInDb = await repo.GetLeagueByValue(pagination.league)
 
     if not leagueInDb:

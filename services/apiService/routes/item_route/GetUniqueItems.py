@@ -24,6 +24,9 @@ class GetUniqueItemsResponse(PaginatedResponse):
 
 @router.get("/unique/{category}")
 async def GetUniqueItems(category: str, econCache: EconomyCacheDep, referenceCurrency: str = "exalted", search: str = "", pagination: PaginationParams = Depends(get_pagination_params), repo: ItemRepository = Depends(get_item_repository)) -> GetUniqueItemsResponse:
+    if referenceCurrency not in ["exalted", "chaos"]:
+        raise HTTPException(400, "reference currency must be exalted or chaos")
+
     leagueInDb = await repo.GetLeagueByValue(pagination.league)
     if not leagueInDb:
         raise HTTPException(400, "Invalid league name")
