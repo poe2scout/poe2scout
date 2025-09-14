@@ -12,8 +12,7 @@ class CreateCurrencyItemModel(BaseModel):
 
 
 class CreateCurrencyItem(BaseRepository):
-    async def execute(self, currencyItem: CreateCurrencyItemModel) -> int: 
-        
+    async def execute(self, currencyItem: CreateCurrencyItemModel) -> int:
         currencyItem_query = """
             INSERT INTO "CurrencyItem" ("itemId", "currencyCategoryId", "apiId", "text", "iconUrl")
             VALUES (%s, %s, %s, %s, %s)
@@ -21,6 +20,14 @@ class CreateCurrencyItem(BaseRepository):
         """
 
         currencyItemId = await self.execute_single(
-            currencyItem_query, (currencyItem.itemId, currencyItem.currencyCategoryId, currencyItem.apiId, currencyItem.text, currencyItem.image))
+            currencyItem_query,
+            (
+                currencyItem.itemId,
+                currencyItem.currencyCategoryId,
+                currencyItem.apiId,
+                currencyItem.text,
+                currencyItem.image,
+            ),
+        )
 
         return currencyItemId

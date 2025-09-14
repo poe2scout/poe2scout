@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import List
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -12,7 +12,14 @@ class GetItemPriceHistoryModel(BaseModel):
 
 
 class GetItemPriceHistory(BaseRepository):
-    async def execute(self, itemId: int, leagueId: int, logCount: int, logFrequency: int, endTime: datetime) -> GetItemPriceHistoryModel:
+    async def execute(
+        self,
+        itemId: int,
+        leagueId: int,
+        logCount: int,
+        logFrequency: int,
+        endTime: datetime,
+    ) -> GetItemPriceHistoryModel:
         limit = logCount + 1
 
         price_log_query = """
@@ -33,7 +40,7 @@ SELECT DISTINCT ON (time)
             "endTime": endTime,
             "itemId": itemId,
             "leagueId": leagueId,
-            "limit": limit
+            "limit": limit,
         }
 
         price_logs = await self.execute_query(price_log_query, query_params)
@@ -42,14 +49,12 @@ SELECT DISTINCT ON (time)
 
         if has_more:
             price_logs = price_logs[:logCount]
-        
+
         price_history = [
             PriceLogEntry.model_construct(
-                price=log["price"],
-                time=log["time"],
-                quantity=log["quantity"]
+                price=log["price"], time=log["time"], quantity=log["quantity"]
             )
             for log in price_logs
         ]
-        
+
         return GetItemPriceHistoryModel(price_history=price_history, has_more=has_more)

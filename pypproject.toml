@@ -1,0 +1,18 @@
+# pyproject.toml
+
+[tool.ruff]
+# Set the maximum line length
+line-length = 88
+
+[tool.ruff.lint]
+# Enable the most common rules from pycodestyle (E) and Pyflakes (F)
+select = ["E", "F"]
+
+# You can add more rule sets like these:
+# "I" for isort (import sorting)
+# "B" for flake8-bugbear (potential bugs)
+# "C4" for flake8-comprehensions (unnecessary comprehensions)
+
+[tool.ruff.format]
+# Enforces double quotes for strings where possible
+quote-style = "double"

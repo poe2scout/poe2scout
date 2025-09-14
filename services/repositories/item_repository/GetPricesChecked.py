@@ -1,5 +1,5 @@
-from typing import Optional, Awaitable
 from ..base_repository import BaseRepository
+
 
 class GetPricesChecked(BaseRepository):
     async def execute(self, epoch: int, leagueId: int) -> bool:
@@ -16,6 +16,6 @@ class GetPricesChecked(BaseRepository):
                 END;
         """
 
-        return bool((await self.execute_query(
-            item_query, (epoch, leagueId)))[0]['case'])
-        
+        return bool(
+            (await self.execute_query(item_query, (epoch, leagueId)))[0]["case"]
+        )

@@ -1,4 +1,3 @@
-from typing import Optional
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 
@@ -16,7 +15,6 @@ class CreateItem(BaseRepository):
             RETURNING "id"
         """
 
-        itemId = await self.execute_single(
-            item_query, (item.baseItemId, item.itemType))
+        itemId = await self.execute_single(item_query, (item.baseItemId, item.itemType))
 
         return itemId

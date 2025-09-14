@@ -1,7 +1,5 @@
-from typing import Optional, Awaitable
 from ..base_repository import BaseRepository
-from pydantic import BaseModel
-from .GetAllCurrencyItems import CurrencyItem
+
 
 class IsItemACurrency(BaseRepository):
     async def execute(self, itemId: int) -> bool:
@@ -11,9 +9,6 @@ class IsItemACurrency(BaseRepository):
             WHERE ci."itemId" = %s
         """
 
-        currencyItem = (await self.execute_query(
-            item_query, (itemId,)))
-        
+        currencyItem = await self.execute_query(item_query, (itemId,))
+
         return len(currencyItem) == 1
-
-

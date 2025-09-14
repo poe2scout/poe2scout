@@ -1,6 +1,6 @@
-from typing import Tuple, Optional
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
+
 
 class CreateItemCategoryModel(BaseModel):
     id: str
@@ -16,7 +16,7 @@ class CreateItemCategory(BaseRepository):
         """
 
         itemCategoryId = await self.execute_single(
-            itemCategory_query, (itemCategory.id, itemCategory.label))
+            itemCategory_query, (itemCategory.id, itemCategory.label)
+        )
 
         return itemCategoryId
-

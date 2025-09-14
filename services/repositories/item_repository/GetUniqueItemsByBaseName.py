@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, List
+from typing import List
 from ..base_repository import BaseRepository
 from .GetAllUniqueItems import UniqueItem
 
@@ -14,7 +14,6 @@ class GetUniqueItemsByBaseName(BaseRepository):
             JOIN "ItemCategory" AS ic ON it."categoryId" = ic."id"
             WHERE it."value" = %s
         """
-        uniqueItems = await self.execute_query(
-            uniqueItem_query, (baseName,))
+        uniqueItems = await self.execute_query(uniqueItem_query, (baseName,))
 
         return [UniqueItem(**uniqueItem) for uniqueItem in uniqueItems]

@@ -1,18 +1,20 @@
 from decimal import Decimal
-from typing import Tuple, Optional
-import json
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 from psycopg.rows import class_row
+
 
 class GetCurrencyExchangeModel(BaseModel):
     Epoch: int
     Volume: Decimal
     MarketCap: Decimal
 
+
 class GetCurrencyExchange(BaseRepository):
     async def execute(self, leagueId: int) -> GetCurrencyExchangeModel | None:
-        async with self.get_db_cursor(rowFactory=class_row(GetCurrencyExchangeModel)) as cursor:
+        async with self.get_db_cursor(
+            rowFactory=class_row(GetCurrencyExchangeModel)
+        ) as cursor:
             query = """
                 SELECT "Epoch",
                        "Volume",
@@ -23,10 +25,8 @@ class GetCurrencyExchange(BaseRepository):
                  LIMIT 1
             """
 
-            params = {
-                "leagueId": leagueId
-            }
+            params = {"leagueId": leagueId}
 
             await cursor.execute(query, params)
-            
-            return await cursor.fetchone() 
+
+            return await cursor.fetchone()

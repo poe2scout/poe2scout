@@ -4,9 +4,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class MaintenanceTimer:
-    def __init__(self, 
-                 get_next_maintenance: Callable[[], float]): 
+    def __init__(self, get_next_maintenance: Callable[[], float]):
         self._task = None
         self._current_maintenance_task = None
         self._shutdown = False
@@ -19,7 +19,9 @@ class MaintenanceTimer:
             try:
                 await asyncio.sleep(seconds_until_maintenance)
                 if self._current_maintenance_task and not self._shutdown:
-                    logger.info("Maintenance window approaching, cancelling current task")
+                    logger.info(
+                        "Maintenance window approaching, cancelling current task"
+                    )
                     self._current_maintenance_task.cancel()
             except asyncio.CancelledError:
                 break

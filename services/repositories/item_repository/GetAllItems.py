@@ -1,11 +1,13 @@
-from typing import Optional, List
+from typing import List
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
+
 
 class Item(BaseModel):
     id: int
     baseItemId: int
     itemType: str
+
 
 class GetAllItems(BaseRepository):
     async def execute(self) -> List[Item]:
@@ -14,7 +16,6 @@ class GetAllItems(BaseRepository):
             FROM "Item"
         """
 
-        items = await self.execute_query(
-            item_query)
+        items = await self.execute_query(item_query)
 
         return [Item(**item) for item in items]

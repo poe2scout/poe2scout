@@ -1,21 +1,25 @@
-from decimal import Decimal
 from typing import List
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 from psycopg.rows import class_row
+
 
 class GetCurrencyExchangeHistoryData(BaseModel):
     Epoch: int
     MarketCap: float
     Volume: float
 
+
 class GetCurrencyExchangeHistoryModel(BaseModel):
     Data: List[GetCurrencyExchangeHistoryData]
     Meta: dict[str, bool]
 
+
 class GetCurrencyExchangeHistory(BaseRepository):
     async def execute(self, leagueId: int, endTime: int, limit: int):
-        async with self.get_db_cursor(rowFactory=class_row(GetCurrencyExchangeHistoryData)) as cursor:
+        async with self.get_db_cursor(
+            rowFactory=class_row(GetCurrencyExchangeHistoryData)
+        ) as cursor:
             query = """
                     SELECT "Epoch",
                            "MarketCap", 
@@ -28,20 +32,18 @@ class GetCurrencyExchangeHistory(BaseRepository):
                      LIMIT %(limit)s 
             """
 
-            params = {
-                "leagueId": leagueId,
-                "endTime": endTime,
-                "limit": limit+1
-            }
+            params = {"leagueId": leagueId, "endTime": endTime, "limit": limit + 1}
 
             await cursor.execute(query, params)
-            
-            records = await cursor.fetchall() 
+
+            records = await cursor.fetchall()
 
             hasMore = False
 
-            if (len(records) > limit):
+            if len(records) > limit:
                 hasMore = True
                 records.pop()
-            
-            return GetCurrencyExchangeHistoryModel(Data=records, Meta={"hasMore": hasMore})
+
+            return GetCurrencyExchangeHistoryModel(
+                Data=records, Meta={"hasMore": hasMore}
+            )

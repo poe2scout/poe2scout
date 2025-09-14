@@ -3,23 +3,20 @@ from typing import Optional, List, Dict
 from services.repositories.models import PriceLogEntry
 
 from ..base_repository import BaseRepository
-from pydantic import BaseModel
 from datetime import datetime, timedelta
-import time
+
 
 class GetItemPriceLogs(BaseRepository):
-    async def execute(self, itemIds: List[int], leagueId: int) -> Dict[int, List[Optional[PriceLogEntry]]]:
-
+    async def execute(
+        self, itemIds: List[int], leagueId: int
+    ) -> Dict[int, List[Optional[PriceLogEntry]]]:
         now = datetime.now()
         current_block = now.replace(
-            hour=(now.hour // 6) * 6,
-            minute=0,
-            second=0,
-            microsecond=0
+            hour=(now.hour // 6) * 6, minute=0, second=0, microsecond=0
         )
 
         # Generate time blocks once
-        time_blocks = [current_block - timedelta(hours=i*6) for i in range(7)]
+        time_blocks = [current_block - timedelta(hours=i * 6) for i in range(7)]
 
         # Let PostgreSQL do the heavy lifting - finding the latest price log in each time block
         price_log_query = """
@@ -74,13 +71,7 @@ class GetItemPriceLogs(BaseRepository):
 
         # Execute the query
         price_logs = await self.execute_query(
-            price_log_query,
-            (
-                block_timestamps,
-                block_indices,
-                itemIds,
-                leagueId
-            )
+            price_log_query, (block_timestamps, block_indices, itemIds, leagueId)
         )
 
         # Process results efficiently
@@ -92,9 +83,7 @@ class GetItemPriceLogs(BaseRepository):
                 item_id = log["itemId"]
                 block_index = log["blockIndex"]
                 results[item_id][block_index] = PriceLogEntry(
-                    price=log["price"],
-                    time=log["time"],
-                    quantity=log["quantity"]
+                    price=log["price"], time=log["time"], quantity=log["quantity"]
                 )
 
         return results

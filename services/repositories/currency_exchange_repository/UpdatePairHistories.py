@@ -1,8 +1,4 @@
-from typing import Tuple, Optional
-import json
 from ..base_repository import BaseRepository
-from pydantic import BaseModel
-from psycopg.rows import class_row
 
 
 class UpdatePairHistories(BaseRepository):
@@ -14,6 +10,4 @@ SELECT update_currency_history_incrementally();
 
             await cursor.execute(query)
 
-            return 
-        
-            
+            return

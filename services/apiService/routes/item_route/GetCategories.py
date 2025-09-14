@@ -1,6 +1,6 @@
 from fastapi import Depends
 
-from . import router 
+from . import router
 from services.apiService.dependancies import get_item_repository
 from services.repositories import ItemRepository
 from pydantic import BaseModel
@@ -11,36 +11,60 @@ class Category(BaseModel):
     apiId: str
     label: str
     icon: str
-    
+
+
 class CategoryResponse(BaseModel):
     unique_categories: list[Category]
     currency_categories: list[Category]
 
-ignoreCurrencies = ['gem', 'relics', 'waystones']
+
+ignoreCurrencies = ["gem", "relics", "waystones"]
 
 
 @router.get("/categories")
-async def GetCategories(item_repository: ItemRepository = Depends(get_item_repository)) -> CategoryResponse:
+async def GetCategories(
+    item_repository: ItemRepository = Depends(get_item_repository),
+) -> CategoryResponse:
     currencyCategories = await item_repository.GetAllCurrencyCategories()
     uniqueCategories = await item_repository.GetAllItemCategories()
 
     icons = icon_dump()
 
-    uniqueCategories = [Category(**uniqueCategory.model_dump(), icon=icons[uniqueCategory.apiId.lower()] if uniqueCategory.apiId.lower() in icons else "") for uniqueCategory in uniqueCategories if uniqueCategory.apiId != "currency"]
-    currencyCategories = [Category(**currencyCategory.model_dump(), icon=icons[currencyCategory.apiId.lower()] if currencyCategory.apiId.lower() in icons else "") for currencyCategory in currencyCategories if currencyCategory.apiId not in ignoreCurrencies]
+    uniqueCategories = [
+        Category(
+            **uniqueCategory.model_dump(),
+            icon=icons[uniqueCategory.apiId.lower()]
+            if uniqueCategory.apiId.lower() in icons
+            else "",
+        )
+        for uniqueCategory in uniqueCategories
+        if uniqueCategory.apiId != "currency"
+    ]
+    currencyCategories = [
+        Category(
+            **currencyCategory.model_dump(),
+            icon=icons[currencyCategory.apiId.lower()]
+            if currencyCategory.apiId.lower() in icons
+            else "",
+        )
+        for currencyCategory in currencyCategories
+        if currencyCategory.apiId not in ignoreCurrencies
+    ]
 
-    uniqueCategories = [cat for cat in uniqueCategories if cat.apiId not in ignoreCurrencies]
-    currencyCategories = [cat for cat in currencyCategories if cat.apiId not in ignoreCurrencies]
-    
+    uniqueCategories = [
+        cat for cat in uniqueCategories if cat.apiId not in ignoreCurrencies
+    ]
+    currencyCategories = [
+        cat for cat in currencyCategories if cat.apiId not in ignoreCurrencies
+    ]
+
     return CategoryResponse(
-        unique_categories=uniqueCategories,
-        currency_categories=currencyCategories
+        unique_categories=uniqueCategories, currency_categories=currencyCategories
     )
 
 
-
 def icon_dump():
-    return  {
+    return {
         "delirium": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRGlzdGlsbGVkRW1vdGlvbnMvRGlzdGlsbGVkRGVzcGFpciIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/794fb40302/DistilledDespair.png",
         "fragments": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQnJlYWNoL0JyZWFjaHN0b25lU3BsaW50ZXIiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/00c84e43a8/BreachstoneSplinter.png",
         "map": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUXVlc3RJdGVtcy9QaW5uYWNsZUtleTEiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/0d3dddab3b/PinnacleKey1.png",

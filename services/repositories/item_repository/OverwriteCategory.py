@@ -1,7 +1,5 @@
-from typing import Optional, Awaitable
+from typing import Awaitable
 from ..base_repository import BaseRepository
-from pydantic import BaseModel
-
 
 
 class OverwriteCategory(BaseRepository):
@@ -13,6 +11,6 @@ class OverwriteCategory(BaseRepository):
         """
 
         await self.execute_update(
-            item_query, {"categoryId": categoryId, "newCategoryId": newCategoryId})
+            item_query, {"categoryId": categoryId, "newCategoryId": newCategoryId}
+        )
         return
-

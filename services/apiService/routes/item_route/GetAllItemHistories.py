@@ -1,12 +1,7 @@
 
-from datetime import datetime
-from typing import List
-
-from fastapi import Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import HTTPException
 
 from services.apiService.dependancies import ItemRepoDep
-from services.repositories.item_repository import ItemRepository
 from . import router
 
 
@@ -15,5 +10,5 @@ async def GetAllItemHistories(league: str, repo: ItemRepoDep):
     leagueInDb = await repo.GetLeagueByValue(league)
     if not leagueInDb:
         raise HTTPException(400, "Invalid league name")
-    
+
     return await repo.GetAllItemHistories(leagueInDb.id)

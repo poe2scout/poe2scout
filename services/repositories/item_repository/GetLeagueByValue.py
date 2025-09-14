@@ -1,11 +1,12 @@
-from typing import Optional, List
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 from psycopg.rows import class_row
 
+
 class League(BaseModel):
     id: int
     value: str
+
 
 class GetLeagueByValue(BaseRepository):
     async def execute(self, value: str) -> League | None:
@@ -16,13 +17,10 @@ class GetLeagueByValue(BaseRepository):
                 WHERE "value" ILIKE %(value)s
             """
 
-            params = {
-                "value": value
-            }
+            params = {"value": value}
 
             await cursor.execute(query, params)
 
             league = await cursor.fetchone()
-
 
             return league

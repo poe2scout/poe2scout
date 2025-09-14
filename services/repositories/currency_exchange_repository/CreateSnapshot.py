@@ -1,10 +1,8 @@
-from typing import List, Tuple, Optional
-import json
+from typing import Optional
 
 from services.libs.models.CurrencyExchange.models import CurrencyExchangeSnapshot
 from ..base_repository import BaseRepository
-from pydantic import BaseModel
-from psycopg.rows import class_row
+
 
 class CreateSnapshot(BaseRepository):
     async def execute(self, snapshot: CurrencyExchangeSnapshot) -> Optional[int]:
@@ -19,11 +17,11 @@ class CreateSnapshot(BaseRepository):
                     "Epoch": snapshot.Epoch,
                     "LeagueId": snapshot.LeagueId,
                     "Volume": snapshot.Volume,
-                    "MarketCap": snapshot.MarketCap
+                    "MarketCap": snapshot.MarketCap,
                 }
                 await cursor.execute(query, params)
                 result = await cursor.fetchone()
-                return result['CurrencyExchangeSnapshotId'] if result else None
+                return result["CurrencyExchangeSnapshotId"] if result else None
 
         pair_params = {
             "c1_ids": [p.CurrencyOneItemId for p in snapshot.Pairs],
@@ -32,13 +30,13 @@ class CreateSnapshot(BaseRepository):
             "c1_val_traded": [p.CurrencyOneData.ValueTraded for p in snapshot.Pairs],
             "c1_vol_traded": [p.CurrencyOneData.VolumeTraded for p in snapshot.Pairs],
             "c1_stock": [p.CurrencyOneData.HighestStock for p in snapshot.Pairs],
-            "c1_price": [p.CurrencyOneData.RelativePrice for p in snapshot.Pairs],            
+            "c1_price": [p.CurrencyOneData.RelativePrice for p in snapshot.Pairs],
             "c1_stock_value": [p.CurrencyOneData.StockValue for p in snapshot.Pairs],
             "c2_val_traded": [p.CurrencyTwoData.ValueTraded for p in snapshot.Pairs],
             "c2_vol_traded": [p.CurrencyTwoData.VolumeTraded for p in snapshot.Pairs],
             "c2_stock": [p.CurrencyTwoData.HighestStock for p in snapshot.Pairs],
             "c2_price": [p.CurrencyTwoData.RelativePrice for p in snapshot.Pairs],
-            "c2_stock_value": [p.CurrencyTwoData.StockValue for p in snapshot.Pairs]
+            "c2_stock_value": [p.CurrencyTwoData.StockValue for p in snapshot.Pairs],
         }
 
         final_params = {
@@ -46,7 +44,7 @@ class CreateSnapshot(BaseRepository):
             "LeagueId": snapshot.LeagueId,
             "Volume": snapshot.Volume,
             "MarketCap": snapshot.MarketCap,
-            **pair_params
+            **pair_params,
         }
 
         async with self.get_db_cursor() as cursor:
@@ -118,4 +116,4 @@ class CreateSnapshot(BaseRepository):
                 SELECT "CurrencyExchangeSnapshotId" FROM snapshot_insert;
             """
             await cursor.execute(query, final_params)
-            return (await cursor.fetchall())[0]['CurrencyExchangeSnapshotId']
+            return (await cursor.fetchall())[0]["CurrencyExchangeSnapshotId"]

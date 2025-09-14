@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, List
+from typing import List
 
 from services.repositories.models import CurrencyItem
 from ..base_repository import BaseRepository
@@ -13,7 +13,6 @@ class GetCurrencyItemsByCategory(BaseRepository):
         """
         params = (category,)
 
-        currencyItems = await self.execute_query(
-            currencyItem_query, params)
+        currencyItems = await self.execute_query(currencyItem_query, params)
 
         return [CurrencyItem(**currencyItem) for currencyItem in currencyItems]
