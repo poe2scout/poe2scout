@@ -1,14 +1,14 @@
 from fastapi import APIRouter
-
-
-router = APIRouter(prefix="/items", tags=["items"])
-
-
-from .GetCategories import GetCategories
-from .GetUniqueItems import GetUniqueItems
-from .GetCurrencyItems import GetCurrencyItems
+from .GetCategories import router as categories_router
+from .GetUniqueItems import GetUniqueItems as unique_items_router
+from .GetCurrencyItems import GetCurrencyItems as currency
 from .GetFilters import GetFilters
 from .GetAllItems import GetAllItems
 from .GetHistory import GetHistory
 from .GetLandingSplashInfo import GetLandingSplashInfo
 from .GetCurrencyItemById import GetCurrencyItemById
+
+
+router = APIRouter(prefix="/items", tags=["items"])
+
+
