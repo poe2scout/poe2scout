@@ -13,6 +13,7 @@ import {
   Box,
   IconButton,
   Collapse,
+  Stack,
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -157,9 +158,13 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("lg"));
-  const [mobileOptionsOpen, setMobileOptionsOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(Boolean(initialSearch));
 
-  console.log(isSmallScreen)
+  useEffect(() => {
+    if (initialSearch) {
+      setFiltersOpen(true);
+    }
+  }, [initialSearch]);
 
   const {
     searchableItems,
@@ -337,67 +342,66 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
               >
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                    <TableSortLabel
-                      active={orderBy === "name"}
-                      direction={orderBy === "name" ? order : "asc"}
-                      onClick={() => handleRequestSort("name")}
-                    >
-                      {getTranslatedText("Item", language)}
-                    </TableSortLabel>
-                    {errorSearchable && <Typography color="error" variant="caption" sx={{ position: 'absolute', bottom: '-18px' }}>Error loading items</Typography>}
-                    
-                    {isSmallScreen ? (
-                      <IconButton onClick={() => setMobileOptionsOpen(!mobileOptionsOpen)} sx={{ ml: 1 }}>
-                        <TuneIcon />
-                      </IconButton>
-                    ) : (
-                      <>
-                      <Box sx={{ flex: 1, minWidth: '200px' }}>
-                      <SearchAutocomplete
-                        searchableItems={searchableItems}
-                        isLoadingList={loadingSearchable}
-                        placeholder={`${getTranslatedText("Search", language)} ${getTranslatedText("Item", language)}`}
-                        initialValue={initialSearch || ""}
-                        onItemSelect={(category, localisationName) => {
-                          const searchParam = encodeURIComponent(localisationName);
-                          navigate(`/economy/${category}?search=${searchParam}`, { replace: true });
-                        }}
-                        onClear={handleClearSearch}
-                      />
+                    <Box sx={{ display: 'flex', alignItems: 'center', position: 'relative', flexGrow: 1, minWidth: 0 }}>
+                      <TableSortLabel
+                        active={orderBy === "name"}
+                        direction={orderBy === "name" ? order : "asc"}
+                        onClick={() => handleRequestSort("name")}
+                      >
+                        {getTranslatedText("Item", language)}
+                      </TableSortLabel>
+                      {errorSearchable && (
+                        <Typography
+                          color="error"
+                          variant="caption"
+                          sx={{ position: 'absolute', bottom: '-18px' }}
+                        >
+                          Error loading items
+                        </Typography>
+                      )}
                     </Box>
-                      <ReferenceCurrencySelector
-                        currentReference={referenceCurrency}
-                        onReferenceChange={(item) => setReferenceCurrency(item as 'exalted'| 'chaos')}
-                        options={['exalted','chaos']}
-                      />
-                      </>
-                    )}
+                    <IconButton
+                      onClick={() => setFiltersOpen((prev) => !prev)}
+                      sx={{ ml: 1 }}
+                      aria-label={filtersOpen ? "Hide table filters" : "Show table filters"}
+                      color={filtersOpen ? "primary" : "default"}
+                    >
+                      <TuneIcon />
+                    </IconButton>
                   </Box>
 
-                  {isSmallScreen && (
-                    <Collapse in={mobileOptionsOpen} timeout="auto" unmountOnExit>
+                  <Collapse in={filtersOpen} timeout="auto" unmountOnExit>
+                    <Stack
+                      direction={isSmallScreen ? "column" : "row"}
+                      spacing={2}
+                      sx={{
+                        pt: 2,
+                        pb: isSmallScreen ? 1 : 0,
+                        pr: isSmallScreen ? 2 : 0,
+                        pl: isSmallScreen ? 2 : 0,
+                        alignItems: isSmallScreen ? "stretch" : "center"
+                      }}
+                    >
                       <Box sx={{ flex: 1, minWidth: '200px' }}>
-                      <SearchAutocomplete
-                        searchableItems={searchableItems}
-                        isLoadingList={loadingSearchable}
-                        placeholder={`${getTranslatedText("Search", language)} ${getTranslatedText("Item", language)}`}
-                        initialValue={initialSearch || ""}
-                        onItemSelect={(category, localisationName) => {
-                          const searchParam = encodeURIComponent(localisationName);
-                          navigate(`/economy/${category}?search=${searchParam}`, { replace: true });
-                        }}
-                        onClear={handleClearSearch}
-                      />
-                    </Box>
-                      <Box sx={{ pt: 2, pl: '16px', pr: '16px' }}>
+                        <SearchAutocomplete
+                          searchableItems={searchableItems}
+                          isLoadingList={loadingSearchable}
+                          placeholder={`${getTranslatedText("Search", language)} ${getTranslatedText("Item", language)}`}
+                          initialValue={initialSearch || ""}
+                          onItemSelect={(category, localisationName) => {
+                            const searchParam = encodeURIComponent(localisationName);
+                            navigate(`/economy/${category}?search=${searchParam}`, { replace: true });
+                          }}
+                          onClear={handleClearSearch}
+                        />
+                      </Box>
                       <ReferenceCurrencySelector
                         currentReference={referenceCurrency}
                         onReferenceChange={(item) => setReferenceCurrency(item as 'exalted'| 'chaos')}
                         options={['exalted','chaos']}
                       />
-                      </Box>
-                    </Collapse>
-                  )}
+                    </Stack>
+                  </Collapse>
                 </Box>
               </StyledTableCell>
               <StyledTableCell
