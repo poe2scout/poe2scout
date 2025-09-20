@@ -1,127 +1,21 @@
 import { Paper, CircularProgress, Alert, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, TableSortLabel, TablePagination } from "@mui/material";
 import { CurrencyExchangeSnapshot } from "../../pages/CurrencyExchangePage";
-import { League, useLeague } from "../../contexts/LeagueContext";
-import { VITE_API_URL } from "./SnapshotHistory";
-import { CurrencyItem } from "../../types";
+import { useLeague } from "../../contexts/LeagueContext";
 import { useEffect, useMemo, useState } from "react";
-import { BaseCurrencies, BaseCurrencyList } from "../ReferenceCurrencySelector";
 import { SnapshotPairRow } from "./SnapshotPairRow";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { fetchSnapshotPairs, SnapshotPair } from "./api";
+import { useNavigate } from "react-router-dom";
 
 interface SnapshotPairListProps {
   snapshot: CurrencyExchangeSnapshot;
 }
 
-interface CurrencyPairDataDto {
-  ValueTraded: string;
-  RelativePrice: string;
-  StockValue: string;
-  VolumeTraded: number;
-  HighestStock: number;
-}
-
-interface SnapshotPairDto {
-  Volume: string;
-  CurrencyOne: CurrencyItem;
-  CurrencyTwo: CurrencyItem;
-  CurrencyOneData: CurrencyPairDataDto;
-  CurrencyTwoData: CurrencyPairDataDto;
-}
-
-interface CurrencyPairData {
-  ValueTraded: number;
-  RelativePrice: number;
-  StockValue: number;
-  VolumeTraded: number;
-  HighestStock: number;
-}
-
-export interface SnapshotPair {
-  Volume: number;
-  CurrencyOne: CurrencyItem;
-  CurrencyTwo: CurrencyItem;
-  CurrencyOneData: CurrencyPairData;
-  CurrencyTwoData: CurrencyPairData;
-}
-
 type Order = "asc" | "desc";
 type OrderBy = "pair" | "volume";
 
-
-const fetchSnapshotPairs = async (league: League): Promise<SnapshotPair[]> => {
-  const response = await fetch(`${VITE_API_URL}/currencyExchange/SnapshotPairs?league=${league.value}`);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch data: ${response.statusText}`);
-  }
-  const rows: SnapshotPairDto[] = await response.json();
-
-  return rows.map((row) => {
-    const currencyOneData: CurrencyPairData = {
-      ValueTraded: parseFloat(row.CurrencyOneData.ValueTraded),
-      RelativePrice: parseFloat(row.CurrencyOneData.RelativePrice),
-      StockValue: parseFloat(row.CurrencyOneData.StockValue),
-      VolumeTraded: row.CurrencyOneData.VolumeTraded,
-      HighestStock: row.CurrencyOneData.HighestStock
-    }
-    const currencyTwoData: CurrencyPairData = {
-      ValueTraded: parseFloat(row.CurrencyTwoData.ValueTraded),
-      RelativePrice: parseFloat(row.CurrencyTwoData.RelativePrice),
-      StockValue: parseFloat(row.CurrencyTwoData.StockValue),
-      VolumeTraded: row.CurrencyTwoData.VolumeTraded,
-      HighestStock: row.CurrencyTwoData.HighestStock
-    }
-
-    const isCurrencyOneBase = BaseCurrencyList.includes(row.CurrencyOne.apiId as BaseCurrencies);
-
-    const areBothCurrencyBases = BaseCurrencyList.includes(row.CurrencyOne.apiId as BaseCurrencies) && BaseCurrencyList.includes(row.CurrencyTwo.apiId as BaseCurrencies)
-
-    if (areBothCurrencyBases) {
-      const isCorrectOrder = currencyOneData.VolumeTraded <= currencyTwoData.VolumeTraded
-
-      if (isCorrectOrder) {
-        return {
-          Volume: parseFloat(row.Volume),
-          CurrencyOne: row.CurrencyOne,
-          CurrencyTwo: row.CurrencyTwo,
-          CurrencyOneData: currencyOneData,
-          CurrencyTwoData: currencyTwoData
-        }
-      }
-      else {
-        return {
-          Volume: parseFloat(row.Volume),
-          CurrencyOne: row.CurrencyTwo,
-          CurrencyTwo: row.CurrencyOne,
-          CurrencyOneData: currencyTwoData,
-          CurrencyTwoData: currencyOneData
-        }
-      }
-    }
-    if (!isCurrencyOneBase) {
-      return {
-        Volume: parseFloat(row.Volume),
-        CurrencyOne: row.CurrencyOne,
-        CurrencyTwo: row.CurrencyTwo,
-        CurrencyOneData: currencyOneData,
-        CurrencyTwoData: currencyTwoData
-      }
-    }
-
-    return {
-      Volume: parseFloat(row.Volume),
-      CurrencyOne: row.CurrencyTwo,
-      CurrencyTwo: row.CurrencyOne,
-      CurrencyOneData: currencyTwoData,
-      CurrencyTwoData: currencyOneData
-    }
-  })
-}
-
-export function SnapshotPairList({snapshot }: SnapshotPairListProps) {
-  const navigate = useNavigate();
-
+export function SnapshotPairList({ snapshot }: SnapshotPairListProps) {
   const { league } = useLeague();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [snapshotPairs, setSnapshotPairs] = useState<SnapshotPair[]>([]);
@@ -166,9 +60,9 @@ export function SnapshotPairList({snapshot }: SnapshotPairListProps) {
   };
 
   const handlePairClick = (pair: SnapshotPair) => {
-    const { CurrencyOne, CurrencyTwo } = pair;
     navigate(
-      `/exchange/${CurrencyOne.itemId}/${CurrencyTwo.itemId}`
+      `/exchange/pair/${pair.CurrencyOne.itemId}/${pair.CurrencyTwo.itemId}`,
+      { state: { pair } },
     );
   };
 
@@ -232,11 +126,13 @@ export function SnapshotPairList({snapshot }: SnapshotPairListProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {visiblePairs.map((pair) => {
-              return (
-                <SnapshotPairRow pair={pair} onPairClick={handlePairClick} />
-              );
-            })}
+            {visiblePairs.map((pair) => (
+              <SnapshotPairRow
+                key={`${pair.CurrencyOne.itemId}-${pair.CurrencyTwo.itemId}`}
+                pair={pair}
+                onPairClick={handlePairClick}
+              />
+            ))}
           </TableBody>
         </Table>
       </TableContainer>

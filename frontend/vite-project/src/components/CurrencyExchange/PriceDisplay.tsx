@@ -1,5 +1,5 @@
 import { Box, Typography, TableCell } from "@mui/material";
-import { SnapshotPair } from "./SnapshotPairList";
+import { SnapshotPair } from "./api";
 
 
 interface PriceDisplayProps {
@@ -31,8 +31,8 @@ function PriceDisplay({iconUrl, itemPrice}: PriceDisplayProp){
 
 
 export function CurrencyExchangePriceDisplay({ isHovered, pair }: PriceDisplayProps) {
-  const item1Price = pair.CurrencyTwoData.VolumeTraded / pair.CurrencyOneData.VolumeTraded;
-  const item2Price = pair.CurrencyOneData.VolumeTraded / pair.CurrencyTwoData.VolumeTraded;
+  const item1Price = pair.CurrencyOneData.PairPrice || 0;
+  const item2Price = pair.CurrencyTwoData.PairPrice || 0;
   return (
     <TableCell align="right" sx={{ py: 1 }}>
     <Typography variant="body2" noWrap component="div">

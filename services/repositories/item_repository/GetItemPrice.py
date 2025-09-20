@@ -15,8 +15,10 @@ class GetItemPrice(BaseRepository):
         self,
         itemId: int,
         leagueId: int,
-        epoch: int = int(datetime.now(tz=timezone.utc).timestamp()),
-    ) -> float:
+        epoch: int | None = None    
+        ) -> float:
+        epoch = epoch or int(datetime.now(tz=timezone.utc).timestamp())
+        
         item_query = """
             SELECT "price" FROM "PriceLog"
             WHERE "itemId" = %(itemId)s AND "leagueId" = %(leagueId)s AND "createdAt" < %(createdBefore)s
