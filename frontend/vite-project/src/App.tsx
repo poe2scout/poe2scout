@@ -11,6 +11,7 @@ import fetchIntercept from 'fetch-intercept';
 import { CategoryProvider } from './contexts/CategoryContext';
 import { compare } from 'compare-versions';
 import CurrencyExchangePage from "./pages/CurrencyExchangePage";
+import PairHistoryPage from "./pages/PairHistoryPage";
 // Register fetch interceptor
 fetchIntercept.register({
     request: function(url, config) {
@@ -76,7 +77,10 @@ function App() {
                                         />
                                         <Route path=":type" element={<EconomyPage />} />
                                     </Route>
-                                    <Route path="exchange" element={<CurrencyExchangePage />} />
+                                    <Route path="exchange">
+                                        <Route index element={<CurrencyExchangePage />} />
+                                        <Route path="pair/:currencyOneItemId/:currencyTwoItemId" element={<PairHistoryPage />} />
+                                    </Route>
                                     <Route path="*" element={<Navigate to="/" replace />} />
                                 </Route>
                             </Routes>
