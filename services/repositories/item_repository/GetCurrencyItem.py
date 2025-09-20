@@ -1,8 +1,8 @@
-from typing import Optional, Awaitable
 
 from services.repositories.models import CurrencyItem
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
+
 
 class GetCurrencyItemIdModel(BaseModel):
     apiId: str
@@ -24,7 +24,6 @@ class GetCurrencyItem(BaseRepository):
              WHERE ci."apiId" = %s
         """
 
-        currencyItem = (await self.execute_query(
-            item_query, (apiId,)))[0]
+        currencyItem = (await self.execute_query(item_query, (apiId,)))[0]
 
         return CurrencyItem(**currencyItem)

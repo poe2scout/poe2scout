@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, List
+from typing import List
 from ..base_repository import BaseRepository
 from .GetAllUniqueItems import UniqueItem
 
@@ -15,7 +15,6 @@ class GetUniqueItemsByCategory(BaseRepository):
         """
         params = (category,)
 
-        uniqueItems = await self.execute_query(
-            uniqueItem_query, params)
+        uniqueItems = await self.execute_query(uniqueItem_query, params)
 
         return [UniqueItem(**uniqueItem) for uniqueItem in uniqueItems]

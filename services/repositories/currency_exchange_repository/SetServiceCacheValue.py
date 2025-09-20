@@ -1,8 +1,4 @@
-from typing import Tuple, Optional
-import json
 from ..base_repository import BaseRepository
-from pydantic import BaseModel
-from psycopg.rows import class_row
 
 
 class SetServiceCacheValue(BaseRepository):
@@ -14,13 +10,8 @@ class SetServiceCacheValue(BaseRepository):
                  WHERE "ServiceName" = %(serviceName)s
             """
 
-            params = {
-                "serviceName": serviceName,
-                "value": value
-            }
+            params = {"serviceName": serviceName, "value": value}
 
             await cursor.execute(query, params)
-            
-            return 
-        
-            
+
+            return

@@ -1,15 +1,23 @@
 from datetime import datetime, timezone
 from typing import Optional
-from pydantic import BaseModel
-from services.repositories.currency_exchange_repository.GetCurrentSnapshot import GetCurrencyExchangeModel
-from services.repositories.currency_exchange_repository.GetCurrentSnapshotHistory import GetCurrencyExchangeHistoryModel
-from services.repositories.currency_exchange_repository.GetPairHistory import GetPairHistoryModel
+from services.repositories.currency_exchange_repository.GetPairHistory import (
+    GetPairHistoryModel,
+)
 from . import router
 from fastapi import HTTPException
 from services.apiService.dependancies import CXRepoDep, ItemRepoDep
 
+
 @router.get("/PairHistory")
-async def GetPairHistory(league: str, currencyOneItemId: int, currencyTwoItemId: int, limit: int, item_repo:  ItemRepoDep, cx_repo: CXRepoDep, endEpoch: Optional[int] = None) -> GetPairHistoryModel:
+async def GetPairHistory(
+    league: str,
+    currencyOneItemId: int,
+    currencyTwoItemId: int,
+    limit: int,
+    item_repo: ItemRepoDep,
+    cx_repo: CXRepoDep,
+    endEpoch: Optional[int] = None,
+) -> GetPairHistoryModel:
     leagueInDb = await item_repo.GetLeagueByValue(league)
 
     if not leagueInDb:
@@ -18,11 +26,12 @@ async def GetPairHistory(league: str, currencyOneItemId: int, currencyTwoItemId:
     getCurrencyExchangeResponse = await cx_repo.GetPairHistory(
         currencyOneItemId,
         currencyTwoItemId,
-        leagueInDb.id, 
+        leagueInDb.id,
         endEpoch if endEpoch else int(datetime.now(tz=timezone.utc).timestamp()),
-        limit)
+        limit,
+    )
 
     if not getCurrencyExchangeResponse:
         raise HTTPException(404, "No data for given league.")
-    
+
     return getCurrencyExchangeResponse

@@ -1,11 +1,11 @@
 from typing import Optional, List, Dict
 from ..base_repository import BaseRepository
-from pydantic import BaseModel
-from datetime import datetime, timedelta
-import time
+
 
 class GetAverageUniquePrice(BaseRepository):
-    async def execute(self, itemIds: List[int], leagueId: int) -> Dict[int, Optional[float]]:
+    async def execute(
+        self, itemIds: List[int], leagueId: int
+    ) -> Dict[int, Optional[float]]:
         price_log_query = """
             WITH unique_item_ids AS (
                 SELECT ib.id as "baseItemId", ui."itemId"
@@ -31,12 +31,9 @@ class GetAverageUniquePrice(BaseRepository):
         """
 
         # Execute the query
-        price_logs = await self.execute_query(
-            price_log_query,
-            (itemIds, leagueId)
-        )  
+        price_logs = await self.execute_query(price_log_query, (itemIds, leagueId))
         # Convert results to dictionary
         results = {row["baseItemId"]: row["average_price"] for row in price_logs}
-        
+
         # Ensure all requested itemIds have a value (None if no data found)
         return {item_id: results.get(item_id) for item_id in itemIds}

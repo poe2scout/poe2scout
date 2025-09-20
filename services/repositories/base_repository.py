@@ -1,12 +1,10 @@
-import os
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
-from typing import Any, AsyncIterator, Dict, TypeVar, overload
+from typing import Any, Dict, TypeVar, overload
 from psycopg_pool import AsyncConnectionPool
 from psycopg.rows import dict_row
 import logging
 import asyncio
-from psycopg_pool import AsyncConnectionPool
-from psycopg.rows import RowFactory, dict_row, class_row
+from psycopg.rows import RowFactory
 from psycopg.cursor_async import AsyncCursor
 
 # Configure logging
@@ -15,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 RowT = TypeVar("RowT")
+
 
 class BaseRepository:
     _pool = None
@@ -26,9 +25,7 @@ class BaseRepository:
             if cls._pool is None:
                 logger.info("Initializing database connection pool...")
                 cls._pool = AsyncConnectionPool(
-                    conninfo=connection_string,
-                    min_size=min_conn,
-                    max_size=max_conn
+                    conninfo=connection_string, min_size=min_conn, max_size=max_conn
                 )
                 logger.info("Opening connection pool...")
                 await cls._pool.open()
@@ -36,7 +33,7 @@ class BaseRepository:
         except Exception as e:
             logger.error(f"Failed to initialize connection pool: {str(e)}")
             raise
-        
+
     @overload
     @classmethod
     def get_db_cursor(
@@ -44,7 +41,7 @@ class BaseRepository:
     ) -> AbstractAsyncContextManager[AsyncCursor[Dict[str, Any]]]:
         """Overload for the default case with no rowFactory."""
         ...
-        
+
     @overload
     @classmethod
     def get_db_cursor(
@@ -59,7 +56,7 @@ class BaseRepository:
         """Get a database cursor from the connection pool"""
         if cls._pool is None:
             raise RuntimeError("Database pool not initialized")
-            
+
         try:
             async with asyncio.timeout(10):  # 10 second timeout
                 async with cls._pool.connection() as conn:
@@ -76,7 +73,9 @@ class BaseRepository:
             raise
 
     async def execute_query(self, query, params=None):
-        logger.debug(f"Executing query: {query[:100]}...")  # Log first 100 chars of query
+        logger.debug(
+            f"Executing query: {query[:100]}..."
+        )  # Log first 100 chars of query
         try:
             async with self.get_db_cursor() as cursor:
                 await cursor.execute(query, params)
@@ -92,7 +91,7 @@ class BaseRepository:
         try:
             async with self.get_db_cursor() as cursor:
                 await cursor.execute(query, params)
-                return (await cursor.fetchone())['id']
+                return (await cursor.fetchone())["id"]
         except Exception as e:
             logger.error(f"Single-row query failed: {str(e)}")
             raise

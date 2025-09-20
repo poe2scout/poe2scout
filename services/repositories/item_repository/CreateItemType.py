@@ -1,10 +1,11 @@
-from typing import Tuple, Optional
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
+
 
 class CreateItemTypeModel(BaseModel):
     value: str
     categoryId: int
+
 
 class CreateItemType(BaseRepository):
     async def execute(self, itemType: CreateItemTypeModel) -> int:
@@ -15,7 +16,7 @@ class CreateItemType(BaseRepository):
         """
 
         itemTypeId = await self.execute_single(
-            itemType_query, (itemType.value, itemType.categoryId))
+            itemType_query, (itemType.value, itemType.categoryId)
+        )
 
         return itemTypeId
-

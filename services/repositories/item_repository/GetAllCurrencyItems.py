@@ -1,11 +1,9 @@
-from typing import Tuple, Optional, List
+from typing import List
 
 from services.repositories.models import CurrencyItem
 from ..base_repository import BaseRepository
-from pydantic import BaseModel
 
 
-    
 class GetAllCurrencyItems(BaseRepository):
     async def execute(self) -> List[CurrencyItem]:
         currencyItem_query = """
@@ -13,7 +11,6 @@ class GetAllCurrencyItems(BaseRepository):
 			JOIN "CurrencyCategory" as cc on ci."currencyCategoryId" = cc.id
         """
 
-        currencyItems = await self.execute_query(
-            currencyItem_query)
+        currencyItems = await self.execute_query(currencyItem_query)
 
         return [CurrencyItem(**currencyItem) for currencyItem in currencyItems]

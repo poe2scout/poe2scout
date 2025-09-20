@@ -1,6 +1,7 @@
-from typing import Tuple, Optional, List
+from typing import Optional, List
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
+
 
 class UniqueItem(BaseModel):
     id: int
@@ -12,6 +13,7 @@ class UniqueItem(BaseModel):
     itemMetadata: Optional[dict] = None
     type: str
     isChanceable: Optional[bool] = False
+
 
 class GetAllUniqueItems(BaseRepository):
     async def execute(self) -> List[UniqueItem]:
@@ -31,7 +33,6 @@ class GetAllUniqueItems(BaseRepository):
 			  JOIN "ItemCategory" AS ic on ic."id" = it."categoryId"
         """
 
-        uniqueItems = await self.execute_query(
-            uniqueItem_query)
+        uniqueItems = await self.execute_query(uniqueItem_query)
 
         return [UniqueItem(**uniqueItem) for uniqueItem in uniqueItems]

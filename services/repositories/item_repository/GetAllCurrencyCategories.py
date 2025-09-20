@@ -1,6 +1,7 @@
-from typing import Tuple, Optional, List
+from typing import List
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
+
 
 class CurrencyCategory(BaseModel):
     id: int
@@ -14,7 +15,9 @@ class GetAllCurrencyCategories(BaseRepository):
             SELECT "id", "apiId", "label" FROM "CurrencyCategory"
         """
 
-        currencyCategories = await self.execute_query(
-            currencyCategory_query)
+        currencyCategories = await self.execute_query(currencyCategory_query)
 
-        return [CurrencyCategory(**currencyCategory) for currencyCategory in currencyCategories]
+        return [
+            CurrencyCategory(**currencyCategory)
+            for currencyCategory in currencyCategories
+        ]

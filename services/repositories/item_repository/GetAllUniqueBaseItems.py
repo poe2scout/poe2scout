@@ -1,6 +1,7 @@
-from typing import Tuple, Optional, List
+from typing import Optional, List
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
+
 
 class UniqueBaseItem(BaseModel):
     id: int
@@ -9,6 +10,7 @@ class UniqueBaseItem(BaseModel):
     itemId: int
     name: str
     apiId: str
+
 
 class GetAllUniqueBaseItems(BaseRepository):
     async def execute(self) -> List[UniqueBaseItem]:
@@ -35,8 +37,6 @@ class GetAllUniqueBaseItems(BaseRepository):
                         WHERE "bi"."id" IN (SELECT "baseItemId" FROM unique_ids)
         """
 
+        baseItems = await self.execute_query(baseItem_query)
 
-        baseItems = await self.execute_query(
-            baseItem_query)
-        
         return [UniqueBaseItem(**baseItem) for baseItem in baseItems]

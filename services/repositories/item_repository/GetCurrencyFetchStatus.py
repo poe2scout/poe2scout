@@ -1,9 +1,6 @@
 from datetime import datetime
-from decimal import Decimal
-from typing import List
 from ..base_repository import BaseRepository
-from pydantic import BaseModel
-from psycopg.rows import class_row
+
 
 class GetCurrencyFetchStatus(BaseRepository):
     async def execute(self, startTime: datetime) -> bool:
@@ -16,12 +13,12 @@ class GetCurrencyFetchStatus(BaseRepository):
             """
 
             params = {
-            "startTime": startTime,
+                "startTime": startTime,
             }
 
             await cursor.execute(query, params)
 
             if cursor.rowcount == 0:
                 return False
-            else: 
+            else:
                 return True

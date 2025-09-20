@@ -1,5 +1,9 @@
-from services.repositories.item_repository.GetAllItemHistories import GetAllItemHistories
-from services.repositories.item_repository.GetCurrencyFetchStatus import GetCurrencyFetchStatus
+from services.repositories.item_repository.GetAllItemHistories import (
+    GetAllItemHistories,
+)
+from services.repositories.item_repository.GetCurrencyFetchStatus import (
+    GetCurrencyFetchStatus,
+)
 from .GetItemPrices import GetItemPrices
 from .GetItemPricesInRange import GetItemPricesInRange
 from .GetPricesChecked import GetPricesChecked
@@ -42,6 +46,8 @@ from .GetAverageUniquePrice import GetAverageUniquePrice
 from .GetSnapshotForLeague import GetSnapshotForLeague
 from .GetItemsInCurrentLeague import GetItemsInCurrentLeague
 from .IsItemACurrency import IsItemACurrency
+
+
 class ItemRepository:
     def __init__(self):
         self.CreateBaseItem = CreateBaseItem().execute
@@ -59,10 +65,10 @@ class ItemRepository:
         self.CreateItem = CreateItem().execute
         self.GetAllItems = GetAllItems().execute
         self.RecordPrice = RecordPrice().execute
-        self.GetCurrencyItem = GetCurrencyItem().execute        
+        self.GetCurrencyItem = GetCurrencyItem().execute
         self.IsItemACurrency = IsItemACurrency().execute
         self.GetLeagues = GetLeagues().execute
-        self.GetItemPrice = GetItemPrice().execute  
+        self.GetItemPrice = GetItemPrice().execute
         self.GetUniqueItemsByCategory = GetUniqueItemsByCategory().execute
         self.GetCurrencyItemsByCategory = GetCurrencyItemsByCategory().execute
         self.GetItemPriceLogs = GetItemPriceLogs().execute
@@ -74,11 +80,11 @@ class ItemRepository:
         self.SetCurrencyItemMetadata = SetCurrencyItemMetadata().execute
         self.UpdateCurrencyIconUrl = UpdateCurrencyIconUrl().execute
         self.GetFetchedItemIds = GetFetchedItemIds().execute
-        self.GetItemPriceHistory = GetItemPriceHistory().execute    
+        self.GetItemPriceHistory = GetItemPriceHistory().execute
         self.GetCurrencyItems = GetCurrencyItems().execute
         self.SetBaseItemMetadata = SetBaseItemMetadata().execute
         self.UpdateBaseItemIconUrl = UpdateBaseItemIconUrl().execute
-        self.GetAllUniqueBaseItems = GetAllUniqueBaseItems().execute        
+        self.GetAllUniqueBaseItems = GetAllUniqueBaseItems().execute
         self.GetUniqueItemsByBaseName = GetUniqueItemsByBaseName().execute
         self.GetAverageUniquePrice = GetAverageUniquePrice().execute
         self.GetSnapshotForLeague = GetSnapshotForLeague().execute

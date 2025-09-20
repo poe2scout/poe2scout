@@ -1,13 +1,10 @@
-from typing import Optional, List, Dict
+from typing import List
 from ..base_repository import BaseRepository
-from pydantic import BaseModel
-from datetime import datetime, timedelta
-import time
+
 
 class GetItemsInCurrentLeague(BaseRepository):
     async def execute(self, leagueId: int) -> List[int]:
-        query = \
-        """
+        query = """
             SELECT i."id"
               FROM "Item" as i
              WHERE EXISTS (
@@ -17,10 +14,8 @@ class GetItemsInCurrentLeague(BaseRepository):
                AND pl."leagueId" = %s
             );
         """
-        result = (await self.execute_query(
-            query, (leagueId,)))
-        
-        itemIds: List[int] = [item["id"] for item in result]
-        
-        return itemIds
+        result = await self.execute_query(query, (leagueId,))
 
+        itemIds: List[int] = [item["id"] for item in result]
+
+        return itemIds

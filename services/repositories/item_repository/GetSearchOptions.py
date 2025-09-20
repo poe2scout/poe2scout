@@ -1,4 +1,4 @@
-from typing import List, Awaitable
+from typing import List
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 

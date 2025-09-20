@@ -1,6 +1,7 @@
-from typing import Tuple, Optional, List
+from typing import List
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
+
 
 class ItemCategory(BaseModel):
     id: int
@@ -14,8 +15,6 @@ class GetAllItemCategories(BaseRepository):
             SELECT "id", "apiId", "label" FROM "ItemCategory"
         """
 
-        itemCategories = await self.execute_query(
-            itemCategory_query)
+        itemCategories = await self.execute_query(itemCategory_query)
 
         return [ItemCategory(**itemCategory) for itemCategory in itemCategories]
-

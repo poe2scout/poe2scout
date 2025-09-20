@@ -15,10 +15,10 @@ def extract_currency_item_metadata(item_info):
         while "[" in description and "]" in description:
             start = description.find("[")
             end = description.find("]") + 1
-            formatted_text = description[start:end].split(
-                "|")[-1].rstrip("]").lstrip("[")
-            description = description[:start] + \
-                formatted_text + description[end:]
+            formatted_text = (
+                description[start:end].split("|")[-1].rstrip("]").lstrip("[")
+            )
+            description = description[:start] + formatted_text + description[end:]
         formatted_data["description"] = description
 
     # Get the currency effects from explicitMods
@@ -29,10 +29,12 @@ def extract_currency_item_metadata(item_info):
             while "[" in clean_effect and "]" in clean_effect:
                 start = clean_effect.find("[")
                 end = clean_effect.find("]") + 1
-                formatted_text = clean_effect[start:end].split(
-                    "|")[-1].rstrip("]").lstrip("[")
-                clean_effect = clean_effect[:start] + \
-                    formatted_text + clean_effect[end:]
+                formatted_text = (
+                    clean_effect[start:end].split("|")[-1].rstrip("]").lstrip("[")
+                )
+                clean_effect = (
+                    clean_effect[:start] + formatted_text + clean_effect[end:]
+                )
             formatted_data["effect"].append(clean_effect)
 
     return formatted_data

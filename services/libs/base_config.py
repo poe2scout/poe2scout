@@ -1,8 +1,8 @@
-from typing import get_type_hints, Any, Type, TypeVar
+from typing import get_type_hints, Type, TypeVar
 import os
 from pydantic import BaseModel
 
-T = TypeVar('T', bound='BaseConfig')
+T = TypeVar("T", bound="BaseConfig")
 
 
 class BaseConfig(BaseModel):
@@ -31,16 +31,14 @@ class BaseConfig(BaseModel):
                         continue
                     elif not field_info.is_required():
                         continue
-                raise ValueError(
-                    f"Required environment variable {env_name} not set")
+                raise ValueError(f"Required environment variable {env_name} not set")
 
             # Convert the string value to the correct type
             try:
                 if field_type == bool:
-                    config_data[field_name] = env_value.lower() in (
-                        'true', '1', 'yes')
+                    config_data[field_name] = env_value.lower() in ("true", "1", "yes")
                 elif field_type == list:
-                    config_data[field_name] = env_value.split(',')
+                    config_data[field_name] = env_value.split(",")
                 else:
                     config_data[field_name] = field_type(env_value)
             except ValueError as e:

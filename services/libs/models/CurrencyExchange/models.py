@@ -1,4 +1,3 @@
-
 from decimal import Decimal
 from typing import List
 
@@ -12,12 +11,14 @@ class CurrencyExchangeSnapshotPairData(BaseModel):
     HighestStock: int
     StockValue: Decimal
 
+
 class CurrencyExchangeSnapshotPair(BaseModel):
     CurrencyOneItemId: int
     CurrencyTwoItemId: int
     Volume: Decimal
     CurrencyOneData: CurrencyExchangeSnapshotPairData
     CurrencyTwoData: CurrencyExchangeSnapshotPairData
+
 
 class CurrencyExchangeSnapshot(BaseModel):
     Epoch: int

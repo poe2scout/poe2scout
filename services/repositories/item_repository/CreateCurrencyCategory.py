@@ -1,6 +1,6 @@
-from typing import Tuple, Optional
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
+
 
 class CreateCurrencyCategoryModel(BaseModel):
     id: str
@@ -16,6 +16,7 @@ class CreateCurrencyCategory(BaseRepository):
         """
 
         currencyCategoryId = await self.execute_single(
-            currencyCategory_query, (currencyCategory.id, currencyCategory.label))
+            currencyCategory_query, (currencyCategory.id, currencyCategory.label)
+        )
 
         return currencyCategoryId
