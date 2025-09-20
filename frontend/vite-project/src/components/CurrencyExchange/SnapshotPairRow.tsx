@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SnapshotPair } from "./SnapshotPairList";
+import { SnapshotPair } from "./api";
 import { Stack, styled, TableCell, TableRow, Typography } from "@mui/material";
 import { ItemName } from "../TableColumnComponents/ItemName";
 import { CurrencyExchangePriceDisplay } from "./PriceDisplay";

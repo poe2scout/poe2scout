@@ -5,7 +5,7 @@ import {
   Select,
   MenuItem,
   Stack,
-  SelectChangeEvent, 
+  SelectChangeEvent,
 } from "@mui/material";
 
 
@@ -34,22 +34,23 @@ const ReferenceCurrencySelector: React.FC<ReferenceCurrencySelectorProps> = ({
     onReferenceChange(newSelection);
   };
 
+  const labelId = "nominal-currency-select";
+
   return (
-    <Stack direction="row" spacing={1} alignItems="center" sx={{paddingLeft: "20px"}}>
+    <Stack direction="row" spacing={1} alignItems="center">
       <FormControl size="small" sx={{ minWidth: 150 }}>
-        <InputLabel id="period-select-label">Relative Currency</InputLabel>
+        <InputLabel id={labelId}>Nominal Currency</InputLabel>
         <Select
-          labelId="relative-currency-select-label"
+          labelId={labelId}
           value={currentReference}
-          label="Relative Currency"
+          label="Nominal Currency"
           onChange={handlePresetChange}
         >
-          {options.map(option => {
-
-            return (<MenuItem value={option}>
-                {CurrencyNameMap[option]}
-            </MenuItem>         )
-          })}
+          {options.map((option) => (
+            <MenuItem key={option} value={option}>
+              {CurrencyNameMap[option]}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
     </Stack>
