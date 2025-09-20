@@ -229,8 +229,8 @@ export const normalizePairHistoryEntry = (entry: PairHistoryEntryDto): PairHisto
   return {
     Epoch: entry.Epoch,
     Data: {
-      CurrencyOneData: currencyOneWithPrice,
-      CurrencyTwoData: currencyTwoWithPrice,
+      CurrencyOneData: currencyOneWithPrice as PairHistoryData,
+      CurrencyTwoData: currencyTwoWithPrice as PairHistoryData,
     },
   };
 };
