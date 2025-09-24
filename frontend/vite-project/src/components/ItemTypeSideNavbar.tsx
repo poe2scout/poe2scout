@@ -5,7 +5,6 @@ import { Typography } from "@mui/material";
 import { useCategories } from '../contexts/CategoryContext';
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { Circle } from "@mui/icons-material";
-import AdSense from "./Banner";
 
 interface SideNavProps {
   isOpen: boolean;
@@ -104,8 +103,6 @@ function SideNav({ isOpen, onClose }: SideNavProps) {
           </ListItem>
         ))}
       </List>
-      <AdSense format="vertical"/>
-
     </Nav>
   );
 

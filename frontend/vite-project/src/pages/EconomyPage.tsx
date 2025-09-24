@@ -6,7 +6,6 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { useCategories } from "../contexts/CategoryContext";
 import { CircularProgress } from "@mui/material";
 import { useLeague } from "../contexts/LeagueContext";
-import AdSense from "../components/Banner";
 
 export function EconomyPage() {
   const { type } = useParams();
@@ -38,33 +37,27 @@ export function EconomyPage() {
     );
   }
 
-  const pageContent = (
-    <Box
-      sx={{
-        width: "100%",
-        height: "100%",
-        flexDirection: "column",
-        gap: 2,
-      }}
-    >
-      <Box sx={{ width: "100%" }}>
-        <AdSense format="horizontal"/>
-      </Box>
-      <Box sx={{ flexGrow: 1, minHeight: 0 }}>
-        <ItemTable
-          type={itemType}
-          language={language}
-          initialSearch={initialSearch || undefined}
-        />
-      </Box>
-    </Box>
-  );
-
   if (error) {
-    return pageContent;
+    return (
+      <Box sx={{ width: "100%", height: "100%" }}>
+      <ItemTable
+        type={itemType}
+        language={language}
+        initialSearch={initialSearch || undefined}
+      />
+    </Box>
+    );
   }
 
-  return pageContent;
+  return (
+    <Box sx={{ width: "100%", height: "100%" }}>
+      <ItemTable
+        type={itemType}
+        language={language}
+        initialSearch={initialSearch || undefined}
+      />
+    </Box> 
+  );
 }
 
 export default EconomyPage;
