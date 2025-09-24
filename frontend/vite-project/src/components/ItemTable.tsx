@@ -308,10 +308,11 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
   return (
     <Paper
       sx={{
-        height: "93vh",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
         minWidth: "800px",
+        minHeight: 0,
       }}
     >        
       <TableOptions>
