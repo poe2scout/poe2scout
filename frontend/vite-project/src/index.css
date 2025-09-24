@@ -64,3 +64,7 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+ins.adsbygoogle[data-ad-status="unfilled"] {
+  display: none !important;
+}
