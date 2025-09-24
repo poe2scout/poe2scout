@@ -65,6 +65,10 @@ button:focus-visible {
   }
 }
 
+ins.adsbygoogle {
+  background: transparent !important;
+}
+
 ins.adsbygoogle[data-ad-status="unfilled"] {
   display: none !important;
 }
