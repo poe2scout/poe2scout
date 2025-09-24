@@ -87,7 +87,7 @@ export function ItemMetadataView({
       if (!tooltipRect) return;
 
       // Horizontal positioning
-      let left = rect.left + window.scrollX + 150;
+      let left = rect.left + 150;
       if (left + tooltipRect.width > viewportWidth) {
         left = rect.left - tooltipRect.width - 20;
       }
@@ -97,18 +97,18 @@ export function ItemMetadataView({
       );
 
       // Vertical positioning
-      let top = rect.bottom + window.scrollY + 5;
+      let top = rect.bottom + 5;
       let transform = "";
 
       // If tooltip would overflow bottom
-      if (top + tooltipRect.height > window.scrollY + viewportHeight) {
-        top = rect.top + window.scrollY - 5;
+      if (top + tooltipRect.height > viewportHeight) {
+        top = rect.top - 5;
         transform = "translateY(-100%)";
       }
 
       // If tooltip would overflow top after flipping
-      if (top + (transform ? -tooltipRect.height : 0) < window.scrollY) {
-        top = window.scrollY + 10;
+      if (top + (transform ? -tooltipRect.height : 0) < 0) {
+        top = 10;
         transform = "";
       }
 
