@@ -66,7 +66,7 @@ button:focus-visible {
 }
 
 ins.adsbygoogle {
-  background: transparent !important;
+  background-color: rgb(18, 18, 18) !important;
 }
 
 ins.adsbygoogle[data-ad-status="unfilled"] {
