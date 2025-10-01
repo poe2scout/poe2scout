@@ -95,7 +95,7 @@ services:
 
   db:
     profiles: [prod, local]
-    image: postgres-17
+    image: postgres:17.6
     restart: always
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
