@@ -94,7 +94,7 @@ async def FetchCurrencyExchangePrices(
         logger.info("No pairs in markets.")
         await cxRepo.SetServiceCacheValue("PriceFetch_Currency", currentEpoch)
         return
-
+    logger.info("Updating correctly")
     for league in leagues:
         if await repo.GetPricesChecked(currentEpoch, league.id):
             logger.info(
