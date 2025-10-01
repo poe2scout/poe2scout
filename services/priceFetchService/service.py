@@ -238,7 +238,7 @@ async def FetchCurrencyExchangePrices(
             )
             await repo.RecordPriceBulk(priceLogs, currentEpoch)
     logger.info(
-                f"Saving ace value. {currentEpoch}"
+                f"Saving cache value. {currentEpoch}"
             )
     await cxRepo.SetServiceCacheValue("PriceFetch_Currency", currentEpoch)
     await cxRepo.UpdatePairHistories()
