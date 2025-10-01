@@ -11,7 +11,7 @@ class SetServiceCacheValue(BaseRepository):
             """
 
             params = {"serviceName": serviceName, "value": value}
-
+            print(f"saving serviceCache value for {serviceName} with value {value}")
             await cursor.execute(query, params)
 
             return

@@ -100,7 +100,6 @@ async def FetchCurrencyExchangePrices(
             logger.info(
                 "Price already checked for this timestamp and league. continuing"
             )
-            current_timestamp = data.next_change_id
             continue
 
         ### Calculate baseCurrency prices (Divine, Chaos, Exalted)
