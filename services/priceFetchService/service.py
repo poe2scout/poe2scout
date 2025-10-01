@@ -95,148 +95,153 @@ async def FetchCurrencyExchangePrices(
         await cxRepo.SetServiceCacheValue("PriceFetch_Currency", currentEpoch)
         return
     logger.info("Updating correctly")
-    for league in leagues:
-        if await repo.GetPricesChecked(currentEpoch, league.id):
-            logger.info(
-                "Price already checked for this timestamp and league. continuing"
-            )
-            continue
-
-        ### Calculate baseCurrency prices (Divine, Chaos, Exalted)
-        pairs = await getLeagueData(data, league, baseCurrencies)
-        chaosPairs = [
-            pair
-            for pair in pairs
-            if pair.targetItem == "chaos" and pair.baseItem == "exalted"
-        ]  # only exalted - chaos
-
-        chaosPrice = None
-        if len(chaosPairs) == 0:
-            logger.info("No chaos pair")
-            itemPrice = await repo.GetItemPrice(
-                (await repo.GetCurrencyItem("chaos")).itemId, league.id, currentEpoch
-            )
-            if itemPrice == 0:
-                current_timestamp = data.next_change_id
+    try:
+        for league in leagues:
+            if await repo.GetPricesChecked(currentEpoch, league.id):
+                logger.info(
+                    "Price already checked for this timestamp and league. continuing"
+                )
                 continue
 
-            chaosPrice = CurrencyPrice(
-                itemId="chaos", value=itemPrice, quantityTraded=0
-            )
-        else:
-            for chaosPair in chaosPairs:
-                pairs.remove(chaosPair)
-                chaosPrice = CurrencyPrice(
-                    itemId="chaos",
-                    value=chaosPair.valueOfTargetItemInBaseItems,
-                    quantityTraded=chaosPair.quantityOfTargetItem,
+            ### Calculate baseCurrency prices (Divine, Chaos, Exalted)
+            pairs = await getLeagueData(data, league, baseCurrencies)
+            chaosPairs = [
+                pair
+                for pair in pairs
+                if pair.targetItem == "chaos" and pair.baseItem == "exalted"
+            ]  # only exalted - chaos
+
+            chaosPrice = None
+            if len(chaosPairs) == 0:
+                logger.info("No chaos pair")
+                itemPrice = await repo.GetItemPrice(
+                    (await repo.GetCurrencyItem("chaos")).itemId, league.id, currentEpoch
                 )
-
-        assert chaosPrice != None
-
-        divinePairs = [
-            pair for pair in pairs if pair.targetItem == "divine"
-        ]  # only exalted - divine and chaos - divine
-        divinePrices: List[float] = []
-        divineTradingQuantities = []
-        for divinePair in divinePairs:
-            pairs.remove(divinePair)
-            if divinePair.baseItem == "exalted":
-                divinePrices.append(divinePair.valueOfTargetItemInBaseItems)
-                divineTradingQuantities.append(divinePair.quantityOfTargetItem)
-            else:
-                if divinePair.baseItem != "chaos":
-                    raise Exception(
-                        "Somehow got trading pair for divine that wasnt exalted or chaos"
-                    )
-                divinePrices.append(
-                    divinePair.valueOfTargetItemInBaseItems * chaosPrice.value
-                )
-                divineTradingQuantities.append(divinePair.quantityOfTargetItem)
-
-        if len(divinePrices) == 0:
-            logger.info("No divine pair")
-            itemPrice = await repo.GetItemPrice(
-                (await repo.GetCurrencyItem("divine")).itemId, league.id, currentEpoch
-            )
-            if itemPrice == 0:
-                current_timestamp = data.next_change_id
-                continue
-
-            divinePrices.append(itemPrice)
-
-        divinePrice = CurrencyPrice(
-            itemId="divine",
-            value=sum(divinePrices) / len(divinePrices),
-            quantityTraded=sum(divineTradingQuantities),
-        )
-
-        baseItemPrices = [exaltedPrice, chaosPrice, divinePrice]
-
-        targetItemPrices: List[CurrencyPrice] = []
-        for pair in pairs:
-            targetItemPrices.append(getCurrencyPriceFromPair(pair, baseItemPrices))
-
-        itemPriceMapping: Dict[str, List[CurrencyPrice]] = {}
-        itemPriceMapping[divinePrice.itemId] = [divinePrice]
-        itemPriceMapping[exaltedPrice.itemId] = [exaltedPrice]
-        itemPriceMapping[chaosPrice.itemId] = [chaosPrice]
-
-        for targetItemPrice in targetItemPrices:
-            if targetItemPrice.itemId not in itemPriceMapping.keys():
-                itemPriceMapping[targetItemPrice.itemId] = [targetItemPrice]
-            else:
-                itemPriceMapping[targetItemPrice.itemId].append(targetItemPrice)
-
-        finalPrices: Dict[str, CurrencyPrice] = {}
-        for key in itemPriceMapping.keys():
-            currencyPrices = itemPriceMapping[key]
-
-            weightedPrice = 0
-
-            tuples = [(cp.value, cp.quantityTraded) for cp in currencyPrices]
-            totalQuantity = sum([item[1] for item in tuples])
-
-            for value, quantity in tuples:
-                if totalQuantity == 0:
+                if itemPrice == 0:
+                    current_timestamp = data.next_change_id
                     continue
-                weightedPrice += value * (quantity / totalQuantity)
-            finalPrices[key] = CurrencyPrice(
-                itemId=key, value=weightedPrice, quantityTraded=totalQuantity
+
+                chaosPrice = CurrencyPrice(
+                    itemId="chaos", value=itemPrice, quantityTraded=0
+                )
+            else:
+                for chaosPair in chaosPairs:
+                    pairs.remove(chaosPair)
+                    chaosPrice = CurrencyPrice(
+                        itemId="chaos",
+                        value=chaosPair.valueOfTargetItemInBaseItems,
+                        quantityTraded=chaosPair.quantityOfTargetItem,
+                    )
+
+            assert chaosPrice != None
+
+            divinePairs = [
+                pair for pair in pairs if pair.targetItem == "divine"
+            ]  # only exalted - divine and chaos - divine
+            divinePrices: List[float] = []
+            divineTradingQuantities = []
+            for divinePair in divinePairs:
+                pairs.remove(divinePair)
+                if divinePair.baseItem == "exalted":
+                    divinePrices.append(divinePair.valueOfTargetItemInBaseItems)
+                    divineTradingQuantities.append(divinePair.quantityOfTargetItem)
+                else:
+                    if divinePair.baseItem != "chaos":
+                        raise Exception(
+                            "Somehow got trading pair for divine that wasnt exalted or chaos"
+                        )
+                    divinePrices.append(
+                        divinePair.valueOfTargetItemInBaseItems * chaosPrice.value
+                    )
+                    divineTradingQuantities.append(divinePair.quantityOfTargetItem)
+
+            if len(divinePrices) == 0:
+                logger.info("No divine pair")
+                itemPrice = await repo.GetItemPrice(
+                    (await repo.GetCurrencyItem("divine")).itemId, league.id, currentEpoch
+                )
+                if itemPrice == 0:
+                    current_timestamp = data.next_change_id
+                    continue
+
+                divinePrices.append(itemPrice)
+
+            divinePrice = CurrencyPrice(
+                itemId="divine",
+                value=sum(divinePrices) / len(divinePrices),
+                quantityTraded=sum(divineTradingQuantities),
             )
 
-        ### Record pricelogs
+            baseItemPrices = [exaltedPrice, chaosPrice, divinePrice]
 
-        currencyItems = await repo.GetCurrencyItems([key for key in finalPrices.keys()])
+            targetItemPrices: List[CurrencyPrice] = []
+            for pair in pairs:
+                targetItemPrices.append(getCurrencyPriceFromPair(pair, baseItemPrices))
 
-        itemIdLookup: Dict[str, int] = {}
+            itemPriceMapping: Dict[str, List[CurrencyPrice]] = {}
+            itemPriceMapping[divinePrice.itemId] = [divinePrice]
+            itemPriceMapping[exaltedPrice.itemId] = [exaltedPrice]
+            itemPriceMapping[chaosPrice.itemId] = [chaosPrice]
 
-        for currencyItem in currencyItems:
-            itemIdLookup[currencyItem.apiId] = currencyItem.itemId
+            for targetItemPrice in targetItemPrices:
+                if targetItemPrice.itemId not in itemPriceMapping.keys():
+                    itemPriceMapping[targetItemPrice.itemId] = [targetItemPrice]
+                else:
+                    itemPriceMapping[targetItemPrice.itemId].append(targetItemPrice)
 
-        validCurrencyItemApiIds = set(itemIdLookup.keys())
-        for key, value in finalPrices.items():
-            if key not in validCurrencyItemApiIds:
-                finalPrices.pop(key)
+            finalPrices: Dict[str, CurrencyPrice] = {}
+            for key in itemPriceMapping.keys():
+                currencyPrices = itemPriceMapping[key]
 
-        priceLogs = [
-            RecordPriceModel(
-                itemId=itemIdLookup[value.itemId],
-                leagueId=league.id,
-                price=value.value,
-                quantity=value.quantityTraded,
-            )
-            for value in finalPrices.values()
-            if value.value != 0
-        ]
+                weightedPrice = 0
 
-        if len(priceLogs) == 1 and priceLogs[0].itemId == exaltedPrice.itemId:
-            logger.info("Only price is exalted. Skipping save.")
-        else:
-            logger.info(
-                f"Saving {len(priceLogs)} logs for {league.value} at {currentEpoch} or more specifically {datetime.fromtimestamp(currentEpoch)}"
-            )
-            await repo.RecordPriceBulk(priceLogs, currentEpoch)
+                tuples = [(cp.value, cp.quantityTraded) for cp in currencyPrices]
+                totalQuantity = sum([item[1] for item in tuples])
+
+                for value, quantity in tuples:
+                    if totalQuantity == 0:
+                        continue
+                    weightedPrice += value * (quantity / totalQuantity)
+                finalPrices[key] = CurrencyPrice(
+                    itemId=key, value=weightedPrice, quantityTraded=totalQuantity
+                )
+
+            ### Record pricelogs
+
+            currencyItems = await repo.GetCurrencyItems([key for key in finalPrices.keys()])
+
+            itemIdLookup: Dict[str, int] = {}
+
+            for currencyItem in currencyItems:
+                itemIdLookup[currencyItem.apiId] = currencyItem.itemId
+
+            validCurrencyItemApiIds = set(itemIdLookup.keys())
+            for key, value in finalPrices.items():
+                if key not in validCurrencyItemApiIds:
+                    finalPrices.pop(key)
+
+            priceLogs = [
+                RecordPriceModel(
+                    itemId=itemIdLookup[value.itemId],
+                    leagueId=league.id,
+                    price=value.value,
+                    quantity=value.quantityTraded,
+                )
+                for value in finalPrices.values()
+                if value.value != 0
+            ]
+
+            if len(priceLogs) == 1 and priceLogs[0].itemId == exaltedPrice.itemId:
+                logger.info("Only price is exalted. Skipping save.")
+            else:
+                logger.info(
+                    f"Saving {len(priceLogs)} logs for {league.value} at {currentEpoch} or more specifically {datetime.fromtimestamp(currentEpoch)}"
+                )
+                await repo.RecordPriceBulk(priceLogs, currentEpoch)
+    except Exception as e:
+    # Catches any other unexpected exceptions
+        logger.info(f"An unexpected error occurred: {e}")
+
     logger.info(
                 f"Saving cache value. {currentEpoch}"
             )
