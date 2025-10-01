@@ -22,7 +22,6 @@ async def run(config: ItemSyncConfig):
     repo = ItemRepository()
     with Client(headers=headers) as client:
         while True:
-            await sleep(60 * 60 * 24)
             logger.info("Fetching unique items from POE API...")
             response = client.get(config.unique_item_url)
             items: itemResponse = itemResponse(**response.json())
@@ -41,3 +40,5 @@ async def run(config: ItemSyncConfig):
             await sync_items(items.result)
             logger.info("Starting currency sync...")
             await sync_currencies(currencies.result)
+            await sleep(60 * 60 * 24)
+
