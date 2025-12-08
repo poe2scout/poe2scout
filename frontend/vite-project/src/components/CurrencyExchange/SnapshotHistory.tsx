@@ -92,8 +92,8 @@ export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapsh
         }));
 
         setChartData(prev => ({
-            lineData: [...newVolumes, ...prev.lineData],
-            histogramData: [...newMarketCaps, ...prev.histogramData],
+            lineData: [...newMarketCaps, ...prev.lineData],
+            histogramData: [...newVolumes, ...prev.histogramData],
         }));
       }
     } catch (err) {
