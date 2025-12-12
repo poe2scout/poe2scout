@@ -27,7 +27,7 @@ interface LeagueContextType {
 
 const LeagueContext = createContext<LeagueContextType | undefined>(undefined);
 
-const DEFAULT_LEAGUE = "Rise of the Abyssal"
+const DEFAULT_LEAGUE = "Fate of the Vaal"
 
 export function LeagueProvider({ children }: { children: ReactNode }) {
   const [leagues, setLeagues] = useState<League[]>([]);
