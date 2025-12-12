@@ -332,7 +332,7 @@ async def FetchPrices(repo: ItemRepository):
         while True:
             # Get all unqiue items
             leagues = await repo.GetLeagues()
-            leagues = [league for league in leagues if league.id == 3]
+            leagues = [league for league in leagues if league.id == 7] # Fate of the Vaal
             baseUniqueItems = await repo.GetAllUniqueItems()
             baseCurrencyItems = await repo.GetAllCurrencyItems()
 
