@@ -46,7 +46,7 @@ async def runCurrencyExchangePrices(
     ) as client:
         while True:
             await FetchCurrencyExchangePrices(repo, config, cxRepo, client)
-            await asyncio.sleep(10)
+            await asyncio.sleep(1)
 
 
 class CurrencyPrice(BaseModel):
