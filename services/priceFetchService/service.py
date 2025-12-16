@@ -246,7 +246,6 @@ async def FetchCurrencyExchangePrices(
                 f"Saving cache value. {currentEpoch}"
             )
     await cxRepo.SetServiceCacheValue("PriceFetch_Currency", currentEpoch)
-    await cxRepo.UpdatePairHistories()
 
 
 def getCurrencyPriceFromPair(
