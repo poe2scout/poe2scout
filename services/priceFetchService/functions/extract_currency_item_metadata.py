@@ -36,5 +36,19 @@ def extract_currency_item_metadata(item_info):
                     clean_effect[:start] + formatted_text + clean_effect[end:]
                 )
             formatted_data["effect"].append(clean_effect)
-
+    
+    if item_info.get("secDescrText"):
+        lineageDescription = item_info["secDescrText"]
+        while "[" in lineageDescription and "]" in lineageDescription:
+            start = lineageDescription.find("[")
+            end = lineageDescription.find("]") + 1
+            formatted_text = (
+                lineageDescription[start:end].split("|")[-1].rstrip("]").lstrip("[")
+            )
+            lineageDescription = (
+                lineageDescription[:start] + formatted_text + lineageDescription[end:]
+            )
+        formatted_data["effect"] = []
+        formatted_data["effect"].append(lineageDescription)
+    
     return formatted_data

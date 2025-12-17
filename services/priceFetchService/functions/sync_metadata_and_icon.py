@@ -2,7 +2,7 @@ from services.repositories.item_repository import ItemRepository
 from services.repositories.item_repository.GetAllCurrencyItems import CurrencyItem
 import logging
 from .extract_currency_item_metadata import extract_currency_item_metadata
-from services.libs.poe_trade_client import PoeTradeClient
+from services.libs.poe_trade_client import ClientError, PoeTradeClient
 
 logger = logging.getLogger(__name__)
 
@@ -25,11 +25,11 @@ async def sync_metadata_and_icon(
         "sort": {"price": "asc"},
     }
 
-    query_response = await client.post(query_url, json=query_data)
-    if query_response.status_code != 200:
-        raise Exception(
-            f"Search request failed for {want_currency.text} with status code {query_response.status_code}"
-        )
+    try:
+        query_response = await client.post(query_url, json=query_data)
+    except ClientError:
+        logger.warning(f"Failed to sync item metadata for item {want_currency.text}")
+        return
 
     query_data = query_response.json()
     logger.info(f"Query data: {query_data}")
