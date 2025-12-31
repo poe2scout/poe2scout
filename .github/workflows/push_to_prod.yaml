@@ -18,7 +18,7 @@ jobs:
       - name: Deploy to production server
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd project/poe2scout && \
-          docker system prune && \
+          docker system prune -f && \
           git switch release && \
           git pull && \
           echo 'POSTGRES_DB=${{ secrets.POSTGRES_DB }}
