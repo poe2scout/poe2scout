@@ -20,20 +20,31 @@ class PriceFetchResult(BaseModel):
 
 
 def create_query_string(uniqueItem: UniqueItem, currencyText: str):
-    query = {
+    if uniqueItem.categoryApiId == "jewel":
+        return {
+            "query": {
+                "status": {"option": "securable"},
+                "name": uniqueItem.name,
+                "stats": [{"type": "and", "filters": []}],
+                "filters": {
+                    "trade_filters": {"filters": {"price": {"option": currencyText}}}                
+                },
+            },
+            "sort": {"price": "asc"}
+        }
+    
+    return {
         "query": {
             "status": {"option": "securable"},
             "name": uniqueItem.name,
             "stats": [{"type": "and", "filters": []}],
             "filters": {
-                "trade_filters": {"filters": {"price": {"option": currencyText}}}
+                "trade_filters": {"filters": {"price": {"option": currencyText}}},
+                "misc_filters": {"filters": {"corrupted": {"option": "false"}}}
             },
         },
         "sort": {"price": "asc"},
     }
-
-    return query
-
 
 async def fetch_unique(
     uniqueItem: UniqueItem,
