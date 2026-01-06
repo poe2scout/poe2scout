@@ -236,9 +236,13 @@ class EconomyCache:
             for item in items
         ]
 
+        next_hour = (datetime.now().replace(minute=0, second=0, microsecond=0) + timedelta(hours=1))
+
+        expiration_time = next_hour + timedelta(minutes=random.randint(5, 10))
+
         self.CurrencyCache[cacheKey] = CacheState[CurrencyItemExtended](
             Value=items,
-            Expires=datetime.now() + timedelta(hours=1, minutes=random.randint(0, 15)),
+            Expires=expiration_time,
         )
 
         return items
