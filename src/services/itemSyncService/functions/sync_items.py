@@ -1,13 +1,13 @@
 import logging
-from src.services.itemSyncService.models import *
-from src.services.repositories.item_repository import ItemRepository
-from src.services.repositories.item_repository.CreateItemCategory import (
+from services.itemSyncService.models import *
+from services.repositories.item_repository import ItemRepository
+from services.repositories.item_repository.CreateItemCategory import (
     CreateItemCategoryModel,
 )
-from src.services.repositories.item_repository.CreateBaseItem import CreateBaseItemModel
-from src.services.repositories.item_repository.CreateItemType import CreateItemTypeModel
-from src.services.repositories.item_repository.CreateUniqueItem import CreateUniqueItemModel
-from src.services.repositories.item_repository.CreateItem import CreateItemModel
+from services.repositories.item_repository.CreateBaseItem import CreateBaseItemModel
+from services.repositories.item_repository.CreateItemType import CreateItemTypeModel
+from services.repositories.item_repository.CreateUniqueItem import CreateUniqueItemModel
+from services.repositories.item_repository.CreateItem import CreateItemModel
 
 logger = logging.getLogger(__name__)
 

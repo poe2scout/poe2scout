@@ -18,7 +18,7 @@ T = TypeVar("T")
 logger = logging.getLogger(__name__)
 
 
-class CacheState(Generic[T], BaseModel):
+class CacheState(BaseModel, Generic[T]):
     Value: List[T]
     Expires: datetime
 

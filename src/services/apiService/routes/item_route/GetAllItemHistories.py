@@ -1,7 +1,7 @@
 
 from fastapi import HTTPException
 
-from src.services.apiService.dependancies import ItemRepoDep
+from services.apiService.dependancies import ItemRepoDep
 from . import router
 
 

@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
-from src.services.apiService.dependancies import get_item_repository
-from src.services.repositories import ItemRepository
+from services.apiService.dependancies import get_item_repository
+from services.repositories import ItemRepository
 from pydantic import BaseModel
 
-from src.services.repositories.item_repository.GetSnapshotForLeague import LeagueSnapshot
+from services.repositories.item_repository.GetSnapshotForLeague import LeagueSnapshot
 
 router = APIRouter(prefix="/dbDumps")
 

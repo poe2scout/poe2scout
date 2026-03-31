@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict
 
-from src.services.repositories.models import PriceLogEntry
+from services.repositories.models import PriceLogEntry
 
 from ..base_repository import BaseRepository
 from datetime import datetime, timedelta

@@ -1,5 +1,5 @@
-import src.services.repositories
-import src.services.itemSyncService
-import src.services.apiService
-import src.services.priceFetchService
-import src.services.currencyExchangeService
+import services.repositories
+import services.itemSyncService
+import services.apiService
+import services.priceFetchService
+import services.currencyExchangeService

@@ -2,8 +2,8 @@ from typing import List
 from pydantic import BaseModel
 from datetime import datetime
 
-from src.services.repositories.base_repository import BaseRepository
-from src.services.repositories.models import PriceLogEntry
+from services.repositories.base_repository import BaseRepository
+from services.repositories.models import PriceLogEntry
 
 
 class GetItemPriceHistoryModel(BaseModel):

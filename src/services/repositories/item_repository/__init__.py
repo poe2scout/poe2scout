@@ -1,7 +1,7 @@
-from src.services.repositories.item_repository.GetAllItemHistories import (
+from services.repositories.item_repository.GetAllItemHistories import (
     GetAllItemHistories,
 )
-from src.services.repositories.item_repository.GetCurrencyFetchStatus import (
+from services.repositories.item_repository.GetCurrencyFetchStatus import (
     GetCurrencyFetchStatus,
 )
 from .GetItemPrices import GetItemPrices

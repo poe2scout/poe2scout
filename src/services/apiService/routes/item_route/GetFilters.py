@@ -1,7 +1,7 @@
 from . import router
 from fastapi import Depends
-from src.services.apiService.dependancies import get_item_repository
-from src.services.repositories import ItemRepository
+from services.apiService.dependancies import get_item_repository
+from services.repositories import ItemRepository
 
 
 @router.get("/filters")

@@ -1,15 +1,15 @@
 from fastapi import FastAPI, Request
 from dotenv import load_dotenv
 import os
-from src.services.repositories.base_repository import BaseRepository
+from services.repositories.base_repository import BaseRepository
 from contextlib import asynccontextmanager
 import sys
 import asyncio
 from . import ApiServiceConfig
 import uvicorn
-from src.services.apiService.routes import item_router
-from src.services.apiService.routes import league_router
-from src.services.apiService.routes import currency_exchange_router
+from services.apiService.routes import item_router
+from services.apiService.routes import league_router
+from services.apiService.routes import currency_exchange_router
 import logging
 import time
 from fastapi.middleware.cors import CORSMiddleware

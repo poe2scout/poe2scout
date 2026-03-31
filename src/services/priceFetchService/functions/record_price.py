@@ -1,5 +1,5 @@
-from src.services.repositories.item_repository import ItemRepository
-from src.services.repositories.item_repository.RecordPrice import RecordPriceModel
+from services.repositories.item_repository import ItemRepository
+from services.repositories.item_repository.RecordPrice import RecordPriceModel
 import logging
 
 logger = logging.getLogger(__name__)

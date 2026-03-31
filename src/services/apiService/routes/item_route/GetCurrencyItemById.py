@@ -1,12 +1,12 @@
-from src.services.apiService.dependancies import (
+from services.apiService.dependancies import (
     get_item_repository,
 )
 from fastapi import Depends, HTTPException
-from src.services.repositories import ItemRepository
+from services.repositories import ItemRepository
 from pydantic import BaseModel
-from src.services.apiService.routes.item_route.GetCurrencyItems import CurrencyItemExtended
+from services.apiService.routes.item_route.GetCurrencyItems import CurrencyItemExtended
 from . import router
-from src.services.apiService.dependancies import cache_response
+from services.apiService.dependancies import cache_response
 
 
 class GetCurrencyItemsResponse(BaseModel):

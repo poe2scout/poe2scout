@@ -1,5 +1,5 @@
 
-from src.services.repositories.models import CurrencyItem
+from services.repositories.models import CurrencyItem
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 

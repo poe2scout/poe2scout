@@ -1,8 +1,8 @@
 import sys
 import asyncio
 
-from src.services.itemSyncService.service import run
-from src.services.itemSyncService.config import ItemSyncConfig
+from services.itemSyncService.service import run
+from services.itemSyncService.config import ItemSyncConfig
 from dotenv import load_dotenv
 
 if __name__ == "__main__":

@@ -4,13 +4,13 @@ from datetime import datetime, timedelta
 import logging
 import dotenv
 
-from src.services.repositories.currency_exchange_repository import (
+from services.repositories.currency_exchange_repository import (
     CurrencyExchangeRepository,
 )
 from .service import run
 from .config import PriceFetchConfig
-from src.services.repositories.base_repository import BaseRepository
-from src.services.repositories.item_repository import ItemRepository
+from services.repositories.base_repository import BaseRepository
+from services.repositories.item_repository import ItemRepository
 
 logger = logging.getLogger(__name__)
 

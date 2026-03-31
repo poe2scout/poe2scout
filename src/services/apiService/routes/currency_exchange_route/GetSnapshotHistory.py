@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
 from typing import Optional
-from src.services.repositories.currency_exchange_repository.GetCurrentSnapshotHistory import (
+from services.repositories.currency_exchange_repository.GetCurrentSnapshotHistory import (
     GetCurrencyExchangeHistoryModel,
 )
 from . import router
 from fastapi import HTTPException
-from src.services.apiService.dependancies import CXRepoDep, ItemRepoDep
+from services.apiService.dependancies import CXRepoDep, ItemRepoDep
 
 
 @router.get("/SnapshotHistory")

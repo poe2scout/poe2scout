@@ -1,25 +1,25 @@
-from src.services.repositories.currency_exchange_repository.GetPairHistory import (
+from services.repositories.currency_exchange_repository.GetPairHistory import (
     GetPairHistory,
 )
-from src.services.repositories.currency_exchange_repository.GetCurrentSnapshot import (
+from services.repositories.currency_exchange_repository.GetCurrentSnapshot import (
     GetCurrencyExchange,
 )
-from src.services.repositories.currency_exchange_repository.CreateSnapshot import (
+from services.repositories.currency_exchange_repository.CreateSnapshot import (
     CreateSnapshot,
 )
-from src.services.repositories.currency_exchange_repository.GetCurrentSnapshotHistory import (
+from services.repositories.currency_exchange_repository.GetCurrentSnapshotHistory import (
     GetCurrencyExchangeHistory,
 )
-from src.services.repositories.currency_exchange_repository.GetCurrentSnapshotPairs import (
+from services.repositories.currency_exchange_repository.GetCurrentSnapshotPairs import (
     GetCurrentSnapshotPairs,
 )
-from src.services.repositories.currency_exchange_repository.GetServiceCacheValue import (
+from services.repositories.currency_exchange_repository.GetServiceCacheValue import (
     GetServiceCacheValue,
 )
-from src.services.repositories.currency_exchange_repository.SetServiceCacheValue import (
+from services.repositories.currency_exchange_repository.SetServiceCacheValue import (
     SetServiceCacheValue,
 )
-from src.services.repositories.currency_exchange_repository.UpdatePairHistories import (
+from services.repositories.currency_exchange_repository.UpdatePairHistories import (
     UpdatePairHistories,
 )
 from services.repositories.item_repository import GetAllItemHistories

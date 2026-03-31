@@ -1,6 +1,6 @@
 from typing import Optional
 
-from src.services.libs.models.CurrencyExchange.models import CurrencyExchangeSnapshot
+from services.libs.models.CurrencyExchange.models import CurrencyExchangeSnapshot
 from ..base_repository import BaseRepository
 
 

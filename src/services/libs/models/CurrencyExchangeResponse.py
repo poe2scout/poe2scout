@@ -1,7 +1,7 @@
 from typing import List
 from pydantic import BaseModel
 
-from src.services.repositories.item_repository.GetLeagues import League
+from services.repositories.item_repository.GetLeagues import League
 
 
 class TradingPair(BaseModel):

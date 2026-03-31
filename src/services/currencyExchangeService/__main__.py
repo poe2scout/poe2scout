@@ -4,14 +4,14 @@ import sys
 
 import dotenv
 
-from src.services.currencyExchangeService.config import CurrencyExchangeServiceConfig
-from src.services.libs.poe_trade_client import PoeApiClient
-from src.services.repositories.base_repository import BaseRepository
-from src.services.repositories.currency_exchange_repository import (
+from services.currencyExchangeService.config import CurrencyExchangeServiceConfig
+from services.libs.poe_trade_client import PoeApiClient
+from services.repositories.base_repository import BaseRepository
+from services.repositories.currency_exchange_repository import (
     CurrencyExchangeRepository,
 )
-from src.services.repositories.item_repository import ItemRepository
-from src.services.currencyExchangeService.service import run
+from services.repositories.item_repository import ItemRepository
+from services.currencyExchangeService.service import run
 
 
 logger = logging.getLogger(__name__)

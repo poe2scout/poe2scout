@@ -1,14 +1,14 @@
-from src.services.apiService.dependancies import (
+from services.apiService.dependancies import (
     EconomyCacheDep,
     PaginationParams,
     get_pagination_params,
     get_item_repository,
 )
 from fastapi import Depends, HTTPException
-from src.services.repositories import ItemRepository
+from services.repositories import ItemRepository
 from pydantic import BaseModel
 import math
-from src.services.repositories.models import UniqueItemExtended
+from services.repositories.models import UniqueItemExtended
 from . import router
 
 

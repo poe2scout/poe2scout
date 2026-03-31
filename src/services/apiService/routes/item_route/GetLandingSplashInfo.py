@@ -1,8 +1,8 @@
 from . import router
 from fastapi import Depends
-from src.services.apiService.dependancies import get_item_repository
-from src.services.repositories import ItemRepository
-from src.services.apiService.routes.item_route.GetCurrencyItems import CurrencyItemExtended
+from services.apiService.dependancies import get_item_repository
+from services.repositories import ItemRepository
+from services.apiService.routes.item_route.GetCurrencyItems import CurrencyItemExtended
 from pydantic import BaseModel
 
 importantApiIds = ["mirror", "divine", "exalted", "annul"]

@@ -1,4 +1,4 @@
-from src.services.libs import BaseConfig
+from services.libs import BaseConfig
 
 
 class PriceFetchConfig(BaseConfig):
