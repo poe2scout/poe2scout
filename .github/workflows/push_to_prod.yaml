@@ -20,6 +20,7 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd project/poe2scout && \
           git switch release && \
           git pull && \
+          cd src && \
           echo 'POSTGRES_DB=${{ secrets.POSTGRES_DB }}
           CFKEY=${{ secrets.CFKEY }}
           POSTGRES_USER=${{ secrets.POSTGRES_USER }}
