@@ -5,6 +5,7 @@
 __pycache__
 *.pyc
 .env
+.env.*
 apps/web/node_modules
 apps/web/dist
 packages/backend/src/**/__pycache__

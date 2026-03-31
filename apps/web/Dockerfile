@@ -1,5 +1,8 @@
 FROM node:20-alpine AS build
 
+ARG VITE_API_URL=https://poe2scout.com/api
+ENV VITE_API_URL=$VITE_API_URL
+
 WORKDIR /app
 
 # Copy package files and install dependencies
