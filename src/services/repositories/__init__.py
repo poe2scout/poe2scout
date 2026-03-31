@@ -1,2 +1,0 @@
-from services.repositories.item_repository import ItemRepository
-from services.repositories.base_repository import BaseRepository

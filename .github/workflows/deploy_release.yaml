@@ -1,0 +1,71 @@
+name: Deploy Release
+
+on:
+  workflow_run:
+    workflows:
+      - Build and Publish Images
+    types:
+      - completed
+
+env:
+  DEPLOY_ROOT: /opt/poe2scout
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'release' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Write production env file
+        run: |
+          cat > .deploy.env <<EOF
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          CFKEY=${{ secrets.CFKEY }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          DBSTRING=${{ secrets.DBSTRING }}
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          DOMAINS=${{ secrets.DOMAINS }}
+          STAGE=${{ secrets.STAGE }}
+          POEAPI_CLIENT_ID=${{ secrets.POEAPI_CLIENT_ID }}
+          POEAPI_CLIENT_SECRET=${{ secrets.POEAPI_CLIENT_SECRET }}
+          UNIQUE_ITEM_URL=https://www.pathofexile.com/api/trade2/data/items
+          CURRENCY_ITEM_URL=https://www.pathofexile.com/api/trade2/data/static
+          LOCAL=False
+          REALM=poe2
+          IMAGE_TAG=${{ github.event.workflow_run.head_sha }}
+          EOF
+
+      - name: Prepare deploy directory
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p ${{ env.DEPLOY_ROOT }}"
+
+      - name: Sync infrastructure files
+        run: |
+          scp -r infra ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/
+          scp .deploy.env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/.env
+
+      - name: Deploy stack
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.DEPLOY_ROOT }} && \
+          docker compose -f infra/compose/prod.yml --env-file .env pull && \
+          docker compose -f infra/compose/prod.yml --env-file .env up -d --remove-orphans"
+
+      - name: Purge Cloudflare cache
+        run: |
+          curl --location 'https://api.cloudflare.com/client/v4/zones/9cd975b5580a5b0c8aa36b7c8649ae0f/purge_cache' \
+          --header 'Content-Type: application/json' \
+          --header 'Authorization: Bearer ${{ secrets.CFKEY }}' \
+          --data '{"purge_everything": true}'

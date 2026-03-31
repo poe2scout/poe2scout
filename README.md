@@ -2,158 +2,104 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-POE2 Scout is your ultimate market tool for Path of Exile 2, providing real-time item price checking. It aims to help players make informed trading decisions by leveraging the official Path of Exile Trade API and presenting the data in an accessible way.
+POE2 Scout is a market tool for Path of Exile 2 focused on real-time item and currency pricing. The repository is structured as a monorepo with separate application, backend package, and infrastructure boundaries.
 
-## Project Overview
+## Repo Layout
 
-- **`frontend`**: Serves the React single-page application using Nginx.
-  - Code: `frontend/vite-project/`
-  - Nginx Config: `frontend/vite-project/nginx.conf`
-- **`api`**: The backend API service that the frontend interacts with.
-  - Code: `services/apiService/`
-- **`item-sync-service`**: A background service responsible for periodically fetching the list of available items (Unique, Currency, etc.) from the POE API and storing their base information in the database.
-  - Code: `services/itemSyncService/`
-- **`price-fetch-service`**: A background service that periodically fetches the *prices* for items from the POE Trade API for active leagues and records them in the database. It includes logic to handle rate limits and potential POE maintenance windows.
-  - Code: `services/priceFetchService/`
-- **`db`**: The PostgreSQL database storing item information, prices, and potentially user/build data.
-- **`https-portal`**: (Production profile only) Manages SSL certificates and acts as a reverse proxy for the frontend and API.
+- `apps/web`: React frontend.
+- `apps/api`: API container definition.
+- `apps/workers/item-sync`: Item sync worker container definition.
+- `apps/workers/price-fetch`: Price fetch worker container definition.
+- `apps/workers/currency-exchange`: Currency exchange worker container definition.
+- `packages/backend`: Shared Python backend package used by the API and workers.
+- `infra/compose`: Docker Compose files for local support services and production deployment.
+- `infra/db`: PostgreSQL config and migrations.
+- `infra/https-portal`: Production reverse-proxy templates.
 
-The application is containerised using Docker for production. For running locally we run the python modules and npm run dev manually. Docker is only used locally for streamlining the db initialisation.
+## Local Development
 
-## Api
+### Prerequisites
 
-POE2 Scout has an api which is used by the website. This api is completely open for others to use as well.
+- Docker
+- Python 3.12.3
+- [uv](https://docs.astral.sh/uv/)
+- Node.js and npm
 
-Please include a user-agent field with an email so I can contact you. If your usage is likely to be high (consistently several times a minute) get in touch with me and I can create specific endpoints that serve your tools needs the most efficiently.
+### Environment
 
-Documentation can be found at [poe2scout.com/api/swagger](https://poe2scout.com/api/swagger)
+Copy the root env example:
 
-## Contributing
+```bash
+cp .env.example .env
+```
 
-Contributions are welcome! Please follow these general steps:
+### Start local infrastructure
 
-1. Fork the repository on github.
-2. Clone your forked repository to your local machine.
-3. Create a new branch (`git checkout -b feature/your-feature-name`).
-4. Make your changes.
-5. Commit your changes (`git commit -m 'Add some feature'`).
-6. Push to the branch (`git push origin feature/your-feature-name`).
-7. Open a Pull Request.
+This starts only PostgreSQL and Redis:
 
-## Local Development Setup
+```bash
+docker compose -f infra/compose/local.yml --env-file .env up -d
+```
 
-These instructions will help you get a local development environment running.
+### Backend setup
 
-**Prerequisites:**
+```bash
+cd packages/backend
+uv sync
+```
 
-- Git
-- Docker & Docker Compose (Optional, simplifies database setup. You can run PostgreSQL natively instead.)
-- Python 3.12.3 (Managed with `pyenv` is recommended)
-- Node.js and npm (For the frontend)
+Run the API:
 
-**Steps:**
+```bash
+uv run uvicorn poe2scout.api.app:app --reload --app-dir src --port 5000
+```
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/poe2scout/poe2scout.git # Replace /poe2scout/ with your own username if you have forked the repo 
-    cd poe2scout
-    ```
+Run the workers manually when needed:
 
-2.  **Configure Environment Variables:**
-    Copy `.env.example` to `.env`. For local development, the default values are likely sufficient.
-    ```bash
-    cp .env.example .env
-    ```
+```bash
+cd packages/backend
+uv run python -m poe2scout.workers.item_sync
+uv run python -m poe2scout.workers.price_fetch
+uv run python -m poe2scout.workers.currency_exchange
+```
 
-3.  **Start the Database:**
-    The easiest way is using Docker Compose:
-    ```bash
-    docker-compose up -d # Will only run db by default
-    ```
-    *(Alternatively, set up and run PostgreSQL natively and update `.env` accordingly.)*
+### Frontend setup
 
-4.  **Set up the Python Backend Environment:**
-    Navigate to the project root if you aren't already there.
-    ```bash
-    # Install and set the correct Python version (if using pyenv)
-    pyenv install 3.12.3
-    pyenv local 3.12.3
+```bash
+cd apps/web
+npm install
+npm run dev
+```
 
-    #Make sure to check that pyenv has actually updated the version of python.
-    python --version
+### Initial data flow
 
-    # Create and activate a virtual environment. If python doesn't work try python3.
-    python -m venv .venv 
-    # On macOS/Linux:
-    source .venv/bin/activate
-    # On Windows:
-    # .venv\Scripts\activate
+Run item sync first so the database has base data, then apply any required SQL migrations from `infra/db/migrations/legacy` if you need older manual bootstrap steps.
 
-    # Install dependencies
-    pip install uv
-    uv pip install -r services/requirements.txt
-    ```
+## Deployment
 
-5.  **Initial Backend Data Population:**
-    *   **Run Item Sync:** This service fetches item base data from the POE API. Run it once and wait for it to complete.
-        ```bash
-        python -m services.itemSyncService
-        ```
-    *   **Run Database Migration:** After the item sync is done, apply the necessary SQL script to set up initial league data. You'll need a PostgreSQL client (like `psql` or a GUI tool like pgadmin 4) connected to the database defined in your `.env` / `docker-compose.yml`.
-        ```sql
-        -- Example using psql, adjust connection details as needed:
-        -- psql -h localhost -p 5432 -U your_db_user -d your_db_name -f db/migrations/PostItemSyncService.sql
+- Pushes to `main` build and publish container images to GHCR.
+- Pushes to `release` also build and publish container images to GHCR.
+- After the `release` image workflow succeeds, a separate deploy workflow copies `infra/` and `.env` to the server and runs:
+  `docker compose -f infra/compose/prod.yml --env-file .env pull`
+  followed by
+  `docker compose -f infra/compose/prod.yml --env-file .env up -d --remove-orphans`
 
-        -- Content of db/migrations/PostItemSyncService.sql needs to be executed
-        ```
+The production server no longer needs a checked-out copy of this repository.
 
-6.  **Run the Backend API:**
-    You can now run the main API service.
-    *   **Recommended (with auto-reload):**
-        ```bash
-        uvicorn services.apiService.app:app --reload --port 5000
-        ```
-    *   **Alternative (no auto-reload):**
-        ```bash
-        python -m services.apiService.app
-        ```
+## API
 
-7.  **Set up and Run the Frontend:**
-    ```bash
-    cd frontend/vite-project
-    npm install
-    npm run dev
-    ```
+The public API is available at [poe2scout.com/api/swagger](https://poe2scout.com/api/swagger).
 
-8.  **Access the Application:**
-    *   Frontend: Open your browser to `http://localhost:5173`
-    *   API Docs: Open your browser to `http://localhost:5000/swagger` 
-
-## Running Optional Background Services
-
-These services run periodically in the background in a production-like environment but can be run manually for testing.
-
-*   **Price Fetch Service:** Fetches item *prices*. Be mindful of POE Trade API rate limits when running this manually alongside other API interactions.
-    ```bash
-    # Ensure your Python venv is active
-    python -m services.priceFetchService
-    ```
-*   **Item Sync Service (Recurring):** If you need to re-run the item sync later (e.g., after a major POE update):
-    ```bash
-    # Ensure your Python venv is active
-    python -m services.itemSyncService
-    ```
+Please include a `User-Agent` with contact information if you are making sustained use of the API.
 
 ## Community
 
-- **Discord:** [https://discord.gg/EHXVdQCpBq](https://discord.gg/EHXVdQCpBq)
-
+- Discord: [https://discord.gg/EHXVdQCpBq](https://discord.gg/EHXVdQCpBq)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ## Disclaimer
 
-POE2Scout is an independent project and is not affiliated with or endorsed by Grinding Gear Games.
-
+POE2 Scout is an independent project and is not affiliated with or endorsed by Grinding Gear Games.

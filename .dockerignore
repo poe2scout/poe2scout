@@ -1,0 +1,10 @@
+.git
+.github
+.idea
+.venv
+__pycache__
+*.pyc
+.env
+apps/web/node_modules
+apps/web/dist
+packages/backend/src/**/__pycache__
