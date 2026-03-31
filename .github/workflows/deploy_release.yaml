@@ -6,13 +6,15 @@ on:
       - Build and Publish Images
     types:
       - completed
+    branches:
+      - release
 
 env:
   DEPLOY_ROOT: /opt/poe2scout
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'release' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
