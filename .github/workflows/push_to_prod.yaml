@@ -21,6 +21,7 @@ jobs:
           docker system prune -f && \
           git switch release && \
           git pull && \
+          cd src && \
           echo 'POSTGRES_DB=${{ secrets.POSTGRES_DB }}
           CFKEY=${{ secrets.CFKEY }}
           POSTGRES_USER=${{ secrets.POSTGRES_USER }}
