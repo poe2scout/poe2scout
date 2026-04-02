@@ -47,7 +47,11 @@ class EconomyCache:
         self.CurrencyLocks = defaultdict(asyncio.Lock)
 
     async def GetCurrencyPage(
-        self, leagueId: int, category: str, search: str, referenceCurrency: str
+        self, 
+        leagueId: int, 
+        category: str, 
+        referenceCurrency: str,
+        search: str, 
     ) -> List[CurrencyItemExtended]:
         items: List[CurrencyItemExtended]
         cacheKey = CacheKey(
@@ -76,7 +80,11 @@ class EconomyCache:
         return items
 
     async def GetUniquePage(
-        self, leagueId: int, category: str, search: str, referenceCurrency: str
+        self, 
+        leagueId: int, 
+        category: str, 
+        search: str, 
+        referenceCurrency: str
     ) -> List[UniqueItemExtended]:
         items: List[UniqueItemExtended]
 

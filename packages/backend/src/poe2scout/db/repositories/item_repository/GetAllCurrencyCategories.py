@@ -1,16 +1,9 @@
-from typing import List
+from poe2scout.db.repositories.item_repository.GetAllItemCategories import ItemCategory
+
 from ..base_repository import BaseRepository
-from pydantic import BaseModel
-
-
-class CurrencyCategory(BaseModel):
-    id: int
-    apiId: str
-    label: str
-
 
 class GetAllCurrencyCategories(BaseRepository):
-    async def execute(self) -> List[CurrencyCategory]:
+    async def execute(self) -> list[ItemCategory]:
         currencyCategory_query = """
             SELECT "id", "apiId", "label" FROM "CurrencyCategory"
         """
@@ -18,6 +11,6 @@ class GetAllCurrencyCategories(BaseRepository):
         currencyCategories = await self.execute_query(currencyCategory_query)
 
         return [
-            CurrencyCategory(**currencyCategory)
+            ItemCategory(**currencyCategory)
             for currencyCategory in currencyCategories
         ]

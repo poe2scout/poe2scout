@@ -1,65 +1,83 @@
-from fastapi import Depends
+from typing import Self
+
+from poe2scout.db.repositories.item_repository.GetAllItemCategories import ItemCategory
 
 from . import router
-from poe2scout.api.dependancies import get_item_repository
-from poe2scout.db.repositories import ItemRepository
+from poe2scout.api.dependancies import ItemRepoDep
 from pydantic import BaseModel
 
+class GetItemCategoriesResponse(BaseModel):
+    class _ItemCategory(BaseModel):
+        id: int
+        api_id: str
+        label: str
+        icon: str
 
-class Category(BaseModel):
-    id: int
-    apiId: str
-    label: str
-    icon: str
+        @classmethod
+        def from_model(
+            cls,
+            item_category: ItemCategory,
+            icon: str
+        ) -> Self:
+            return cls(
+                id=item_category.id,
+                api_id=item_category.apiId,
+                label=item_category.label,
+                icon=icon
+            )
+    
+    unique_categories: list[_ItemCategory]
+    currency_categories: list[_ItemCategory]
 
-
-class CategoryResponse(BaseModel):
-    unique_categories: list[Category]
-    currency_categories: list[Category]
-
+    @classmethod
+    def from_model(
+        cls, 
+        unique_categories: list[ItemCategory],
+        currency_categories: list[ItemCategory],
+        icon_lookup: dict[str, str]
+    ) -> Self:
+        return cls(
+            unique_categories=[
+                GetItemCategoriesResponse._ItemCategory.from_model(
+                    item_category=unique_category,
+                    icon=icon_lookup[unique_category.apiId.lower()]
+                        if unique_category.apiId.lower() in icon_lookup else "",
+                )
+                for unique_category in unique_categories
+            ],
+            currency_categories=[
+                GetItemCategoriesResponse._ItemCategory.from_model(
+                    item_category=currency_category,
+                    icon=icon_lookup[currency_category.apiId.lower()]
+                        if currency_category.apiId.lower() in icon_lookup else "",
+                )
+                for currency_category in currency_categories
+            ]
+        )
 
 ignoreCurrencies = ["gem", "relics", "waystones"]
 
+@router.get("/Categories")
+async def get_item_categories(
+    item_repository: ItemRepoDep,
+) -> GetItemCategoriesResponse:
+    all_currency_categories = await item_repository.GetAllCurrencyCategories()
+    all_item_categories = await item_repository.GetAllItemCategories()
 
-@router.get("/categories")
-async def GetCategories(
-    item_repository: ItemRepository = Depends(get_item_repository),
-) -> CategoryResponse:
-    currencyCategories = await item_repository.GetAllCurrencyCategories()
-    uniqueCategories = await item_repository.GetAllItemCategories()
-
-    icons = icon_dump()
-
-    uniqueCategories = [
-        Category(
-            **uniqueCategory.model_dump(),
-            icon=icons[uniqueCategory.apiId.lower()]
-            if uniqueCategory.apiId.lower() in icons
-            else "",
-        )
-        for uniqueCategory in uniqueCategories
-        if uniqueCategory.apiId != "currency"
-    ]
-    currencyCategories = [
-        Category(
-            **currencyCategory.model_dump(),
-            icon=icons[currencyCategory.apiId.lower()]
-            if currencyCategory.apiId.lower() in icons
-            else "",
-        )
-        for currencyCategory in currencyCategories
-        if currencyCategory.apiId not in ignoreCurrencies
+    unique_item_categories = [
+        category for category in all_item_categories 
+        if category.apiId != "currency" and category.apiId not in ignoreCurrencies
     ]
 
-    uniqueCategories = [
-        cat for cat in uniqueCategories if cat.apiId not in ignoreCurrencies
-    ]
-    currencyCategories = [
-        cat for cat in currencyCategories if cat.apiId not in ignoreCurrencies
+    currency_item_categories = [
+        category for category in all_currency_categories
+        if category.apiId not in ignoreCurrencies
     ]
 
-    return CategoryResponse(
-        unique_categories=uniqueCategories, currency_categories=currencyCategories
+    return GetItemCategoriesResponse.from_model(
+        unique_categories=unique_item_categories,
+        currency_categories=currency_item_categories,
+        icon_lookup=icon_dump()
     )
 
 

@@ -22,10 +22,12 @@ redis = aioredis.from_url(
 
 def get_pagination_params(
     page: int = Query(default=1, ge=1, description="Page number"),
-    perPage: int = Query(default=25, ge=1, le=250, description="Items per page"),
-    league: str = Query(default="Standard", description="League name"),
+    per_page: int = Query(default=25, ge=1, le=250, description="Items per page", alias="perPage"),
+    league_name: str = Query(default="Standard", description="League name", alias="leagueName"),
 ) -> PaginationParams:
-    return PaginationParams(page=page, perPage=perPage, league=league)
+    return PaginationParams(page=page, per_page=per_page, league_name=league_name)
+
+PaginationParamDep = Annotated[PaginationParams, Depends(get_pagination_params)]
 
 
 def get_item_repository() -> ItemRepository:
@@ -43,7 +45,6 @@ _cx_repository = CurrencyExchangeRepository()
 
 CXRepoDep = Annotated[CurrencyExchangeRepository, Depends(get_cx_repo)]
 ItemRepoDep = Annotated[ItemRepository, Depends(get_item_repository)]
-
 
 class PaginatedResponse(BaseModel):
     currentPage: int

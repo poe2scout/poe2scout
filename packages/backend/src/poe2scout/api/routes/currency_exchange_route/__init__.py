@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 
-router = APIRouter(prefix="/currencyExchange", tags=["currencyExchange"])
+router = APIRouter(prefix="/CurrencyExchange", tags=["CurrencyExchange"])
 
 from .GetSnapshot import GetSnapshot
 from .GetSnapshotHistory import GetSnapshotHistory
