@@ -70,7 +70,8 @@ class GetSnapshotPairsResponse(ApiModel):
                 volume_traded=model.VolumeTraded,
                 highest_stock=model.HighestStock,
             )
-
+    currency_exchange_snapshot_pair_id: int
+    currency_exchange_snapshot_id: int
     volume: Decimal
     currency_one: _CurrencyItem
     currency_two: _CurrencyItem
@@ -80,6 +81,8 @@ class GetSnapshotPairsResponse(ApiModel):
     @classmethod
     def from_model(cls, model: GetCurrentSnapshotPairModel) -> Self:
         return cls(
+            currency_exchange_snapshot_pair_id=model.CurrencyExchangeSnapshotPairId,
+            currency_exchange_snapshot_id=model.CurrencyExchangeSnapshotId,
             volume=model.Volume,
             currency_one=cls._CurrencyItem.from_model(model.CurrencyOne),
             currency_two=cls._CurrencyItem.from_model(model.CurrencyTwo),
