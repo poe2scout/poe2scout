@@ -9,8 +9,9 @@ from poe2scout.db.repositories.item_repository.CreateItemType import CreateItemT
 from poe2scout.db.repositories.item_repository.CreateItem import CreateItemModel
 
 from poe2scout.db.repositories.item_repository import ItemRepository
-from poe2scout.workers.item_sync.models import *
 import logging
+
+from poe2scout.workers.item_sync.models import currencyCategory
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ async def sync_currencies(categories: list[currencyCategory]):
 
     for category in categories:
         logger.info(f"Processing currency category: {category.label or category.id}")
-        if category.label == None:
+        if category.label is None:
             continue
         # Create currency category
         category.id = category.id.lower()

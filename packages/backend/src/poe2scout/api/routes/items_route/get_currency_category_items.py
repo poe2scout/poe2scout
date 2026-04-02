@@ -1,22 +1,19 @@
-from datetime import datetime
-from typing import Annotated, Optional, Self
-
-from poe2scout.api.dependancies import (
-    EconomyCacheDep,
-    ItemRepoDep,
-    PaginationParamDep,
-)
-from fastapi import HTTPException, Query
-from pydantic import BaseModel
 import math
+from datetime import datetime
+from typing import Annotated, Self
 
+from fastapi import Depends, HTTPException, Path, Query
+
+from poe2scout.api.dependancies import EconomyCacheDep, ItemRepoDep, PaginationParamDep
+from poe2scout.api.models import ApiModel
 from poe2scout.db.repositories.models import CurrencyItemExtended, PriceLogEntry
 
 from . import router
 
-class GetCurrencyItemsResponse(BaseModel):
-    class _Item(BaseModel):
-        class _PriceLogEntry(BaseModel):
+
+class GetCurrencyItemsResponse(ApiModel):
+    class _Item(ApiModel):
+        class _PriceLogEntry(ApiModel):
             price: float
             time: datetime
             quantity: int
@@ -26,7 +23,7 @@ class GetCurrencyItemsResponse(BaseModel):
                 return cls(
                     price=model.price,
                     time=model.time,
-                    quantity=model.quantity
+                    quantity=model.quantity,
                 )
 
         id: int
@@ -35,10 +32,10 @@ class GetCurrencyItemsResponse(BaseModel):
         api_id: str
         text: str
         category_api_id: str
-        icon_url: Optional[str] = None
-        item_metadata: Optional[dict] = None
+        icon_url: str | None = None
+        item_metadata: dict | None = None
         price_logs: list[_PriceLogEntry | None]
-        current_price: Optional[float] = None
+        current_price: float | None = None
 
         @classmethod
         def from_model(cls, model: CurrencyItemExtended) -> Self:
@@ -52,12 +49,12 @@ class GetCurrencyItemsResponse(BaseModel):
                 icon_url=model.iconUrl,
                 item_metadata=model.itemMetadata,
                 price_logs=[
-                    cls._PriceLogEntry.from_model(price_log) 
-                    if price_log is not None 
-                    else None 
+                    cls._PriceLogEntry.from_model(price_log)
+                    if price_log is not None
+                    else None
                     for price_log in model.priceLogs
                 ],
-                current_price=model.currentPrice
+                current_price=model.currentPrice,
             )
 
     current_page: int
@@ -67,7 +64,7 @@ class GetCurrencyItemsResponse(BaseModel):
 
     @classmethod
     def from_model(
-        cls, 
+        cls,
         current_page: int,
         pages: int,
         total: int,
@@ -77,31 +74,38 @@ class GetCurrencyItemsResponse(BaseModel):
             current_page=current_page,
             pages=pages,
             total=total,
-            items=[cls._Item.from_model(item) for item in items]
+            items=[cls._Item.from_model(item) for item in items],
         )
-    
-class GetCurrencyCategoryItemsRequest(BaseModel):
+
+
+class GetCurrencyCategoryItemsRequest(ApiModel):
     category: str
     reference_currency: str
-    search: str | None
+    search: str
+
 
 def get_currency_category_items_request(
-    category: str,
-    reference_currency: Annotated[str, Query("exalted", alias="referenceCurrency")],
-    search: str | None,
+    category: Annotated[str, Path(alias="Category")],
+    reference_currency: Annotated[
+        str,
+        Query(alias="ReferenceCurrency"),
+    ] = "exalted",
+    search: Annotated[str, Query(alias="Search")] = "",
 ) -> GetCurrencyCategoryItemsRequest:
     return GetCurrencyCategoryItemsRequest(
         category=category,
         reference_currency=reference_currency,
-        search=search
+        search=search,
     )
 
+
 GetCurrencyCategoryItemsRequestDep = Annotated[
-    GetCurrencyCategoryItemsRequest, 
-    get_currency_category_items_request
+    GetCurrencyCategoryItemsRequest,
+    Depends(get_currency_category_items_request),
 ]
 
-@router.get("/CurrencyCategory/{category}")
+
+@router.get("/CurrencyCategory/{Category}")
 async def get_currency_category_items(
     request: GetCurrencyCategoryItemsRequestDep,
     economy_cache: EconomyCacheDep,
@@ -113,14 +117,14 @@ async def get_currency_category_items(
 
     league = await item_repository.GetLeagueByValue(pagination.league_name)
 
-    if not league:
+    if league is None:
         raise HTTPException(400, "Invalid league name")
 
     items = await economy_cache.GetCurrencyPage(
-        league.id, 
-        request.category, 
-        request.reference_currency, 
-        search=request.search if request.search else "", 
+        league.id,
+        request.category,
+        request.reference_currency,
+        search=request.search,
     )
     item_count = len(items)
 

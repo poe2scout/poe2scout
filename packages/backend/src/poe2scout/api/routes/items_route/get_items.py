@@ -1,13 +1,13 @@
-from datetime import datetime
 from asyncio import gather
+from datetime import datetime
 from typing import Annotated, Self
 
 from cachetools import TTLCache
 from cachetools.keys import hashkey
 from fastapi import Depends, HTTPException, Query
-from pydantic import BaseModel
 
 from poe2scout.api.dependancies import ItemRepoDep
+from poe2scout.api.models import ApiModel
 from poe2scout.db.repositories.item_repository.GetAllUniqueItems import UniqueItem
 from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
 
@@ -16,19 +16,21 @@ from . import router
 items_cache = TTLCache(maxsize=1, ttl=60 * 15)
 
 
-class GetItemsRequest(BaseModel):
+class GetItemsRequest(ApiModel):
     league_name: str
 
 
 def get_items_request(
-    league_name: Annotated[str, Query(alias="leagueName")]
+    league_name: Annotated[str, Query(alias="LeagueName")],
 ) -> GetItemsRequest:
     return GetItemsRequest(league_name=league_name)
 
+
 GetItemsRequestDep = Annotated[GetItemsRequest, Depends(get_items_request)]
 
-class GetItemsResponse(BaseModel):
-    class _PriceLogEntry(BaseModel):
+
+class GetItemsResponse(ApiModel):
+    class _PriceLogEntry(ApiModel):
         price: float
         time: datetime
         quantity: int
@@ -41,30 +43,30 @@ class GetItemsResponse(BaseModel):
                 quantity=price_log.quantity,
             )
 
-    itemId: int
-    categoryApiId: str
+    item_id: int
+    category_api_id: str
     text: str
     name: str | None = None
     type: str | None = None
-    apiId: str | None = None
-    priceLogs: list[_PriceLogEntry | None]
-    currentPrice: float
-    iconUrl: str | None
+    api_id: str | None = None
+    price_logs: list[_PriceLogEntry | None]
+    current_price: float
+    icon_url: str | None
 
     @classmethod
     def from_unique_item(
         cls, item: UniqueItem, price_logs: list[PriceLogEntry | None]
     ) -> Self:
         return cls(
-            itemId=item.itemId,
-            categoryApiId=item.categoryApiId,
+            item_id=item.itemId,
+            category_api_id=item.categoryApiId,
             text=item.text,
             name=item.name,
             type=item.type,
-            apiId=None,
-            priceLogs=cls._map_price_logs(price_logs),
-            currentPrice=cls._get_current_price(price_logs),
-            iconUrl=item.iconUrl,
+            api_id=None,
+            price_logs=cls._map_price_logs(price_logs),
+            current_price=cls._get_current_price(price_logs),
+            icon_url=item.iconUrl,
         )
 
     @classmethod
@@ -72,15 +74,15 @@ class GetItemsResponse(BaseModel):
         cls, item: CurrencyItem, price_logs: list[PriceLogEntry | None]
     ) -> Self:
         return cls(
-            itemId=item.itemId,
-            categoryApiId=item.categoryApiId,
+            item_id=item.itemId,
+            category_api_id=item.categoryApiId,
             text=item.text,
             name=None,
             type=None,
-            apiId=item.apiId,
-            priceLogs=cls._map_price_logs(price_logs),
-            currentPrice=cls._get_current_price(price_logs),
-            iconUrl=item.iconUrl,
+            api_id=item.apiId,
+            price_logs=cls._map_price_logs(price_logs),
+            current_price=cls._get_current_price(price_logs),
+            icon_url=item.iconUrl,
         )
 
     @classmethod
@@ -97,11 +99,7 @@ class GetItemsResponse(BaseModel):
     @staticmethod
     def _get_current_price(price_logs: list[PriceLogEntry | None]) -> float:
         return next(
-            (
-                price_log.price
-                for price_log in price_logs
-                if price_log is not None
-            ),
+            (price_log.price for price_log in price_logs if price_log is not None),
             0,
         )
 

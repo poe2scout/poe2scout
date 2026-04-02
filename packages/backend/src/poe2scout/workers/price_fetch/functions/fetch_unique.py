@@ -27,7 +27,7 @@ def create_query_string(uniqueItem: UniqueItem, currencyText: str):
                 "name": uniqueItem.name,
                 "stats": [{"type": "and", "filters": []}],
                 "filters": {
-                    "trade_filters": {"filters": {"price": {"option": currencyText}}}                
+                    "trade_filters": {"filters": {"price": {"option": currencyText}}}  
                 },
             },
             "sort": {"price": "asc"}
@@ -61,7 +61,8 @@ async def fetch_unique(
     query_response = await client.post(query_url, json=query_data)
     if query_response.status_code != 200:
         raise Exception(
-            f"Search request failed for {uniqueItem.name} with status code {query_response.status_code}"
+            f"Search request failed for {uniqueItem.name}" +\
+            f" with status code {query_response.status_code}"
         )
 
     query_data = query_response.json()
@@ -79,7 +80,8 @@ async def fetch_unique(
 
     if fetch_response.status_code != 200:
         raise Exception(
-            f"Fetch request failed for {uniqueItem.name} with status code {fetch_response.status_code}"
+            f"Fetch request failed for {uniqueItem.name} " +\
+            f"with status code {fetch_response.status_code}"
         )
 
     fetch_data = fetch_response.json()
@@ -111,7 +113,6 @@ def parse_trade_response(response_data: dict) -> List[float]:
             price_data = listing_data.get("price", {})
 
             amount = price_data.get("amount")
-            currency = price_data.get("currency")
 
             if amount is not None:
                 prices.append(float(amount))

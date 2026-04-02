@@ -115,10 +115,9 @@ async def FetchCurrencyExchangePrices(
             if len(chaosPairs) == 0:
                 logger.info("No chaos pair")
                 itemPrice = await repo.GetItemPrice(
-                    (await repo.GetCurrencyItem("chaos")).itemId, league.id, currentEpoch
+                    (await repo.get_chaos_item()).itemId, league.id, currentEpoch
                 )
                 if itemPrice == 0:
-                    current_timestamp = data.next_change_id
                     continue
 
                 chaosPrice = CurrencyPrice(
@@ -133,7 +132,7 @@ async def FetchCurrencyExchangePrices(
                         quantityTraded=chaosPair.quantityOfTargetItem,
                     )
 
-            assert chaosPrice != None
+            assert chaosPrice is not None
 
             divinePairs = [
                 pair for pair in pairs if pair.targetItem == "divine"
@@ -158,10 +157,9 @@ async def FetchCurrencyExchangePrices(
             if len(divinePrices) == 0:
                 logger.info("No divine pair")
                 itemPrice = await repo.GetItemPrice(
-                    (await repo.GetCurrencyItem("divine")).itemId, league.id, currentEpoch
+                    (await repo.get_divine_item()).itemId, league.id, currentEpoch
                 )
                 if itemPrice == 0:
-                    current_timestamp = data.next_change_id
                     continue
 
                 divinePrices.append(itemPrice)
@@ -235,7 +233,8 @@ async def FetchCurrencyExchangePrices(
                 logger.info("Only price is exalted. Skipping save.")
             else:
                 logger.info(
-                    f"Saving {len(priceLogs)} logs for {league.value} at {currentEpoch} or more specifically {datetime.fromtimestamp(currentEpoch)}"
+                    f"Saving {len(priceLogs)} logs for {league.value} at {currentEpoch} " +\
+                    f"or more specifically {datetime.fromtimestamp(currentEpoch)}"
                 )
                 await repo.RecordPriceBulk(priceLogs, currentEpoch)
     except Exception as e:
@@ -336,8 +335,8 @@ async def FetchPrices(repo: ItemRepository):
             baseUniqueItems = await repo.GetAllUniqueItems()
             baseCurrencyItems = await repo.GetAllCurrencyItems()
 
-            exaltedItem = await repo.GetCurrencyItem("exalted")
-            divineItem = await repo.GetCurrencyItem("divine")
+            exaltedItem = await repo.get_exalted_item()
+            divineItem = await repo.get_divine_item()
 
             for league in leagues:
                 current_time = datetime.now().strftime("%H")
@@ -435,6 +434,8 @@ async def process_uniques(
             quantity = 0
             for price in prices:
                 currency = await repo.GetCurrencyItem(price.currency)
+                assert currency is not None
+
                 currencyPrice = await repo.GetItemPrice(currency.itemId, league.id)
 
                 item_price = price.price * currencyPrice
@@ -443,10 +444,12 @@ async def process_uniques(
                     lowest_price = item_price
 
             logger.info(
-                f"Recording price for {uniqueItem.name} in {league.value} with price {lowest_price} and quantity {quantity}"
+                f"Recording price for {uniqueItem.name} in {league.value}" + \
+                f"with price {lowest_price} and quantity {quantity}"
             )
             await record_price(
                 lowest_price, uniqueItem.itemId, league.id, quantity, repo
             )
         except:
             logger.error(f"error fetching for {uniqueItem}")
+            raise

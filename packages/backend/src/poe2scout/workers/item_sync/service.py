@@ -1,12 +1,12 @@
 from poe2scout.db.repositories.base_repository import BaseRepository
-from poe2scout.workers.item_sync.models import *
 import logging
 from httpx import Client
 from asyncio import sleep
+
+from poe2scout.workers.item_sync.models import currencyResponse, itemResponse
 from .functions.sync_currencies import sync_currencies
 from .functions.sync_items import sync_items
 from .config import ItemSyncConfig
-from poe2scout.db.repositories import ItemRepository
 
 # Add logging configuration
 logging.basicConfig(
@@ -19,21 +19,22 @@ headers = {"User-Agent": "POE2SCOUT (contact: b@girardet.co.nz)"}
 
 async def run(config: ItemSyncConfig):
     await BaseRepository.init_pool(config.dbstring)
-    repo = ItemRepository()
     with Client(headers=headers) as client:
         while True:
             logger.info("Fetching unique items from POE API...")
             response = client.get(config.unique_item_url)
             items: itemResponse = itemResponse(**response.json())
             logger.info(
-                f"Retrieved {sum(len(cat.entries) for cat in items.result)} unique items across {len(items.result)} categories"
+                f"Retrieved {sum(len(cat.entries) for cat in items.result)} unique items " +\
+                f"across {len(items.result)} categories"
             )
 
             logger.info("Fetching currency items from POE API...")
             response = client.get(config.currency_item_url)
             currencies: currencyResponse = currencyResponse(**response.json())
             logger.info(
-                f"Retrieved {sum(len(cat.entries) for cat in currencies.result)} currency items across {len(currencies.result)} categories"
+                f"Retrieved {sum(len(cat.entries) for cat in currencies.result)} currency items "+\
+                f"across {len(currencies.result)} categories"
             )
 
             logger.info("Starting item sync...")

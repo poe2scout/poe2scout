@@ -13,7 +13,11 @@ class BaseItem(BaseModel):
 class GetAllBaseItems(BaseRepository):
     async def execute(self) -> List[BaseItem]:
         baseItem_query = """
-            SELECT "bi"."id", "bi"."typeId", "bi"."iconUrl", "bi"."itemMetadata" FROM "BaseItem" as bi
+            SELECT "bi"."id"
+                 , "bi"."typeId"
+                 , "bi"."iconUrl"
+                 , "bi"."itemMetadata" 
+              FROM "BaseItem" as bi
         """
 
         baseItems = await self.execute_query(baseItem_query)

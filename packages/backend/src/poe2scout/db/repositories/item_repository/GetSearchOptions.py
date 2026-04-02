@@ -33,9 +33,9 @@ class GetSearchOptions(BaseRepository):
             UNION ALL
 
             SELECT
-                ci.text AS display_name,   -- CurrencyItem.text
-                LOWER(COALESCE(cc."apiId", '')) AS category,    -- Fixed string for navigation category
-                ci.text AS identifier      -- CurrencyItem.text (used for search)
+                ci.text AS display_name,
+                LOWER(COALESCE(cc."apiId", '')) AS category,
+                ci.text AS identifier
             FROM "CurrencyItem" ci
             JOIN "Item" i ON ci."itemId" = i.id
             JOIN "CurrencyCategory" cc ON cc.id = ci."currencyCategoryId"

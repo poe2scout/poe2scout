@@ -1,20 +1,19 @@
-from datetime import datetime
-from typing import Annotated, Optional, Self
-
-from poe2scout.api.dependancies import (
-    EconomyCacheDep,
-    ItemRepoDep,
-    PaginationParamDep,
-)
-from fastapi import HTTPException, Query
-from pydantic import BaseModel
 import math
+from datetime import datetime
+from typing import Annotated, Self
+
+from fastapi import Depends, HTTPException, Path, Query
+
+from poe2scout.api.dependancies import EconomyCacheDep, ItemRepoDep, PaginationParamDep
+from poe2scout.api.models import ApiModel
 from poe2scout.db.repositories.models import PriceLogEntry, UniqueItemExtended
+
 from . import router
 
-class GetUniqueItemsResponse(BaseModel):
-    class _Item(BaseModel):
-        class _PriceLogEntry(BaseModel):
+
+class GetUniqueItemsResponse(ApiModel):
+    class _Item(ApiModel):
+        class _PriceLogEntry(ApiModel):
             price: float
             time: datetime
             quantity: int
@@ -24,20 +23,20 @@ class GetUniqueItemsResponse(BaseModel):
                 return cls(
                     price=model.price,
                     time=model.time,
-                    quantity=model.quantity
+                    quantity=model.quantity,
                 )
-            
+
         id: int
         item_id: int
-        icon_url: Optional[str] = None
+        icon_url: str | None = None
         text: str
         name: str
         category_api_id: str
-        item_metadata: Optional[dict] = None
+        item_metadata: dict | None = None
         type: str
-        is_chanceable: Optional[bool] = False
+        is_chanceable: bool | None = False
         price_logs: list[_PriceLogEntry | None]
-        current_price: Optional[float] = None
+        current_price: float | None = None
 
         @classmethod
         def from_model(cls, model: UniqueItemExtended) -> Self:
@@ -52,9 +51,7 @@ class GetUniqueItemsResponse(BaseModel):
                 type=model.type,
                 is_chanceable=model.isChanceable,
                 price_logs=[
-                    cls._PriceLogEntry.from_model(log) 
-                    if log is not None 
-                    else None 
+                    cls._PriceLogEntry.from_model(log) if log is not None else None
                     for log in model.priceLogs
                 ],
                 current_price=model.currentPrice,
@@ -67,62 +64,64 @@ class GetUniqueItemsResponse(BaseModel):
 
     @classmethod
     def from_model(
-        cls, 
+        cls,
         current_page: int,
         pages: int,
         total: int,
-        items: list[UniqueItemExtended]
+        items: list[UniqueItemExtended],
     ) -> Self:
         return cls(
             current_page=current_page,
             pages=pages,
             total=total,
-            items=[cls._Item.from_model(item) for item in items]
+            items=[cls._Item.from_model(item) for item in items],
         )
 
 
-class GetUniqueCategoryItemsRequest(BaseModel):
+class GetUniqueCategoryItemsRequest(ApiModel):
     category: str
     reference_currency: str
     search: str
 
+
 def get_unique_category_items_request(
-    category: str,
+    category: Annotated[str, Path(alias="Category")],
     reference_currency: Annotated[
-        str, 
-        Query(default="exalted", alias="referenceCurrency")
-    ],
-    search: Annotated[str, Query(default="")],
+        str,
+        Query(alias="ReferenceCurrency"),
+    ] = "exalted",
+    search: Annotated[str, Query(alias="Search")] = "",
 ) -> GetUniqueCategoryItemsRequest:
     return GetUniqueCategoryItemsRequest(
         category=category,
         reference_currency=reference_currency,
-        search=search
+        search=search,
     )
 
+
 GetUniqueCategoryItemsRequestDep = Annotated[
-    GetUniqueCategoryItemsRequest, 
-    get_unique_category_items_request
+    GetUniqueCategoryItemsRequest,
+    Depends(get_unique_category_items_request),
 ]
 
-@router.get("/UniqueCategory/{category}")
+
+@router.get("/UniqueCategory/{Category}")
 async def get_unique_category_items(
     request: GetUniqueCategoryItemsRequestDep,
     pagination: PaginationParamDep,
     repo: ItemRepoDep,
-    economny_cache: EconomyCacheDep,
-
+    economy_cache: EconomyCacheDep,
 ) -> GetUniqueItemsResponse:
     if request.reference_currency not in ["exalted", "chaos"]:
         raise HTTPException(400, "reference currency must be exalted or chaos")
 
     league = await repo.GetLeagueByValue(pagination.league_name)
-    if not league:
+    if league is None:
         raise HTTPException(400, "Invalid league name")
 
-    items = await economny_cache.GetUniquePage(
-        league.id, 
-        request.category,  
+    items = await economy_cache.GetUniquePage(
+        league.id,
+        request.category,
         request.reference_currency,
         request.search,
     )

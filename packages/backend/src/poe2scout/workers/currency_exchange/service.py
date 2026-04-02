@@ -67,7 +67,7 @@ async def run(
         startTime=datetime.fromtimestamp(data.next_change_id)
     )
 
-    if fetchStatus == False:
+    if not fetchStatus:
         logger.info("Prices not fetched yet")
         await asyncio.sleep(60 * 10)
         return

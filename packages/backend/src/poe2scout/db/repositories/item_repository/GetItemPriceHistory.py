@@ -26,13 +26,17 @@ class GetItemPriceHistory(BaseRepository):
 SELECT DISTINCT ON (time)
        price,
        quantity,
-       date_bin((%(logFrequency)s || ' hours')::interval, "createdAt", %(endTime)s::timestamp) as time
-  FROM "PriceLog"
- WHERE "itemId" = %(itemId)s
-       AND "leagueId" = %(leagueId)s
-       AND "createdAt" < %(endTime)s
- ORDER BY time DESC,"createdAt" DESC
- LIMIT %(limit)s;
+       date_bin(
+           (%(logFrequency)s || ' hours')::interval,
+           "createdAt",
+           %(endTime)s::timestamp
+       ) AS time
+FROM "PriceLog"
+WHERE "itemId" = %(itemId)s
+  AND "leagueId" = %(leagueId)s
+  AND "createdAt" < %(endTime)s
+ORDER BY time DESC, "createdAt" DESC
+LIMIT %(limit)s;
         """
 
         query_params = {

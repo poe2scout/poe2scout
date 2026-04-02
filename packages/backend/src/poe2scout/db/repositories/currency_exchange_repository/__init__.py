@@ -22,8 +22,6 @@ from poe2scout.db.repositories.currency_exchange_repository.SetServiceCacheValue
 from poe2scout.db.repositories.currency_exchange_repository.UpdatePairHistories import (
     UpdatePairHistories,
 )
-from poe2scout.db.repositories.item_repository import GetAllItemHistories
-
 
 class CurrencyExchangeRepository:
     def __init__(self):

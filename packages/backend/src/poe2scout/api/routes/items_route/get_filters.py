@@ -1,39 +1,37 @@
 from typing import Self
 
-from pydantic import BaseModel
-
+from poe2scout.api.dependancies import ItemRepoDep
+from poe2scout.api.models import ApiModel
 from poe2scout.db.repositories.item_repository.GetSearchOptions import SearchOption
 
 from . import router
-from fastapi import Depends
-from poe2scout.api.dependancies import get_item_repository
-from poe2scout.db.repositories import ItemRepository
 
-class GetFiltersResponse(BaseModel):
-    class _SearchOption(BaseModel):
+
+class GetFiltersResponse(ApiModel):
+    class _SearchOption(ApiModel):
         display_name: str
         category: str
         identifier: str
 
         @classmethod
-        def from_model(cls, filter: SearchOption) -> Self:
+        def from_model(cls, filter_option: SearchOption) -> Self:
             return cls(
-                display_name=filter.display_name,
-                category=filter.category,
-                identifier=filter.identifier
+                display_name=filter_option.display_name,
+                category=filter_option.category,
+                identifier=filter_option.identifier,
             )
-
 
     filters: list[_SearchOption]
 
     @classmethod
     def from_model(cls, filters: list[SearchOption]) -> Self:
         return cls(
-            filters=[cls._SearchOption.from_model(filter) for filter in filters]
+            filters=[cls._SearchOption.from_model(filter_option) for filter_option in filters]
         )
+
 
 @router.get("/Filters")
 async def get_filters(
-    item_repository: ItemRepository = Depends(get_item_repository)
-):
+    item_repository: ItemRepoDep,
+) -> GetFiltersResponse:
     return GetFiltersResponse.from_model(await item_repository.GetSearchOptions())

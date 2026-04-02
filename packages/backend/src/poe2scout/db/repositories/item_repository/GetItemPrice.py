@@ -21,7 +21,9 @@ class GetItemPrice(BaseRepository):
         
         item_query = """
             SELECT "price" FROM "PriceLog"
-            WHERE "itemId" = %(itemId)s AND "leagueId" = %(leagueId)s AND "createdAt" < %(createdBefore)s
+            WHERE "itemId" = %(itemId)s 
+              AND "leagueId" = %(leagueId)s 
+              AND "createdAt" < %(createdBefore)s
             ORDER BY "createdAt" DESC
             LIMIT 1
         """
@@ -35,9 +37,10 @@ class GetItemPrice(BaseRepository):
 
         price = await self.execute_query(item_query, params)
 
-        logger.info(f"Getting Item price for {itemId} in league {leagueId} at time {datetime.fromtimestamp(float(epoch))}. Price: {price}")
+        logger.info(f"Getting Item price for {itemId} in league {leagueId} at " +\
+                    f"time {datetime.fromtimestamp(float(epoch))}. Price: {price}")
 
         if len(price) == 0:
-            return 0  # Default div price in exalts. This method is / should only be called to get divine price or chaos price.
+            return 0
         else:
             return price[0]["price"]

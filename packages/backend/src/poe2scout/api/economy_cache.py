@@ -124,6 +124,9 @@ class EconomyCache:
         chaosPrice = 1
         if cacheKey.ReferenceCurrency == "chaos":
             chaosItem = await self.repo.GetCurrencyItem("chaos")
+            if chaosItem is None:
+                raise Exception()
+
             chaosPrice = await self.repo.GetItemPrice(
                 chaosItem.itemId, cacheKey.LeagueId
             )
@@ -134,7 +137,7 @@ class EconomyCache:
             for itemPriceLogs in priceLogs:
                 for i, itemPriceLogListItem in enumerate(priceLogs[itemPriceLogs]):
                     chaosPriceItem = chaosPriceLogs[i]
-                    if itemPriceLogListItem == None or chaosPriceItem == None:
+                    if itemPriceLogListItem is None or chaosPriceItem is None:
                         continue
 
                     priceLogs[itemPriceLogs][i] = PriceLogEntry(
@@ -196,6 +199,10 @@ class EconomyCache:
         chaosPrice = 1
         if cacheKey.ReferenceCurrency == "chaos":
             chaosItem = await self.repo.GetCurrencyItem("chaos")
+
+            if chaosItem is None:
+                raise Exception()
+
             chaosPrice = await self.repo.GetItemPrice(
                 chaosItem.itemId, cacheKey.LeagueId
             )
@@ -206,7 +213,7 @@ class EconomyCache:
             for itemPriceLogs in priceLogs:
                 for i, itemPriceLogListItem in enumerate(priceLogs[itemPriceLogs]):
                     chaosPriceItem = chaosPriceLogs[i]
-                    if itemPriceLogListItem == None or chaosPriceItem == None:
+                    if itemPriceLogListItem is None or chaosPriceItem is None:
                         continue
 
                     priceLogs[itemPriceLogs][i] = PriceLogEntry(

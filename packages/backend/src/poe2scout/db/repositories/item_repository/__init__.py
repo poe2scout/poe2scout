@@ -4,6 +4,7 @@ from poe2scout.db.repositories.item_repository.GetAllItemHistories import (
 from poe2scout.db.repositories.item_repository.GetCurrencyFetchStatus import (
     GetCurrencyFetchStatus,
 )
+from poe2scout.db.repositories.models import CurrencyItem
 from .GetItemPrices import GetItemPrices
 from .GetItemPricesInRange import GetItemPricesInRange
 from .GetPricesChecked import GetPricesChecked
@@ -96,3 +97,27 @@ class ItemRepository:
         self.GetItemPrices = GetItemPrices().execute
         self.GetCurrencyFetchStatus = GetCurrencyFetchStatus().execute
         self.GetAllItemHistories = GetAllItemHistories().execute
+    
+    async def get_divine_item(self) -> CurrencyItem:
+        divine_item = await GetCurrencyItem().execute("divine")
+
+        if divine_item is None:
+            raise Exception("Missing divine item")
+        
+        return divine_item
+
+    async def get_chaos_item(self) -> CurrencyItem:
+        chaos_item = await GetCurrencyItem().execute("chaos")
+
+        if chaos_item is None:
+            raise Exception("Missing chaos item")
+        
+        return chaos_item
+    
+    async def get_exalted_item(self) -> CurrencyItem:
+        exalted_item = await GetCurrencyItem().execute("exalted")
+
+        if exalted_item is None:
+            raise Exception("Missing exalted item")
+        
+        return exalted_item

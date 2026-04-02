@@ -2,9 +2,9 @@ from datetime import datetime, timezone
 from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path, Query
-from pydantic import BaseModel
 
 from poe2scout.api.dependancies import ItemRepoDep
+from poe2scout.api.models import ApiModel
 from poe2scout.db.repositories.item_repository.GetItemPriceHistory import (
     GetItemPriceHistoryModel,
 )
@@ -13,7 +13,7 @@ from poe2scout.db.repositories.models import PriceLogEntry
 from . import router
 
 
-class GetItemHistoryRequest(BaseModel):
+class GetItemHistoryRequest(ApiModel):
     item_id: int
     league_name: str
     log_count: int
@@ -22,11 +22,11 @@ class GetItemHistoryRequest(BaseModel):
 
 
 def get_item_history_request(
-    item_id: Annotated[int, Path(alias="itemId")],
-    league_name: Annotated[str, Query(alias="leagueName")],
-    log_count: Annotated[int, Query(alias="logCount")],
-    end_time: Annotated[datetime | None, Query(alias="endTime")] = None,
-    reference_currency: Annotated[str, Query(alias="referenceCurrency")] = "exalted",
+    item_id: Annotated[int, Path(alias="ItemId")],
+    league_name: Annotated[str, Query(alias="LeagueName")],
+    log_count: Annotated[int, Query(alias="LogCount")],
+    end_time: Annotated[datetime | None, Query(alias="EndTime")] = None,
+    reference_currency: Annotated[str, Query(alias="ReferenceCurrency")] = "exalted",
 ) -> GetItemHistoryRequest:
     return GetItemHistoryRequest(
         item_id=item_id,
@@ -43,8 +43,8 @@ GetItemHistoryRequestDep = Annotated[
 ]
 
 
-class GetItemHistoryResponse(BaseModel):
-    class _PricePoint(BaseModel):
+class GetItemHistoryResponse(ApiModel):
+    class _PricePoint(ApiModel):
         price: float
         time: datetime
         quantity: int
@@ -71,13 +71,13 @@ class GetItemHistoryResponse(BaseModel):
         )
 
 
-@router.get("/{itemId}/History")
+@router.get("/{ItemId}/History")
 async def get_item_history(
     request: GetItemHistoryRequestDep,
     item_repository: ItemRepoDep,
 ) -> GetItemHistoryResponse:
     if request.log_count % 4 != 0:
-        raise HTTPException(400, "logCount must be a multiple of 4")
+        raise HTTPException(400, "LogCount must be a multiple of 4")
 
     leagues = await item_repository.GetAllLeagues()
     league_id = next(

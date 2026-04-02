@@ -102,9 +102,14 @@ SELECT cesp."CurrencyExchangeSnapshotPairId",
   JOIN "CurrencyCategory" AS cc1 ON ci1."currencyCategoryId" = cc1."id"
   JOIN "CurrencyItem" AS ci2 ON cesp."CurrencyTwoId" = ci2."itemId"
   JOIN "CurrencyCategory" AS cc2 ON ci2."currencyCategoryId" = cc2."id"
-  JOIN "CurrencyExchangeSnapshotPairData" AS cespd1 ON cespd1."CurrencyExchangeSnapshotPairId" = cesp."CurrencyExchangeSnapshotPairId" AND cespd1."CurrencyId" = cesp."CurrencyOneId"
-  JOIN "CurrencyExchangeSnapshotPairData" AS cespd2 ON cespd2."CurrencyExchangeSnapshotPairId" = cesp."CurrencyExchangeSnapshotPairId" AND cespd2."CurrencyId" = cesp."CurrencyTwoId"
- WHERE cesp."CurrencyExchangeSnapshotId" IN (SELECT "CurrencyExchangeSnapshotId" FROM "CurrentSnapshotId");
+  JOIN "CurrencyExchangeSnapshotPairData" AS cespd1 
+        ON cespd1."CurrencyExchangeSnapshotPairId" = cesp."CurrencyExchangeSnapshotPairId" 
+        AND cespd1."CurrencyId" = cesp."CurrencyOneId"
+  JOIN "CurrencyExchangeSnapshotPairData" AS cespd2 
+        ON cespd2."CurrencyExchangeSnapshotPairId" = cesp."CurrencyExchangeSnapshotPairId" 
+        AND cespd2."CurrencyId" = cesp."CurrencyTwoId"
+ WHERE cesp."CurrencyExchangeSnapshotId" IN (SELECT "CurrencyExchangeSnapshotId" 
+                                               FROM "CurrentSnapshotId");
       """
 
             params = {"leagueId": leagueId}

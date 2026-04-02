@@ -46,7 +46,8 @@ async def sync_metadata_and_icon(
 
     if fetch_response.status_code != 200:
         raise Exception(
-            f"Fetch request failed for {want_currency.text} with status code {fetch_response.status_code}"
+            f"Fetch request failed for {want_currency.text} " +\
+            f"with status code {fetch_response.status_code}"
         )
 
     fetch_data = fetch_response.json()

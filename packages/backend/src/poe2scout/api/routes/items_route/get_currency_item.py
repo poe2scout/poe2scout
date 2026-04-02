@@ -2,16 +2,16 @@ from datetime import datetime
 from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path, Query
-from pydantic import BaseModel
 
-from poe2scout.api.dependancies import ItemRepoDep
-from poe2scout.api.dependancies import cache_response
+from poe2scout.api.dependancies import ItemRepoDep, cache_response
+from poe2scout.api.models import ApiModel
 from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
 
 from . import router
 
-class GetCurrencyItemResponse(BaseModel):
-    class _PriceLogEntry(BaseModel):
+
+class GetCurrencyItemResponse(ApiModel):
+    class _PriceLogEntry(ApiModel):
         price: float
         time: datetime
         quantity: int
@@ -25,86 +25,89 @@ class GetCurrencyItemResponse(BaseModel):
             )
 
     id: int
-    itemId: int
-    currencyCategoryId: int
-    apiId: str
+    item_id: int
+    currency_category_id: int
+    api_id: str
     text: str
-    categoryApiId: str
-    iconUrl: str | None
-    itemMetadata: dict | None = None
-    priceLogs: list[_PriceLogEntry | None]
-    currentPrice: float | None = None
+    category_api_id: str
+    icon_url: str | None
+    item_metadata: dict | None = None
+    price_logs: list[_PriceLogEntry | None]
+    current_price: float | None = None
 
     @classmethod
     def from_model(
-        cls, currency_item: CurrencyItem, price_logs: list[PriceLogEntry | None]
+        cls,
+        currency_item: CurrencyItem,
+        price_logs: list[PriceLogEntry | None],
     ) -> Self:
         return cls(
             id=currency_item.id,
-            itemId=currency_item.itemId,
-            currencyCategoryId=currency_item.currencyCategoryId,
-            apiId=currency_item.apiId,
+            item_id=currency_item.itemId,
+            currency_category_id=currency_item.currencyCategoryId,
+            api_id=currency_item.apiId,
             text=currency_item.text,
-            categoryApiId=currency_item.categoryApiId,
-            iconUrl=currency_item.iconUrl,
-            itemMetadata=currency_item.itemMetadata,
-            priceLogs=[
+            category_api_id=currency_item.categoryApiId,
+            icon_url=currency_item.iconUrl,
+            item_metadata=currency_item.itemMetadata,
+            price_logs=[
                 cls._PriceLogEntry.from_model(price_log)
                 if price_log is not None
                 else None
                 for price_log in price_logs
             ],
-            currentPrice=next(
-                (
-                    price_log.price
-                    for price_log in price_logs
-                    if price_log is not None
-                ),
+            current_price=next(
+                (price_log.price for price_log in price_logs if price_log is not None),
                 None,
             ),
         )
 
-class GetItemCurrencyRequest(BaseModel):
+
+class GetItemCurrencyRequest(ApiModel):
     api_id: str
     league_name: str
 
+
 def get_item_currency_request(
-    api_id: Annotated[str, Path(alias="apiId")],
-    league_name: Annotated[str, Query(alias="leagueName")]
-)-> GetItemCurrencyRequest:
+    api_id: Annotated[str, Path(alias="ApiId")],
+    league_name: Annotated[str, Query(alias="LeagueName")],
+) -> GetItemCurrencyRequest:
     return GetItemCurrencyRequest(
         api_id=api_id,
-        league_name=league_name
+        league_name=league_name,
     )
+
 
 GetCurrencyItemRequestDep = Annotated[
     GetItemCurrencyRequest,
     Depends(get_item_currency_request),
 ]
 
-@router.get("/Currency/{apiId}")
+
+@router.get("/Currency/{ApiId}")
 @cache_response(
-    key=lambda kwargs: f"get_currency_item:{kwargs['api_id']}:{kwargs['league_name']}"
+    key=lambda params: (
+        f"get_currency_item:{params['request'].api_id}:{params['request'].league_name}"
+    )
 )
 async def get_currency_item(
     request: GetCurrencyItemRequestDep,
-    repo: ItemRepoDep
+    repo: ItemRepoDep,
 ) -> GetCurrencyItemResponse:
-    
     currency_item = await repo.GetCurrencyItem(request.api_id)
-    if not currency_item:
+    if currency_item is None:
         raise HTTPException(400, "Invalid currency item api ID")
 
     league = await repo.GetLeagueByValue(request.league_name)
-    if not league:
+    if league is None:
         raise HTTPException(400, "Invalid league name")
 
     price_logs_by_item_id = await repo.GetItemPriceLogs(
-        itemIds=[currency_item.itemId], 
-        leagueId=league.id
+        itemIds=[currency_item.itemId],
+        leagueId=league.id,
     )
 
     return GetCurrencyItemResponse.from_model(
-        currency_item, 
-        price_logs_by_item_id.get(currency_item.itemId, [])
+        currency_item,
+        price_logs_by_item_id.get(currency_item.itemId, []),
     )

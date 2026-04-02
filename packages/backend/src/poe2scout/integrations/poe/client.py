@@ -138,7 +138,7 @@ class PoeApiClient(AsyncClient):
     def __init__(
         self, clientId: str, clientSecret: str, headers: Optional[Dict[str, str]] = None
     ):
-        if headers == None:
+        if headers is None:
             headers = {"User-Agent": "POE2SCOUT (contact: b@girardet.co.nz)"}
         super().__init__(
             headers=headers,
@@ -149,9 +149,9 @@ class PoeApiClient(AsyncClient):
         self.max_retries = 5
         self.retry_delay = 300  # 5 minutes in seconds
 
-        if self.client_id == None or self.client_id == "":
+        if self.client_id is None or self.client_id == "":
             raise ValueError
-        if self.client_secret == None or self.client_secret == "":
+        if self.client_secret is None or self.client_secret == "":
             raise ValueError
 
     async def _handle_response(self, response: Response) -> Optional[Response]:

@@ -30,7 +30,7 @@ class GetAllUniqueItems(BaseRepository):
               JOIN "Item" AS i ON ui."itemId" = i."id"
               JOIN "BaseItem" AS bi ON i."baseItemId" = bi."id"
               JOIN "ItemType" AS it ON bi."typeId" = it."id"
-			  JOIN "ItemCategory" AS ic on ic."id" = it."categoryId"
+              JOIN "ItemCategory" AS ic on ic."id" = it."categoryId"
         """
 
         uniqueItems = await self.execute_query(uniqueItem_query)

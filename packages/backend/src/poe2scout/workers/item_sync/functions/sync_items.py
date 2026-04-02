@@ -1,5 +1,4 @@
 import logging
-from poe2scout.workers.item_sync.models import *
 from poe2scout.db.repositories.item_repository import ItemRepository
 from poe2scout.db.repositories.item_repository.CreateItemCategory import (
     CreateItemCategoryModel,
@@ -8,6 +7,7 @@ from poe2scout.db.repositories.item_repository.CreateBaseItem import CreateBaseI
 from poe2scout.db.repositories.item_repository.CreateItemType import CreateItemTypeModel
 from poe2scout.db.repositories.item_repository.CreateUniqueItem import CreateUniqueItemModel
 from poe2scout.db.repositories.item_repository.CreateItem import CreateItemModel
+from poe2scout.workers.item_sync.models import item, itemCategory
 
 logger = logging.getLogger(__name__)
 
@@ -80,6 +80,9 @@ async def sync_items(categories: list[itemCategory]):
             # Create Item and UniqueItem if needed
             if is_unique(item_entry):
                 # Create Item
+                if item_entry.text is None or item_entry.name is None:
+                    raise Exception("Unique item missing name / text")
+
                 unique_exists = any(u.name == item_entry.name for u in all_unique_items)
 
                 if not unique_exists:
@@ -97,4 +100,4 @@ async def sync_items(categories: list[itemCategory]):
 
 
 def is_unique(item: item):
-    return item.name != None
+    return item.name is not None

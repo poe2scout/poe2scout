@@ -1,13 +1,16 @@
 from typing import Self
 
+from poe2scout.api.dependancies import ItemRepoDep
+from poe2scout.api.models import ApiModel
 from poe2scout.db.repositories.item_repository.GetAllItemCategories import ItemCategory
 
 from . import router
-from poe2scout.api.dependancies import ItemRepoDep
-from pydantic import BaseModel
 
-class GetItemCategoriesResponse(BaseModel):
-    class _ItemCategory(BaseModel):
+IGNORE_CURRENCIES = ["gem", "relics", "waystones"]
+
+
+class GetItemCategoriesResponse(ApiModel):
+    class _ItemCategory(ApiModel):
         id: int
         api_id: str
         label: str
@@ -17,45 +20,42 @@ class GetItemCategoriesResponse(BaseModel):
         def from_model(
             cls,
             item_category: ItemCategory,
-            icon: str
+            icon: str,
         ) -> Self:
             return cls(
                 id=item_category.id,
                 api_id=item_category.apiId,
                 label=item_category.label,
-                icon=icon
+                icon=icon,
             )
-    
+
     unique_categories: list[_ItemCategory]
     currency_categories: list[_ItemCategory]
 
     @classmethod
     def from_model(
-        cls, 
+        cls,
         unique_categories: list[ItemCategory],
         currency_categories: list[ItemCategory],
-        icon_lookup: dict[str, str]
+        icon_lookup: dict[str, str],
     ) -> Self:
         return cls(
             unique_categories=[
-                GetItemCategoriesResponse._ItemCategory.from_model(
+                cls._ItemCategory.from_model(
                     item_category=unique_category,
-                    icon=icon_lookup[unique_category.apiId.lower()]
-                        if unique_category.apiId.lower() in icon_lookup else "",
+                    icon=icon_lookup.get(unique_category.apiId.lower(), ""),
                 )
                 for unique_category in unique_categories
             ],
             currency_categories=[
-                GetItemCategoriesResponse._ItemCategory.from_model(
+                cls._ItemCategory.from_model(
                     item_category=currency_category,
-                    icon=icon_lookup[currency_category.apiId.lower()]
-                        if currency_category.apiId.lower() in icon_lookup else "",
+                    icon=icon_lookup.get(currency_category.apiId.lower(), ""),
                 )
                 for currency_category in currency_categories
-            ]
+            ],
         )
 
-ignoreCurrencies = ["gem", "relics", "waystones"]
 
 @router.get("/Categories")
 async def get_item_categories(
@@ -65,23 +65,25 @@ async def get_item_categories(
     all_item_categories = await item_repository.GetAllItemCategories()
 
     unique_item_categories = [
-        category for category in all_item_categories 
-        if category.apiId != "currency" and category.apiId not in ignoreCurrencies
+        category
+        for category in all_item_categories
+        if category.apiId != "currency" and category.apiId not in IGNORE_CURRENCIES
     ]
 
     currency_item_categories = [
-        category for category in all_currency_categories
-        if category.apiId not in ignoreCurrencies
+        category
+        for category in all_currency_categories
+        if category.apiId not in IGNORE_CURRENCIES
     ]
 
     return GetItemCategoriesResponse.from_model(
         unique_categories=unique_item_categories,
         currency_categories=currency_item_categories,
-        icon_lookup=icon_dump()
+        icon_lookup=icon_dump(),
     )
 
 
-def icon_dump():
+def icon_dump() -> dict[str, str]:
     return {
         "delirium": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRGlzdGlsbGVkRW1vdGlvbnMvRGlzdGlsbGVkRGVzcGFpciIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/794fb40302/DistilledDespair.png",
         "fragments": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQnJlYWNoL0JyZWFjaHN0b25lU3BsaW50ZXIiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/00c84e43a8/BreachstoneSplinter.png",
@@ -107,5 +109,5 @@ def icon_dump():
         "uncutgems": "https://web.poecdn.com//gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9VbmN1dFNraWxsR2VtQnVmZiIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/ab25e9aa3b/UncutSkillGemBuff.png",
         "lineagesupportgems": "https://web.poecdn.com//gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvTmV3U3VwcG9ydC9MaW5lYWdlL0xpbmVhZ2VWaWxlbnRhIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/abda900f3c/LineageVilenta.png",
         "incursion": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvSW5jdXJzaW9uQ3JhZnRpbmdPcmJzL0luY3Vyc2lvbkdyZWF0ZXJWYWFsT3JiIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/7ba6f79f63/IncursionGreaterVaalOrb.png",
-        "idol": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvVG9ybWVudGVkU3Bpcml0U29ja2V0YWJsZXMvQXptZXJpU29ja2V0YWJsZU93bCIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/dfe1212549/AzmeriSocketableOwl.png"
+        "idol": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvVG9ybWVudGVkU3Bpcml0U29ja2V0YWJsZXMvQXptZXJpU29ja2V0YWJsZU93bCIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/dfe1212549/AzmeriSocketableOwl.png",
     }

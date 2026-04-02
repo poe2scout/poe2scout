@@ -1,23 +1,19 @@
 from datetime import datetime
-from typing import Optional, Self
+from typing import Self
 
-from poe2scout.db.repositories.models import PriceLogEntry
+from poe2scout.api.dependancies import ItemRepoDep
+from poe2scout.api.models import ApiModel
+from poe2scout.db.repositories.models import CurrencyItemExtended, PriceLogEntry
 
 from . import router
-from poe2scout.api.dependancies import ItemRepoDep
 
-from poe2scout.api.routes.item_route.get_currency_category_items import (
-    CurrencyItemExtended
-)
+IMPORTANT_API_IDS = ["mirror", "divine", "exalted", "annul"]
+DEFAULT_LEAGUE_ID = 7
 
-from pydantic import BaseModel
 
-important_api_ids = ["mirror", "divine", "exalted", "annul"]
-default_league_id = 7
-
-class GetLandingSplashInfoResponse(BaseModel):
-    class _Item(BaseModel):
-        class _PriceLogEntry(BaseModel):
+class GetLandingSplashInfoResponse(ApiModel):
+    class _Item(ApiModel):
+        class _PriceLogEntry(ApiModel):
             price: float
             time: datetime
             quantity: int
@@ -27,7 +23,7 @@ class GetLandingSplashInfoResponse(BaseModel):
                 return cls(
                     price=model.price,
                     time=model.time,
-                    quantity=model.quantity
+                    quantity=model.quantity,
                 )
 
         id: int
@@ -36,10 +32,10 @@ class GetLandingSplashInfoResponse(BaseModel):
         api_id: str
         text: str
         category_api_id: str
-        icon_url: Optional[str] = None
-        item_metadata: Optional[dict] = None
+        icon_url: str | None = None
+        item_metadata: dict | None = None
         price_logs: list[_PriceLogEntry | None]
-        current_price: Optional[float] = None
+        current_price: float | None = None
 
         @classmethod
         def from_model(cls, model: CurrencyItemExtended) -> Self:
@@ -53,49 +49,46 @@ class GetLandingSplashInfoResponse(BaseModel):
                 icon_url=model.iconUrl,
                 item_metadata=model.itemMetadata,
                 price_logs=[
-                    cls._PriceLogEntry.from_model(price_log) 
-                    if price_log is not None 
-                    else None 
+                    cls._PriceLogEntry.from_model(price_log)
+                    if price_log is not None
+                    else None
                     for price_log in model.priceLogs
                 ],
-                current_price=model.currentPrice
+                current_price=model.currentPrice,
             )
 
     items: list[_Item]
 
     @classmethod
     def from_model(cls, model: list[CurrencyItemExtended]) -> Self:
-        return cls(
-            items=[cls._Item.from_model(item) for item in model]
-        )
+        return cls(items=[cls._Item.from_model(item) for item in model])
+
 
 @router.get("/LandingSplashInfo")
 async def get_landing_splash_info(
     item_repository: ItemRepoDep,
 ) -> GetLandingSplashInfoResponse:
-    items = await item_repository.GetCurrencyItems(important_api_ids)
+    items = await item_repository.GetCurrencyItems(IMPORTANT_API_IDS)
 
-    itemIds = [item.itemId for item in items]
+    item_ids = [item.itemId for item in items]
 
-    priceLogs = await item_repository.GetItemPriceLogs(itemIds, default_league_id)
+    price_logs = await item_repository.GetItemPriceLogs(item_ids, DEFAULT_LEAGUE_ID)
 
     items = [
-        CurrencyItemExtended(**item.model_dump(), priceLogs=priceLogs[item.itemId])
+        CurrencyItemExtended(**item.model_dump(), priceLogs=price_logs[item.itemId])
         for item in items
     ]
 
-    lastPrice = dict.fromkeys(itemIds, 0.0)
+    last_price = dict.fromkeys(item_ids, 0.0)
 
     for item in items:
         for log in item.priceLogs:
-            if log and hasattr(log, "price"):
-                lastPrice[item.itemId] = log.price
+            if log is not None and hasattr(log, "price"):
+                last_price[item.itemId] = log.price
                 break
 
     items.sort(
-        key=lambda item: (
-            int(lastPrice[item.itemId]) if item.itemId in lastPrice else 0.0
-        ),
+        key=lambda item: int(last_price[item.itemId]) if item.itemId in last_price else 0,
         reverse=True,
     )
 
