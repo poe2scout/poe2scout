@@ -25,22 +25,18 @@ class GetCurrentSnapshotResponse(ApiModel):
             market_cap=model.MarketCap,
         )
 
-
 class GetCurrentSnapshotRequest(ApiModel):
     league_name: str
-
 
 def get_current_snapshot_request(
     league_name: Annotated[str, Query(alias="LeagueName")],
 ) -> GetCurrentSnapshotRequest:
     return GetCurrentSnapshotRequest(league_name=league_name)
 
-
 GetCurrentSnapshotRequestDep = Annotated[
     GetCurrentSnapshotRequest,
     Depends(get_current_snapshot_request),
 ]
-
 
 @router.get("")
 async def get_current_snapshot(

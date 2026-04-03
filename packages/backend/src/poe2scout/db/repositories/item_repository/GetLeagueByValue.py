@@ -10,7 +10,9 @@ class League(BaseModel):
 
 class GetLeagueByValue(BaseRepository):
     async def execute(self, value: str) -> League | None:
-        async with self.get_db_cursor(rowFactory=class_row(League)) as cursor:
+        async with self.get_db_cursor(
+            rowFactory=class_row(League)
+        ) as cursor:
             query = """
                 SELECT "id", "value" 
                 FROM "League"
@@ -21,6 +23,4 @@ class GetLeagueByValue(BaseRepository):
 
             await cursor.execute(query, params)
 
-            league = await cursor.fetchone()
-
-            return league
+            return await cursor.fetchone()

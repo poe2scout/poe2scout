@@ -15,9 +15,10 @@ class LeagueSnapshot(BaseModel):
 
 class GetSnapshotForLeague(BaseRepository):
     async def execute(self, leagueId: int) -> List[LeagueSnapshot]:
-        async with self.get_db_cursor(rowFactory=class_row(LeagueSnapshot)) as cursor:
-            await cursor.execute(
-                """
+        async with self.get_db_cursor(
+            rowFactory=class_row(LeagueSnapshot)
+        ) as cursor:
+            query = """
             SELECT pl."price"
                 , pl."createdAt"
                 , pl."quantity"
@@ -29,8 +30,8 @@ class GetSnapshotForLeague(BaseRepository):
             LEFT JOIN "UniqueItem" AS ui ON i."id" = ui."itemId"
             WHERE "leagueId" = %(leagueId)s
             ORDER BY "createdAt" DESC
-            """,
-                (leagueId,),
-            )
+            """
+            
+            await cursor.execute(query,(leagueId,))
 
             return await cursor.fetchall()

@@ -1,4 +1,4 @@
-from ..base_repository import BaseRepository
+from ..base_repository import BaseRepository, scalar_as
 from pydantic import BaseModel
 
 
@@ -9,14 +9,15 @@ class CreateCurrencyCategoryModel(BaseModel):
 
 class CreateCurrencyCategory(BaseRepository):
     async def execute(self, currencyCategory: CreateCurrencyCategoryModel) -> int:
-        currencyCategory_query = """
-            INSERT INTO "CurrencyCategory" ("apiId", "label")
-            VALUES (%s, %s)
-            RETURNING "id"
-        """
+        async with self.get_db_cursor(rowFactory=scalar_as(int)) as cursor:
+            query = """
+                INSERT INTO "CurrencyCategory" ("apiId", "label")
+                VALUES (%s, %s)
+                RETURNING "id"
+            """
 
-        currencyCategoryId = await self.execute_single(
-            currencyCategory_query, (currencyCategory.id, currencyCategory.label)
-        )
+            await cursor.execute(
+                query, (currencyCategory.id, currencyCategory.label)
+            )
 
-        return currencyCategoryId
+            return await anext(cursor)

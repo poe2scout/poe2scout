@@ -1,5 +1,5 @@
 from typing import Optional
-from ..base_repository import BaseRepository
+from ..base_repository import BaseRepository, scalar_as
 from pydantic import BaseModel
 
 
@@ -12,20 +12,22 @@ class CreateUniqueItemModel(BaseModel):
 
 class CreateUniqueItem(BaseRepository):
     async def execute(self, uniqueItem: CreateUniqueItemModel) -> int:
-        uniqueItem_query = """
-            INSERT INTO "UniqueItem" ("itemId", "iconUrl", "text", "name")
-            VALUES (%(itemId)s, %(iconUrl)s, %(text)s, %(name)s)
-            RETURNING "id"
-        """
+        async with self.get_db_cursor(rowFactory=scalar_as(int)) as cursor:
 
-        uniqueItemId = await self.execute_single(
-            uniqueItem_query,
-            params={
-                "itemId": uniqueItem.itemId,
-                "iconUrl": uniqueItem.iconUrl,
-                "text": uniqueItem.text,
-                "name": uniqueItem.name,
-            },
-        )
+            query = """
+                INSERT INTO "UniqueItem" ("itemId", "iconUrl", "text", "name")
+                VALUES (%(itemId)s, %(iconUrl)s, %(text)s, %(name)s)
+                RETURNING "id"
+            """
 
-        return uniqueItemId
+            await cursor.execute(
+                query,
+                params={
+                    "itemId": uniqueItem.itemId,
+                    "iconUrl": uniqueItem.iconUrl,
+                    "text": uniqueItem.text,
+                    "name": uniqueItem.name,
+                },
+            )
+
+            return await anext(cursor)

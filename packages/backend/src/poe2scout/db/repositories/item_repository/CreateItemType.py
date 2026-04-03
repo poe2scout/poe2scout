@@ -1,4 +1,4 @@
-from ..base_repository import BaseRepository
+from ..base_repository import BaseRepository, scalar_as
 from pydantic import BaseModel
 
 
@@ -9,14 +9,16 @@ class CreateItemTypeModel(BaseModel):
 
 class CreateItemType(BaseRepository):
     async def execute(self, itemType: CreateItemTypeModel) -> int:
-        itemType_query = """
-            INSERT INTO "ItemType" ("value", "categoryId")
-            VALUES (%s, %s)
-            RETURNING "id"
-        """
+        async with self.get_db_cursor(rowFactory=scalar_as(int)) as cursor:
 
-        itemTypeId = await self.execute_single(
-            itemType_query, (itemType.value, itemType.categoryId)
-        )
+            query = """
+                INSERT INTO "ItemType" ("value", "categoryId")
+                VALUES (%s, %s)
+                RETURNING "id"
+            """
 
-        return itemTypeId
+            await cursor.execute(
+                query, (itemType.value, itemType.categoryId)
+            )
+
+            return await anext(cursor)

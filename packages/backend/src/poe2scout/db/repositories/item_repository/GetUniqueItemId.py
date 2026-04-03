@@ -1,5 +1,4 @@
-from typing import Awaitable
-from ..base_repository import BaseRepository
+from ..base_repository import BaseRepository, scalar_as
 from pydantic import BaseModel
 
 
@@ -8,12 +7,15 @@ class GetUniqueItemIdModel(BaseModel):
 
 
 class GetUniqueItemId(BaseRepository):
-    async def execute(self, name: str) -> Awaitable[int]:
-        item_query = """
-            SELECT "itemId" FROM "UniqueItem"
-            WHERE "name" = %s
-        """
+    async def execute(self, name: str) -> int | None:
+        async with self.get_db_cursor(
+            rowFactory=scalar_as(int)
+        ) as cursor:
+            query = """
+                SELECT "itemId" FROM "UniqueItem"
+                WHERE "name" = %s
+            """
 
-        uniqueItemId = (await self.execute_query(item_query, (name,)))[0]["itemId"]
+            await cursor.execute(query, (name,))
 
-        return uniqueItemId
+            return await cursor.fetchone()

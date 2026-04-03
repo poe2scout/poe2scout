@@ -3,16 +3,16 @@ import json
 
 
 class SetUniqueItemMetadata(BaseRepository):
-    async def execute(self, itemMetadata: dict, id: int) -> int:
-        uniqueItem_query = """
-            UPDATE "UniqueItem"
-            SET "itemMetadata" = %(itemMetadata)s
-            WHERE "id" = %(id)s
-        """
+    async def execute(self, itemMetadata: dict, id: int):
+        async with self.get_db_cursor() as cursor:
 
-        rows = await self.execute_update(
-            uniqueItem_query,
-            params={"itemMetadata": json.dumps(itemMetadata), "id": id},
-        )
+            query = """
+                UPDATE "UniqueItem"
+                SET "itemMetadata" = %(itemMetadata)s
+                WHERE "id" = %(id)s
+            """
 
-        return rows
+            await cursor.execute(
+                query,
+                params={"itemMetadata": json.dumps(itemMetadata), "id": id},
+            )

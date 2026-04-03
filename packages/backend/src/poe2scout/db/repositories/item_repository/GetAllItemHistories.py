@@ -71,7 +71,7 @@ ORDER BY p."itemId", p."createdAt" DESC;
             params = {"leagueId": leagueId}
 
             await cursor.execute(query, params)
-            rows: List[_AllItemHistoriesRow] = await cursor.fetchall()
+            rows = await cursor.fetchall()
 
             if not rows:
                 return []

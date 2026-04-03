@@ -1,4 +1,6 @@
 from typing import Optional, List
+
+from psycopg.rows import class_row
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 
@@ -17,22 +19,25 @@ class UniqueItem(BaseModel):
 
 class GetAllUniqueItems(BaseRepository):
     async def execute(self) -> List[UniqueItem]:
-        uniqueItem_query = """
-            SELECT ui."id", 
-                   ui."itemId", 
-                   ui."iconUrl", 
-                   ui."text", 
-                   ui."name", 
-                   ui."itemMetadata", 
-                   it."value" as "type", 
-                   ic."apiId" as "categoryApiId" 
-              FROM "UniqueItem" as ui
-              JOIN "Item" AS i ON ui."itemId" = i."id"
-              JOIN "BaseItem" AS bi ON i."baseItemId" = bi."id"
-              JOIN "ItemType" AS it ON bi."typeId" = it."id"
-              JOIN "ItemCategory" AS ic on ic."id" = it."categoryId"
-        """
+        async with self.get_db_cursor(
+            rowFactory=class_row(UniqueItem)
+        ) as cursor:
+            query = """
+                SELECT ui."id", 
+                    ui."itemId", 
+                    ui."iconUrl", 
+                    ui."text", 
+                    ui."name", 
+                    ui."itemMetadata", 
+                    it."value" as "type", 
+                    ic."apiId" as "categoryApiId" 
+                FROM "UniqueItem" as ui
+                JOIN "Item" AS i ON ui."itemId" = i."id"
+                JOIN "BaseItem" AS bi ON i."baseItemId" = bi."id"
+                JOIN "ItemType" AS it ON bi."typeId" = it."id"
+                JOIN "ItemCategory" AS ic on ic."id" = it."categoryId"
+            """
 
-        uniqueItems = await self.execute_query(uniqueItem_query)
+            await cursor.execute(query)
 
-        return [UniqueItem(**uniqueItem) for uniqueItem in uniqueItems]
+            return await cursor.fetchall()

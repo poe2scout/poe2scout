@@ -2,15 +2,15 @@ from ..base_repository import BaseRepository
 
 
 class UpdateBaseItemIconUrl(BaseRepository):
-    async def execute(self, iconUrl: str, id: int) -> int:
-        baseItem_query = """
-            UPDATE "BaseItem"
-            SET "iconUrl" = %(iconUrl)s
-            WHERE "id" = %(id)s
-        """
+    async def execute(self, iconUrl: str, id: int):
+        async with self.get_db_cursor() as cursor:
 
-        rows = await self.execute_update(
-            baseItem_query, params={"iconUrl": iconUrl, "id": id}
-        )
+            query = """
+                UPDATE "BaseItem"
+                SET "iconUrl" = %(iconUrl)s
+                WHERE "id" = %(id)s
+            """
 
-        return rows
+            await cursor.execute(
+                query, params={"iconUrl": iconUrl, "id": id}
+            )

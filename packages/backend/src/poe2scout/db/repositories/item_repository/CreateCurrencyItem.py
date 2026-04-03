@@ -1,5 +1,5 @@
 from typing import Optional
-from ..base_repository import BaseRepository
+from ..base_repository import BaseRepository, scalar_as
 from pydantic import BaseModel
 
 
@@ -13,21 +13,23 @@ class CreateCurrencyItemModel(BaseModel):
 
 class CreateCurrencyItem(BaseRepository):
     async def execute(self, currencyItem: CreateCurrencyItemModel) -> int:
-        currencyItem_query = """
-            INSERT INTO "CurrencyItem" ("itemId", "currencyCategoryId", "apiId", "text", "iconUrl")
-            VALUES (%s, %s, %s, %s, %s)
-            RETURNING "id"
-        """
+        async with self.get_db_cursor(rowFactory=scalar_as(int)) as cursor:
 
-        currencyItemId = await self.execute_single(
-            currencyItem_query,
-            (
-                currencyItem.itemId,
-                currencyItem.currencyCategoryId,
-                currencyItem.apiId,
-                currencyItem.text,
-                currencyItem.image,
-            ),
-        )
+            query = """
+                INSERT INTO "CurrencyItem" ("itemId", "currencyCategoryId", "apiId", "text", "iconUrl")
+                VALUES (%s, %s, %s, %s, %s)
+                RETURNING "id"
+            """
 
-        return currencyItemId
+            await cursor.execute(
+                query,
+                (
+                    currencyItem.itemId,
+                    currencyItem.currencyCategoryId,
+                    currencyItem.apiId,
+                    currencyItem.text,
+                    currencyItem.image,
+                ),
+            )
+
+            return await anext(cursor)

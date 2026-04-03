@@ -1,4 +1,6 @@
 from typing import List
+
+from psycopg.rows import class_row
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 
@@ -9,23 +11,29 @@ class League(BaseModel):
 
 
 class GetLeagues(BaseRepository):
-    async def execute(self) -> List[League]:
-        league_query = """
-            SELECT "id", "value" 
-            FROM "League"
-            WHERE "currentLeague" = true
-        """
-        leagues = await self.execute_query(league_query)
+    async def execute(self) -> list[League]:
+        async with self.get_db_cursor(
+            rowFactory=class_row(League)
+        ) as cursor:
+            query = """
+                SELECT "id", "value" 
+                FROM "League"
+                WHERE "currentLeague" = true
+            """
+            await cursor.execute(query)
 
-        return [League(**league) for league in leagues]
+            return await cursor.fetchall()
 
 
 class GetAllLeagues(BaseRepository):
     async def execute(self) -> List[League]:
-        league_query = """
-            SELECT "id", "value" 
-            FROM "League"
-        """
-        leagues = await self.execute_query(league_query)
+        async with self.get_db_cursor(
+            rowFactory=class_row(League)
+        ) as cursor:
+            query = """
+                SELECT "id", "value" 
+                FROM "League"
+            """
+            await cursor.execute(query)
 
-        return [League(**league) for league in leagues]
+            return await cursor.fetchall()

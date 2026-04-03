@@ -1,4 +1,7 @@
 from typing import Optional, List
+
+from psycopg.rows import class_row
+
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 
@@ -14,29 +17,33 @@ class UniqueBaseItem(BaseModel):
 
 class GetAllUniqueBaseItems(BaseRepository):
     async def execute(self) -> List[UniqueBaseItem]:
-        baseItem_query = """
-                        WITH unique_ids AS (
-                            SELECT DISTINCT "baseItemId" FROM "Item"
-                            WHERE "itemType" = 'unique'
-                        ),
-                        valid_items AS (
-                            SELECT * FROM "Item"
-                            WHERE "itemType" = 'base'
-                        )
-                        SELECT 
-                            "bi"."id", 
-                            "bi"."iconUrl", 
-                            "bi"."itemMetadata", 
-                            "i".id as "itemId", 
-                            "it"."value" as name, 
-                            ic."apiId" 
-                        FROM "BaseItem" as bi
-                        JOIN valid_items as i ON "bi"."id" = "i"."baseItemId" 
-                        JOIN "ItemType" as it ON "bi"."typeId" = "it"."id"
-                        JOIN "ItemCategory" as ic on it."categoryId" = ic.id
-                        WHERE "bi"."id" IN (SELECT "baseItemId" FROM unique_ids)
-        """
+        async with self.get_db_cursor(
+            rowFactory=class_row(UniqueBaseItem)
+        ) as cursor:
 
-        baseItems = await self.execute_query(baseItem_query)
+            query = """
+                            WITH unique_ids AS (
+                                SELECT DISTINCT "baseItemId" FROM "Item"
+                                WHERE "itemType" = 'unique'
+                            ),
+                            valid_items AS (
+                                SELECT * FROM "Item"
+                                WHERE "itemType" = 'base'
+                            )
+                            SELECT 
+                                "bi"."id", 
+                                "bi"."iconUrl", 
+                                "bi"."itemMetadata", 
+                                "i".id as "itemId", 
+                                "it"."value" as name, 
+                                ic."apiId" 
+                            FROM "BaseItem" as bi
+                            JOIN valid_items as i ON "bi"."id" = "i"."baseItemId" 
+                            JOIN "ItemType" as it ON "bi"."typeId" = "it"."id"
+                            JOIN "ItemCategory" as ic on it."categoryId" = ic.id
+                            WHERE "bi"."id" IN (SELECT "baseItemId" FROM unique_ids)
+            """
 
-        return [UniqueBaseItem(**baseItem) for baseItem in baseItems]
+            await cursor.execute(query)
+
+            return await cursor.fetchall()

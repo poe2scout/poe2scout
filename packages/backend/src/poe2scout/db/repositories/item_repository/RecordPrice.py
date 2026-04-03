@@ -1,5 +1,6 @@
-from typing import List, Awaitable
-from ..base_repository import BaseRepository
+from typing import List
+
+from ..base_repository import BaseRepository, scalar_as
 from pydantic import BaseModel
 
 
@@ -11,25 +12,29 @@ class RecordPriceModel(BaseModel):
 
 
 class RecordPrice(BaseRepository):
-    async def execute(self, price: RecordPriceModel) -> Awaitable[int]:
-        item_query = """
-            INSERT INTO "PriceLog" ("itemId", "leagueId", "price", "quantity", "createdAt")
-            VALUES (%(itemId)s, %(leagueId)s, %(price)s, %(quantity)s, NOW())
-            RETURNING "id"
-        """
+    async def execute(self, price: RecordPriceModel) -> int:
+        async with self.get_db_cursor(
+            rowFactory=scalar_as(int)
+        ) as cursor:
+            query = """
+                INSERT INTO "PriceLog" ("itemId", "leagueId", "price", "quantity", "createdAt")
+                VALUES (%(itemId)s, %(leagueId)s, %(price)s, %(quantity)s, NOW())
+                RETURNING "id"
+            """
 
-        priceLogId = await self.execute_single(item_query, price.model_dump())
+            await cursor.execute(query, price.model_dump())
 
-        return priceLogId
+            return await anext(cursor)
 
 
 class RecordPriceBulk(BaseRepository):
     async def execute(self, prices: List[RecordPriceModel], epoch: int):
-        item_query = """
-            INSERT INTO "PriceLog" ("itemId", "leagueId", "price", "quantity", "createdAt")
-            VALUES (%(itemId)s, %(leagueId)s, %(price)s, %(quantity)s, to_timestamp(%(createdAt)s))
-        """
-        # Add the timestamp to each price dictionary
-        priceDictList = [{**price.model_dump(), "createdAt": epoch} for price in prices]
+        async with self.get_db_cursor() as cursor:
+            query = """
+INSERT INTO "PriceLog" ("itemId", "leagueId", "price", "quantity", "createdAt")
+VALUES (%(itemId)s, %(leagueId)s, %(price)s, %(quantity)s, to_timestamp(%(createdAt)s))
+            """
+            # Add the timestamp to each price dictionary
+            priceDictList = [{**price.model_dump(), "createdAt": epoch} for price in prices]
 
-        await self.execute_many(item_query, priceDictList)
+            await cursor.executemany(query, priceDictList)

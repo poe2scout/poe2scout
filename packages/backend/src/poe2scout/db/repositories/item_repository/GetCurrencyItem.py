@@ -10,7 +10,6 @@ class GetCurrencyItemIdModel(BaseModel):
 class GetCurrencyItem(BaseRepository):
     async def execute(self, apiId: str) -> CurrencyItem | None:
         async with self.get_db_cursor(rowFactory=class_row(CurrencyItem)) as cursor:
-
             query = """
                 SELECT ci."id", 
                     ci."itemId", 

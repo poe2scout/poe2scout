@@ -1,4 +1,6 @@
 from typing import List
+
+from psycopg.rows import class_row
 from ..base_repository import BaseRepository
 from pydantic import BaseModel
 
@@ -11,10 +13,13 @@ class ItemType(BaseModel):
 
 class GetAllItemTypes(BaseRepository):
     async def execute(self) -> List[ItemType]:
-        itemType_query = """
-            SELECT "id", "value", "categoryId" FROM "ItemType"
-        """
+        async with self.get_db_cursor(
+            rowFactory=class_row(ItemType)
+        ) as cursor:
+            query = """
+                SELECT "id", "value", "categoryId" FROM "ItemType"
+            """
 
-        itemTypes = await self.execute_query(itemType_query)
+            await cursor.execute(query)
 
-        return [ItemType(**itemType) for itemType in itemTypes]
+            return await cursor.fetchall()
