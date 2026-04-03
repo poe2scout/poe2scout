@@ -136,13 +136,16 @@ export function ItemMetadataView({
   if (!metadata || !anchorEl) return null;
 
   if (
-    !("stack_size" in metadata) &&
+    !("stackSize" in metadata) &&
     metadata.properties?.["Jewel"] !== undefined
   ) {
     return null;
   }
 
-  const isCurrency = "stack_size" in metadata;
+  const isCurrency = "stackSize" in metadata;
+  const implicitMods = !isCurrency ? metadata.implicitMods ?? [] : [];
+  const explicitMods = !isCurrency ? metadata.explicitMods ?? [] : [];
+  const currencyEffects = isCurrency ? metadata.effect ?? [] : [];
 
   return (
     <MetadataContainer
@@ -164,7 +167,7 @@ export function ItemMetadataView({
       {isCurrency && (
         <Section>
           <PropertyLine>
-            <span>{`Stack Size: ${metadata.stack_size}/${metadata.max_stack_size}`}</span>
+            <span>{`Stack Size: ${metadata.stackSize}/${metadata.maxStackSize}`}</span>
           </PropertyLine>
         </Section>
       )}
@@ -197,19 +200,18 @@ export function ItemMetadataView({
 
       {/* Effect for Currency / Implicit Mods for Items */}
       {isCurrency
-        ? metadata.effect &&
-          metadata.effect.length > 0 && (
+        ? currencyEffects.length > 0 && (
             <Section>
-              {metadata.effect.map((effect: string, index: number) => (
+              {currencyEffects.map((effect: string, index: number) => (
                 <ModLine key={index} color="#8888FF">
                   {effect}
                 </ModLine>
               ))}
             </Section>
           )
-        : metadata.implicit_mods?.length > 0 && (
+        : implicitMods.length > 0 && (
             <Section>
-              {metadata.implicit_mods.map((mod: string, index: number) => (
+              {implicitMods.map((mod: string, index: number) => (
                 <ModLine key={index} color="#8888FF">
                   {mod}
                 </ModLine>
@@ -218,9 +220,9 @@ export function ItemMetadataView({
           )}
 
       {/* Explicit Mods for Items */}
-      {!isCurrency && metadata.explicit_mods?.length > 0 && (
+      {!isCurrency && explicitMods.length > 0 && (
         <Section>
-          {metadata.explicit_mods.map((mod: string, index: number) => (
+          {explicitMods.map((mod: string, index: number) => (
             <ModLine key={index} color="#8888FF">
               {mod}
             </ModLine>
@@ -229,13 +231,13 @@ export function ItemMetadataView({
       )}
 
       {/* Flavor Text */}
-      {!isCurrency && metadata.flavor_text && (
+      {!isCurrency && metadata.flavorText && (
         <Section>
           <ModLine
             color="#af6025"
             style={{ fontStyle: "italic", whiteSpace: "pre-wrap" }}
           >
-            {metadata.flavor_text}
+            {metadata.flavorText}
           </ModLine>
         </Section>
       )}

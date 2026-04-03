@@ -70,8 +70,8 @@ export function ItemName({
           </span>
           {(isUnique && itemMetadata) && (
             <span className="type">
-              {"base_type" in itemMetadata
-                ? ` ${itemMetadata.base_type}`
+              {"baseType" in itemMetadata
+                ? ` ${itemMetadata.baseType}`
                 : ` ${itemMetadata.name}`}
             </span>
           )}

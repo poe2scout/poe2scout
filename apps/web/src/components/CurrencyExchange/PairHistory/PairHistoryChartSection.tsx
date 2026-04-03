@@ -12,8 +12,8 @@ import {
 import type { SelectChangeEvent } from "@mui/material/Select";
 
 import { Chart, ChartData } from "../../Chart";
-import PairHistoryChartLegend from "../PairHistoryChartLegend";
 import type { LegendData } from "../../ItemHistoryChartLegend";
+import PairHistoryChartLegend from "../PairHistoryChartLegend";
 import { formatMetricValue } from "./metricFormatters";
 import type { MetricMenuOption, MetricKey } from "./metricTypes";
 
@@ -66,7 +66,7 @@ const PairHistoryChartSection = memo(
     );
 
     const histogramFormatter = useCallback(
-      (value: number) => formatMetricValue("VolumeTraded", value),
+      (value: number) => formatMetricValue("volumeTraded", value),
       [],
     );
 

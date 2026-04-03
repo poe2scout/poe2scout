@@ -9,7 +9,7 @@ export interface CurrencyItem {
   itemId: number;
   currencyCategoryId: number;
   apiId: string;
-  text: string; 
+  text: string;
   iconUrl: string | null;
   categoryApiId: string;
   itemMetadata: CurrencyMetadata | null;
@@ -18,11 +18,13 @@ export interface CurrencyItem {
 export interface UniqueItemExtended {
   id: number;
   itemId: number;
+  apiId: string;
+  categoryApiId: string;
   iconUrl: string | null;
   text: string;
   name: string;
   type: string;
-  itemMetadata: ItemMetadata| null;
+  itemMetadata: ItemMetadata | null;
   priceLogs: (PriceLogEntry | null)[];
   currentPrice: number | null;
   isChanceable: boolean;
@@ -31,10 +33,11 @@ export interface UniqueItemExtended {
 export interface UniqueBaseItem {
   id: number;
   iconUrl: string | null;
-  itemMetadata: ItemMetadata| null
+  itemMetadata: ItemMetadata | null;
   itemId: number;
   name: string;
   apiId: string;
+  categoryApiId: string;
   priceLogs: (PriceLogEntry | null)[];
   currentPrice: number | null;
   averageUniquePrice: number | null;
@@ -46,6 +49,7 @@ export interface CurrencyItemExtended {
   itemId: number;
   currencyCategoryId: number;
   apiId: string;
+  categoryApiId: string;
   text: string;
   iconUrl: string | null;
   priceLogs: (PriceLogEntry | null)[];
@@ -70,6 +74,12 @@ export interface BuildInfo {
   count: number;
 }
 
+export interface SearchableItem {
+  displayName: string;
+  category: string;
+  identifier: string;
+}
+
 export const ClassMapping: Record<string, string> = {
   Sorceress1: "Stormweaver",
   Ranger1: "Deadeye",
@@ -87,23 +97,23 @@ export const ClassMapping: Record<string, string> = {
 
 export interface ItemMetadata {
   name?: string;
-  base_type?: string;
-  properties: Record<string, string | null>;
-  requirements: Record<string, string>;
-  implicit_mods: string[];
-  explicit_mods: string[];
-  flavor_text?: string | null;
+  baseType?: string;
+  properties?: Record<string, string | null>;
+  requirements?: Record<string, string>;
+  implicitMods?: string[];
+  explicitMods?: string[];
+  flavorText?: string | null;
   description?: string;
 }
 
 export interface CurrencyMetadata {
   name: string;
-  base_type: string;
-  stack_size: number;
-  max_stack_size: number;
+  baseType: string;
+  stackSize: number;
+  maxStackSize: number;
   description?: string;
   effect?: string[];
-  flavor_text?: string | null;
+  flavorText?: string | null;
 }
 
 export interface Category {
@@ -114,6 +124,51 @@ export interface Category {
 }
 
 export interface CategoryResponse {
-  unique_categories: Category[];
-  currency_categories: Category[];
+  uniqueCategories: Category[];
+  currencyCategories: Category[];
+}
+
+export interface ItemHistoryResponse {
+  priceHistory: PriceLogEntry[];
+  hasMore: boolean;
+}
+
+export interface CurrencyExchangeSnapshot {
+  epoch: number;
+  volume: number;
+  marketCap: number;
+}
+
+export interface CurrencyPairData {
+  valueTraded: number;
+  relativePrice: number;
+  stockValue: number;
+  volumeTraded: number;
+  highestStock: number;
+  pairPrice: number;
+}
+
+export interface SnapshotPair {
+  volume: number;
+  currencyOne: CurrencyItem;
+  currencyTwo: CurrencyItem;
+  currencyOneData: CurrencyPairData;
+  currencyTwoData: CurrencyPairData;
+}
+
+export interface PairHistoryData extends CurrencyPairData {
+  currencyItemId: number;
+}
+
+export interface PairHistoryEntry {
+  epoch: number;
+  data: {
+    currencyOneData: PairHistoryData;
+    currencyTwoData: PairHistoryData;
+  };
+}
+
+export interface PairHistoryResponse {
+  history: PairHistoryEntry[];
+  hasMore: boolean;
 }

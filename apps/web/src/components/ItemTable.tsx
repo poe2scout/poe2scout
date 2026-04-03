@@ -48,6 +48,7 @@ import { useLeague, League } from "../contexts/LeagueContext";
 import { useCategories } from "../contexts/CategoryContext";
 import { useSearchableItems } from "../hooks/useSearchableItems";
 import ReferenceCurrencySelector from "./ReferenceCurrencySelector";
+import { fetchItemsByCategory } from "../api/economy";
 
 ChartJS.register(
   CategoryScale,
@@ -182,19 +183,18 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
   const fetchItems = async (currentPage: number, perPage: number, search: string = "") => {
     setLoading(true);
     const isCurrencyType = currencyCategories.some((cat: Category) => cat.apiId === type);
-    const endpointType = isCurrencyType ? "currency" : "unique";
-
-    const apiUrl = `${
-      import.meta.env.VITE_API_URL
-    }/items/${endpointType}/${type}?page=${currentPage}&perPage=${perPage}&league=${league.value}&search=${search}&referenceCurrency=${referenceCurrency}`;
 
     try {
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
       const data: PaginatedResponse<UniqueItemExtended | CurrencyItemExtended> =
-        await response.json();
+        await fetchItemsByCategory({
+          category: type,
+          page: currentPage,
+          perPage,
+          leagueName: league.value,
+          search,
+          referenceCurrency,
+          isCurrencyCategory: isCurrencyType,
+        });
 
       const itemsWithType: ApiItem[] = data.items.map((item: UniqueItemExtended | CurrencyItemExtended) => ({
         ...item,
@@ -224,7 +224,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
-    fetchItems(newPage + 1, rowsPerPage, initialSearch);
+    fetchItems(newPage + 1, rowsPerPage, initialSearch ?? "");
   };
 
   const handleChangeRowsPerPage = (
@@ -233,7 +233,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
     const newRowsPerPage = parseInt(event.target.value, 10);
     setRowsPerPage(newRowsPerPage);
     setPage(0);
-    fetchItems(1, newRowsPerPage, initialSearch);
+    fetchItems(1, newRowsPerPage, initialSearch ?? "");
   };
 
   const sortedItems = useMemo(() => {

@@ -1,40 +1,56 @@
-import { League } from "../../contexts/LeagueContext";
-import { CurrencyItem } from "../../types";
+import { fetchNormalizedJson } from "../../api/client";
+import type {
+  CurrencyExchangeSnapshot,
+  CurrencyItem,
+  CurrencyPairData,
+  PairHistoryData,
+  PairHistoryEntry,
+  PairHistoryResponse,
+  SnapshotPair,
+} from "../../types";
 import { BaseCurrencies, BaseCurrencyList } from "../ReferenceCurrencySelector";
 
-export const CURRENCY_EXCHANGE_API_URL = import.meta.env.VITE_API_URL;
-
-export interface CurrencyPairDataDto {
-  ValueTraded: string;
-  RelativePrice: string;
-  StockValue: string;
-  VolumeTraded: number;
-  HighestStock: number;
+interface CurrencyPairDataPayload {
+  valueTraded?: string | number;
+  valuetraded?: string | number;
+  relativePrice?: string | number;
+  stockValue?: string | number;
+  volumeTraded?: string | number;
+  highestStock?: string | number;
 }
 
-export interface SnapshotPairDto {
-  Volume: string;
-  CurrencyOne: CurrencyItem;
-  CurrencyTwo: CurrencyItem;
-  CurrencyOneData: CurrencyPairDataDto;
-  CurrencyTwoData: CurrencyPairDataDto;
+interface SnapshotPairPayload {
+  volume: string | number;
+  currencyOne: CurrencyItem;
+  currencyTwo: CurrencyItem;
+  currencyOneData: CurrencyPairDataPayload;
+  currencyTwoData: CurrencyPairDataPayload;
 }
 
-export interface CurrencyPairData {
-  ValueTraded: number;
-  RelativePrice: number;
-  StockValue: number;
-  VolumeTraded: number;
-  HighestStock: number;
-  PairPrice: number;
+interface SnapshotHistoryPayload {
+  data?: CurrencyExchangeSnapshot[];
+  meta?: {
+    hasMore?: boolean;
+  };
 }
 
-export interface SnapshotPair {
-  Volume: number;
-  CurrencyOne: CurrencyItem;
-  CurrencyTwo: CurrencyItem;
-  CurrencyOneData: CurrencyPairData;
-  CurrencyTwoData: CurrencyPairData;
+interface PairHistoryDataPayload extends CurrencyPairDataPayload {
+  currencyItemId: number;
+}
+
+interface PairHistoryEntryPayload {
+  epoch: number;
+  data: {
+    currencyOneData: PairHistoryDataPayload;
+    currencyTwoData: PairHistoryDataPayload;
+  };
+}
+
+interface PairHistoryPayload {
+  history?: PairHistoryEntryPayload[];
+  meta?: {
+    hasMore?: boolean;
+  };
 }
 
 const toNumber = (value: string | number | null | undefined): number => {
@@ -46,21 +62,29 @@ const toNumber = (value: string | number | null | undefined): number => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-const normalizePairData = (data: CurrencyPairDataDto): CurrencyPairData => {
-  const volumeTraded = toNumber(data.VolumeTraded);
-  const relativePrice = toNumber(data.RelativePrice);
-  const explicitValue = toNumber(
-    (data as unknown as { Valuetraded?: string }).Valuetraded ?? data.ValueTraded,
-  );
+const normalizeSnapshot = (
+  snapshot: CurrencyExchangeSnapshot,
+): CurrencyExchangeSnapshot => ({
+  epoch: snapshot.epoch,
+  volume: toNumber(snapshot.volume),
+  marketCap: toNumber(snapshot.marketCap),
+});
+
+const normalizePairData = (
+  data: CurrencyPairDataPayload,
+): CurrencyPairData => {
+  const volumeTraded = toNumber(data.volumeTraded);
+  const relativePrice = toNumber(data.relativePrice);
+  const explicitValue = toNumber(data.valueTraded ?? data.valuetraded);
   const derivedValue = relativePrice * volumeTraded;
 
   return {
-    ValueTraded: derivedValue > 0 ? derivedValue : explicitValue,
-    RelativePrice: relativePrice,
-    StockValue: toNumber(data.StockValue),
-    VolumeTraded: volumeTraded,
-    HighestStock: toNumber(data.HighestStock),
-    PairPrice: 0,
+    valueTraded: derivedValue > 0 ? derivedValue : explicitValue,
+    relativePrice,
+    stockValue: toNumber(data.stockValue),
+    volumeTraded,
+    highestStock: toNumber(data.highestStock),
+    pairPrice: 0,
   };
 };
 
@@ -71,26 +95,27 @@ const computePairPrices = (
   const safeDivide = (numerator: number, denominator: number) =>
     denominator > 0 ? numerator / denominator : 0;
 
-  const firstPairPrice = safeDivide(second.VolumeTraded, first.VolumeTraded);
-  const secondPairPrice = safeDivide(first.VolumeTraded, second.VolumeTraded);
+  const firstPairPrice = safeDivide(second.volumeTraded, first.volumeTraded);
+  const secondPairPrice = safeDivide(first.volumeTraded, second.volumeTraded);
 
   return [
-    { ...first, PairPrice: firstPairPrice },
-    { ...second, PairPrice: secondPairPrice },
+    { ...first, pairPrice: firstPairPrice },
+    { ...second, pairPrice: secondPairPrice },
   ];
 };
 
-const normalizeSnapshotPair = (row: SnapshotPairDto): SnapshotPair => {
-  const currencyOneData = normalizePairData(row.CurrencyOneData);
-  const currencyTwoData = normalizePairData(row.CurrencyTwoData);
+const isBaseCurrency = (item: CurrencyItem) =>
+  BaseCurrencyList.includes(item.apiId as BaseCurrencies);
 
-  const isCurrencyOneBase = BaseCurrencyList.includes(row.CurrencyOne.apiId as BaseCurrencies);
+const normalizeSnapshotPair = (row: SnapshotPairPayload): SnapshotPair => {
+  const currencyOneData = normalizePairData(row.currencyOneData);
+  const currencyTwoData = normalizePairData(row.currencyTwoData);
   const areBothCurrencyBases =
-    BaseCurrencyList.includes(row.CurrencyOne.apiId as BaseCurrencies) &&
-    BaseCurrencyList.includes(row.CurrencyTwo.apiId as BaseCurrencies);
+    isBaseCurrency(row.currencyOne) && isBaseCurrency(row.currencyTwo);
 
   if (areBothCurrencyBases) {
-    const isCorrectOrder = currencyOneData.VolumeTraded <= currencyTwoData.VolumeTraded;
+    const isCorrectOrder =
+      currencyOneData.volumeTraded <= currencyTwoData.volumeTraded;
 
     if (isCorrectOrder) {
       const [firstWithPrice, secondWithPrice] = computePairPrices(
@@ -98,11 +123,11 @@ const normalizeSnapshotPair = (row: SnapshotPairDto): SnapshotPair => {
         currencyTwoData,
       );
       return {
-        Volume: toNumber(row.Volume),
-        CurrencyOne: row.CurrencyOne,
-        CurrencyTwo: row.CurrencyTwo,
-        CurrencyOneData: firstWithPrice,
-        CurrencyTwoData: secondWithPrice,
+        volume: toNumber(row.volume),
+        currencyOne: row.currencyOne,
+        currencyTwo: row.currencyTwo,
+        currencyOneData: firstWithPrice,
+        currencyTwoData: secondWithPrice,
       };
     }
 
@@ -111,25 +136,25 @@ const normalizeSnapshotPair = (row: SnapshotPairDto): SnapshotPair => {
       currencyOneData,
     );
     return {
-      Volume: toNumber(row.Volume),
-      CurrencyOne: row.CurrencyTwo,
-      CurrencyTwo: row.CurrencyOne,
-      CurrencyOneData: firstWithPrice,
-      CurrencyTwoData: secondWithPrice,
+      volume: toNumber(row.volume),
+      currencyOne: row.currencyTwo,
+      currencyTwo: row.currencyOne,
+      currencyOneData: firstWithPrice,
+      currencyTwoData: secondWithPrice,
     };
   }
 
-  if (!isCurrencyOneBase) {
+  if (!isBaseCurrency(row.currencyOne)) {
     const [firstWithPrice, secondWithPrice] = computePairPrices(
       currencyOneData,
       currencyTwoData,
     );
     return {
-      Volume: toNumber(row.Volume),
-      CurrencyOne: row.CurrencyOne,
-      CurrencyTwo: row.CurrencyTwo,
-      CurrencyOneData: firstWithPrice,
-      CurrencyTwoData: secondWithPrice,
+      volume: toNumber(row.volume),
+      currencyOne: row.currencyOne,
+      currencyTwo: row.currencyTwo,
+      currencyOneData: firstWithPrice,
+      currencyTwoData: secondWithPrice,
     };
   }
 
@@ -138,112 +163,93 @@ const normalizeSnapshotPair = (row: SnapshotPairDto): SnapshotPair => {
     currencyOneData,
   );
   return {
-    Volume: toNumber(row.Volume),
-    CurrencyOne: row.CurrencyTwo,
-    CurrencyTwo: row.CurrencyOne,
-    CurrencyOneData: firstWithPrice,
-    CurrencyTwoData: secondWithPrice,
+    volume: toNumber(row.volume),
+    currencyOne: row.currencyTwo,
+    currencyTwo: row.currencyOne,
+    currencyOneData: firstWithPrice,
+    currencyTwoData: secondWithPrice,
   };
 };
 
-export const fetchSnapshotPairs = async (league: League): Promise<SnapshotPair[]> => {
-  const response = await fetch(`${CURRENCY_EXCHANGE_API_URL}/currencyExchange/SnapshotPairs?league=${league.value}`);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch snapshot pairs: ${response.statusText}`);
-  }
-
-  const rows: SnapshotPairDto[] = await response.json();
-  return rows.map(normalizeSnapshotPair);
-};
-
-export interface PairHistoryDataDto {
-  CurrencyItemId: number;
-  ValueTraded?: string;
-  Valuetraded?: string;
-  RelativePrice: string;
-  StockValue: string;
-  VolumeTraded: number;
-  HighestStock: number;
-}
-
-export interface PairHistoryEntryDto {
-  Epoch: number;
-  Data: {
-    CurrencyOneData: PairHistoryDataDto;
-    CurrencyTwoData: PairHistoryDataDto;
-  };
-}
-
-export interface PairHistoryDto {
-  History: PairHistoryEntryDto[];
-  Meta?: {
-    hasMore?: boolean;
-  };
-}
-
-export interface PairHistoryData {
-  CurrencyItemId: number;
-  ValueTraded: number;
-  RelativePrice: number;
-  StockValue: number;
-  VolumeTraded: number;
-  HighestStock: number;
-  PairPrice: number;
-}
-
-export interface PairHistoryEntry {
-  Epoch: number;
-  Data: {
-    CurrencyOneData: PairHistoryData;
-    CurrencyTwoData: PairHistoryData;
-  };
-}
-
-export const normalizePairHistoryEntry = (entry: PairHistoryEntryDto): PairHistoryEntry => {
-  const normalizeData = (data: PairHistoryDataDto): PairHistoryData => {
-    const volumeTraded = toNumber(data.VolumeTraded);
-    const relativePrice = toNumber(data.RelativePrice);
-    const explicitValue = toNumber(data.ValueTraded ?? data.Valuetraded);
-    const derivedValue = relativePrice * volumeTraded;
-    const valueTraded = derivedValue > 0 ? derivedValue : explicitValue;
+const normalizePairHistoryEntry = (
+  entry: PairHistoryEntryPayload,
+): PairHistoryEntry => {
+  const normalizeData = (data: PairHistoryDataPayload): PairHistoryData => {
+    const baseData = normalizePairData(data);
 
     return {
-      CurrencyItemId: data.CurrencyItemId,
-      ValueTraded: valueTraded,
-      RelativePrice: relativePrice,
-      StockValue: toNumber(data.StockValue),
-      VolumeTraded: volumeTraded,
-      HighestStock: toNumber(data.HighestStock),
-      PairPrice: 0,
+      currencyItemId: data.currencyItemId,
+      ...baseData,
     };
   };
 
-  const currencyOneData = normalizeData(entry.Data.CurrencyOneData);
-  const currencyTwoData = normalizeData(entry.Data.CurrencyTwoData);
+  const currencyOneData = normalizeData(entry.data.currencyOneData);
+  const currencyTwoData = normalizeData(entry.data.currencyTwoData);
   const [currencyOneWithPrice, currencyTwoWithPrice] = computePairPrices(
     currencyOneData,
     currencyTwoData,
   );
 
   return {
-    Epoch: entry.Epoch,
-    Data: {
-      CurrencyOneData: currencyOneWithPrice as PairHistoryData,
-      CurrencyTwoData: currencyTwoWithPrice as PairHistoryData,
+    epoch: entry.epoch,
+    data: {
+      currencyOneData: currencyOneWithPrice as PairHistoryData,
+      currencyTwoData: currencyTwoWithPrice as PairHistoryData,
     },
   };
 };
 
-export const normalizePairHistoryResponse = (dto: PairHistoryDto) => {
-  const history = (dto.History ?? []).map(normalizePairHistoryEntry);
-  const hasMore = Boolean(dto.Meta?.hasMore);
+export const fetchCurrentSnapshot = async (
+  leagueName: string,
+): Promise<CurrencyExchangeSnapshot> => {
+  const payload = await fetchNormalizedJson<CurrencyExchangeSnapshot>(
+    "/CurrencyExchange",
+    {
+      LeagueName: leagueName,
+    },
+  );
 
-  return { history, hasMore };
+  return normalizeSnapshot(payload);
+};
+
+export const fetchSnapshotHistory = async (
+  leagueName: string,
+  limit: number,
+  endEpoch?: number,
+): Promise<{
+  data: CurrencyExchangeSnapshot[];
+  hasMore: boolean;
+}> => {
+  const payload = await fetchNormalizedJson<SnapshotHistoryPayload>(
+    "/CurrencyExchange/SnapshotHistory",
+    {
+      LeagueName: leagueName,
+      Limit: limit,
+      EndEpoch: endEpoch,
+    },
+  );
+
+  return {
+    data: (payload.data ?? []).map(normalizeSnapshot),
+    hasMore: Boolean(payload.meta?.hasMore),
+  };
+};
+
+export const fetchSnapshotPairs = async (
+  leagueName: string,
+): Promise<SnapshotPair[]> => {
+  const rows = await fetchNormalizedJson<SnapshotPairPayload[]>(
+    "/CurrencyExchange/SnapshotPairs",
+    {
+      LeagueName: leagueName,
+    },
+  );
+
+  return rows.map(normalizeSnapshotPair);
 };
 
 interface FetchPairHistoryParams {
-  league: string;
+  leagueName: string;
   currencyOneItemId: number;
   currencyTwoItemId: number;
   limit: number;
@@ -251,27 +257,25 @@ interface FetchPairHistoryParams {
 }
 
 export const fetchPairHistory = async ({
-  league,
+  leagueName,
   currencyOneItemId,
   currencyTwoItemId,
   limit,
   endEpoch,
-}: FetchPairHistoryParams): Promise<PairHistoryDto> => {
-  const url = new URL(`${CURRENCY_EXCHANGE_API_URL}/currencyExchange/PairHistory`);
-  url.searchParams.set("league", league);
-  url.searchParams.set("currencyOneItemId", currencyOneItemId.toString());
-  url.searchParams.set("currencyTwoItemId", currencyTwoItemId.toString());
-  url.searchParams.set("limit", limit.toString());
+}: FetchPairHistoryParams): Promise<PairHistoryResponse> => {
+  const payload = await fetchNormalizedJson<PairHistoryPayload>(
+    "/CurrencyExchange/PairHistory",
+    {
+      LeagueName: leagueName,
+      CurrencyOneItemId: currencyOneItemId,
+      CurrencyTwoItemId: currencyTwoItemId,
+      Limit: limit,
+      EndEpoch: endEpoch,
+    },
+  );
 
-  if (endEpoch !== undefined) {
-    url.searchParams.set("endEpoch", endEpoch.toString());
-  }
-
-  const response = await fetch(url.toString());
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch pair history: ${response.statusText}`);
-  }
-
-  return response.json();
+  return {
+    history: (payload.history ?? []).map(normalizePairHistoryEntry),
+    hasMore: Boolean(payload.meta?.hasMore),
+  };
 };

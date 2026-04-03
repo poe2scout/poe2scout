@@ -10,21 +10,19 @@ import PairHistoryHeader from "../components/CurrencyExchange/PairHistory/PairHi
 import {
   fetchPairHistory,
   fetchSnapshotPairs,
-  normalizePairHistoryResponse,
-  PairHistoryEntry,
-  SnapshotPair,
 } from "../components/CurrencyExchange/api";
-import { useLeague } from "../contexts/LeagueContext";
-import {
+import { METRIC_BASE_LABELS } from "../components/CurrencyExchange/PairHistory/metricLabels";
+import type {
   DataKey,
   MetricKey,
   MetricMenuOption,
   MetricOption,
 } from "../components/CurrencyExchange/PairHistory/metricTypes";
-import { METRIC_BASE_LABELS } from "../components/CurrencyExchange/PairHistory/metricLabels";
+import { useLeague } from "../contexts/LeagueContext";
+import type { PairHistoryEntry, SnapshotPair } from "../types";
 
 const HISTORY_LIMIT = 24 * 14;
-const DEFAULT_METRIC_ID = "CurrencyTwoData.ValueTraded";
+const DEFAULT_METRIC_ID = "currencyTwoData.valueTraded";
 
 const findPairByItems = (
   pairs: SnapshotPair[],
@@ -33,8 +31,8 @@ const findPairByItems = (
 ) =>
   pairs.find((candidate) => {
     const candidateIds = [
-      candidate.CurrencyOne.itemId,
-      candidate.CurrencyTwo.itemId,
+      candidate.currencyOne.itemId,
+      candidate.currencyTwo.itemId,
     ];
     return (
       candidateIds.includes(currencyOneItemId) &&
@@ -48,13 +46,13 @@ const getLineUnit = (option: MetricOption | null): string => {
   }
 
   switch (option.metricKey) {
-    case "ValueTraded":
-    case "StockValue":
+    case "valueTraded":
+    case "stockValue":
       return "Exalted Orbs";
-    case "VolumeTraded":
-    case "HighestStock":
+    case "volumeTraded":
+    case "highestStock":
       return option.itemName;
-    case "PairPrice":
+    case "pairPrice":
     default:
       return option.counterpartName;
   }
@@ -106,7 +104,7 @@ export function PairHistoryPage() {
       try {
         setIsPairLoading(true);
         setPairError(null);
-        const snapshotPairs = await fetchSnapshotPairs(league);
+        const snapshotPairs = await fetchSnapshotPairs(league.value);
 
         if (!isActive) {
           return;
@@ -161,7 +159,7 @@ export function PairHistoryPage() {
         setIsHistoryLoading(true);
         setHistoryError(null);
         const dto = await fetchPairHistory({
-          league: league.value,
+          leagueName: league.value,
           currencyOneItemId,
           currencyTwoItemId,
           limit: HISTORY_LIMIT,
@@ -171,15 +169,13 @@ export function PairHistoryPage() {
           return;
         }
 
-        const { history: fetchedHistory, hasMore: fetchedHasMore } =
-          normalizePairHistoryResponse(dto);
-        const orderedHistory = [...fetchedHistory].sort(
-          (a, b) => a.Epoch - b.Epoch,
+        const orderedHistory = [...dto.history].sort(
+          (a, b) => a.epoch - b.epoch,
         );
 
         setHistory(orderedHistory);
-        setHasMore(fetchedHasMore);
-        setOldestEpoch(orderedHistory[0]?.Epoch ?? null);
+        setHasMore(dto.hasMore);
+        setOldestEpoch(orderedHistory[0]?.epoch ?? null);
       } catch (err) {
         if (isMounted) {
           const message =
@@ -203,12 +199,7 @@ export function PairHistoryPage() {
     return () => {
       isMounted = false;
     };
-  }, [
-    league.value,
-    currencyOneItemId,
-    currencyTwoItemId,
-    hasInvalidIds,
-  ]);
+  }, [league.value, currencyOneItemId, currencyTwoItemId, hasInvalidIds]);
 
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !hasMore || !oldestEpoch) {
@@ -218,27 +209,23 @@ export function PairHistoryPage() {
     setIsLoadingMore(true);
     try {
       const dto = await fetchPairHistory({
-        league: league.value,
+        leagueName: league.value,
         currencyOneItemId,
         currencyTwoItemId,
         limit: HISTORY_LIMIT,
         endEpoch: oldestEpoch,
       });
 
-      const { history: fetchedHistory, hasMore: fetchedHasMore } =
-        normalizePairHistoryResponse(dto);
-      const orderedHistory = [...fetchedHistory].sort(
-        (a, b) => a.Epoch - b.Epoch,
-      );
+      const orderedHistory = [...dto.history].sort((a, b) => a.epoch - b.epoch);
 
       if (orderedHistory.length === 0) {
-        setHasMore(fetchedHasMore);
+        setHasMore(dto.hasMore);
         return;
       }
 
       setHistory((prev) => [...orderedHistory, ...prev]);
-      setHasMore(fetchedHasMore);
-      setOldestEpoch(orderedHistory[0].Epoch);
+      setHasMore(dto.hasMore);
+      setOldestEpoch(orderedHistory[0].epoch);
     } catch (err) {
       console.error("Failed to load more pair history", err);
     } finally {
@@ -255,32 +242,32 @@ export function PairHistoryPage() {
 
   const metricOptions = useMemo<MetricOption[]>(() => {
     const defaultNames = {
-      CurrencyOneData: `Item ${currencyOneItemId}`,
-      CurrencyTwoData: `Item ${currencyTwoItemId}`,
+      currencyOneData: `Item ${currencyOneItemId}`,
+      currencyTwoData: `Item ${currencyTwoItemId}`,
     } as const;
 
     const dataSources: Array<{ key: DataKey; name: string }> = [
       {
-        key: "CurrencyTwoData",
-        name: pair?.CurrencyTwo.text ?? defaultNames.CurrencyTwoData,
+        key: "currencyTwoData",
+        name: pair?.currencyTwo.text ?? defaultNames.currencyTwoData,
       },
       {
-        key: "CurrencyOneData",
-        name: pair?.CurrencyOne.text ?? defaultNames.CurrencyOneData,
+        key: "currencyOneData",
+        name: pair?.currencyOne.text ?? defaultNames.currencyOneData,
       },
     ];
 
     const getCounterpartName = (key: DataKey) =>
-      key === "CurrencyTwoData"
-        ? pair?.CurrencyOne.text ?? defaultNames.CurrencyOneData
-        : pair?.CurrencyTwo.text ?? defaultNames.CurrencyTwoData;
+      key === "currencyTwoData"
+        ? pair?.currencyOne.text ?? defaultNames.currencyOneData
+        : pair?.currencyTwo.text ?? defaultNames.currencyTwoData;
 
     const metricsOrder: MetricKey[] = [
-      "PairPrice",
-      "ValueTraded",
-      "VolumeTraded",
-      "StockValue",
-      "HighestStock",
+      "pairPrice",
+      "valueTraded",
+      "volumeTraded",
+      "stockValue",
+      "highestStock",
     ];
 
     return dataSources.flatMap((source) => {
@@ -315,7 +302,8 @@ export function PairHistoryPage() {
   const selectedOption = useMemo(
     () =>
       metricOptions.find((option) => option.id === selectedMetricId) ??
-      metricOptions[0] ?? null,
+      metricOptions[0] ??
+      null,
     [metricOptions, selectedMetricId],
   );
 
@@ -332,12 +320,12 @@ export function PairHistoryPage() {
     const lineData = history
       .map((entry) => {
         const value =
-          entry.Data[selectedOption.dataKey][selectedOption.metricKey];
+          entry.data[selectedOption.dataKey][selectedOption.metricKey];
         if (!Number.isFinite(value)) {
           return null;
         }
         return {
-          time: entry.Epoch as UTCTimestamp,
+          time: entry.epoch as UTCTimestamp,
           value,
         };
       })
@@ -346,8 +334,8 @@ export function PairHistoryPage() {
       );
 
     const histogramData = history.map((entry) => ({
-      time: entry.Epoch as UTCTimestamp,
-      value: entry.Data[selectedOption.dataKey].VolumeTraded,
+      time: entry.epoch as UTCTimestamp,
+      value: entry.data[selectedOption.dataKey].volumeTraded,
     }));
 
     return { lineData, histogramData };
@@ -358,7 +346,7 @@ export function PairHistoryPage() {
   };
 
   const latestEntry = history[history.length - 1];
-  const quoteLabel = pair?.CurrencyTwo.text ?? `Item ${currencyTwoItemId}`;
+  const quoteLabel = pair?.currencyTwo.text ?? `Item ${currencyTwoItemId}`;
 
   const lineUnit = getLineUnit(selectedOption);
   const legendLineLabel = selectedOption
@@ -368,7 +356,8 @@ export function PairHistoryPage() {
   const histogramUnit = selectedOption?.itemName ?? quoteLabel;
   const legendHistogramLabel = `Volume traded (${histogramUnit})`;
 
-  const chartMetricKey: MetricKey = selectedOption?.metricKey ?? "ValueTraded";
+  const chartMetricKey: MetricKey =
+    selectedOption?.metricKey ?? "valueTraded";
 
   const backToExchange = () => navigate("/exchange");
 

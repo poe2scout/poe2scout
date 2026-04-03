@@ -1,25 +1,12 @@
 import { Box, CircularProgress, Alert, Stack } from "@mui/material";
 import { useState, useEffect } from "react";
-import { useLeague } from "../contexts/LeagueContext";
+
 import SnapshotHeader from "../components/CurrencyExchange/SnapshotHeader";
 import SnapshotHistory from "../components/CurrencyExchange/SnapshotHistory";
 import SnapshotPairList from "../components/CurrencyExchange/SnapshotPairList";
-
-const uri = import.meta.env.VITE_API_URL;
-
-export interface CurrencyExchangeSnapshot {
-  Epoch: number;
-  Volume: number;
-  MarketCap: number;
-}
-
-const fetchCurrencyExchangeSnapshot = async (league: string) => {
-  const response = await fetch(`${uri}/currencyExchangeSnapshot?league=${league}`);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch data: ${response.statusText}`);
-  }
-  return response.json();
-};
+import { fetchCurrentSnapshot } from "../components/CurrencyExchange/api";
+import { useLeague } from "../contexts/LeagueContext";
+import type { CurrencyExchangeSnapshot } from "../types";
 
 export function CurrencyExchangePage() {
   const [snapshot, setSnapshot] = useState<CurrencyExchangeSnapshot | null>(null);
@@ -32,8 +19,8 @@ export function CurrencyExchangePage() {
       try {
         setIsLoading(true);
         setError(null);
-        const snapshotData = await fetchCurrencyExchangeSnapshot(league.value);
-        setSnapshot({Epoch: snapshotData.Epoch, Volume: parseFloat(snapshotData.Volume), MarketCap: parseFloat(snapshotData.MarketCap)});
+        const snapshotData = await fetchCurrentSnapshot(league.value);
+        setSnapshot(snapshotData);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An unknown error occurred.");
       } finally {
@@ -47,7 +34,14 @@ export function CurrencyExchangePage() {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
           <CircularProgress />
         </Box>
       );
@@ -59,30 +53,32 @@ export function CurrencyExchangePage() {
 
     if (snapshot) {
       return (
-        <Box sx={{ flexGrow: 1, p: 2, overflowY: 'auto' }}>
+        <Box sx={{ flexGrow: 1, p: 2, overflowY: "auto" }}>
           <Box sx={{ p: 2 }}>
             <Stack spacing={2}>
               <SnapshotHeader snapshot={snapshot} />
               <SnapshotHistory snapshot={snapshot} />
             </Stack>
           </Box>
-          <Box sx={{ flexGrow: 1, p: 2, overflowY: 'auto' }}>
-            <SnapshotPairList snapshot={snapshot}>
-            </SnapshotPairList>
+          <Box sx={{ flexGrow: 1, p: 2, overflowY: "auto" }}>
+            <SnapshotPairList snapshot={snapshot} />
           </Box>
         </Box>
       );
     }
+
     return null;
   };
 
   return (
-    <Box sx={{
-      width: "100%",
-      height: "calc(100vh - 64px)",
-      display: "flex",
-      flexDirection: "column",
-    }}>
+    <Box
+      sx={{
+        width: "100%",
+        height: "calc(100vh - 64px)",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       {renderContent()}
     </Box>
   );
