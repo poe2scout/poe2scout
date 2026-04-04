@@ -6,53 +6,53 @@ from ..base_repository import BaseRepository
 
 
 async def create_snapshot(snapshot: CurrencyExchangeSnapshot) -> Optional[int]:
-    if not snapshot.Pairs:
+    if not snapshot.pairs:
         async with BaseRepository.get_db_cursor() as cursor:
             query = """
-INSERT INTO "CurrencyExchangeSnapshot"("Epoch", "LeagueId", "Volume", "MarketCap")
-VALUES(%(Epoch)s, %(LeagueId)s, %(Volume)s, %(MarketCap)s)
-RETURNING "CurrencyExchangeSnapshotId"
+INSERT INTO currency_exchange_snapshot(epoch, league_id, volume, market_cap)
+VALUES(%(epoch)s, %(league_id)s, %(volume)s, %(market_cap)s)
+RETURNING currency_exchange_snapshot_id
             """
             params = {
-                "Epoch": snapshot.Epoch,
-                "LeagueId": snapshot.LeagueId,
-                "Volume": snapshot.Volume,
-                "MarketCap": snapshot.MarketCap,
+                "epoch": snapshot.epoch,
+                "league_id": snapshot.league_id,
+                "volume": snapshot.volume,
+                "market_cap": snapshot.market_cap,
             }
             await cursor.execute(query, params)
             result = await cursor.fetchone()
-            return result["CurrencyExchangeSnapshotId"] if result else None
+            return result["currency_exchange_snapshot_id"] if result else None
 
     pair_params = {
-        "c1_ids": [pair.CurrencyOneItemId for pair in snapshot.Pairs],
-        "c2_ids": [pair.CurrencyTwoItemId for pair in snapshot.Pairs],
-        "volumes": [pair.Volume for pair in snapshot.Pairs],
-        "c1_val_traded": [pair.CurrencyOneData.ValueTraded for pair in snapshot.Pairs],
-        "c1_vol_traded": [pair.CurrencyOneData.VolumeTraded for pair in snapshot.Pairs],
-        "c1_stock": [pair.CurrencyOneData.HighestStock for pair in snapshot.Pairs],
-        "c1_price": [pair.CurrencyOneData.RelativePrice for pair in snapshot.Pairs],
-        "c1_stock_value": [pair.CurrencyOneData.StockValue for pair in snapshot.Pairs],
-        "c2_val_traded": [pair.CurrencyTwoData.ValueTraded for pair in snapshot.Pairs],
-        "c2_vol_traded": [pair.CurrencyTwoData.VolumeTraded for pair in snapshot.Pairs],
-        "c2_stock": [pair.CurrencyTwoData.HighestStock for pair in snapshot.Pairs],
-        "c2_price": [pair.CurrencyTwoData.RelativePrice for pair in snapshot.Pairs],
-        "c2_stock_value": [pair.CurrencyTwoData.StockValue for pair in snapshot.Pairs],
+        "c1_ids": [pair.currency_one_item_id for pair in snapshot.pairs],
+        "c2_ids": [pair.currency_two_item_id for pair in snapshot.pairs],
+        "volumes": [pair.volume for pair in snapshot.pairs],
+        "c1_val_traded": [pair.currency_one_data.value_traded for pair in snapshot.pairs],
+        "c1_vol_traded": [pair.currency_one_data.volume_traded for pair in snapshot.pairs],
+        "c1_stock": [pair.currency_one_data.highest_stock for pair in snapshot.pairs],
+        "c1_price": [pair.currency_one_data.relative_price for pair in snapshot.pairs],
+        "c1_stock_value": [pair.currency_one_data.stock_value for pair in snapshot.pairs],
+        "c2_val_traded": [pair.currency_two_data.value_traded for pair in snapshot.pairs],
+        "c2_vol_traded": [pair.currency_two_data.volume_traded for pair in snapshot.pairs],
+        "c2_stock": [pair.currency_two_data.highest_stock for pair in snapshot.pairs],
+        "c2_price": [pair.currency_two_data.relative_price for pair in snapshot.pairs],
+        "c2_stock_value": [pair.currency_two_data.stock_value for pair in snapshot.pairs],
     }
 
     final_params = {
-        "Epoch": snapshot.Epoch,
-        "LeagueId": snapshot.LeagueId,
-        "Volume": snapshot.Volume,
-        "MarketCap": snapshot.MarketCap,
+        "epoch": snapshot.epoch,
+        "league_id": snapshot.league_id,
+        "volume": snapshot.volume,
+        "market_cap": snapshot.market_cap,
         **pair_params,
     }
 
     async with BaseRepository.get_db_cursor() as cursor:
         query = """
 WITH snapshot_insert AS (
-    INSERT INTO "CurrencyExchangeSnapshot"("Epoch", "LeagueId", "Volume", "MarketCap")
-    VALUES (%(Epoch)s, %(LeagueId)s, %(Volume)s, %(MarketCap)s)
-    RETURNING "CurrencyExchangeSnapshotId"
+    INSERT INTO currency_exchange_snapshot(epoch, league_id, volume, market_cap)
+    VALUES (%(epoch)s, %(league_id)s, %(volume)s, %(market_cap)s)
+    RETURNING currency_exchange_snapshot_id
 ),
 pair_data_unnested AS (
     SELECT
@@ -81,32 +81,32 @@ pair_data_unnested AS (
     )
 ),
 pair_insert AS (
-    INSERT INTO "CurrencyExchangeSnapshotPair" (
-        "CurrencyExchangeSnapshotId", "CurrencyOneId", "CurrencyTwoId", "Volume"
+    INSERT INTO currency_exchange_snapshot_pair (
+        currency_exchange_snapshot_id, currency_one_item_id, currency_two_item_id, volume
     )
     SELECT
-        (SELECT "CurrencyExchangeSnapshotId" FROM snapshot_insert),
+        (SELECT currency_exchange_snapshot_id FROM snapshot_insert),
         pdu.c1_id,
         pdu.c2_id,
         pdu.volume
     FROM pair_data_unnested AS pdu
-    RETURNING "CurrencyExchangeSnapshotPairId", "CurrencyOneId", "CurrencyTwoId"
+    RETURNING currency_exchange_snapshot_pair_id, currency_one_item_id, currency_two_item_id
 ),
 pair_data_to_insert AS (
     SELECT
-        pi."CurrencyExchangeSnapshotPairId",
-        pdu.c1_id AS "CurrencyId",
-        pdu.c1_val_traded AS "ValueTraded",
-        pdu.c1_price AS "RelativePrice",
-        pdu.c1_vol_traded AS "VolumeTraded",
-        pdu.c1_stock AS "HighestStock",
-        pdu.c1_stock_value AS "StockValue"
+        pi.currency_exchange_snapshot_pair_id,
+        pdu.c1_id AS item_id,
+        pdu.c1_val_traded AS value_traded,
+        pdu.c1_price AS relative_price,
+        pdu.c1_vol_traded AS volume_traded,
+        pdu.c1_stock AS highest_stock,
+        pdu.c1_stock_value AS stock_value
     FROM pair_insert AS pi
-    JOIN pair_data_unnested AS pdu ON pi."CurrencyOneId" = pdu.c1_id
-                                  AND pi."CurrencyTwoId" = pdu.c2_id
+    JOIN pair_data_unnested AS pdu ON pi.currency_one_item_id = pdu.c1_id
+                                  AND pi.currency_two_item_id = pdu.c2_id
     UNION ALL
     SELECT
-        pi."CurrencyExchangeSnapshotPairId",
+        pi.currency_exchange_snapshot_pair_id,
         pdu.c2_id,
         pdu.c2_val_traded,
         pdu.c2_price,
@@ -114,18 +114,18 @@ pair_data_to_insert AS (
         pdu.c2_stock,
         pdu.c2_stock_value
     FROM pair_insert AS pi
-    JOIN pair_data_unnested AS pdu ON pi."CurrencyOneId" = pdu.c1_id
-                                  AND pi."CurrencyTwoId" = pdu.c2_id
+    JOIN pair_data_unnested AS pdu ON pi.currency_one_item_id = pdu.c1_id
+                                  AND pi.currency_two_item_id = pdu.c2_id
 ),
 final_insert AS (
-    INSERT INTO "CurrencyExchangeSnapshotPairData" (
-        "CurrencyExchangeSnapshotPairId", "CurrencyId", "ValueTraded",
-        "RelativePrice", "VolumeTraded", "HighestStock", "StockValue"
+    INSERT INTO currency_exchange_snapshot_pair_data (
+        currency_exchange_snapshot_pair_id, item_id, value_traded,
+        relative_price, volume_traded, highest_stock, stock_value
     )
     SELECT * FROM pair_data_to_insert
     RETURNING 1
 )
-SELECT "CurrencyExchangeSnapshotId" FROM snapshot_insert;
+SELECT currency_exchange_snapshot_id FROM snapshot_insert;
         """
         await cursor.execute(query, final_params)
-        return (await cursor.fetchall())[0]["CurrencyExchangeSnapshotId"]
+        return (await cursor.fetchall())[0]["currency_exchange_snapshot_id"]

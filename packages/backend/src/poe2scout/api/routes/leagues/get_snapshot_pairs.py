@@ -32,7 +32,7 @@ GetSnapshotPairsRequestDep = Annotated[
 
 class GetSnapshotPairsResponse(ApiModel):
     class _CurrencyItem(ApiModel):
-        id: int
+        currency_item_id: int
         item_id: int
         currency_category_id: int
         api_id: str
@@ -44,7 +44,7 @@ class GetSnapshotPairsResponse(ApiModel):
         @classmethod
         def from_model(cls, model: CurrencyItem) -> Self:
             return cls(
-                id=model.id,
+                currency_item_id=model.currency_item_id,
                 item_id=model.item_id,
                 currency_category_id=model.currency_category_id,
                 api_id=model.api_id,
@@ -107,6 +107,6 @@ async def get_snapshot_pairs(
         raise HTTPException(400, "Invalid league name")
 
     snapshot_pairs = await currency_exchange_repository.get_current_snapshot_pairs(
-        league.id
+        league.league_id
     )
     return [GetSnapshotPairsResponse.from_model(pair) for pair in snapshot_pairs]

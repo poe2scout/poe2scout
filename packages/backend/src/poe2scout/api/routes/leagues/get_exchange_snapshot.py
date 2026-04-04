@@ -48,7 +48,7 @@ async def get_exchange_snapshot(
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
-    snapshot = await currency_exchange_repository.get_currency_exchange(league.id)
+    snapshot = await currency_exchange_repository.get_currency_exchange(league.league_id)
 
     if snapshot is None:
         raise HTTPException(404, "No data for given league.")

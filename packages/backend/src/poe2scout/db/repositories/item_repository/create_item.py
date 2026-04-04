@@ -9,9 +9,9 @@ class CreateItemModel(RepositoryModel):
 async def create_item(item: CreateItemModel) -> int:
     async with BaseRepository.get_db_cursor(row_factory=scalar_as(int)) as cursor:
         query = """
-            INSERT INTO "Item" ("baseItemId", "itemType")
+            INSERT INTO item (base_item_id, item_type)
             VALUES (%s, %s)
-            RETURNING "id"
+            RETURNING item_id
         """
 
         await cursor.execute(query, (item.base_item_id, item.item_type))

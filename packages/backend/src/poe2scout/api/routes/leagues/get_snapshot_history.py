@@ -82,7 +82,7 @@ async def get_snapshot_history(
         raise HTTPException(400, "Invalid league name")
 
     snapshot_history = await currency_exchange_repository.get_currency_exchange_history(
-        league.id,
+        league.league_id,
         request.end_epoch
         if request.end_epoch is not None
         else int(datetime.now(tz=timezone.utc).timestamp()),

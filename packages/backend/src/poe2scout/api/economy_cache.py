@@ -83,8 +83,8 @@ class EconomyCache:
         self, 
         league_id: int, 
         category: str, 
-        search: str, 
-        reference_currency: str
+        reference_currency: str,
+        search: str,
     ) -> List[UniqueItemExtended]:
         items: List[UniqueItemExtended]
 
@@ -169,7 +169,7 @@ class EconomyCache:
 
         items = [
             UniqueItemExtended(
-                **item.model_dump(exclude={"currentPrice"}),
+                **item.model_dump(exclude={"current_price"}),
                 current_price=last_price[item.item_id],
             )
             for item in items

@@ -7,9 +7,9 @@ async def get_currency_fetch_status(start_time: datetime) -> bool:
     async with BaseRepository.get_db_cursor() as cursor:
         query = """
             SELECT 1
-              FROM "CurrencyItem" AS ci
-              JOIN "PriceLog" AS pl ON ci."itemId" = pl."itemId"
-             WHERE pl."createdAt" >= %(start_time)s
+              FROM currency_item AS ci
+              JOIN price_log AS pl ON ci.item_id = pl.item_id
+             WHERE pl.created_at >= %(start_time)s
         """
 
         params = {

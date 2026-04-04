@@ -17,16 +17,8 @@ logger = logging.getLogger(__name__)
 RowT = TypeVar("RowT")
 
 
-def to_camel(value: str) -> str:
-    parts = value.split("_")
-    return parts[0] + "".join(part.capitalize() for part in parts[1:])
-
-
 class RepositoryModel(BaseModel):
-    model_config = ConfigDict(
-        alias_generator=to_camel,
-        populate_by_name=True,
-    )
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class BaseRepository:
@@ -88,6 +80,7 @@ class BaseRepository:
 
 
 T = TypeVar("T")
+
 
 def scalar_as(cast: Callable[[Any], T]) -> RowFactory[T]:
     def factory(cursor: Cursor[Any]) -> RowMaker[T]:

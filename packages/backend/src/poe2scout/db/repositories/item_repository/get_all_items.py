@@ -4,7 +4,7 @@ from ..base_repository import BaseRepository, RepositoryModel
 
 
 class Item(RepositoryModel):
-    id: int
+    item_id: int
     base_item_id: int
     item_type: str
 
@@ -12,8 +12,8 @@ class Item(RepositoryModel):
 async def get_all_items() -> list[Item]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(Item)) as cursor:
         query = """
-            SELECT "id", "baseItemId", "itemType"
-            FROM "Item"
+            SELECT item_id, base_item_id, item_type
+            FROM item
         """
 
         await cursor.execute(query)

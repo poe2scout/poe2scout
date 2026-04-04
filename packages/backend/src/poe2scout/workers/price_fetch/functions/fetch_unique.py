@@ -130,7 +130,7 @@ async def sync_metadata_and_icon(
     item_metadata = extract_unique_item_metadata(first_item)
 
     if unique_item.item_metadata is None:
-        await repo.set_unique_item_metadata(item_metadata, unique_item.id)
+        await repo.set_unique_item_metadata(item_metadata, unique_item.unique_item_id)
 
     if unique_item.icon_url is None:
-        await repo.update_unique_icon_url(item_metadata["icon"], unique_item.id)
+        await repo.update_unique_icon_url(item_metadata["icon"], unique_item.unique_item_id)

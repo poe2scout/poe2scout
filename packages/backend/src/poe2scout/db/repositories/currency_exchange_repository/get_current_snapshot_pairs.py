@@ -29,20 +29,20 @@ class _FlatPairRow(RepositoryModel):
     currency_exchange_snapshot_pair_id: int
     currency_exchange_snapshot_id: int
     volume: Decimal
-    c1_id: int
+    c1_currency_item_id: int
     c1_item_id: int
     c1_api_id: str
     c1_text: str
     c1_icon_url: str
-    c1_cat_id: int
+    c1_currency_category_id: int
     c1_cat_label: str
     c1_cat_api_id: str
-    c2_id: int
+    c2_currency_item_id: int
     c2_item_id: int
     c2_api_id: str
     c2_text: str
     c2_icon_url: str
-    c2_cat_id: int
+    c2_currency_category_id: int
     c2_cat_label: str
     c2_cat_api_id: str
     c1_value_traded: Decimal
@@ -60,55 +60,55 @@ class _FlatPairRow(RepositoryModel):
 async def get_current_snapshot_pairs(league_id: int) -> list[GetCurrentSnapshotPairModel]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(_FlatPairRow)) as cursor:
         query = """
-WITH "CurrentSnapshotId" AS (
-  SELECT "CurrencyExchangeSnapshotId"
-    FROM "CurrencyExchangeSnapshot"
-   WHERE "LeagueId" = %(league_id)s
-   ORDER BY "Epoch" DESC
+WITH current_snapshot_id AS (
+  SELECT currency_exchange_snapshot_id
+    FROM currency_exchange_snapshot
+   WHERE league_id = %(league_id)s
+   ORDER BY epoch DESC
    LIMIT 1
 )
-SELECT cesp."CurrencyExchangeSnapshotPairId" AS "currency_exchange_snapshot_pair_id",
-       cesp."CurrencyExchangeSnapshotId" AS "currency_exchange_snapshot_id",
-       cesp."Volume" AS "volume",
-       ci1."id" AS "c1_id",
-       ci1."itemId" AS "c1_item_id",
-       ci1."apiId" AS "c1_api_id",
-       ci1."text" AS "c1_text",
-       ci1."iconUrl" AS "c1_icon_url",
-       cc1."id" AS "c1_cat_id",
-       cc1."label" AS "c1_cat_label",
-       cc1."apiId" AS "c1_cat_api_id",
-       ci2."id" AS "c2_id",
-       ci2."itemId" AS "c2_item_id",
-       ci2."apiId" AS "c2_api_id",
-       ci2."text" AS "c2_text",
-       ci2."iconUrl" AS "c2_icon_url",
-       cc2."id" AS "c2_cat_id",
-       cc2."label" AS "c2_cat_label",
-       cc2."apiId" AS "c2_cat_api_id",
-       cespd1."ValueTraded" AS "c1_value_traded",
-       cespd1."RelativePrice" AS "c1_relative_price",
-       cespd1."StockValue" AS "c1_stock_value",
-       cespd1."VolumeTraded" AS "c1_volume_traded",
-       cespd1."HighestStock" AS "c1_highest_stock",
-       cespd2."ValueTraded" AS "c2_value_traded",
-       cespd2."RelativePrice" AS "c2_relative_price",
-       cespd2."StockValue" AS "c2_stock_value",
-       cespd2."VolumeTraded" AS "c2_volume_traded",
-       cespd2."HighestStock" AS "c2_highest_stock"
-  FROM "CurrencyExchangeSnapshotPair" AS cesp
-  JOIN "CurrencyItem" AS ci1 ON cesp."CurrencyOneId" = ci1."itemId"
-  JOIN "CurrencyCategory" AS cc1 ON ci1."currencyCategoryId" = cc1."id"
-  JOIN "CurrencyItem" AS ci2 ON cesp."CurrencyTwoId" = ci2."itemId"
-  JOIN "CurrencyCategory" AS cc2 ON ci2."currencyCategoryId" = cc2."id"
-  JOIN "CurrencyExchangeSnapshotPairData" AS cespd1
-        ON cespd1."CurrencyExchangeSnapshotPairId" = cesp."CurrencyExchangeSnapshotPairId"
-        AND cespd1."CurrencyId" = cesp."CurrencyOneId"
-  JOIN "CurrencyExchangeSnapshotPairData" AS cespd2
-        ON cespd2."CurrencyExchangeSnapshotPairId" = cesp."CurrencyExchangeSnapshotPairId"
-        AND cespd2."CurrencyId" = cesp."CurrencyTwoId"
- WHERE cesp."CurrencyExchangeSnapshotId" IN (SELECT "CurrencyExchangeSnapshotId"
-                                               FROM "CurrentSnapshotId");
+SELECT cesp.currency_exchange_snapshot_pair_id AS currency_exchange_snapshot_pair_id,
+       cesp.currency_exchange_snapshot_id AS currency_exchange_snapshot_id,
+       cesp.volume AS volume,
+       ci1.currency_item_id AS c1_currency_item_id,
+       ci1.item_id AS c1_item_id,
+       ci1.api_id AS c1_api_id,
+       ci1.text AS c1_text,
+       ci1.icon_url AS c1_icon_url,
+       cc1.currency_category_id AS c1_currency_category_id,
+       cc1.label AS c1_cat_label,
+       cc1.api_id AS c1_cat_api_id,
+       ci2.currency_item_id AS c2_currency_item_id,
+       ci2.item_id AS c2_item_id,
+       ci2.api_id AS c2_api_id,
+       ci2.text AS c2_text,
+       ci2.icon_url AS c2_icon_url,
+       cc2.currency_category_id AS c2_currency_category_id,
+       cc2.label AS c2_cat_label,
+       cc2.api_id AS c2_cat_api_id,
+       cespd1.value_traded AS c1_value_traded,
+       cespd1.relative_price AS c1_relative_price,
+       cespd1.stock_value AS c1_stock_value,
+       cespd1.volume_traded AS c1_volume_traded,
+       cespd1.highest_stock AS c1_highest_stock,
+       cespd2.value_traded AS c2_value_traded,
+       cespd2.relative_price AS c2_relative_price,
+       cespd2.stock_value AS c2_stock_value,
+       cespd2.volume_traded AS c2_volume_traded,
+       cespd2.highest_stock AS c2_highest_stock
+  FROM currency_exchange_snapshot_pair AS cesp
+  JOIN currency_item AS ci1 ON cesp.currency_one_item_id = ci1.item_id
+  JOIN currency_category AS cc1 ON ci1.currency_category_id = cc1.currency_category_id
+  JOIN currency_item AS ci2 ON cesp.currency_two_item_id = ci2.item_id
+  JOIN currency_category AS cc2 ON ci2.currency_category_id = cc2.currency_category_id
+  JOIN currency_exchange_snapshot_pair_data AS cespd1
+        ON cespd1.currency_exchange_snapshot_pair_id = cesp.currency_exchange_snapshot_pair_id
+        AND cespd1.item_id = cesp.currency_one_item_id
+  JOIN currency_exchange_snapshot_pair_data AS cespd2
+        ON cespd2.currency_exchange_snapshot_pair_id = cesp.currency_exchange_snapshot_pair_id
+        AND cespd2.item_id = cesp.currency_two_item_id
+ WHERE cesp.currency_exchange_snapshot_id IN (SELECT currency_exchange_snapshot_id
+                                               FROM current_snapshot_id);
       """
 
         params = {"league_id": league_id}
@@ -120,21 +120,21 @@ SELECT cesp."CurrencyExchangeSnapshotPairId" AS "currency_exchange_snapshot_pair
         structured_results: list[GetCurrentSnapshotPairModel] = []
         for row in flat_results:
             currency_one = CurrencyItem.model_construct(
-                id=row.c1_id,
+                currency_item_id=row.c1_currency_item_id,
                 item_id=row.c1_item_id,
                 api_id=row.c1_api_id,
                 text=row.c1_text,
                 icon_url=row.c1_icon_url,
-                currency_category_id=row.c1_cat_id,
+                currency_category_id=row.c1_currency_category_id,
                 category_api_id=row.c1_cat_api_id,
             )
             currency_two = CurrencyItem.model_construct(
-                id=row.c2_id,
+                currency_item_id=row.c2_currency_item_id,
                 item_id=row.c2_item_id,
                 api_id=row.c2_api_id,
                 text=row.c2_text,
                 icon_url=row.c2_icon_url,
-                currency_category_id=row.c2_cat_id,
+                currency_category_id=row.c2_currency_category_id,
                 category_api_id=row.c2_cat_api_id,
             )
             c1_data = PairDataDetails.model_construct(

@@ -1,14 +1,18 @@
 from psycopg.rows import class_row
 
-from poe2scout.db.repositories.item_repository.get_all_item_categories import ItemCategory
-
-from ..base_repository import BaseRepository
+from ..base_repository import BaseRepository, RepositoryModel
 
 
-async def get_all_currency_categories() -> list[ItemCategory]:
-    async with BaseRepository.get_db_cursor(row_factory=class_row(ItemCategory)) as cursor:
+class CurrencyCategory(RepositoryModel):
+    currency_category_id: int
+    api_id: str
+    label: str
+
+
+async def get_all_currency_categories() -> list[CurrencyCategory]:
+    async with BaseRepository.get_db_cursor(row_factory=class_row(CurrencyCategory)) as cursor:
         query = """
-            SELECT "id", "apiId", "label" FROM "CurrencyCategory"
+            SELECT currency_category_id, api_id, label FROM currency_category
         """
 
         await cursor.execute(query)
@@ -17,5 +21,5 @@ async def get_all_currency_categories() -> list[ItemCategory]:
 
 
 class GetAllCurrencyCategories(BaseRepository):
-    async def execute(self) -> list[ItemCategory]:
+    async def execute(self) -> list[CurrencyCategory]:
         return await get_all_currency_categories()

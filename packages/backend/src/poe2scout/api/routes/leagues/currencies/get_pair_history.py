@@ -121,7 +121,7 @@ async def get_pair_history(
     pair_history = await currency_exchange_repository.get_pair_history(
         request.currency_one_item_id,
         request.currency_two_item_id,
-        league.id,
+        league.league_id,
         request.end_epoch
         if request.end_epoch is not None
         else int(datetime.now(tz=timezone.utc).timestamp()),

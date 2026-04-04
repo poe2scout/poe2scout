@@ -51,15 +51,15 @@ async def get_item_price_logs(
                     pl."price",
                     ROW_NUMBER() OVER (
                         PARTITION BY ib.item_id, ib.block_start
-                        ORDER BY pl."createdAt" DESC
+                        ORDER BY pl.created_at DESC
                     ) as rn,
                     pl."quantity"
                 FROM item_blocks ib
-                LEFT JOIN "PriceLog" pl ON
-                    pl."itemId" = ib.item_id
-                    AND pl."leagueId" = %s
-                    AND pl."createdAt" >= ib.block_start
-                    AND pl."createdAt" < ib.block_end
+                LEFT JOIN price_log pl ON
+                    pl.item_id = ib.item_id
+                    AND pl.league_id = %s
+                    AND pl.created_at >= ib.block_start
+                    AND pl.created_at < ib.block_end
             )
             SELECT
                 item_id as "item_id",

@@ -21,14 +21,14 @@ async def get_currency_exchange_history(
         row_factory=class_row(GetCurrencyExchangeHistoryData)
     ) as cursor:
         query = """
-                SELECT "Epoch" AS "epoch",
-                       "MarketCap" AS "market_cap",
-                       "Volume" AS "volume"
-                  FROM "CurrencyExchangeSnapshot"
-                 WHERE "LeagueId" = %(league_id)s
-                       AND "Epoch" < %(end_time)s
+                SELECT epoch,
+                       market_cap,
+                       volume
+                  FROM currency_exchange_snapshot
+                 WHERE league_id = %(league_id)s
+                       AND epoch < %(end_time)s
                  ORDER BY
-                       "Epoch" DESC
+                       epoch DESC
                  LIMIT %(limit)s
         """
 

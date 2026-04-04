@@ -14,25 +14,25 @@ async def get_search_options() -> list[SearchOption]:
         query = """
             SELECT
                 ui.name AS display_name,
-                ic."apiId" AS category,
+                ic.api_id AS category,
                 ui.name AS identifier
-            FROM "UniqueItem" ui
-            JOIN "Item" i ON ui."itemId" = i.id
-            JOIN "BaseItem" bi ON i."baseItemId" = bi.id
-            JOIN "ItemType" it ON bi."typeId" = it.id
-            JOIN "ItemCategory" ic ON ic.id = it."categoryId"
-            WHERE i."itemType" = 'unique'
+            FROM unique_item ui
+            JOIN item i ON ui.item_id = i.item_id
+            JOIN base_item bi ON i.base_item_id = bi.base_item_id
+            JOIN item_type it ON bi.item_type_id = it.item_type_id
+            JOIN item_category ic ON ic.item_category_id = it.item_category_id
+            WHERE i.item_type = 'unique'
 
             UNION ALL
 
             SELECT
                 ci.text AS display_name,
-                LOWER(COALESCE(cc."apiId", '')) AS category,
+                LOWER(COALESCE(cc.api_id, '')) AS category,
                 ci.text AS identifier
-            FROM "CurrencyItem" ci
-            JOIN "Item" i ON ci."itemId" = i.id
-            JOIN "CurrencyCategory" cc ON cc.id = ci."currencyCategoryId"
-            WHERE i."itemType" = 'currency';
+            FROM currency_item ci
+            JOIN item i ON ci.item_id = i.item_id
+            JOIN currency_category cc ON cc.currency_category_id = ci.currency_category_id
+            WHERE i.item_type = 'currency';
         """
         await cursor.execute(query)
 

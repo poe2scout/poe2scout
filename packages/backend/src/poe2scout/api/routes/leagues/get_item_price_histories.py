@@ -79,6 +79,6 @@ async def get_item_price_histories(
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
-    item_histories = await item_repository.get_all_item_histories(league.id)
+    item_histories = await item_repository.get_all_item_histories(league.league_id)
 
     return GetItemPriceHistoriesResponse.from_model(item_histories)

@@ -14,27 +14,27 @@ async def get_average_unique_price(
     async with BaseRepository.get_db_cursor(row_factory=class_row(AverageUniquePrice)) as cursor:
         query = """
             WITH unique_item_ids AS (
-                SELECT ib.id as "base_item_id", ui."itemId"
-                FROM "Item" as ib
-                JOIN "BaseItem" as bi on ib."baseItemId" = bi.id
-                JOIN "Item" ON "Item"."baseItemId" = bi.id AND "Item"."itemType" = 'unique'
-                JOIN "UniqueItem" as ui ON ui."itemId" = "Item".id
-                WHERE ib.id = ANY(%s) AND ui."isChanceable" = TRUE
+                SELECT ib.item_id AS base_item_id, ui.item_id
+                FROM item as ib
+                JOIN base_item as bi on ib.base_item_id = bi.base_item_id
+                JOIN item ON item.base_item_id = bi.base_item_id AND item.item_type = 'unique'
+                JOIN unique_item as ui ON ui.item_id = item.item_id
+                WHERE ib.item_id = ANY(%s) AND ui.is_chanceable = TRUE
             ),
             latest_prices AS (
-                SELECT DISTINCT ON (pl."itemId")
-                    ui."base_item_id",
-                    pl."itemId",
+                SELECT DISTINCT ON (pl.item_id)
+                    ui.base_item_id,
+                    pl.item_id,
                     pl.price
-                FROM "PriceLog" as pl
-                JOIN unique_item_ids ui ON ui."itemId" = pl."itemId"
-                WHERE pl."leagueId" = %s
-                ORDER BY pl."itemId", pl."createdAt" DESC
+                FROM price_log as pl
+                JOIN unique_item_ids ui ON ui.item_id = pl.item_id
+                WHERE pl.league_id = %s
+                ORDER BY pl.item_id, pl.created_at DESC
             )
-            SELECT "base_item_id"
+            SELECT base_item_id
                 , AVG(price) as average_price
             FROM latest_prices
-            GROUP BY "base_item_id";
+            GROUP BY base_item_id;
         """
 
         await cursor.execute(query, (item_ids, league_id))

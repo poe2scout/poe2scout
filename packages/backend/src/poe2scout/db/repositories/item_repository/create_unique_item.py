@@ -13,9 +13,9 @@ class CreateUniqueItemModel(RepositoryModel):
 async def create_unique_item(unique_item: CreateUniqueItemModel) -> int:
     async with BaseRepository.get_db_cursor(row_factory=scalar_as(int)) as cursor:
         query = """
-            INSERT INTO "UniqueItem" ("itemId", "iconUrl", "text", "name")
+            INSERT INTO unique_item (item_id, icon_url, text, name)
             VALUES (%(item_id)s, %(icon_url)s, %(text)s, %(name)s)
-            RETURNING "id"
+            RETURNING unique_item_id
         """
 
         await cursor.execute(

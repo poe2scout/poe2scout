@@ -56,51 +56,51 @@ async def get_pair_history(
         query = """
 (
     SELECT
-        "Epoch" AS "epoch",
-        "CurrencyOneId" AS "currency_one_id",
-        "C1_ValueTraded" AS "c1_value_traded",
-        "C1_RelativePrice" AS "c1_relative_price",
-        "C1_StockValue" AS "c1_stock_value",
-        "C1_VolumeTraded" AS "c1_volume_traded",
-        "C1_HighestStock" AS "c1_highest_stock",
-        "CurrencyTwoId" AS "currency_two_id",
-        "C2_ValueTraded" AS "c2_value_traded",
-        "C2_RelativePrice" AS "c2_relative_price",
-        "C2_StockValue" AS "c2_stock_value",
-        "C2_VolumeTraded" AS "c2_volume_traded",
-        "C2_HighestStock" AS "c2_highest_stock"
+        epoch,
+        currency_one_item_id AS "currency_one_id",
+        c1_value_traded AS "c1_value_traded",
+        c1_relative_price AS "c1_relative_price",
+        c1_stock_value AS "c1_stock_value",
+        c1_volume_traded AS "c1_volume_traded",
+        c1_highest_stock AS "c1_highest_stock",
+        currency_two_item_id AS "currency_two_id",
+        c2_value_traded AS "c2_value_traded",
+        c2_relative_price AS "c2_relative_price",
+        c2_stock_value AS "c2_stock_value",
+        c2_volume_traded AS "c2_volume_traded",
+        c2_highest_stock AS "c2_highest_stock"
     FROM currency_exchange_history
     WHERE
-        "LeagueId" = %(league_id)s
-        AND "Epoch" < %(end_epoch)s
-        AND "CurrencyOneId" = %(currency_two_id)s
-        AND "CurrencyTwoId" = %(currency_one_id)s
-    ORDER BY "Epoch" DESC
+        league_id = %(league_id)s
+        AND epoch < %(end_epoch)s
+        AND currency_one_item_id = %(currency_two_id)s
+        AND currency_two_item_id = %(currency_one_id)s
+    ORDER BY epoch DESC
     LIMIT %(limit)s
 )
 UNION ALL
 (
     SELECT
-        "Epoch" AS "epoch",
-        "CurrencyOneId" AS "currency_one_id",
-        "C1_ValueTraded" AS "c1_value_traded",
-        "C1_RelativePrice" AS "c1_relative_price",
-        "C1_StockValue" AS "c1_stock_value",
-        "C1_VolumeTraded" AS "c1_volume_traded",
-        "C1_HighestStock" AS "c1_highest_stock",
-        "CurrencyTwoId" AS "currency_two_id",
-        "C2_ValueTraded" AS "c2_value_traded",
-        "C2_RelativePrice" AS "c2_relative_price",
-        "C2_StockValue" AS "c2_stock_value",
-        "C2_VolumeTraded" AS "c2_volume_traded",
-        "C2_HighestStock" AS "c2_highest_stock"
+        epoch AS "epoch",
+        currency_one_item_id AS "currency_one_id",
+        c1_value_traded AS "c1_value_traded",
+        c1_relative_price AS "c1_relative_price",
+        c1_stock_value AS "c1_stock_value",
+        c1_volume_traded AS "c1_volume_traded",
+        c1_highest_stock AS "c1_highest_stock",
+        currency_two_item_id AS "currency_two_id",
+        c2_value_traded AS "c2_value_traded",
+        c2_relative_price AS "c2_relative_price",
+        c2_stock_value AS "c2_stock_value",
+        c2_volume_traded AS "c2_volume_traded",
+        c2_highest_stock AS "c2_highest_stock"
     FROM currency_exchange_history
     WHERE
-        "LeagueId" = %(league_id)s
-        AND "Epoch" < %(end_epoch)s
-        AND "CurrencyOneId" = %(currency_one_id)s
-        AND "CurrencyTwoId" = %(currency_two_id)s
-    ORDER BY "Epoch" DESC
+        league_id = %(league_id)s
+        AND epoch < %(end_epoch)s
+        AND currency_one_item_id = %(currency_one_id)s
+        AND currency_two_item_id = %(currency_two_id)s
+    ORDER BY epoch DESC
     LIMIT %(limit)s
 )
 ORDER BY "epoch" DESC

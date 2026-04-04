@@ -39,13 +39,15 @@ async def sync_items(categories: list[ItemCategory]):
         if not category_exists:
             logger.info(f"Creating new category: {category.label}, {category.id}")
             category_model = CreateItemCategoryModel(
-                id=category.id, label=category.label
+                api_id=category.id, label=category.label
             )
             category_id = await repo.create_item_category(category_model)
             # Only refresh categories after creating a new one
             all_categories = await repo.get_all_item_categories()
         else:
-            category_id = next(c.id for c in all_categories if c.api_id == category.id)
+            category_id = next(
+                c.item_category_id for c in all_categories if c.api_id == category.id
+            )
 
         for item_entry in category.entries:
             logger.info(
@@ -55,19 +57,19 @@ async def sync_items(categories: list[ItemCategory]):
             type_exists = any(t.value == item_entry.type for t in all_types)
             if not type_exists:
                 type_model = CreateItemTypeModel(
-                    value=item_entry.type, category_id=category_id
+                    value=item_entry.type, item_category_id=category_id
                 )
                 type_id = await repo.create_item_type(type_model)
                 # Only refresh types after creating a new one
                 all_types = await repo.get_all_item_types()
             else:
-                type_id = next(t.id for t in all_types if t.value == item_entry.type)
+                type_id = next(t.item_type_id for t in all_types if t.value == item_entry.type)
 
             # Create BaseItem if needed
-            base_exists = any(b.type_id == type_id for b in all_base_items)
+            base_exists = any(b.item_type_id == type_id for b in all_base_items)
             if not base_exists:
                 base_model = CreateBaseItemModel(
-                    type_id=type_id, icon_url=None, item_metadata=None
+                    item_type_id=type_id, icon_url=None, item_metadata=None
                 )
                 base_id = await repo.create_base_item(base_model)
                 all_base_items = await repo.get_all_base_items()
@@ -75,7 +77,9 @@ async def sync_items(categories: list[ItemCategory]):
                 item_model = CreateItemModel(base_item_id=base_id, item_type="base")
                 item_id = await repo.create_item(item_model)
             else:
-                base_id = next(b.id for b in all_base_items if b.type_id == type_id)
+                base_id = next(
+                    b.base_item_id for b in all_base_items if b.item_type_id == type_id
+                )
 
             # Create Item and UniqueItem if needed
             if is_unique(item_entry):

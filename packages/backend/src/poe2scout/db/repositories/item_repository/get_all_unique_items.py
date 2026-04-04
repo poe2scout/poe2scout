@@ -6,7 +6,7 @@ from ..base_repository import BaseRepository, RepositoryModel
 
 
 class UniqueItem(RepositoryModel):
-    id: int
+    unique_item_id: int
     item_id: int
     icon_url: Optional[str] = None
     text: str
@@ -20,19 +20,19 @@ class UniqueItem(RepositoryModel):
 async def get_all_unique_items() -> list[UniqueItem]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(UniqueItem)) as cursor:
         query = """
-            SELECT ui."id",
-                ui."itemId",
-                ui."iconUrl",
-                ui."text",
-                ui."name",
-                ui."itemMetadata",
-                it."value" as "type",
-                ic."apiId" as "categoryApiId"
-            FROM "UniqueItem" as ui
-            JOIN "Item" AS i ON ui."itemId" = i."id"
-            JOIN "BaseItem" AS bi ON i."baseItemId" = bi."id"
-            JOIN "ItemType" AS it ON bi."typeId" = it."id"
-            JOIN "ItemCategory" AS ic on ic."id" = it."categoryId"
+            SELECT ui.unique_item_id,
+                ui.item_id,
+                ui.icon_url,
+                ui.text,
+                ui.name,
+                ui.item_metadata,
+                it.value as type,
+                ic.api_id as category_api_id
+            FROM unique_item as ui
+            JOIN item AS i ON ui.item_id = i.item_id
+            JOIN base_item AS bi ON i.base_item_id = bi.base_item_id
+            JOIN item_type AS it ON bi.item_type_id = it.item_type_id
+            JOIN item_category AS ic on ic.item_category_id = it.item_category_id
         """
 
         await cursor.execute(query)

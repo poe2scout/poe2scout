@@ -12,7 +12,7 @@ class PriceLogEntry(RepositoryModel):
 
 
 class CurrencyItem(RepositoryModel):
-    id: int
+    currency_item_id: int
     item_id: int
     currency_category_id: int
     api_id: str

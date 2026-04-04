@@ -24,7 +24,7 @@ class GetResponse(ApiModel):
                 quantity=price_log.quantity,
             )
 
-    id: int
+    currency_item_id: int
     item_id: int
     currency_category_id: int
     api_id: str
@@ -42,7 +42,7 @@ class GetResponse(ApiModel):
         price_logs: list[PriceLogEntry | None],
     ) -> Self:
         return cls(
-            id=currency_item.id,
+            currency_item_id=currency_item.currency_item_id,
             item_id=currency_item.item_id,
             currency_category_id=currency_item.currency_category_id,
             api_id=currency_item.api_id,
@@ -104,7 +104,7 @@ async def get(
 
     price_logs_by_item_id = await repo.get_item_price_logs(
         item_ids=[currency_item.item_id],
-        league_id=league.id,
+        league_id=league.league_id,
     )
 
     return GetResponse.from_model(

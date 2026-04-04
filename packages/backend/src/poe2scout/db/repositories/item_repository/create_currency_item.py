@@ -14,9 +14,9 @@ class CreateCurrencyItemModel(RepositoryModel):
 async def create_currency_item(currency_item: CreateCurrencyItemModel) -> int:
     async with BaseRepository.get_db_cursor(row_factory=scalar_as(int)) as cursor:
         query = """
-            INSERT INTO "CurrencyItem" ("itemId", "currencyCategoryId", "apiId", "text", "iconUrl")
+            INSERT INTO currency_item (item_id, currency_category_id, api_id, text, icon_url)
             VALUES (%s, %s, %s, %s, %s)
-            RETURNING "id"
+            RETURNING currency_item_id
         """
 
         await cursor.execute(

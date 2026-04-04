@@ -12,9 +12,9 @@ async def get_service_cache_value(service_name: str) -> GetServiceCacheValueMode
         row_factory=class_row(GetServiceCacheValueModel)
     ) as cursor:
         query = """
-            SELECT "Value" AS "value"
-              FROM "ServiceCache"
-             WHERE "ServiceName" = %(service_name)s
+            SELECT value
+              FROM service_cache
+             WHERE service_name = %(service_name)s
         """
 
         params = {"service_name": service_name}

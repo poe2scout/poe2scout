@@ -7,9 +7,9 @@ async def get_prices_checked(epoch: int, league_id: int) -> bool:
             SELECT
                 CASE
                     WHEN EXISTS(
-                        SELECT 1 FROM "PriceLog"
-                        WHERE "createdAt" = to_timestamp(%s)
-                        AND "leagueId" = %s
+                        SELECT 1 FROM price_log
+                        WHERE created_at = to_timestamp(%s)
+                        AND league_id = %s
                     )
                     THEN 1
                     ELSE 0

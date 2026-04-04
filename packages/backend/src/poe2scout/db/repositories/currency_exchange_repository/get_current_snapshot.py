@@ -16,12 +16,12 @@ async def get_currency_exchange(league_id: int) -> GetCurrencyExchangeModel | No
         row_factory=class_row(GetCurrencyExchangeModel)
     ) as cursor:
         query = """
-            SELECT "Epoch" AS "epoch",
-                   "Volume" AS "volume",
-                   "MarketCap" AS "market_cap"
-              FROM "CurrencyExchangeSnapshot"
-             WHERE "LeagueId" = %(league_id)s
-             ORDER BY "Epoch" DESC
+            SELECT epoch,
+                   volume,
+                   market_cap
+              FROM currency_exchange_snapshot
+             WHERE league_id = %(league_id)s
+             ORDER BY epoch DESC
              LIMIT 1
         """
 

@@ -28,14 +28,14 @@ SELECT DISTINCT ON (time)
     quantity,
     date_bin(
         (%(log_frequency)s || ' hours')::interval,
-        "createdAt",
+        created_at,
         %(end_time)s::timestamp
     ) AS time
-FROM "PriceLog"
-WHERE "itemId" = %(item_id)s
-AND "leagueId" = %(league_id)s
-AND "createdAt" < %(end_time)s
-ORDER BY time DESC, "createdAt" DESC
+FROM price_log
+WHERE item_id = %(item_id)s
+AND league_id = %(league_id)s
+AND created_at < %(end_time)s
+ORDER BY time DESC, created_at DESC
 LIMIT %(limit)s;
         """
 

@@ -83,11 +83,11 @@ async def run(
     for league in leagues:
         item_prices = await item_repo.get_item_prices_in_range(
             item_ids=[item.item_id for item in currencies],
-            league_id=league.id,
+            league_id=league.league_id,
             start_time=datetime.fromtimestamp(data.next_change_id - 60 * 60),
             end_time=datetime.fromtimestamp(data.next_change_id),
         )
-        league_to_prices_lookup[league.id] = item_prices
+        league_to_prices_lookup[league.league_id] = item_prices
 
     for league in leagues:
         logger.info(f"analyzing league {league}")
@@ -97,7 +97,7 @@ async def run(
             if len(
                 [
                     item_price
-                    for item_price in league_to_prices_lookup[league.id]
+                    for item_price in league_to_prices_lookup[league.league_id]
                     if item_price.price != 0
                 ]
             )
@@ -111,13 +111,13 @@ async def run(
             )
             continue
         item_price_lookup_by_item_id = {
-            item.item_id: item for item in league_to_prices_lookup[league.id]
+            item.item_id: item for item in league_to_prices_lookup[league.league_id]
         }
 
         pairs = [pair for pair in data.markets if pair.league == league.value]
 
         snapshot = CurrencyExchangeSnapshot(
-            Epoch=data.next_change_id - 60 * 60, LeagueId=league.id, Pairs=[]
+            epoch=data.next_change_id - 60 * 60, league_id=league.league_id, pairs=[]
         )
 
         present_api_ids = currency_lookup_by_api_id.keys()
@@ -151,26 +151,26 @@ async def run(
             )
 
             snapshot_pair = CurrencyExchangeSnapshotPair(
-                CurrencyOneItemId=currency_one.item_id,
-                CurrencyTwoItemId=currency_two.item_id,
-                Volume=most_liquid_currency.ValueTraded,
-                CurrencyOneData=currency_one_data,
-                CurrencyTwoData=currency_two_data,
+                currency_one_item_id=currency_one.item_id,
+                currency_two_item_id=currency_two.item_id,
+                volume=most_liquid_currency.value_traded,
+                currency_one_data=currency_one_data,
+                currency_two_data=currency_two_data,
             )
 
-            snapshot.Pairs.append(snapshot_pair)
+            snapshot.pairs.append(snapshot_pair)
 
         volume = 0
         market_cap = 0
-        for pair in snapshot.Pairs:
-            volume += pair.Volume
-            market_cap += pair.CurrencyOneData.StockValue
-            market_cap += pair.CurrencyTwoData.StockValue
+        for pair in snapshot.pairs:
+            volume += pair.volume
+            market_cap += pair.currency_one_data.stock_value
+            market_cap += pair.currency_two_data.stock_value
 
-        snapshot.Volume = Decimal(volume)
-        snapshot.MarketCap = Decimal(market_cap)
+        snapshot.volume = Decimal(volume)
+        snapshot.market_cap = Decimal(market_cap)
 
-        logger.info(f"Saving {len(snapshot.Pairs)} for {snapshot.LeagueId}")
+        logger.info(f"Saving {len(snapshot.pairs)} for {snapshot.league_id}")
         if volume == 0 and market_cap == 0:
             logger.info("No data in snapshot. Skipping")
             continue
@@ -196,9 +196,9 @@ def get_pair_data(
     highest_stock = pair.highest_stock[currency_item.api_id]
 
     return CurrencyExchangeSnapshotPairData(
-        VolumeTraded=volume_traded,
-        ValueTraded=value_traded,
-        RelativePrice=relative_price,
-        HighestStock=highest_stock,
-        StockValue=highest_stock * item_price_lookup[currency_item.item_id].price,
+        volume_traded=volume_traded,
+        value_traded=value_traded,
+        relative_price=relative_price,
+        highest_stock=highest_stock,
+        stock_value=highest_stock * item_price_lookup[currency_item.item_id].price,
     )

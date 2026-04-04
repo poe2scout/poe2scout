@@ -29,10 +29,10 @@ async def get_fetched_item_ids(current_hour: str, league_id: int) -> list[int]:
         )
 
         query = """
-            SELECT DISTINCT i."id" FROM "Item" as i
-            JOIN "PriceLog" as pl ON i."id" = pl."itemId"
-            JOIN "League" as l ON pl."leagueId" = l."id"
-            WHERE pl."createdAt" > %s AND pl."createdAt" < %s AND l."id" = %s
+            SELECT DISTINCT i.item_id FROM item as i
+            JOIN price_log as pl ON i.item_id = pl.item_id
+            JOIN league as l ON pl.league_id = l.league_id
+            WHERE pl.created_at > %s AND pl.created_at < %s AND l.league_id = %s
         """
         await cursor.execute(query, (current_start, current_end, league_id))
 

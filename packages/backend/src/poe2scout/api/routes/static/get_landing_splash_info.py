@@ -25,7 +25,7 @@ class GetLandingSplashInfoResponse(ApiModel):
                     quantity=model.quantity,
                 )
 
-        id: int
+        currency_item_id: int
         item_id: int
         currency_category_id: int
         api_id: str
@@ -39,7 +39,7 @@ class GetLandingSplashInfoResponse(ApiModel):
         @classmethod
         def from_model(cls, model: CurrencyItemExtended) -> Self:
             return cls(
-                id=model.id,
+                currency_item_id=model.currency_item_id,
                 item_id=model.item_id,
                 currency_category_id=model.currency_category_id,
                 api_id=model.api_id,

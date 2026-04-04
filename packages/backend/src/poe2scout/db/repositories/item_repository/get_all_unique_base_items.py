@@ -6,7 +6,7 @@ from ..base_repository import BaseRepository, RepositoryModel
 
 
 class UniqueBaseItem(RepositoryModel):
-    id: int
+    base_item_id: int
     icon_url: Optional[str] = None
     item_metadata: Optional[dict] = None
     item_id: int
@@ -18,25 +18,25 @@ async def get_all_unique_base_items() -> list[UniqueBaseItem]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(UniqueBaseItem)) as cursor:
         query = """
                         WITH unique_ids AS (
-                            SELECT DISTINCT "baseItemId" FROM "Item"
-                            WHERE "itemType" = 'unique'
+                            SELECT DISTINCT base_item_id FROM item
+                            WHERE item_type = 'unique'
                         ),
                         valid_items AS (
-                            SELECT * FROM "Item"
-                            WHERE "itemType" = 'base'
+                            SELECT * FROM item
+                            WHERE item_type = 'base'
                         )
                         SELECT
-                            "bi"."id",
-                            "bi"."iconUrl",
-                            "bi"."itemMetadata",
-                            "i".id as "itemId",
-                            "it"."value" as name,
-                            ic."apiId"
-                        FROM "BaseItem" as bi
-                        JOIN valid_items as i ON "bi"."id" = "i"."baseItemId"
-                        JOIN "ItemType" as it ON "bi"."typeId" = "it"."id"
-                        JOIN "ItemCategory" as ic on it."categoryId" = ic.id
-                        WHERE "bi"."id" IN (SELECT "baseItemId" FROM unique_ids)
+                            bi.base_item_id,
+                            bi.icon_url,
+                            bi.item_metadata,
+                            i.item_id as item_id,
+                            it.value as name,
+                            ic.api_id
+                        FROM base_item as bi
+                        JOIN valid_items as i ON bi.base_item_id = i.base_item_id
+                        JOIN item_type as it ON bi.item_type_id = it.item_type_id
+                        JOIN item_category as ic on it.item_category_id = ic.item_category_id
+                        WHERE bi.base_item_id IN (SELECT base_item_id FROM unique_ids)
         """
 
         await cursor.execute(query)

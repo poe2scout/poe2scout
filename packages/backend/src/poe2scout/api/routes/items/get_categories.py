@@ -2,6 +2,7 @@ from typing import Self
 
 from poe2scout.api.dependancies import ItemRepoDep
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories.item_repository.get_all_currency_categories import CurrencyCategory
 from poe2scout.db.repositories.item_repository.get_all_item_categories import ItemCategory
 
 from . import router
@@ -11,7 +12,7 @@ IGNORE_CURRENCIES = ["gem", "relics", "waystones"]
 
 class GetCategoriesResponse(ApiModel):
     class _ItemCategory(ApiModel):
-        id: int
+        item_category_id: int
         api_id: str
         label: str
         icon: str
@@ -23,20 +24,40 @@ class GetCategoriesResponse(ApiModel):
             icon: str,
         ) -> Self:
             return cls(
-                id=item_category.id,
+                item_category_id=item_category.item_category_id,
                 api_id=item_category.api_id,
                 label=item_category.label,
                 icon=icon,
             )
+        
+    class _CurrencyCategory(ApiModel):
+        currency_category_id: int
+        api_id: str
+        label: str
+        icon: str
+
+        @classmethod
+        def from_model(
+            cls,
+            currency_category: CurrencyCategory,
+            icon: str,
+        ) -> Self:
+            return cls(
+                currency_category_id=currency_category.currency_category_id,
+                api_id=currency_category.api_id,
+                label=currency_category.label,
+                icon=icon,
+            )
+
 
     unique_categories: list[_ItemCategory]
-    currency_categories: list[_ItemCategory]
+    currency_categories: list[_CurrencyCategory]
 
     @classmethod
     def from_model(
         cls,
         unique_categories: list[ItemCategory],
-        currency_categories: list[ItemCategory],
+        currency_categories: list[CurrencyCategory],
         icon_lookup: dict[str, str],
     ) -> Self:
         return cls(
@@ -48,8 +69,8 @@ class GetCategoriesResponse(ApiModel):
                 for unique_category in unique_categories
             ],
             currency_categories=[
-                cls._ItemCategory.from_model(
-                    item_category=currency_category,
+                cls._CurrencyCategory.from_model(
+                    currency_category=currency_category,
                     icon=icon_lookup.get(currency_category.api_id.lower(), ""),
                 )
                 for currency_category in currency_categories

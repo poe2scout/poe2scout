@@ -25,7 +25,7 @@ class GetUniqueItemsResponse(ApiModel):
                     quantity=model.quantity,
                 )
 
-        id: int
+        unique_item_id: int
         item_id: int
         icon_url: str | None = None
         text: str
@@ -40,7 +40,7 @@ class GetUniqueItemsResponse(ApiModel):
         @classmethod
         def from_model(cls, model: UniqueItemExtended) -> Self:
             return cls(
-                id=model.id,
+                unique_item_id=model.unique_item_id,
                 item_id=model.item_id,
                 icon_url=model.icon_url,
                 text=model.text,
@@ -122,7 +122,7 @@ async def get_unique_category_items(
         raise HTTPException(400, "Invalid league name")
 
     items = await economy_cache.get_unique_page(
-        league.id,
+        league.league_id,
         request.category,
         request.reference_currency,
         request.search,

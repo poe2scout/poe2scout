@@ -12,17 +12,16 @@ class GetCurrencyItemIdModel(RepositoryModel):
 async def get_currency_item(api_id: str) -> CurrencyItem | None:
     async with BaseRepository.get_db_cursor(row_factory=class_row(CurrencyItem)) as cursor:
         query = """
-            SELECT ci."id",
-                ci."itemId",
-                ci."apiId",
-                ci."text",
-                ci."iconUrl",
-                ci."currencyCategoryId",
-                cc."label",
-                cc."apiId" as "categoryApiId"
-            FROM "CurrencyItem" as ci
-            JOIN "CurrencyCategory" as cc on ci."currencyCategoryId" = cc."id"
-            WHERE ci."apiId" = %(api_id)s
+            SELECT ci.currency_item_id,
+                ci.item_id,
+                ci.api_id,
+                ci.text,
+                ci.icon_url,
+                ci.currency_category_id,
+                cc.api_id as category_api_id
+            FROM currency_item as ci
+            JOIN currency_category as cc on ci.currency_category_id = cc.currency_category_id
+            WHERE ci.api_id = %(api_id)s
         """
 
         params = {"api_id": api_id}

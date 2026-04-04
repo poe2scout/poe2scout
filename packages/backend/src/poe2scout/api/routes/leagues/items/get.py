@@ -125,7 +125,7 @@ async def get_items(
     ]
 
     league_id = next(
-        (league.id for league in leagues if league.value == request.league_name),
+        (league.league_id for league in leagues if league.value == request.league_name),
         None,
     )
 

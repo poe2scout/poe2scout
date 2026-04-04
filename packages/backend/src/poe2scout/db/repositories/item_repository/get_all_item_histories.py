@@ -29,39 +29,39 @@ async def get_all_item_histories(league_id: int) -> list[ItemHistory]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(_AllItemHistoriesRow)) as cursor:
         query = """
 WITH RECURSIVE distinct_items AS (
-    (SELECT "itemId"
-       FROM "PriceLog"
-      WHERE "leagueId" = %(league_id)s
-      ORDER BY "itemId"
+    (SELECT item_id
+       FROM price_log
+      WHERE league_id = %(league_id)s
+      ORDER BY item_id
       LIMIT 1)
 
      UNION ALL
 
     SELECT (
-        SELECT "itemId"
-          FROM "PriceLog"
-         WHERE "leagueId" = %(league_id)s AND "itemId" > di."itemId"
-         ORDER BY "itemId"
+        SELECT item_id
+          FROM price_log
+         WHERE league_id = %(league_id)s AND item_id > di.item_id
+         ORDER BY item_id
          LIMIT 1
     )
       FROM distinct_items di
-     WHERE di."itemId" IS NOT NULL
+     WHERE di.item_id IS NOT NULL
 )
-SELECT p."itemId" AS "item_id",
-       p."createdAt" AS "time",
+SELECT p.item_id AS "item_id",
+       p.created_at AS "time",
        p.price AS "price",
        p.quantity AS "quantity"
 FROM (
-    SELECT "itemId" FROM distinct_items WHERE "itemId" IS NOT NULL
+    SELECT item_id FROM distinct_items WHERE item_id IS NOT NULL
 ) AS items
 CROSS JOIN LATERAL (
-    SELECT "createdAt", price, quantity, "itemId"
-      FROM "PriceLog"
-     WHERE "leagueId" = %(league_id)s AND "PriceLog"."itemId" = items."itemId"
-     ORDER BY "createdAt" DESC
+    SELECT created_at, price, quantity, item_id
+      FROM price_log
+     WHERE league_id = %(league_id)s AND price_log.item_id = items.item_id
+     ORDER BY created_at DESC
      LIMIT 24
 ) AS p
-ORDER BY p."itemId", p."createdAt" DESC;
+ORDER BY p.item_id, p.created_at DESC;
         """
         params = {"league_id": league_id}
 

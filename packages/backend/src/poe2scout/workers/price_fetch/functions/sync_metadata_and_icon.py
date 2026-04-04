@@ -60,7 +60,7 @@ async def sync_metadata_and_icon(
     logger.info(f"Item metadata: {item_metadata}")
 
     if want_currency.item_metadata is None:
-        await repo.set_currency_item_metadata(item_metadata, want_currency.id)
+        await repo.set_currency_item_metadata(item_metadata, want_currency.currency_item_id)
 
     if want_currency.icon_url is None:
-        await repo.update_currency_icon_url(item_metadata["icon"], want_currency.id)
+        await repo.update_currency_icon_url(item_metadata["icon"], want_currency.currency_item_id)

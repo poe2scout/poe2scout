@@ -22,24 +22,24 @@ async def get_item_prices_in_range(
         row_factory=class_row(GetItemPricesInRangeModel)
     ) as cursor:
         query = """
-            WITH "FirstPrice" AS (
-                SELECT DISTINCT ON ("itemId")
-                       "itemId",
-                       "price",
-                       "quantity"
-                  FROM "PriceLog"
-                 WHERE "leagueId" = %(league_id)s
-                   AND "createdAt" >= %(start_time)s
-                   AND "createdAt" < %(end_time)s
-                   AND "itemId" = ANY(%(item_ids)s)
-                 ORDER BY "itemId", "createdAt" ASC
+            WITH first_price AS (
+                SELECT DISTINCT ON (item_id)
+                       item_id,
+                       price,
+                       quantity
+                  FROM price_log
+                 WHERE league_id = %(league_id)s
+                   AND created_at >= %(start_time)s
+                   AND created_at < %(end_time)s
+                   AND item_id = ANY(%(item_ids)s)
+                 ORDER BY item_id, created_at ASC
             )
             SELECT
-                req_item."id" AS "item_id",
-                COALESCE(fp."price", 0) AS "price",
-                COALESCE(fp."quantity", 0) AS "quantity"
-              FROM UNNEST(%(item_ids)s) AS req_item("id")
-              LEFT JOIN "FirstPrice" AS fp ON req_item."id" = fp."itemId";
+                req_item.item_id AS item_id,
+                COALESCE(fp.price, 0) AS price,
+                COALESCE(fp.quantity, 0) AS quantity
+              FROM UNNEST(%(item_ids)s) AS req_item(item_id)
+              LEFT JOIN first_price AS fp ON req_item.item_id = fp.item_id;
         """
         params = {
             "item_ids": item_ids,

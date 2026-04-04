@@ -6,17 +6,9 @@ from ..base_repository import BaseRepository
 async def is_item_a_currency(item_id: int) -> bool:
     async with BaseRepository.get_db_cursor(row_factory=dict_row) as cursor:
         query = """
-            SELECT ci."id"
-                , ci."itemId"
-                , ci."apiId"
-                , ci."text"
-                , ci."iconUrl"
-                , ci."currencyCategoryId"
-                , cc."label"
-                , cc."apiId" as "categoryApiId"
-            FROM "CurrencyItem" as ci
-            JOIN "CurrencyCategory" as cc on ci."currencyCategoryId" = cc."id"
-            WHERE ci."itemId" = %s
+            SELECT 1
+            FROM currency_item as ci
+            WHERE ci.item_id = %s
         """
 
         await cursor.execute(query, (item_id,))

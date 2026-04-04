@@ -103,7 +103,7 @@ async def fetch_currency_exchange_prices(
     logger.info("Updating correctly")
     try:
         for league in leagues:
-            if await repo.get_prices_checked(current_epoch, league.id):
+            if await repo.get_prices_checked(current_epoch, league.league_id):
                 logger.info(
                     "Price already checked for this timestamp and league. continuing"
                 )
@@ -121,7 +121,7 @@ async def fetch_currency_exchange_prices(
             if len(chaos_pairs) == 0:
                 logger.info("No chaos pair")
                 item_price = await repo.get_item_price(
-                    (await repo.get_chaos_item()).item_id, league.id, current_epoch
+                    (await repo.get_chaos_item()).item_id, league.league_id, current_epoch
                 )
                 if item_price == 0:
                     continue
@@ -163,7 +163,7 @@ async def fetch_currency_exchange_prices(
             if len(divine_prices) == 0:
                 logger.info("No divine pair")
                 item_price = await repo.get_item_price(
-                    (await repo.get_divine_item()).item_id, league.id, current_epoch
+                    (await repo.get_divine_item()).item_id, league.league_id, current_epoch
                 )
                 if item_price == 0:
                     continue
@@ -227,7 +227,7 @@ async def fetch_currency_exchange_prices(
             price_logs = [
                 RecordPriceModel(
                     item_id=item_id_lookup[value.item_id],
-                    league_id=league.id,
+                    league_id=league.league_id,
                     price=value.value,
                     quantity=value.quantity_traded,
                 )
@@ -337,7 +337,7 @@ async def fetch_prices(repo: ItemRepository):
         while True:
             # Get all unqiue items
             leagues = await repo.get_leagues()
-            leagues = [league for league in leagues if league.id == 7] # Fate of the Vaal
+            leagues = [league for league in leagues if league.league_id == 7] # Fate of the Vaal
             base_unique_items = await repo.get_all_unique_items()
             base_currency_items = await repo.get_all_currency_items()
 
@@ -347,10 +347,12 @@ async def fetch_prices(repo: ItemRepository):
             for league in leagues:
                 current_time = datetime.now().strftime("%H")
                 fetched_item_ids: list[int] = await repo.get_fetched_item_ids(
-                    current_time, league.id
+                    current_time, league.league_id
                 )
                 item_ids = await repo.get_all_items()
-                item_ids = [item.id for item in item_ids if item.id not in fetched_item_ids]
+                item_ids = [
+                    item.item_id for item in item_ids if item.item_id not in fetched_item_ids
+                ]
 
                 item_ids_to_fetch = [
                     item for item in item_ids if item not in fetched_item_ids
@@ -366,7 +368,7 @@ async def fetch_prices(repo: ItemRepository):
                     logger.info("No items to fetch")
                     continue
 
-                divine_price = await repo.get_item_price(divine_item.item_id, league.id)
+                divine_price = await repo.get_item_price(divine_item.item_id, league.league_id)
 
                 await process_uniques(
                     unique_items,
@@ -442,7 +444,7 @@ async def process_uniques(
                 currency = await repo.get_currency_item(price.currency)
                 assert currency is not None
 
-                currency_price = await repo.get_item_price(currency.item_id, league.id)
+                currency_price = await repo.get_item_price(currency.item_id, league.league_id)
 
                 item_price = price.price * currency_price
                 quantity += price.quantity
@@ -454,7 +456,7 @@ async def process_uniques(
                 f"with price {lowest_price} and quantity {quantity}"
             )
             await record_price(
-                lowest_price, unique_item.item_id, league.id, quantity, repo
+                lowest_price, unique_item.item_id, league.league_id, quantity, repo
             )
         except:
             logger.error(f"error fetching for {unique_item}")

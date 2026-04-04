@@ -48,11 +48,13 @@ async def sync_currencies(categories: list[CurrencyCategory]):
                 f"Creating new currency category: {category.label or category.id}"
             )
             category_model = CreateCurrencyCategoryModel(
-                id=category.id, label=category.label
+                api_id=category.id, label=category.label
             )
             category_id = await repo.create_currency_category(category_model)
         else:
-            category_id = next(c.id for c in all_categories if c.api_id == category.id)
+            category_id = next(
+                c.currency_category_id for c in all_categories if c.api_id == category.id
+            )
         (
             all_categories,
             all_types,
@@ -67,15 +69,15 @@ async def sync_currencies(categories: list[CurrencyCategory]):
             if currency.text == "":
                 continue
             currency_category_id = next(
-                c.id for c in all_categories if c.api_id == "currency"
+                c.currency_category_id for c in all_categories if c.api_id == "currency"
             )
             if not type_exists:
                 type_model = CreateItemTypeModel(
-                    value=currency.id, category_id=currency_category_id
+                    value=currency.id, item_category_id=currency_category_id
                 )
                 type_id = await repo.create_item_type(type_model)
             else:
-                type_id = next(t.id for t in all_types if t.value == currency.id)
+                type_id = next(t.item_type_id for t in all_types if t.value == currency.id)
             (
                 all_categories,
                 all_types,
@@ -85,10 +87,10 @@ async def sync_currencies(categories: list[CurrencyCategory]):
             ) = await refresh_lists(repo)
 
             # Create BaseItem for currency
-            base_exists = any(b.type_id == type_id for b in all_base_items)
+            base_exists = any(b.item_type_id == type_id for b in all_base_items)
             if not base_exists:
                 base_model = CreateBaseItemModel(
-                    type_id=type_id,
+                    item_type_id=type_id,
                     icon_url=currency.image,
                     item_metadata={"id": currency.id, "text": currency.text},
                 )
@@ -98,7 +100,9 @@ async def sync_currencies(categories: list[CurrencyCategory]):
                 item_id = await repo.create_item(item_model)
 
             else:
-                base_id = next(b.id for b in all_base_items if b.type_id == type_id)
+                base_id = next(
+                    b.base_item_id for b in all_base_items if b.item_type_id == type_id
+                )
 
             # Create CurrencyItem
             currency_exists = any(c.api_id == currency.id for c in all_currency_items)

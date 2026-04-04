@@ -21,11 +21,11 @@ async def get_item_price(
         epoch = epoch or int(datetime.now(tz=timezone.utc).timestamp())
 
         query = """
-            SELECT "price" FROM "PriceLog"
-            WHERE "itemId" = %(item_id)s
-            AND "leagueId" = %(league_id)s
-            AND "createdAt" < %(created_before)s
-            ORDER BY "createdAt" DESC
+            SELECT price FROM price_log
+            WHERE item_id = %(item_id)s
+            AND league_id = %(league_id)s
+            AND created_at < %(created_before)s
+            ORDER BY created_at DESC
             LIMIT 1
         """
 

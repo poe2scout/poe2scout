@@ -81,7 +81,7 @@ async def get_price_history(
 
     leagues = await item_repository.get_all_leagues()
     league_id = next(
-        (league.id for league in leagues if league.value == request.league_name),
+        (league.league_id for league in leagues if league.value == request.league_name),
         None,
     )
 

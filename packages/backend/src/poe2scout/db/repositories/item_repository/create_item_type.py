@@ -3,18 +3,18 @@ from ..base_repository import BaseRepository, RepositoryModel, scalar_as
 
 class CreateItemTypeModel(RepositoryModel):
     value: str
-    category_id: int
+    item_category_id: int
 
 
 async def create_item_type(item_type: CreateItemTypeModel) -> int:
     async with BaseRepository.get_db_cursor(row_factory=scalar_as(int)) as cursor:
         query = """
-            INSERT INTO "ItemType" ("value", "categoryId")
+            INSERT INTO item_type (value, item_category_id)
             VALUES (%s, %s)
-            RETURNING "id"
+            RETURNING item_type_id
         """
 
-        await cursor.execute(query, (item_type.value, item_type.category_id))
+        await cursor.execute(query, (item_type.value, item_type.item_category_id))
 
         return await anext(cursor)
 

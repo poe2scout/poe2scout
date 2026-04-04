@@ -6,8 +6,8 @@ from ..base_repository import BaseRepository, RepositoryModel
 
 
 class BaseItem(RepositoryModel):
-    id: int
-    type_id: int
+    base_item_id: int
+    item_type_id: int
     icon_url: Optional[str] = None
     item_metadata: Optional[dict] = None
 
@@ -15,11 +15,11 @@ class BaseItem(RepositoryModel):
 async def get_all_base_items() -> list[BaseItem]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(BaseItem)) as cursor:
         query = """
-            SELECT "bi"."id"
-                , "bi"."typeId"
-                , "bi"."iconUrl"
-                , "bi"."itemMetadata"
-            FROM "BaseItem" as bi
+            SELECT bi.base_item_id
+                , bi.item_type_id
+                , bi.icon_url
+                , bi.item_metadata
+            FROM base_item as bi
         """
 
         await cursor.execute(query)

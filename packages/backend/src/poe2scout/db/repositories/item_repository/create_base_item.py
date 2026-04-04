@@ -5,7 +5,7 @@ from ..base_repository import BaseRepository, RepositoryModel, scalar_as
 
 
 class CreateBaseItemModel(RepositoryModel):
-    type_id: int
+    item_type_id: int
     icon_url: Optional[str] = None
     item_metadata: Optional[dict] = None
 
@@ -17,12 +17,12 @@ async def create_base_item(base_item: CreateBaseItemModel) -> int:
         )
 
         query = """
-            INSERT INTO "BaseItem" ("typeId", "iconUrl", "itemMetadata")
+            INSERT INTO base_item (item_type_id, icon_url, item_metadata)
             VALUES (%s, %s, %s)
-            RETURNING "id"
+            RETURNING base_item_id
         """
 
-        await cursor.execute(query, (base_item.type_id, base_item.icon_url, metadata_json))
+        await cursor.execute(query, (base_item.item_type_id, base_item.icon_url, metadata_json))
 
         return await anext(cursor)
 

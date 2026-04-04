@@ -41,8 +41,8 @@ async def get(
 
     responses: list[GetResponse] = []
     for league in leagues:
-        divine_price = await item_repository.get_item_price(divine_item.item_id, league.id)
-        chaos_price = await item_repository.get_item_price(chaos_item.item_id, league.id)
+        divine_price = await item_repository.get_item_price(divine_item.item_id, league.league_id)
+        chaos_price = await item_repository.get_item_price(chaos_item.item_id, league.league_id)
 
         responses.append(
             GetResponse.from_model(
