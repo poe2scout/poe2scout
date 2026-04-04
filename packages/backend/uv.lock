@@ -132,20 +132,6 @@ wheels = [
 ]
 
 [[package]]
-name = "fastapi-cli"
-version = "0.0.7"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "rich-toolkit" },
-    { name = "typer" },
-    { name = "uvicorn", extra = ["standard"] },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/fe/73/82a5831fbbf8ed75905bacf5b2d9d3dfd6f04d6968b29fe6f72a5ae9ceb1/fastapi_cli-0.0.7.tar.gz", hash = "sha256:02b3b65956f526412515907a0793c9094abd4bfb5457b389f645b0ea6ba3605e", size = 16753 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a1/e6/5daefc851b514ce2287d8f5d358ae4341089185f78f3217a69d0ce3a390c/fastapi_cli-0.0.7-py3-none-any.whl", hash = "sha256:d549368ff584b2804336c61f192d86ddea080c11255f375959627911944804f4", size = 10705 },
-]
-
-[[package]]
 name = "h11"
 version = "0.14.0"
 source = { registry = "https://pypi.org/simple" }
@@ -166,12 +152,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/6a/41/d7d0a89eb493922c3
 wheels = [
     { url = "https://files.pythonhosted.org/packages/87/f5/72347bc88306acb359581ac4d52f23c0ef445b57157adedb9aee0cd689d2/httpcore-1.0.7-py3-none-any.whl", hash = "sha256:a3fff8f43dc260d5bd363d9f9cf1830fa3a458b332856f34282de498ed420edd", size = 78551 },
 ]
-
-[[package]]
-name = "httptools"
-version = "0.6.4"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a7/9a/ce5e1f7e131522e6d3426e8e7a490b3a01f39a6696602e1c4f33f9e94277/httptools-0.6.4.tar.gz", hash = "sha256:4e93eee4add6493b59a5c514da98c939b244fce4a0d8879cd3f466562f4b7d5c", size = 240639 }
 
 [[package]]
 name = "httpx"
@@ -276,10 +256,8 @@ dependencies = [
     { name = "dotenv" },
     { name = "email-validator" },
     { name = "fastapi" },
-    { name = "fastapi-cli" },
     { name = "h11" },
     { name = "httpcore" },
-    { name = "httptools" },
     { name = "httpx" },
     { name = "idna" },
     { name = "jinja2" },
@@ -329,10 +307,8 @@ requires-dist = [
     { name = "dotenv", specifier = "==0.9.9" },
     { name = "email-validator", specifier = "==2.2.0" },
     { name = "fastapi", specifier = "==0.115.12" },
-    { name = "fastapi-cli", specifier = "==0.0.7" },
     { name = "h11", specifier = "==0.14.0" },
     { name = "httpcore", specifier = "==1.0.7" },
-    { name = "httptools", specifier = "==0.6.4" },
     { name = "httpx", specifier = "==0.28.1" },
     { name = "idna", specifier = "==3.10" },
     { name = "jinja2", specifier = "==3.1.6" },

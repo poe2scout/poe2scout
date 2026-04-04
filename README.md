@@ -21,7 +21,7 @@ POE2 Scout is a market tool for Path of Exile 2 focused on real-time item and cu
 ### Prerequisites
 
 - Docker
-- Python 3.12.3
+- Python 3.14.3
 - [uv](https://docs.astral.sh/uv/)
 - Node.js and npm
 
