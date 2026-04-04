@@ -25,13 +25,13 @@ if __name__ == "__main__":
 
     async def main_loop():
         await BaseRepository.init_pool(config.dbstring)
-        itemRepo = ItemRepository()
-        cxRepo = CurrencyExchangeRepository()
+        item_repo = ItemRepository()
+        currency_exchange_repo = CurrencyExchangeRepository()
         async with PoeApiClient(
             config.POEAPI_CLIENT_ID, config.POEAPI_CLIENT_SECRET
         ) as client:
             while True:
-                await run(config, itemRepo, cxRepo, client)
+                await run(config, item_repo, currency_exchange_repo, client)
                 await asyncio.sleep(15)
 
     asyncio.run(main_loop())

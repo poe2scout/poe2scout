@@ -42,19 +42,19 @@ class GetUniqueItemsResponse(ApiModel):
         def from_model(cls, model: UniqueItemExtended) -> Self:
             return cls(
                 id=model.id,
-                item_id=model.itemId,
-                icon_url=model.iconUrl,
+                item_id=model.item_id,
+                icon_url=model.icon_url,
                 text=model.text,
                 name=model.name,
-                category_api_id=model.categoryApiId,
-                item_metadata=model.itemMetadata,
+                category_api_id=model.category_api_id,
+                item_metadata=model.item_metadata,
                 type=model.type,
-                is_chanceable=model.isChanceable,
+                is_chanceable=model.is_chanceable,
                 price_logs=[
                     cls._PriceLogEntry.from_model(log) if log is not None else None
-                    for log in model.priceLogs
+                    for log in model.price_logs
                 ],
-                current_price=model.currentPrice,
+                current_price=model.current_price,
             )
 
     current_page: int
@@ -115,11 +115,11 @@ async def get_unique_category_items(
     if request.reference_currency not in ["exalted", "chaos"]:
         raise HTTPException(400, "reference currency must be exalted or chaos")
 
-    league = await repo.GetLeagueByValue(pagination.league_name)
+    league = await repo.get_league_by_value(pagination.league_name)
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
-    items = await economy_cache.GetUniquePage(
+    items = await economy_cache.get_unique_page(
         league.id,
         request.category,
         request.reference_currency,

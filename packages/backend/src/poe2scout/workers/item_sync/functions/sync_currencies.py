@@ -1,31 +1,31 @@
-from poe2scout.db.repositories.item_repository.CreateBaseItem import CreateBaseItemModel
-from poe2scout.db.repositories.item_repository.CreateCurrencyCategory import (
+from poe2scout.db.repositories.item_repository.create_base_item import CreateBaseItemModel
+from poe2scout.db.repositories.item_repository.create_currency_category import (
     CreateCurrencyCategoryModel,
 )
-from poe2scout.db.repositories.item_repository.CreateCurrencyItem import (
+from poe2scout.db.repositories.item_repository.create_currency_item import (
     CreateCurrencyItemModel,
 )
-from poe2scout.db.repositories.item_repository.CreateItemType import CreateItemTypeModel
-from poe2scout.db.repositories.item_repository.CreateItem import CreateItemModel
+from poe2scout.db.repositories.item_repository.create_item_type import CreateItemTypeModel
+from poe2scout.db.repositories.item_repository.create_item import CreateItemModel
 
 from poe2scout.db.repositories.item_repository import ItemRepository
 import logging
 
-from poe2scout.workers.item_sync.models import currencyCategory
+from poe2scout.workers.item_sync.models import CurrencyCategory
 
 logger = logging.getLogger(__name__)
 
 
-async def sync_currencies(categories: list[currencyCategory]):
+async def sync_currencies(categories: list[CurrencyCategory]):
     repo = ItemRepository()
     logger.info("Starting currency sync process...")
 
     async def refresh_lists(repo: ItemRepository):
-        all_categories = await repo.GetAllCurrencyCategories()
-        all_types = await repo.GetAllItemTypes()
-        all_base_items = await repo.GetAllBaseItems()
-        all_items = await repo.GetAllItems()
-        all_currency_items = await repo.GetAllCurrencyItems()
+        all_categories = await repo.get_all_currency_categories()
+        all_types = await repo.get_all_item_types()
+        all_base_items = await repo.get_all_base_items()
+        all_items = await repo.get_all_items()
+        all_currency_items = await repo.get_all_currency_items()
         return all_categories, all_types, all_base_items, all_items, all_currency_items
 
     (
@@ -42,7 +42,7 @@ async def sync_currencies(categories: list[currencyCategory]):
             continue
         # Create currency category
         category.id = category.id.lower()
-        category_exists = any(c.apiId == category.id for c in all_categories)
+        category_exists = any(c.api_id == category.id for c in all_categories)
         if not category_exists:
             logger.info(
                 f"Creating new currency category: {category.label or category.id}"
@@ -50,9 +50,9 @@ async def sync_currencies(categories: list[currencyCategory]):
             category_model = CreateCurrencyCategoryModel(
                 id=category.id, label=category.label
             )
-            category_id = await repo.CreateCurrencyCategory(category_model)
+            category_id = await repo.create_currency_category(category_model)
         else:
-            category_id = next(c.id for c in all_categories if c.apiId == category.id)
+            category_id = next(c.id for c in all_categories if c.api_id == category.id)
         (
             all_categories,
             all_types,
@@ -67,13 +67,13 @@ async def sync_currencies(categories: list[currencyCategory]):
             if currency.text == "":
                 continue
             currency_category_id = next(
-                c.id for c in all_categories if c.apiId == "currency"
+                c.id for c in all_categories if c.api_id == "currency"
             )
             if not type_exists:
                 type_model = CreateItemTypeModel(
-                    value=currency.id, categoryId=currency_category_id
+                    value=currency.id, category_id=currency_category_id
                 )
-                type_id = await repo.CreateItemType(type_model)
+                type_id = await repo.create_item_type(type_model)
             else:
                 type_id = next(t.id for t in all_types if t.value == currency.id)
             (
@@ -85,28 +85,28 @@ async def sync_currencies(categories: list[currencyCategory]):
             ) = await refresh_lists(repo)
 
             # Create BaseItem for currency
-            base_exists = any(b.typeId == type_id for b in all_base_items)
+            base_exists = any(b.type_id == type_id for b in all_base_items)
             if not base_exists:
                 base_model = CreateBaseItemModel(
-                    typeId=type_id,
-                    iconUrl=currency.image,
-                    itemMetadata={"id": currency.id, "text": currency.text},
+                    type_id=type_id,
+                    icon_url=currency.image,
+                    item_metadata={"id": currency.id, "text": currency.text},
                 )
-                base_id = await repo.CreateBaseItem(base_model)
+                base_id = await repo.create_base_item(base_model)
 
-                item_model = CreateItemModel(baseItemId=base_id, itemType="base")
-                item_id = await repo.CreateItem(item_model)
+                item_model = CreateItemModel(base_item_id=base_id, item_type="base")
+                item_id = await repo.create_item(item_model)
 
             else:
-                base_id = next(b.id for b in all_base_items if b.typeId == type_id)
+                base_id = next(b.id for b in all_base_items if b.type_id == type_id)
 
             # Create CurrencyItem
-            currency_exists = any(c.apiId == currency.id for c in all_currency_items)
+            currency_exists = any(c.api_id == currency.id for c in all_currency_items)
             logger.info(f"currency: {currency} , currency_exists: {currency_exists}")
             if not currency_exists:
                 # Create Item
-                item_model = CreateItemModel(baseItemId=base_id, itemType="currency")
-                item_id = await repo.CreateItem(item_model)
+                item_model = CreateItemModel(base_item_id=base_id, item_type="currency")
+                item_id = await repo.create_item(item_model)
 
                 # Safely construct the image URL
                 # If currency.image is None, image_url will be None
@@ -118,14 +118,14 @@ async def sync_currencies(categories: list[currencyCategory]):
                 )
 
                 currency_model = CreateCurrencyItemModel(
-                    itemId=item_id,
-                    currencyCategoryId=category_id,
-                    apiId=currency.id,
+                    item_id=item_id,
+                    currency_category_id=category_id,
+                    api_id=currency.id,
                     text=currency.text,
                     # Use the safely constructed URL (can be None)
                     image=image_url,
                 )
-                await repo.CreateCurrencyItem(currency_model)
+                await repo.create_currency_item(currency_model)
 
             (
                 all_categories,

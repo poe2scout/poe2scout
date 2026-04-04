@@ -43,13 +43,13 @@ class GetCurrencyItemResponse(ApiModel):
     ) -> Self:
         return cls(
             id=currency_item.id,
-            item_id=currency_item.itemId,
-            currency_category_id=currency_item.currencyCategoryId,
-            api_id=currency_item.apiId,
+            item_id=currency_item.item_id,
+            currency_category_id=currency_item.currency_category_id,
+            api_id=currency_item.api_id,
             text=currency_item.text,
-            category_api_id=currency_item.categoryApiId,
-            icon_url=currency_item.iconUrl,
-            item_metadata=currency_item.itemMetadata,
+            category_api_id=currency_item.category_api_id,
+            icon_url=currency_item.icon_url,
+            item_metadata=currency_item.item_metadata,
             price_logs=[
                 cls._PriceLogEntry.from_model(price_log)
                 if price_log is not None
@@ -94,20 +94,20 @@ async def get_currency_item(
     request: GetCurrencyItemRequestDep,
     repo: ItemRepoDep,
 ) -> GetCurrencyItemResponse:
-    currency_item = await repo.GetCurrencyItem(request.api_id)
+    currency_item = await repo.get_currency_item(request.api_id)
     if currency_item is None:
         raise HTTPException(400, "Invalid currency item api ID")
 
-    league = await repo.GetLeagueByValue(request.league_name)
+    league = await repo.get_league_by_value(request.league_name)
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
-    price_logs_by_item_id = await repo.GetItemPriceLogs(
-        itemIds=[currency_item.itemId],
-        leagueId=league.id,
+    price_logs_by_item_id = await repo.get_item_price_logs(
+        item_ids=[currency_item.item_id],
+        league_id=league.id,
     )
 
     return GetCurrencyItemResponse.from_model(
         currency_item,
-        price_logs_by_item_id.get(currency_item.itemId, []),
+        price_logs_by_item_id.get(currency_item.item_id, []),
     )

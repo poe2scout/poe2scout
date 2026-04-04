@@ -19,14 +19,14 @@ logger = logging.getLogger(__name__)
 
 
 class CacheState(BaseModel, Generic[T]):
-    Value: List[T]
-    Expires: datetime
+    value: List[T]
+    expires: datetime
 
 
 class CacheKey(BaseModel):
-    Category: str
-    LeagueId: int
-    ReferenceCurrency: str
+    category: str
+    league_id: int
+    reference_currency: str
 
     class Config:
         frozen = True
@@ -46,123 +46,123 @@ class EconomyCache:
         self.repo = repo
         self.CurrencyLocks = defaultdict(asyncio.Lock)
 
-    async def GetCurrencyPage(
+    async def get_currency_page(
         self, 
-        leagueId: int, 
+        league_id: int, 
         category: str, 
-        referenceCurrency: str,
+        reference_currency: str,
         search: str, 
     ) -> List[CurrencyItemExtended]:
         items: List[CurrencyItemExtended]
-        cacheKey = CacheKey(
-            Category=category, LeagueId=leagueId, ReferenceCurrency=referenceCurrency
+        cache_key = CacheKey(
+            category=category, league_id=league_id, reference_currency=reference_currency
         )
 
-        cacheEntry = self.CurrencyCache.get(cacheKey)
-        if cacheEntry and cacheEntry.Expires > datetime.now():
-            logger.info(f"HitCache for {cacheKey}")
-            items = self.CurrencyCache[cacheKey].Value
+        cache_entry = self.CurrencyCache.get(cache_key)
+        if cache_entry and cache_entry.expires > datetime.now():
+            logger.info(f"HitCache for {cache_key}")
+            items = self.CurrencyCache[cache_key].value
         else:
-            lock = self.CurrencyLocks[cacheKey]
+            lock = self.CurrencyLocks[cache_key]
 
             async with lock:
-                cacheEntry = self.CurrencyCache.get(cacheKey)
-                if cacheEntry and cacheEntry.Expires > datetime.now():
-                    logger.info(f"HitCache (AfterLock) for {cacheKey}")
-                    items = cacheEntry.Value
+                cache_entry = self.CurrencyCache.get(cache_key)
+                if cache_entry and cache_entry.expires > datetime.now():
+                    logger.info(f"HitCache (AfterLock) for {cache_key}")
+                    items = cache_entry.value
                 else:
-                    logger.info(f"Cache empty for {cacheKey}, fetching from DB.")
-                    items = await self.FetchCurrencyPage(cacheKey)
+                    logger.info(f"Cache empty for {cache_key}, fetching from DB.")
+                    items = await self.fetch_currency_page(cache_key)
 
         if search:
             items = [item for item in items if item.text == search]
 
         return items
 
-    async def GetUniquePage(
+    async def get_unique_page(
         self, 
-        leagueId: int, 
+        league_id: int, 
         category: str, 
         search: str, 
-        referenceCurrency: str
+        reference_currency: str
     ) -> List[UniqueItemExtended]:
         items: List[UniqueItemExtended]
 
-        cacheKey = CacheKey(
-            Category=category, LeagueId=leagueId, ReferenceCurrency=referenceCurrency
+        cache_key = CacheKey(
+            category=category, league_id=league_id, reference_currency=reference_currency
         )
         if (
-            self.UniqueCache.get(cacheKey) is not None
-            and self.UniqueCache[cacheKey].Expires > datetime.now()
+            self.UniqueCache.get(cache_key) is not None
+            and self.UniqueCache[cache_key].expires > datetime.now()
         ):
-            logger.info(f"HitCache for {cacheKey}")
-            items = self.UniqueCache[cacheKey].Value
+            logger.info(f"HitCache for {cache_key}")
+            items = self.UniqueCache[cache_key].value
         else:
-            logger.info(f"Cache empty for {cacheKey}")
-            items = await self.FetchUniquePage(cacheKey)
+            logger.info(f"Cache empty for {cache_key}")
+            items = await self.fetch_unique_page(cache_key)
         if search != "":
             items = [item for item in items if item.name.lower() == search.lower()]
 
         return items
 
-    async def FetchUniquePage(self, cacheKey: CacheKey) -> List[UniqueItemExtended]:
-        uniqueItems = await self.repo.GetUniqueItemsByCategory(cacheKey.Category)
+    async def fetch_unique_page(self, cache_key: CacheKey) -> List[UniqueItemExtended]:
+        unique_items = await self.repo.get_unique_items_by_category(cache_key.category)
 
-        itemsInCurrentLeague = await self.repo.GetItemsInCurrentLeague(
-            cacheKey.LeagueId
+        items_in_current_league = await self.repo.get_items_in_current_league(
+            cache_key.league_id
         )
 
-        uniqueItems = [
+        unique_items = [
             uniqueItem
-            for uniqueItem in uniqueItems
-            if uniqueItem.itemId in itemsInCurrentLeague
+            for uniqueItem in unique_items
+            if uniqueItem.item_id in items_in_current_league
         ]
-        itemIds = [item.itemId for item in uniqueItems]
+        item_ids = [item.item_id for item in unique_items]
 
-        priceLogs = await self.repo.GetItemPriceLogs(itemIds, cacheKey.LeagueId)
+        price_logs = await self.repo.get_item_price_logs(item_ids, cache_key.league_id)
 
-        chaosPrice = 1
-        if cacheKey.ReferenceCurrency == "chaos":
-            chaosItem = await self.repo.GetCurrencyItem("chaos")
-            if chaosItem is None:
+        chaos_price = 1
+        if cache_key.reference_currency == "chaos":
+            chaos_item = await self.repo.get_currency_item("chaos")
+            if chaos_item is None:
                 raise Exception()
 
-            chaosPrice = await self.repo.GetItemPrice(
-                chaosItem.itemId, cacheKey.LeagueId
+            chaos_price = await self.repo.get_item_price(
+                chaos_item.item_id, cache_key.league_id
             )
-            chaosPriceLogs = (
-                await self.repo.GetItemPriceLogs([chaosItem.itemId], cacheKey.LeagueId)
-            )[chaosItem.itemId]
+            chaos_price_logs = (
+                await self.repo.get_item_price_logs([chaos_item.item_id], cache_key.league_id)
+            )[chaos_item.item_id]
 
-            for itemPriceLogs in priceLogs:
-                for i, itemPriceLogListItem in enumerate(priceLogs[itemPriceLogs]):
-                    chaosPriceItem = chaosPriceLogs[i]
-                    if itemPriceLogListItem is None or chaosPriceItem is None:
+            for item_price_logs in price_logs:
+                for i, item_price_log_list_item in enumerate(price_logs[item_price_logs]):
+                    chaos_price_item = chaos_price_logs[i]
+                    if item_price_log_list_item is None or chaos_price_item is None:
                         continue
 
-                    priceLogs[itemPriceLogs][i] = PriceLogEntry(
-                        price=itemPriceLogListItem.price / chaosPriceItem.price,
-                        time=itemPriceLogListItem.time,
-                        quantity=itemPriceLogListItem.quantity,
+                    price_logs[item_price_logs][i] = PriceLogEntry(
+                        price=item_price_log_list_item.price / chaos_price_item.price,
+                        time=item_price_log_list_item.time,
+                        quantity=item_price_log_list_item.quantity,
                     )
 
         items = [
-            UniqueItemExtended(**item.model_dump(), priceLogs=priceLogs[item.itemId])
-            for item in uniqueItems
+            UniqueItemExtended(**item.model_dump(), price_logs=price_logs[item.item_id])
+            for item in unique_items
         ]
 
-        lastPrice = dict.fromkeys(itemIds, 0.0)
+        last_price = dict.fromkeys(item_ids, 0.0)
 
-        prices = await self.repo.GetItemPrices(itemIds, cacheKey.LeagueId)
+        prices = await self.repo.get_item_prices(item_ids, cache_key.league_id)
 
-        pricesLookup = {price.ItemId: price for price in prices}
+        prices_lookup = {price.item_id: price for price in prices}
 
         for item in items:
-            lastPrice[item.itemId] = pricesLookup[item.itemId].Price / chaosPrice
+            last_price[item.item_id] = prices_lookup[item.item_id].price / chaos_price
 
         items.sort(
             key=lambda item: (
-                lastPrice[item.itemId] if item.itemId in lastPrice else 0
+                last_price[item.item_id] if item.item_id in last_price else 0
             ),
             reverse=True,
         )
@@ -170,75 +170,75 @@ class EconomyCache:
         items = [
             UniqueItemExtended(
                 **item.model_dump(exclude={"currentPrice"}),
-                currentPrice=lastPrice[item.itemId],
+                current_price=last_price[item.item_id],
             )
             for item in items
         ]
 
-        self.UniqueCache[cacheKey] = CacheState[UniqueItemExtended](
-            Value=items,
-            Expires=datetime.now() + timedelta(hours=1, minutes=random.randint(0, 15)),
+        self.UniqueCache[cache_key] = CacheState[UniqueItemExtended](
+            value=items,
+            expires=datetime.now() + timedelta(hours=1, minutes=random.randint(0, 15)),
         )
 
         return items
 
-    async def FetchCurrencyPage(self, cacheKey: CacheKey) -> List[CurrencyItemExtended]:
-        itemsInCurrentLeague = await self.repo.GetItemsInCurrentLeague(
-            cacheKey.LeagueId
+    async def fetch_currency_page(self, cache_key: CacheKey) -> List[CurrencyItemExtended]:
+        items_in_current_league = await self.repo.get_items_in_current_league(
+            cache_key.league_id
         )
-        currencyItems = await self.repo.GetCurrencyItemsByCategory(cacheKey.Category)
-        currencyItems = [
+        currency_items = await self.repo.get_currency_items_by_category(cache_key.category)
+        currency_items = [
             currencyItem
-            for currencyItem in currencyItems
-            if currencyItem.itemId in itemsInCurrentLeague
+            for currencyItem in currency_items
+            if currencyItem.item_id in items_in_current_league
         ]
-        itemIds = [item.itemId for item in currencyItems]
+        item_ids = [item.item_id for item in currency_items]
 
-        priceLogs = await self.repo.GetItemPriceLogs(itemIds, cacheKey.LeagueId)
+        price_logs = await self.repo.get_item_price_logs(item_ids, cache_key.league_id)
 
-        chaosPrice = 1
-        if cacheKey.ReferenceCurrency == "chaos":
-            chaosItem = await self.repo.GetCurrencyItem("chaos")
+        chaos_price = 1
+        if cache_key.reference_currency == "chaos":
+            chaos_item = await self.repo.get_currency_item("chaos")
 
-            if chaosItem is None:
+            if chaos_item is None:
                 raise Exception()
 
-            chaosPrice = await self.repo.GetItemPrice(
-                chaosItem.itemId, cacheKey.LeagueId
+            chaos_price = await self.repo.get_item_price(
+                chaos_item.item_id, cache_key.league_id
             )
-            chaosPriceLogs = (
-                await self.repo.GetItemPriceLogs([chaosItem.itemId], cacheKey.LeagueId)
-            )[chaosItem.itemId]
+            chaos_price_loags = (
+                await self.repo.get_item_price_logs([chaos_item.item_id], cache_key.league_id)
+            )[chaos_item.item_id]
 
-            for itemPriceLogs in priceLogs:
-                for i, itemPriceLogListItem in enumerate(priceLogs[itemPriceLogs]):
-                    chaosPriceItem = chaosPriceLogs[i]
-                    if itemPriceLogListItem is None or chaosPriceItem is None:
+            for item_price_logs in price_logs:
+                for i, item_price_log_list_item in enumerate(price_logs[item_price_logs]):
+                    chaos_price_item = chaos_price_loags[i]
+                    if item_price_log_list_item is None or chaos_price_item is None:
                         continue
 
-                    priceLogs[itemPriceLogs][i] = PriceLogEntry(
-                        price=itemPriceLogListItem.price / chaosPriceItem.price,
-                        time=itemPriceLogListItem.time,
-                        quantity=itemPriceLogListItem.quantity,
+                    price_logs[item_price_logs][i] = PriceLogEntry(
+                        price=item_price_log_list_item.price / chaos_price_item.price,
+                        time=item_price_log_list_item.time,
+                        quantity=item_price_log_list_item.quantity,
                     )
 
         items = [
-            CurrencyItemExtended(**item.model_dump(), priceLogs=priceLogs[item.itemId])
-            for item in currencyItems
+            CurrencyItemExtended(**item.model_dump(), price_logs=price_logs[item.item_id])
+            for item in currency_items
         ]
 
-        lastPrice = dict.fromkeys(itemIds, 0.0)
+        last_price = dict.fromkeys(item_ids, 0.0)
 
-        prices = await self.repo.GetItemPrices(itemIds, cacheKey.LeagueId)
+        prices = await self.repo.get_item_prices(item_ids, cache_key.league_id)
 
-        pricesLookup = {price.ItemId: price for price in prices}
+        prices_lookup = {price.item_id: price for price in prices}
 
         for item in items:
-            lastPrice[item.itemId] = pricesLookup[item.itemId].Price / chaosPrice
+            last_price[item.item_id] = prices_lookup[item.item_id].price / chaos_price
 
         items.sort(
             key=lambda item: (
-                lastPrice[item.itemId] if item.itemId in lastPrice else 0
+                last_price[item.item_id] if item.item_id in last_price else 0
             ),
             reverse=True,
         )
@@ -246,7 +246,7 @@ class EconomyCache:
         items = [
             CurrencyItemExtended(
                 **item.model_dump(exclude={"currentPrice"}),
-                currentPrice=lastPrice[item.itemId],
+                current_price=last_price[item.item_id],
             )
             for item in items
         ]
@@ -255,9 +255,9 @@ class EconomyCache:
 
         expiration_time = next_hour + timedelta(minutes=random.randint(5, 10))
 
-        self.CurrencyCache[cacheKey] = CacheState[CurrencyItemExtended](
-            Value=items,
-            Expires=expiration_time,
+        self.CurrencyCache[cache_key] = CacheState[CurrencyItemExtended](
+            value=items,
+            expires=expiration_time,
         )
 
         return items

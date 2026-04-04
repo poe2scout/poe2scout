@@ -69,7 +69,7 @@ where = ["src"]
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F"]
+select = ["E", "F", "B", "N"]
 
 [tool.ruff.format]
 quote-style = "double"

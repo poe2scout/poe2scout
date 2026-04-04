@@ -41,20 +41,20 @@ class GetCurrencyItemsResponse(ApiModel):
         def from_model(cls, model: CurrencyItemExtended) -> Self:
             return cls(
                 id=model.id,
-                item_id=model.itemId,
-                currency_category_id=model.currencyCategoryId,
-                api_id=model.apiId,
+                item_id=model.item_id,
+                currency_category_id=model.currency_category_id,
+                api_id=model.api_id,
                 text=model.text,
-                category_api_id=model.categoryApiId,
-                icon_url=model.iconUrl,
-                item_metadata=model.itemMetadata,
+                category_api_id=model.category_api_id,
+                icon_url=model.icon_url,
+                item_metadata=model.item_metadata,
                 price_logs=[
                     cls._PriceLogEntry.from_model(price_log)
                     if price_log is not None
                     else None
-                    for price_log in model.priceLogs
+                    for price_log in model.price_logs
                 ],
-                current_price=model.currentPrice,
+                current_price=model.current_price,
             )
 
     current_page: int
@@ -115,12 +115,12 @@ async def get_currency_category_items(
     if request.reference_currency not in ["exalted", "chaos"]:
         raise HTTPException(400, "reference currency must be exalted or chaos")
 
-    league = await item_repository.GetLeagueByValue(pagination.league_name)
+    league = await item_repository.get_league_by_value(pagination.league_name)
 
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
-    items = await economy_cache.GetCurrencyPage(
+    items = await economy_cache.get_currency_page(
         league.id,
         request.category,
         request.reference_currency,

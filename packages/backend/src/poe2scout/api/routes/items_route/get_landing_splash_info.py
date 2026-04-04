@@ -41,20 +41,20 @@ class GetLandingSplashInfoResponse(ApiModel):
         def from_model(cls, model: CurrencyItemExtended) -> Self:
             return cls(
                 id=model.id,
-                item_id=model.itemId,
-                currency_category_id=model.currencyCategoryId,
-                api_id=model.apiId,
+                item_id=model.item_id,
+                currency_category_id=model.currency_category_id,
+                api_id=model.api_id,
                 text=model.text,
-                category_api_id=model.categoryApiId,
-                icon_url=model.iconUrl,
-                item_metadata=model.itemMetadata,
+                category_api_id=model.category_api_id,
+                icon_url=model.icon_url,
+                item_metadata=model.item_metadata,
                 price_logs=[
                     cls._PriceLogEntry.from_model(price_log)
                     if price_log is not None
                     else None
-                    for price_log in model.priceLogs
+                    for price_log in model.price_logs
                 ],
-                current_price=model.currentPrice,
+                current_price=model.current_price,
             )
 
     items: list[_Item]
@@ -68,27 +68,27 @@ class GetLandingSplashInfoResponse(ApiModel):
 async def get_landing_splash_info(
     item_repository: ItemRepoDep,
 ) -> GetLandingSplashInfoResponse:
-    items = await item_repository.GetCurrencyItems(IMPORTANT_API_IDS)
+    items = await item_repository.get_currency_items(IMPORTANT_API_IDS)
 
-    item_ids = [item.itemId for item in items]
+    item_ids = [item.item_id for item in items]
 
-    price_logs = await item_repository.GetItemPriceLogs(item_ids, DEFAULT_LEAGUE_ID)
+    price_logs = await item_repository.get_item_price_logs(item_ids, DEFAULT_LEAGUE_ID)
 
     items = [
-        CurrencyItemExtended(**item.model_dump(), priceLogs=price_logs[item.itemId])
+        CurrencyItemExtended(**item.model_dump(), price_logs=price_logs[item.item_id])
         for item in items
     ]
 
     last_price = dict.fromkeys(item_ids, 0.0)
 
     for item in items:
-        for log in item.priceLogs:
+        for log in item.price_logs:
             if log is not None and hasattr(log, "price"):
-                last_price[item.itemId] = log.price
+                last_price[item.item_id] = log.price
                 break
 
     items.sort(
-        key=lambda item: int(last_price[item.itemId]) if item.itemId in last_price else 0,
+        key=lambda item: int(last_price[item.item_id]) if item.item_id in last_price else 0,
         reverse=True,
     )
 

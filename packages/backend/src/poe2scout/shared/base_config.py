@@ -42,6 +42,6 @@ class BaseConfig(BaseModel):
                 else:
                     config_data[field_name] = field_type(env_value)
             except ValueError as e:
-                raise ValueError(f"Failed to parse {env_name}: {str(e)}")
+                raise ValueError(f"Failed to parse {env_name}: {str(e)}") from e
 
         return cls(**config_data)

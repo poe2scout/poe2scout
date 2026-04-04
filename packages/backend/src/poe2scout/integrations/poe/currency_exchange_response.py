@@ -1,7 +1,7 @@
 from typing import List
 from pydantic import BaseModel
 
-from poe2scout.db.repositories.item_repository.GetLeagues import League
+from poe2scout.db.repositories.item_repository.get_leagues import League
 
 
 class TradingPair(BaseModel):
@@ -18,7 +18,7 @@ class CurrencyExchangeResponse(BaseModel):
 
 class LeagueCurrencyPairData(BaseModel):
     league: League
-    baseItem: str
-    targetItem: str
-    valueOfTargetItemInBaseItems: float
-    quantityOfTargetItem: int
+    base_item: str
+    target_item: str
+    value_of_target_item_in_base_items: float
+    quantity_of_target_item: int

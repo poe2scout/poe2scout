@@ -31,20 +31,20 @@ class GetLeaguesResponse(ApiModel):
 async def get_leagues(
     item_repository: ItemRepoDep,
 ) -> list[GetLeaguesResponse]:
-    leagues = await item_repository.GetAllLeagues()
+    leagues = await item_repository.get_all_leagues()
 
-    divine_item = await item_repository.GetCurrencyItem("divine")
+    divine_item = await item_repository.get_currency_item("divine")
     if divine_item is None:
         raise HTTPException(500)
 
-    chaos_item = await item_repository.GetCurrencyItem("chaos")
+    chaos_item = await item_repository.get_currency_item("chaos")
     if chaos_item is None:
         raise HTTPException(500)
 
     responses: list[GetLeaguesResponse] = []
     for league in leagues:
-        divine_price = await item_repository.GetItemPrice(divine_item.itemId, league.id)
-        chaos_price = await item_repository.GetItemPrice(chaos_item.itemId, league.id)
+        divine_price = await item_repository.get_item_price(divine_item.item_id, league.id)
+        chaos_price = await item_repository.get_item_price(chaos_item.item_id, league.id)
 
         responses.append(
             GetLeaguesResponse.from_model(

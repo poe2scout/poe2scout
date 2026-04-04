@@ -1,12 +1,13 @@
+import asyncio
+import logging
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from typing import Any, Callable, Dict, Sequence, TypeVar, overload
+
 from psycopg import Cursor
-from psycopg_pool import AsyncConnectionPool
-from psycopg.rows import RowMaker, dict_row
-import logging
-import asyncio
-from psycopg.rows import RowFactory
 from psycopg.cursor_async import AsyncCursor
+from psycopg.rows import RowFactory, RowMaker, dict_row
+from psycopg_pool import AsyncConnectionPool
+from pydantic import BaseModel, ConfigDict
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -14,6 +15,18 @@ logger = logging.getLogger(__name__)
 
 
 RowT = TypeVar("RowT")
+
+
+def to_camel(value: str) -> str:
+    parts = value.split("_")
+    return parts[0] + "".join(part.capitalize() for part in parts[1:])
+
+
+class RepositoryModel(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+    )
 
 
 class BaseRepository:
@@ -46,14 +59,14 @@ class BaseRepository:
     @overload
     @classmethod
     def get_db_cursor(
-        cls, rowFactory: RowFactory[RowT]
+        cls, row_factory: RowFactory[RowT]
     ) -> AbstractAsyncContextManager[AsyncCursor[RowT]]:
         """Overload for the generic case with a specific rowFactory."""
         ...
 
     @classmethod
     @asynccontextmanager
-    async def get_db_cursor(cls, rowFactory=dict_row):
+    async def get_db_cursor(cls, row_factory=dict_row):
         """Get a database cursor from the connection pool"""
         if cls._pool is None:
             raise RuntimeError("Database pool not initialized")
@@ -61,7 +74,7 @@ class BaseRepository:
         try:
             async with asyncio.timeout(10):  # 10 second timeout
                 async with cls._pool.connection() as conn:
-                    async with conn.cursor(row_factory=rowFactory) as cursor:
+                    async with conn.cursor(row_factory=row_factory) as cursor:
                         logger.debug("Database cursor acquired")
                         yield cursor
                         await conn.commit()

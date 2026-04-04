@@ -1,10 +1,10 @@
 from poe2scout.db.repositories.item_repository import ItemRepository
-from poe2scout.db.repositories.item_repository.GetAllUniqueItems import UniqueItem
+from poe2scout.db.repositories.item_repository.get_all_unique_items import UniqueItem
 from httpx import AsyncClient
 import logging
 from typing import List
 from pydantic import BaseModel
-from poe2scout.db.repositories.item_repository.GetLeagues import League
+from poe2scout.db.repositories.item_repository.get_leagues import League
 from .extract_unique_item_metadata import extract_unique_item_metadata
 
 logger = logging.getLogger(__name__)
@@ -19,15 +19,15 @@ class PriceFetchResult(BaseModel):
     currency: str
 
 
-def create_query_string(uniqueItem: UniqueItem, currencyText: str):
-    if uniqueItem.categoryApiId == "jewel":
+def create_query_string(unique_item: UniqueItem, currency_text: str):
+    if unique_item.category_api_id == "jewel":
         return {
             "query": {
                 "status": {"option": "securable"},
-                "name": uniqueItem.name,
+                "name": unique_item.name,
                 "stats": [{"type": "and", "filters": []}],
                 "filters": {
-                    "trade_filters": {"filters": {"price": {"option": currencyText}}}  
+                    "trade_filters": {"filters": {"price": {"option": currency_text}}}
                 },
             },
             "sort": {"price": "asc"}
@@ -36,10 +36,10 @@ def create_query_string(uniqueItem: UniqueItem, currencyText: str):
     return {
         "query": {
             "status": {"option": "securable"},
-            "name": uniqueItem.name,
+            "name": unique_item.name,
             "stats": [{"type": "and", "filters": []}],
             "filters": {
-                "trade_filters": {"filters": {"price": {"option": currencyText}}},
+                "trade_filters": {"filters": {"price": {"option": currency_text}}},
                 "misc_filters": {"filters": {"corrupted": {"option": "false"}}}
             },
         },
@@ -47,28 +47,27 @@ def create_query_string(uniqueItem: UniqueItem, currencyText: str):
     }
 
 async def fetch_unique(
-    uniqueItem: UniqueItem,
+    unique_item: UniqueItem,
     league: League,
     repo: ItemRepository,
     client: AsyncClient,
     currency: str,
 ) -> PriceFetchResult:
     query_url = f"{BASE_URL}/search/{REALM}/{league.value}"
-    # create query string
-    query_data = create_query_string(uniqueItem, currencyText=currency)
+    query_data = create_query_string(unique_item, currency_text=currency)
 
     # Make first request to get the query id
     query_response = await client.post(query_url, json=query_data)
     if query_response.status_code != 200:
         raise Exception(
-            f"Search request failed for {uniqueItem.name}" +\
+            f"Search request failed for {unique_item.name}" +\
             f" with status code {query_response.status_code}"
         )
 
     query_data = query_response.json()
 
     if len(query_data["result"]) == 0:
-        logger.info(f"No results found for {uniqueItem.name} in {league}")
+        logger.info(f"No results found for {unique_item.name} in {league}")
         return PriceFetchResult(price=-1, quantity=0, currency=currency)
 
     item_ids = query_data["result"][:10]
@@ -80,18 +79,18 @@ async def fetch_unique(
 
     if fetch_response.status_code != 200:
         raise Exception(
-            f"Fetch request failed for {uniqueItem.name} " +\
+            f"Fetch request failed for {unique_item.name} " +\
             f"with status code {fetch_response.status_code}"
         )
 
     fetch_data = fetch_response.json()
 
-    await sync_metadata_and_icon(fetch_data["result"][0]["item"], uniqueItem, repo)
+    await sync_metadata_and_icon(fetch_data["result"][0]["item"], unique_item, repo)
 
     prices = parse_trade_response(fetch_data)
 
     if len(prices) == 0:
-        logger.info(f"No prices found for {uniqueItem.name} in {league}")
+        logger.info(f"No prices found for {unique_item.name} in {league}")
         return PriceFetchResult(price=-1, quantity=0, currency=currency)
 
     return PriceFetchResult(
@@ -126,12 +125,12 @@ def parse_trade_response(response_data: dict) -> List[float]:
 
 
 async def sync_metadata_and_icon(
-    first_item: dict, uniqueItem: UniqueItem, repo: ItemRepository
+    first_item: dict, unique_item: UniqueItem, repo: ItemRepository
 ):
-    itemMetadata = extract_unique_item_metadata(first_item)
+    item_metadata = extract_unique_item_metadata(first_item)
 
-    if uniqueItem.itemMetadata is None:
-        await repo.SetUniqueItemMetadata(itemMetadata, uniqueItem.id)
+    if unique_item.item_metadata is None:
+        await repo.set_unique_item_metadata(item_metadata, unique_item.id)
 
-    if uniqueItem.iconUrl is None:
-        await repo.UpdateUniqueIconUrl(itemMetadata["icon"], uniqueItem.id)
+    if unique_item.icon_url is None:
+        await repo.update_unique_icon_url(item_metadata["icon"], unique_item.id)

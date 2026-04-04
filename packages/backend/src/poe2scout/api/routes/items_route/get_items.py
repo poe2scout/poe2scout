@@ -8,7 +8,7 @@ from fastapi import Depends, HTTPException, Query
 
 from poe2scout.api.dependancies import ItemRepoDep
 from poe2scout.api.models import ApiModel
-from poe2scout.db.repositories.item_repository.GetAllUniqueItems import UniqueItem
+from poe2scout.db.repositories.item_repository.get_all_unique_items import UniqueItem
 from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
 
 from . import router
@@ -58,15 +58,15 @@ class GetItemsResponse(ApiModel):
         cls, item: UniqueItem, price_logs: list[PriceLogEntry | None]
     ) -> Self:
         return cls(
-            item_id=item.itemId,
-            category_api_id=item.categoryApiId,
+            item_id=item.item_id,
+            category_api_id=item.category_api_id,
             text=item.text,
             name=item.name,
             type=item.type,
             api_id=None,
             price_logs=cls._map_price_logs(price_logs),
             current_price=cls._get_current_price(price_logs),
-            icon_url=item.iconUrl,
+            icon_url=item.icon_url,
         )
 
     @classmethod
@@ -74,15 +74,15 @@ class GetItemsResponse(ApiModel):
         cls, item: CurrencyItem, price_logs: list[PriceLogEntry | None]
     ) -> Self:
         return cls(
-            item_id=item.itemId,
-            category_api_id=item.categoryApiId,
+            item_id=item.item_id,
+            category_api_id=item.category_api_id,
             text=item.text,
             name=None,
             type=None,
-            api_id=item.apiId,
+            api_id=item.api_id,
             price_logs=cls._map_price_logs(price_logs),
             current_price=cls._get_current_price(price_logs),
-            icon_url=item.iconUrl,
+            icon_url=item.icon_url,
         )
 
     @classmethod
@@ -116,12 +116,12 @@ async def get_items(
 
     unique_items, currency_items, leagues = await gather(
         item_repository.GetAllUniqueItems(),
-        item_repository.GetAllCurrencyItems(),
-        item_repository.GetAllLeagues(),
+        item_repository.get_all_currency_items(),
+        item_repository.get_all_leagues(),
     )
 
-    item_ids = [item.itemId for item in unique_items] + [
-        item.itemId for item in currency_items
+    item_ids = [item.item_id for item in unique_items] + [
+        item.item_id for item in currency_items
     ]
 
     league_id = next(
@@ -132,18 +132,18 @@ async def get_items(
     if league_id is None:
         raise HTTPException(status_code=404, detail="League not found")
 
-    price_logs_by_item_id = await item_repository.GetItemPriceLogs(item_ids, league_id)
+    price_logs_by_item_id = await item_repository.get_item_price_logs(item_ids, league_id)
 
     responses = [
         GetItemsResponse.from_unique_item(
             item,
-            price_logs_by_item_id.get(item.itemId, []),
+            price_logs_by_item_id.get(item.item_id, []),
         )
         for item in unique_items
     ] + [
         GetItemsResponse.from_currency_item(
             item,
-            price_logs_by_item_id.get(item.itemId, []),
+            price_logs_by_item_id.get(item.item_id, []),
         )
         for item in currency_items
     ]

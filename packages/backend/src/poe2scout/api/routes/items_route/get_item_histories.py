@@ -6,7 +6,7 @@ from fastapi import Depends, HTTPException, Query
 
 from poe2scout.api.dependancies import ItemRepoDep
 from poe2scout.api.models import ApiModel
-from poe2scout.db.repositories.item_repository.GetAllItemHistories import (
+from poe2scout.db.repositories.item_repository.get_all_item_histories import (
     ItemHistory,
     ItemHistoryLog,
 )
@@ -24,9 +24,9 @@ class GetAllItemHistoriesResponse(ApiModel):
             @classmethod
             def from_model(cls, log: ItemHistoryLog) -> Self:
                 return cls(
-                    price=log.Price,
-                    time=log.Time,
-                    quantity=log.Quantity,
+                    price=log.price,
+                    time=log.time,
+                    quantity=log.quantity,
                 )
 
         item_id: int
@@ -35,9 +35,9 @@ class GetAllItemHistoriesResponse(ApiModel):
         @classmethod
         def from_model(cls, item_history: ItemHistory) -> Self:
             return cls(
-                item_id=item_history.ItemId,
+                item_id=item_history.item_id,
                 history=[
-                    cls._ItemHistoryLog.from_model(log) for log in item_history.History
+                    cls._ItemHistoryLog.from_model(log) for log in item_history.history
                 ],
             )
 
@@ -74,7 +74,7 @@ async def get_item_histories(
     request: GetItemHistoryRequestDep,
     item_repository: ItemRepoDep,
 ) -> GetAllItemHistoriesResponse:
-    league = await item_repository.GetLeagueByValue(request.league_name)
+    league = await item_repository.get_league_by_value(request.league_name)
 
     if league is None:
         raise HTTPException(400, "Invalid league name")

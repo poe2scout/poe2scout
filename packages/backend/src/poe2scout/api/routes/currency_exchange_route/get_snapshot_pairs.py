@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, Query
 
 from poe2scout.api.dependancies import CXRepoDep, ItemRepoDep, cache_response
 from poe2scout.api.models import ApiModel
-from poe2scout.db.repositories.currency_exchange_repository.GetCurrentSnapshotPairs import (
+from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_pairs import (
     GetCurrentSnapshotPairModel,
     PairDataDetails,
 )
@@ -45,13 +45,13 @@ class GetSnapshotPairsResponse(ApiModel):
         def from_model(cls, model: CurrencyItem) -> Self:
             return cls(
                 id=model.id,
-                item_id=model.itemId,
-                currency_category_id=model.currencyCategoryId,
-                api_id=model.apiId,
+                item_id=model.item_id,
+                currency_category_id=model.currency_category_id,
+                api_id=model.api_id,
                 text=model.text,
-                category_api_id=model.categoryApiId,
-                icon_url=model.iconUrl,
-                item_metadata=model.itemMetadata,
+                category_api_id=model.category_api_id,
+                icon_url=model.icon_url,
+                item_metadata=model.item_metadata,
             )
 
     class _PairData(ApiModel):
@@ -64,11 +64,11 @@ class GetSnapshotPairsResponse(ApiModel):
         @classmethod
         def from_model(cls, model: PairDataDetails) -> Self:
             return cls(
-                value_traded=model.ValueTraded,
-                relative_price=model.RelativePrice,
-                stock_value=model.StockValue,
-                volume_traded=model.VolumeTraded,
-                highest_stock=model.HighestStock,
+                value_traded=model.value_traded,
+                relative_price=model.relative_price,
+                stock_value=model.stock_value,
+                volume_traded=model.volume_traded,
+                highest_stock=model.highest_stock,
             )
     currency_exchange_snapshot_pair_id: int
     currency_exchange_snapshot_id: int
@@ -81,13 +81,13 @@ class GetSnapshotPairsResponse(ApiModel):
     @classmethod
     def from_model(cls, model: GetCurrentSnapshotPairModel) -> Self:
         return cls(
-            currency_exchange_snapshot_pair_id=model.CurrencyExchangeSnapshotPairId,
-            currency_exchange_snapshot_id=model.CurrencyExchangeSnapshotId,
-            volume=model.Volume,
-            currency_one=cls._CurrencyItem.from_model(model.CurrencyOne),
-            currency_two=cls._CurrencyItem.from_model(model.CurrencyTwo),
-            currency_one_data=cls._PairData.from_model(model.CurrencyOneData),
-            currency_two_data=cls._PairData.from_model(model.CurrencyTwoData),
+            currency_exchange_snapshot_pair_id=model.currency_exchange_snapshot_pair_id,
+            currency_exchange_snapshot_id=model.currency_exchange_snapshot_id,
+            volume=model.volume,
+            currency_one=cls._CurrencyItem.from_model(model.currency_one),
+            currency_two=cls._CurrencyItem.from_model(model.currency_two),
+            currency_one_data=cls._PairData.from_model(model.currency_one_data),
+            currency_two_data=cls._PairData.from_model(model.currency_two_data),
         )
 
 
@@ -101,10 +101,12 @@ async def get_snapshot_pairs(
     item_repository: ItemRepoDep,
     currency_exchange_repository: CXRepoDep,
 ) -> list[GetSnapshotPairsResponse]:
-    league = await item_repository.GetLeagueByValue(request.league_name)
+    league = await item_repository.get_league_by_value(request.league_name)
 
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
-    snapshot_pairs = await currency_exchange_repository.GetCurrentSnapshotPairs(league.id)
+    snapshot_pairs = await currency_exchange_repository.get_current_snapshot_pairs(
+        league.id
+    )
     return [GetSnapshotPairsResponse.from_model(pair) for pair in snapshot_pairs]

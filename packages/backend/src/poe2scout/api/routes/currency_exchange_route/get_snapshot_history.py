@@ -6,7 +6,7 @@ from fastapi import Depends, HTTPException, Query
 
 from poe2scout.api.dependancies import CXRepoDep, ItemRepoDep
 from poe2scout.api.models import ApiModel
-from poe2scout.db.repositories.currency_exchange_repository.GetCurrentSnapshotHistory import (
+from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_history import (
     GetCurrencyExchangeHistoryData,
     GetCurrencyExchangeHistoryModel,
 )
@@ -47,9 +47,9 @@ class GetSnapshotHistoryResponse(ApiModel):
         @classmethod
         def from_model(cls, model: GetCurrencyExchangeHistoryData) -> Self:
             return cls(
-                epoch=model.Epoch,
-                market_cap=model.MarketCap,
-                volume=model.Volume,
+                epoch=model.epoch,
+                market_cap=model.market_cap,
+                volume=model.volume,
             )
 
     class _Meta(ApiModel):
@@ -57,7 +57,7 @@ class GetSnapshotHistoryResponse(ApiModel):
 
         @classmethod
         def from_model(cls, meta: dict[str, bool]) -> Self:
-            return cls(has_more=meta.get("hasMore", False))
+            return cls(has_more=meta.get("has_more", False))
 
     data: list[_Data]
     meta: _Meta
@@ -65,23 +65,23 @@ class GetSnapshotHistoryResponse(ApiModel):
     @classmethod
     def from_model(cls, model: GetCurrencyExchangeHistoryModel) -> Self:
         return cls(
-            data=[cls._Data.from_model(entry) for entry in model.Data],
-            meta=cls._Meta.from_model(model.Meta),
+            data=[cls._Data.from_model(entry) for entry in model.data],
+            meta=cls._Meta.from_model(model.meta),
         )
 
 
-@router.get("/SnapshotHistory")
+@router.get("/snapshot_history")
 async def get_snapshot_history(
     request: GetSnapshotHistoryRequestDep,
     item_repository: ItemRepoDep,
     currency_exchange_repository: CXRepoDep,
 ) -> GetSnapshotHistoryResponse:
-    league = await item_repository.GetLeagueByValue(request.league_name)
+    league = await item_repository.get_league_by_value(request.league_name)
 
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
-    snapshot_history = await currency_exchange_repository.GetCurrencyExchangeHistory(
+    snapshot_history = await currency_exchange_repository.get_currency_exchange_history(
         league.id,
         request.end_epoch
         if request.end_epoch is not None

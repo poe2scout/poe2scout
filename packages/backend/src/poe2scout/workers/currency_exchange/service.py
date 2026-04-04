@@ -19,8 +19,8 @@ from poe2scout.db.repositories.currency_exchange_repository import (
 )
 from poe2scout.db.repositories.item_repository import ItemRepository
 from poe2scout.integrations.poe.client import PoeApiClient
-from poe2scout.db.repositories.item_repository.GetAllCurrencyItems import CurrencyItem
-from poe2scout.db.repositories.item_repository.GetItemPricesInRange import (
+from poe2scout.db.repositories.item_repository.get_all_currency_items import CurrencyItem
+from poe2scout.db.repositories.item_repository.get_item_prices_in_range import (
     GetItemPricesInRangeModel,
 )
 
@@ -29,33 +29,33 @@ logger = logging.getLogger(__name__)
 
 async def run(
     config: CurrencyExchangeServiceConfig,
-    itemRepo: ItemRepository,
-    cxRepo: CurrencyExchangeRepository,
+    item_repo: ItemRepository,
+    cx_repo: CurrencyExchangeRepository,
     client: PoeApiClient,
 ):
-    CurrentEpochUtc = int(datetime.now(tz=timezone.utc).timestamp())
-    LastFetchedEpochUtc = (await cxRepo.GetServiceCacheValue("CurrencyExchange")).Value
-    LastFetchedPriceLogEpochUtc = (
-        await cxRepo.GetServiceCacheValue("PriceFetch_Currency")
-    ).Value
+    current_epoch_utc = int(datetime.now(tz=timezone.utc).timestamp())
+    last_fetched_epoch_utc = (await cx_repo.get_service_cache_value("CurrencyExchange")).value
+    last_fetched_price_log_epoch_utc = (
+        await cx_repo.get_service_cache_value("PriceFetch_Currency")
+    ).value
 
-    if LastFetchedPriceLogEpochUtc <= LastFetchedEpochUtc:
+    if last_fetched_price_log_epoch_utc <= last_fetched_epoch_utc:
         logger.info("Up to date with priceFetch")
         await asyncio.sleep(60 * 10)
         return
 
-    TimeToFetchUtc = (
-        LastFetchedEpochUtc + 60 * 60 if LastFetchedEpochUtc is not None else None
+    time_to_fetch_utc = (
+        last_fetched_epoch_utc + 60 * 60 if last_fetched_epoch_utc is not None else None
     )
 
-    if TimeToFetchUtc:
-        logger.info(f"{TimeToFetchUtc}")
-        await asyncio.sleep(TimeToFetchUtc + 60 * 5 - CurrentEpochUtc)
+    if time_to_fetch_utc:
+        logger.info(f"{time_to_fetch_utc}")
+        await asyncio.sleep(time_to_fetch_utc + 60 * 5 - current_epoch_utc)
 
-    if TimeToFetchUtc is None:
+    if time_to_fetch_utc is None:
         url = "https://www.pathofexile.com/api/currency-exchange/poe2"
     else:
-        url = f"https://www.pathofexile.com/api/currency-exchange/poe2/{TimeToFetchUtc}"
+        url = f"https://www.pathofexile.com/api/currency-exchange/poe2/{time_to_fetch_utc}"
 
     response = await client.get(url)
 
@@ -63,55 +63,55 @@ async def run(
         raise Exception("GetFromApiFailure")
     data = CurrencyExchangeResponse.model_validate(response.json())
 
-    fetchStatus = await itemRepo.GetCurrencyFetchStatus(
-        startTime=datetime.fromtimestamp(data.next_change_id)
+    fetch_status = await item_repo.get_currency_fetch_status(
+        start_time=datetime.fromtimestamp(data.next_change_id)
     )
 
-    if not fetchStatus:
+    if not fetch_status:
         logger.info("Prices not fetched yet")
         await asyncio.sleep(60 * 10)
         return
 
-    leagues = await itemRepo.GetAllLeagues()
+    leagues = await item_repo.get_all_leagues()
 
-    currencies = await itemRepo.GetAllCurrencyItems()
+    currencies = await item_repo.get_all_currency_items()
 
-    currencyLookupByApiId = {currency.apiId: currency for currency in currencies}
+    currency_lookup_by_api_id = {currency.api_id: currency for currency in currencies}
 
-    leagueToPricesLookup: dict[int, List[GetItemPricesInRangeModel]] = {}
+    league_to_prices_lookup: dict[int, List[GetItemPricesInRangeModel]] = {}
 
     for league in leagues:
-        itemPrices = await itemRepo.GetItemPricesInRange(
-            itemIds=[item.itemId for item in currencies],
-            leagueId=league.id,
-            startTime=datetime.fromtimestamp(data.next_change_id - 60 * 60),
-            endTime=datetime.fromtimestamp(data.next_change_id),
+        item_prices = await item_repo.get_item_prices_in_range(
+            item_ids=[item.item_id for item in currencies],
+            league_id=league.id,
+            start_time=datetime.fromtimestamp(data.next_change_id - 60 * 60),
+            end_time=datetime.fromtimestamp(data.next_change_id),
         )
-        leagueToPricesLookup[league.id] = itemPrices
+        league_to_prices_lookup[league.id] = item_prices
 
     for league in leagues:
         logger.info(f"analyzing league {league}")
 
-        hasLogs = (
+        has_logs = (
             True
             if len(
                 [
-                    itemPrice
-                    for itemPrice in leagueToPricesLookup[league.id]
-                    if itemPrice.Price != 0
+                    item_price
+                    for item_price in league_to_prices_lookup[league.id]
+                    if item_price.price != 0
                 ]
             )
             > 0
             else False
         )
 
-        if not hasLogs:
+        if not has_logs:
             logger.info(
                 f"Skipping league {league} cause no prices recorded at this time"
             )
             continue
-        itemPriceLookupByItemId = {
-            item.ItemId: item for item in leagueToPricesLookup[league.id]
+        item_price_lookup_by_item_id = {
+            item.item_id: item for item in league_to_prices_lookup[league.id]
         }
 
         pairs = [pair for pair in data.markets if pair.league == league.value]
@@ -120,84 +120,85 @@ async def run(
             Epoch=data.next_change_id - 60 * 60, LeagueId=league.id, Pairs=[]
         )
 
-        presentApiIds = currencyLookupByApiId.keys()
+        present_api_ids = currency_lookup_by_api_id.keys()
         for pair in pairs:
-            pairCurrencies = pair.market_id.split("|")
+            pair_currencies = pair.market_id.split("|")
             if (
-                pairCurrencies[0] not in presentApiIds
-                or pairCurrencies[1] not in presentApiIds
+                pair_currencies[0] not in present_api_ids
+                or pair_currencies[1] not in present_api_ids
             ):
                 logger.error(
-                    f"One of the currencies in {pairCurrencies} is not present in db. Skipping pair"
+                    "One of the currencies in "
+                    f"{pair_currencies} is not present in db. Skipping pair"
                 )
                 continue
 
-            currencyOne = currencyLookupByApiId[pairCurrencies[0]]
-            currencyTwo = currencyLookupByApiId[pairCurrencies[1]]
+            currency_one = currency_lookup_by_api_id[pair_currencies[0]]
+            currency_two = currency_lookup_by_api_id[pair_currencies[1]]
 
-            currencyOneData = GetPairData(
-                currencyOne, itemPriceLookupByItemId, pair, currencyTwo
+            currency_one_data = get_pair_data(
+                currency_one, item_price_lookup_by_item_id, pair, currency_two
             )
-            currencyTwoData = GetPairData(
-                currencyTwo, itemPriceLookupByItemId, pair, currencyOne
-            )
-
-            mostLiquidCurrency = (
-                currencyOneData
-                if itemPriceLookupByItemId[currencyOne.itemId].Quantity
-                > itemPriceLookupByItemId[currencyTwo.itemId].Quantity
-                else currencyTwoData
+            currency_two_data = get_pair_data(
+                currency_two, item_price_lookup_by_item_id, pair, currency_one
             )
 
-            snapshotPair = CurrencyExchangeSnapshotPair(
-                CurrencyOneItemId=currencyOne.itemId,
-                CurrencyTwoItemId=currencyTwo.itemId,
-                Volume=mostLiquidCurrency.ValueTraded,
-                CurrencyOneData=currencyOneData,
-                CurrencyTwoData=currencyTwoData,
+            most_liquid_currency = (
+                currency_one_data
+                if item_price_lookup_by_item_id[currency_one.item_id].quantity
+                > item_price_lookup_by_item_id[currency_two.item_id].quantity
+                else currency_two_data
             )
 
-            snapshot.Pairs.append(snapshotPair)
+            snapshot_pair = CurrencyExchangeSnapshotPair(
+                CurrencyOneItemId=currency_one.item_id,
+                CurrencyTwoItemId=currency_two.item_id,
+                Volume=most_liquid_currency.ValueTraded,
+                CurrencyOneData=currency_one_data,
+                CurrencyTwoData=currency_two_data,
+            )
 
-        Volume = 0
-        MarketCap = 0
+            snapshot.Pairs.append(snapshot_pair)
+
+        volume = 0
+        market_cap = 0
         for pair in snapshot.Pairs:
-            Volume += pair.Volume
-            MarketCap += pair.CurrencyOneData.StockValue
-            MarketCap += pair.CurrencyTwoData.StockValue
+            volume += pair.Volume
+            market_cap += pair.CurrencyOneData.StockValue
+            market_cap += pair.CurrencyTwoData.StockValue
 
-        snapshot.Volume = Decimal(Volume)
-        snapshot.MarketCap = Decimal(MarketCap)
+        snapshot.Volume = Decimal(volume)
+        snapshot.MarketCap = Decimal(market_cap)
 
         logger.info(f"Saving {len(snapshot.Pairs)} for {snapshot.LeagueId}")
-        if Volume == 0 and MarketCap == 0:
+        if volume == 0 and market_cap == 0:
             logger.info("No data in snapshot. Skipping")
             continue
-        await cxRepo.CreateSnapshot(snapshot)
-    await cxRepo.SetServiceCacheValue("CurrencyExchange", data.next_change_id - 60 * 60)
+        await cx_repo.create_snapshot(snapshot)
+    await cx_repo.set_service_cache_value("CurrencyExchange", data.next_change_id - 60 * 60)
 
 
-def GetPairData(
-    CurrencyItem: CurrencyItem,
-    itemPriceLookup: dict[int, GetItemPricesInRangeModel],
+def get_pair_data(
+    currency_item: CurrencyItem,
+    item_price_lookup: dict[int, GetItemPricesInRangeModel],
     pair: TradingPair,
-    otherCurrencyItem: CurrencyItem,
+    other_currency_item: CurrencyItem,
 ) -> CurrencyExchangeSnapshotPairData:
-    volumeTraded = pair.volume_traded[CurrencyItem.apiId]
-    valueTraded = volumeTraded * itemPriceLookup[CurrencyItem.itemId].Price
-    if volumeTraded != 0:
-        relativePrice = (
-            Decimal(pair.volume_traded[otherCurrencyItem.apiId] / volumeTraded)
-            * itemPriceLookup[otherCurrencyItem.itemId].Price
+    volume_traded = pair.volume_traded[currency_item.api_id]
+    value_traded = volume_traded * item_price_lookup[currency_item.item_id].price
+    if volume_traded != 0:
+        relative_price = (
+            Decimal(pair.volume_traded[other_currency_item.api_id] / volume_traded)
+            * item_price_lookup[other_currency_item.item_id].price
         )
     else:
-        relativePrice = Decimal(0)
-    highestStock = pair.highest_stock[CurrencyItem.apiId]
+        relative_price = Decimal(0)
+    highest_stock = pair.highest_stock[currency_item.api_id]
 
     return CurrencyExchangeSnapshotPairData(
-        VolumeTraded=volumeTraded,
-        ValueTraded=valueTraded,
-        RelativePrice=relativePrice,
-        HighestStock=highestStock,
-        StockValue=highestStock * itemPriceLookup[CurrencyItem.itemId].Price,
+        VolumeTraded=volume_traded,
+        ValueTraded=value_traded,
+        RelativePrice=relative_price,
+        HighestStock=highest_stock,
+        StockValue=highest_stock * item_price_lookup[currency_item.item_id].price,
     )

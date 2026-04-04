@@ -2,7 +2,7 @@ from typing import Self
 
 from poe2scout.api.dependancies import ItemRepoDep
 from poe2scout.api.models import ApiModel
-from poe2scout.db.repositories.item_repository.GetAllItemCategories import ItemCategory
+from poe2scout.db.repositories.item_repository.get_all_item_categories import ItemCategory
 
 from . import router
 
@@ -24,7 +24,7 @@ class GetItemCategoriesResponse(ApiModel):
         ) -> Self:
             return cls(
                 id=item_category.id,
-                api_id=item_category.apiId,
+                api_id=item_category.api_id,
                 label=item_category.label,
                 icon=icon,
             )
@@ -43,14 +43,14 @@ class GetItemCategoriesResponse(ApiModel):
             unique_categories=[
                 cls._ItemCategory.from_model(
                     item_category=unique_category,
-                    icon=icon_lookup.get(unique_category.apiId.lower(), ""),
+                    icon=icon_lookup.get(unique_category.api_id.lower(), ""),
                 )
                 for unique_category in unique_categories
             ],
             currency_categories=[
                 cls._ItemCategory.from_model(
                     item_category=currency_category,
-                    icon=icon_lookup.get(currency_category.apiId.lower(), ""),
+                    icon=icon_lookup.get(currency_category.api_id.lower(), ""),
                 )
                 for currency_category in currency_categories
             ],
@@ -61,19 +61,19 @@ class GetItemCategoriesResponse(ApiModel):
 async def get_item_categories(
     item_repository: ItemRepoDep,
 ) -> GetItemCategoriesResponse:
-    all_currency_categories = await item_repository.GetAllCurrencyCategories()
+    all_currency_categories = await item_repository.get_all_currency_categories()
     all_item_categories = await item_repository.GetAllItemCategories()
 
     unique_item_categories = [
         category
         for category in all_item_categories
-        if category.apiId != "currency" and category.apiId not in IGNORE_CURRENCIES
+        if category.api_id != "currency" and category.api_id not in IGNORE_CURRENCIES
     ]
 
     currency_item_categories = [
         category
         for category in all_currency_categories
-        if category.apiId not in IGNORE_CURRENCIES
+        if category.api_id not in IGNORE_CURRENCIES
     ]
 
     return GetItemCategoriesResponse.from_model(

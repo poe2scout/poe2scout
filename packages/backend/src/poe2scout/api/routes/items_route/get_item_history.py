@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, Path, Query
 
 from poe2scout.api.dependancies import ItemRepoDep
 from poe2scout.api.models import ApiModel
-from poe2scout.db.repositories.item_repository.GetItemPriceHistory import (
+from poe2scout.db.repositories.item_repository.get_item_price_history import (
     GetItemPriceHistoryModel,
 )
 from poe2scout.db.repositories.models import PriceLogEntry
@@ -79,7 +79,7 @@ async def get_item_history(
     if request.log_count % 4 != 0:
         raise HTTPException(400, "LogCount must be a multiple of 4")
 
-    leagues = await item_repository.GetAllLeagues()
+    leagues = await item_repository.get_all_leagues()
     league_id = next(
         (league.id for league in leagues if league.value == request.league_name),
         None,
@@ -88,7 +88,7 @@ async def get_item_history(
     if league_id is None:
         raise HTTPException(400, "League does not exist")
 
-    log_frequency = 1 if await item_repository.IsItemACurrency(request.item_id) else 6
+    log_frequency = 1 if await item_repository.is_item_a_currency(request.item_id) else 6
 
     history = await item_repository.GetItemPriceHistory(
         request.item_id,
@@ -99,7 +99,7 @@ async def get_item_history(
     )
 
     if request.reference_currency != "exalted":
-        reference_currency_item = await item_repository.GetCurrencyItem(
+        reference_currency_item = await item_repository.get_currency_item(
             request.reference_currency
         )
 
@@ -107,7 +107,7 @@ async def get_item_history(
             raise HTTPException(400, "Reference currency does not exist")
 
         reference_currency_history = await item_repository.GetItemPriceHistory(
-            reference_currency_item.itemId,
+            reference_currency_item.item_id,
             league_id,
             request.log_count,
             log_frequency,
