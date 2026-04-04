@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-router = items_router = APIRouter(prefix="/Items", tags=["Items"])
+router = items_router = APIRouter(prefix="/poe2/Items", tags=["Items"])
 
 
 def _register_routes() -> None:

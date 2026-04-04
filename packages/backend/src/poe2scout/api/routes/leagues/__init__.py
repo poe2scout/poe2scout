@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-router = leagues_router = APIRouter(prefix="/Leagues", tags=["Leagues"])
+router = leagues_router = APIRouter(prefix="/poe2/Leagues", tags=["Leagues"])
 
 
 def _register_routes() -> None:
