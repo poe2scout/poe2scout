@@ -58,7 +58,7 @@ export const fetchSearchableItems = async (): Promise<SearchableItem[]> => {
   const data = await fetchNormalizedJson<
     SearchableItemsResponse | SearchableItem[]
   >(
-    "/Items/Filters",
+    "/Static/Filters",
   );
 
   return Array.isArray(data) ? data : data.filters ?? [];
@@ -74,13 +74,11 @@ export const fetchItemsByCategory = async ({
   isCurrencyCategory,
 }: FetchItemsParams): Promise<PaginatedResponse<ApiItem>> =>
   fetchNormalizedJson<PaginatedResponse<ApiItem>>(
-    isCurrencyCategory
-      ? `/Items/CurrencyCategory/${encodeURIComponent(category)}`
-      : `/Items/UniqueCategory/${encodeURIComponent(category)}`,
+    `/Leagues/${encodeURIComponent(leagueName)}/${isCurrencyCategory ? "Currencies" : "Uniques"}/ByCategory`,
     {
+      Category: category,
       Page: page,
       PerPage: perPage,
-      LeagueName: leagueName,
       Search: search ?? "",
       ReferenceCurrency: referenceCurrency,
     },
@@ -93,8 +91,7 @@ export const fetchItemHistory = async ({
   referenceCurrency,
   endTime,
 }: FetchItemHistoryParams): Promise<ItemHistoryResponse> =>
-  fetchNormalizedJson<ItemHistoryResponse>(`/Items/${itemId}/History`, {
-    LeagueName: leagueName,
+  fetchNormalizedJson<ItemHistoryResponse>(`/Leagues/${encodeURIComponent(leagueName)}/Items/${itemId}/History`, {
     LogCount: logCount,
     ReferenceCurrency: referenceCurrency,
     EndTime: endTime,
@@ -102,7 +99,7 @@ export const fetchItemHistory = async ({
 
 export const fetchLandingSplashItems = async (): Promise<ApiItem[]> => {
   const data = await fetchNormalizedJson<LandingSplashResponse>(
-    "/Items/LandingSplashInfo",
+    "/Static/LandingSplashInfo",
   );
 
   return data.items ?? [];

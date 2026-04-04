@@ -1,18 +1,17 @@
 from decimal import Decimal
 from typing import Annotated, Self
 
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends, HTTPException, Path
 
 from poe2scout.api.dependancies import CXRepoDep, ItemRepoDep
-from poe2scout.api.models import ApiModel
+from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot import (
     GetCurrencyExchangeModel,
 )
 
 from . import router
 
-
-class GetCurrentSnapshotResponse(ApiModel):
+class GetExchangeSnapshotResponse(ApiModel):
     epoch: int
     volume: Decimal
     market_cap: Decimal
@@ -25,25 +24,25 @@ class GetCurrentSnapshotResponse(ApiModel):
             market_cap=model.market_cap,
         )
 
-class GetCurrentSnapshotRequest(ApiModel):
+class GetExchangeSnapshotRequest(ApiModel):
     league_name: str
 
-def get_current_snapshot_request(
-    league_name: Annotated[str, Query(alias="LeagueName")],
-) -> GetCurrentSnapshotRequest:
-    return GetCurrentSnapshotRequest(league_name=league_name)
+def get_exchange_snapshot_request(
+    league_name: Annotated[str, Path(alias="LeagueName")],
+) -> GetExchangeSnapshotRequest:
+    return GetExchangeSnapshotRequest(league_name=league_name)
 
-GetCurrentSnapshotRequestDep = Annotated[
-    GetCurrentSnapshotRequest,
-    Depends(get_current_snapshot_request),
+GetExchangeSnapshotRequestDep = Annotated[
+    GetExchangeSnapshotRequest,
+    Depends(get_exchange_snapshot_request),
 ]
 
-@router.get("")
-async def get_current_snapshot(
-    request: GetCurrentSnapshotRequestDep,
+@router.get("/{LeagueName}/ExchangeSnapshot")
+async def get_exchange_snapshot(
+    request: GetExchangeSnapshotRequestDep,
     item_repository: ItemRepoDep,
     currency_exchange_repository: CXRepoDep,
-) -> GetCurrentSnapshotResponse:
+) -> GetExchangeSnapshotResponse:
     league = await item_repository.get_league_by_value(request.league_name)
 
     if league is None:
@@ -54,4 +53,4 @@ async def get_current_snapshot(
     if snapshot is None:
         raise HTTPException(404, "No data for given league.")
 
-    return GetCurrentSnapshotResponse.from_model(snapshot)
+    return GetExchangeSnapshotResponse.from_model(snapshot)

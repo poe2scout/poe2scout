@@ -1,10 +1,10 @@
 from decimal import Decimal
 from typing import Annotated, Self
 
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends, HTTPException, Path
 
 from poe2scout.api.dependancies import CXRepoDep, ItemRepoDep, cache_response
-from poe2scout.api.models import ApiModel
+from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_pairs import (
     GetCurrentSnapshotPairModel,
     PairDataDetails,
@@ -19,7 +19,7 @@ class GetSnapshotPairsRequest(ApiModel):
 
 
 def get_snapshot_pairs_request(
-    league_name: Annotated[str, Query(alias="LeagueName")],
+    league_name: Annotated[str, Path(alias="LeagueName")],
 ) -> GetSnapshotPairsRequest:
     return GetSnapshotPairsRequest(league_name=league_name)
 
@@ -91,7 +91,7 @@ class GetSnapshotPairsResponse(ApiModel):
         )
 
 
-@router.get("/SnapshotPairs")
+@router.get("/{LeagueName}/SnapshotPairs")
 @cache_response(
     key=lambda params: f"snapshot_pairs:{params['request'].league_name}",
     ttl=60 * 10,

@@ -2,19 +2,19 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Annotated, Self
 
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends, HTTPException, Path
 
 from poe2scout.api.dependancies import ItemRepoDep
-from poe2scout.api.models import ApiModel
+from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.item_repository.get_all_item_histories import (
     ItemHistory,
     ItemHistoryLog,
 )
 
-from . import router
+from .. import router
 
 
-class GetAllItemHistoriesResponse(ApiModel):
+class GetItemPriceHistoriesResponse(ApiModel):
     class _ItemHistory(ApiModel):
         class _ItemHistoryLog(ApiModel):
             price: Decimal
@@ -53,32 +53,32 @@ class GetAllItemHistoriesResponse(ApiModel):
         )
 
 
-class GetItemHistoriesRequest(ApiModel):
+class GetItemPriceHistoriesRequest(ApiModel):
     league_name: str
 
 
-def get_item_histories_request(
-    league_name: Annotated[str, Query(alias="LeagueName")],
-) -> GetItemHistoriesRequest:
-    return GetItemHistoriesRequest(league_name=league_name)
+def get_item_price_histories_request(
+    league_name: Annotated[str, Path(alias="LeagueName")],
+) -> GetItemPriceHistoriesRequest:
+    return GetItemPriceHistoriesRequest(league_name=league_name)
 
 
-GetItemHistoryRequestDep = Annotated[
-    GetItemHistoriesRequest,
-    Depends(get_item_histories_request),
+GetItemPriceHistoryRequestDep = Annotated[
+    GetItemPriceHistoriesRequest,
+    Depends(get_item_price_histories_request),
 ]
 
 
-@router.get("/History")
-async def get_item_histories(
-    request: GetItemHistoryRequestDep,
+@router.get("/{LeagueName}/Items/PriceHistory")
+async def get_item_price_histories(
+    request: GetItemPriceHistoryRequestDep,
     item_repository: ItemRepoDep,
-) -> GetAllItemHistoriesResponse:
+) -> GetItemPriceHistoriesResponse:
     league = await item_repository.get_league_by_value(request.league_name)
 
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
-    item_histories = await item_repository.GetAllItemHistories(league.id)
+    item_histories = await item_repository.get_all_item_histories(league.id)
 
-    return GetAllItemHistoriesResponse.from_model(item_histories)
+    return GetItemPriceHistoriesResponse.from_model(item_histories)

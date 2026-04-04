@@ -1,13 +1,12 @@
+
 from typing import Self
 
-from fastapi import APIRouter, HTTPException
-
+from fastapi import HTTPException
 from poe2scout.api.dependancies import ItemRepoDep
-from poe2scout.api.models import ApiModel
+from poe2scout.api.api_model import ApiModel
+from . import router
 
-league_router = APIRouter(prefix="/Leagues", tags=["Leagues"])
-
-class GetLeaguesResponse(ApiModel):
+class GetResponse(ApiModel):
     value: str
     divine_price: float
     chaos_divine_price: float
@@ -26,10 +25,10 @@ class GetLeaguesResponse(ApiModel):
         )
 
 
-@league_router.get("")
-async def get_leagues(
+@router.get("")
+async def get(
     item_repository: ItemRepoDep,
-) -> list[GetLeaguesResponse]:
+) -> list[GetResponse]:
     leagues = await item_repository.get_all_leagues()
 
     divine_item = await item_repository.get_currency_item("divine")
@@ -40,13 +39,13 @@ async def get_leagues(
     if chaos_item is None:
         raise HTTPException(500)
 
-    responses: list[GetLeaguesResponse] = []
+    responses: list[GetResponse] = []
     for league in leagues:
         divine_price = await item_repository.get_item_price(divine_item.item_id, league.id)
         chaos_price = await item_repository.get_item_price(chaos_item.item_id, league.id)
 
         responses.append(
-            GetLeaguesResponse.from_model(
+            GetResponse.from_model(
                 value=league.value,
                 divine_price=divine_price if divine_price is not None else 50,
                 chaos_divine_price=divine_price / chaos_price

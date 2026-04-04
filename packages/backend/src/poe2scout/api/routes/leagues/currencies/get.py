@@ -1,16 +1,16 @@
 from datetime import datetime
 from typing import Annotated, Self
 
-from fastapi import Depends, HTTPException, Path, Query
+from fastapi import Depends, HTTPException, Path
 
 from poe2scout.api.dependancies import ItemRepoDep, cache_response
-from poe2scout.api.models import ApiModel
+from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
 
-from . import router
+from .. import router
 
 
-class GetCurrencyItemResponse(ApiModel):
+class GetResponse(ApiModel):
     class _PriceLogEntry(ApiModel):
         price: float
         time: datetime
@@ -63,37 +63,37 @@ class GetCurrencyItemResponse(ApiModel):
         )
 
 
-class GetItemCurrencyRequest(ApiModel):
+class GetRequest(ApiModel):
     api_id: str
     league_name: str
 
 
-def get_item_currency_request(
+def get_request(
+    league_name: Annotated[str, Path(alias="LeagueName")],
     api_id: Annotated[str, Path(alias="ApiId")],
-    league_name: Annotated[str, Query(alias="LeagueName")],
-) -> GetItemCurrencyRequest:
-    return GetItemCurrencyRequest(
+) -> GetRequest:
+    return GetRequest(
         api_id=api_id,
         league_name=league_name,
     )
 
 
-GetCurrencyItemRequestDep = Annotated[
-    GetItemCurrencyRequest,
-    Depends(get_item_currency_request),
+GetRequestDep = Annotated[
+    GetRequest,
+    Depends(get_request),
 ]
 
 
-@router.get("/Currency/{ApiId}")
+@router.get("/{LeagueName}/Currencies/{ApiId}")
 @cache_response(
     key=lambda params: (
         f"get_currency_item:{params['request'].api_id}:{params['request'].league_name}"
     )
 )
-async def get_currency_item(
-    request: GetCurrencyItemRequestDep,
+async def get(
+    request: GetRequestDep,
     repo: ItemRepoDep,
-) -> GetCurrencyItemResponse:
+) -> GetResponse:
     currency_item = await repo.get_currency_item(request.api_id)
     if currency_item is None:
         raise HTTPException(400, "Invalid currency item api ID")
@@ -107,7 +107,7 @@ async def get_currency_item(
         league_id=league.id,
     )
 
-    return GetCurrencyItemResponse.from_model(
+    return GetResponse.from_model(
         currency_item,
         price_logs_by_item_id.get(currency_item.item_id, []),
     )

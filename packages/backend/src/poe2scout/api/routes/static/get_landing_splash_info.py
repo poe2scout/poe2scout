@@ -2,14 +2,13 @@ from datetime import datetime
 from typing import Self
 
 from poe2scout.api.dependancies import ItemRepoDep
-from poe2scout.api.models import ApiModel
+from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.models import CurrencyItemExtended, PriceLogEntry
 
 from . import router
 
 IMPORTANT_API_IDS = ["mirror", "divine", "exalted", "annul"]
 DEFAULT_LEAGUE_ID = 7
-
 
 class GetLandingSplashInfoResponse(ApiModel):
     class _Item(ApiModel):

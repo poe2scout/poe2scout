@@ -2,10 +2,10 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Annotated, Self
 
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends, HTTPException, Path, Query
 
 from poe2scout.api.dependancies import CXRepoDep, ItemRepoDep
-from poe2scout.api.models import ApiModel
+from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.currency_exchange_repository.get_pair_history import (
     GetCurrentSnapshotPairModel,
     GetPairHistoryModel,
@@ -13,8 +13,7 @@ from poe2scout.db.repositories.currency_exchange_repository.get_pair_history imp
     PairDataDetails,
 )
 
-from . import router
-
+from .. import router
 
 class GetPairHistoryRequest(ApiModel):
     league_name: str
@@ -25,9 +24,9 @@ class GetPairHistoryRequest(ApiModel):
 
 
 def get_pair_history_request(
-    league_name: Annotated[str, Query(alias="LeagueName")],
-    currency_one_item_id: Annotated[int, Query(alias="CurrencyOneItemId")],
-    currency_two_item_id: Annotated[int, Query(alias="CurrencyTwoItemId")],
+    league_name: Annotated[str, Path(alias="LeagueName")],
+    currency_one_item_id: Annotated[int, Path(alias="CurrencyOneItemId")],
+    currency_two_item_id: Annotated[int, Path(alias="CurrencyTwoItemId")],
     limit: Annotated[int, Query(alias="Limit")],
     end_epoch: Annotated[int | None, Query(alias="EndEpoch")] = None,
 ) -> GetPairHistoryRequest:
@@ -106,7 +105,9 @@ class GetPairHistoryResponse(ApiModel):
         )
 
 
-@router.get("/PairHistory")
+@router.get(
+    "/{LeagueName}/Currencies/Pairs/{CurrencyOneItemId}/{CurrencyTwoItemId}/History"
+)
 async def get_pair_history(
     request: GetPairHistoryRequestDep,
     item_repository: ItemRepoDep,

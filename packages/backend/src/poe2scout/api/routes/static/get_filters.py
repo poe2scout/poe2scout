@@ -1,7 +1,7 @@
 from typing import Self
 
 from poe2scout.api.dependancies import ItemRepoDep
-from poe2scout.api.models import ApiModel
+from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.item_repository.get_search_options import SearchOption
 
 from . import router

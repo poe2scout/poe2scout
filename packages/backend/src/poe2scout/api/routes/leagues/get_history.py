@@ -2,10 +2,10 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Annotated, Self
 
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends, HTTPException, Path, Query
 
 from poe2scout.api.dependancies import CXRepoDep, ItemRepoDep
-from poe2scout.api.models import ApiModel
+from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_history import (
     GetCurrencyExchangeHistoryData,
     GetCurrencyExchangeHistoryModel,
@@ -21,7 +21,7 @@ class GetSnapshotHistoryRequest(ApiModel):
 
 
 def get_snapshot_history_request(
-    league_name: Annotated[str, Query(alias="LeagueName")],
+    league_name: Annotated[str, Path(alias="LeagueName")],
     limit: Annotated[int, Query(alias="Limit")],
     end_epoch: Annotated[int | None, Query(alias="EndEpoch")] = None,
 ) -> GetSnapshotHistoryRequest:
@@ -70,7 +70,7 @@ class GetSnapshotHistoryResponse(ApiModel):
         )
 
 
-@router.get("/SnapshotHistory")
+@router.get("/{LeagueName}/SnapshotHistory")
 async def get_snapshot_history(
     request: GetSnapshotHistoryRequestDep,
     item_repository: ItemRepoDep,

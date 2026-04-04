@@ -31,13 +31,8 @@ def get_pagination_params(
         description="Items per page",
         alias="PerPage",
     ),
-    league_name: str = Query(
-        default="Standard",
-        description="League name",
-        alias="LeagueName",
-    ),
 ) -> PaginationParams:
-    return PaginationParams(page=page, per_page=per_page, league_name=league_name)
+    return PaginationParams(page=page, per_page=per_page)
 
 PaginationParamDep = Annotated[PaginationParams, Depends(get_pagination_params)]
 

@@ -203,10 +203,7 @@ export const fetchCurrentSnapshot = async (
   leagueName: string,
 ): Promise<CurrencyExchangeSnapshot> => {
   const payload = await fetchNormalizedJson<CurrencyExchangeSnapshot>(
-    "/CurrencyExchange",
-    {
-      LeagueName: leagueName,
-    },
+    `/Leagues/${encodeURIComponent(leagueName)}/ExchangeSnapshot`,
   );
 
   return normalizeSnapshot(payload);
@@ -221,9 +218,8 @@ export const fetchSnapshotHistory = async (
   hasMore: boolean;
 }> => {
   const payload = await fetchNormalizedJson<SnapshotHistoryPayload>(
-    "/CurrencyExchange/SnapshotHistory",
+    `/Leagues/${encodeURIComponent(leagueName)}/SnapshotHistory`,
     {
-      LeagueName: leagueName,
       Limit: limit,
       EndEpoch: endEpoch,
     },
@@ -239,10 +235,7 @@ export const fetchSnapshotPairs = async (
   leagueName: string,
 ): Promise<SnapshotPair[]> => {
   const rows = await fetchNormalizedJson<SnapshotPairPayload[]>(
-    "/CurrencyExchange/SnapshotPairs",
-    {
-      LeagueName: leagueName,
-    },
+    `/Leagues/${encodeURIComponent(leagueName)}/SnapshotPairs`,
   );
 
   return rows.map(normalizeSnapshotPair);
@@ -264,11 +257,8 @@ export const fetchPairHistory = async ({
   endEpoch,
 }: FetchPairHistoryParams): Promise<PairHistoryResponse> => {
   const payload = await fetchNormalizedJson<PairHistoryPayload>(
-    "/CurrencyExchange/PairHistory",
+    `/Leagues/${encodeURIComponent(leagueName)}/Currencies/Pairs/${currencyOneItemId}/${currencyTwoItemId}/History`,
     {
-      LeagueName: leagueName,
-      CurrencyOneItemId: currencyOneItemId,
-      CurrencyTwoItemId: currencyTwoItemId,
       Limit: limit,
       EndEpoch: endEpoch,
     },

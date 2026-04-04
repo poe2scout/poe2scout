@@ -77,10 +77,7 @@ CREATE TABLE "PriceLog" (
   FOREIGN KEY ("leagueId") REFERENCES "League" ("id")
 );
 
-
-
 CREATE INDEX "idx_baseitem_typeId" ON "BaseItem" ("typeId");
 CREATE INDEX "idx_item_baseItemId" ON "Item" ("baseItemId");
 CREATE INDEX "idx_item_itemType" ON "Item" ("itemType");
 CREATE INDEX "idx_pricelog_leagueId" ON "PriceLog" ("leagueId");
-

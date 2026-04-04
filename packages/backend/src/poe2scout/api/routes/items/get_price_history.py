@@ -4,16 +4,16 @@ from typing import Annotated, Self
 from fastapi import Depends, HTTPException, Path, Query
 
 from poe2scout.api.dependancies import ItemRepoDep
-from poe2scout.api.models import ApiModel
+from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.item_repository.get_item_price_history import (
     GetItemPriceHistoryModel,
 )
 from poe2scout.db.repositories.models import PriceLogEntry
 
-from . import router
+from ..leagues import router
 
 
-class GetItemHistoryRequest(ApiModel):
+class GetPriceHistoryRequest(ApiModel):
     item_id: int
     league_name: str
     log_count: int
@@ -21,14 +21,14 @@ class GetItemHistoryRequest(ApiModel):
     reference_currency: str
 
 
-def get_item_history_request(
+def get_price_history_request(
+    league_name: Annotated[str, Path(alias="LeagueName")],
     item_id: Annotated[int, Path(alias="ItemId")],
-    league_name: Annotated[str, Query(alias="LeagueName")],
     log_count: Annotated[int, Query(alias="LogCount")],
     end_time: Annotated[datetime | None, Query(alias="EndTime")] = None,
     reference_currency: Annotated[str, Query(alias="ReferenceCurrency")] = "exalted",
-) -> GetItemHistoryRequest:
-    return GetItemHistoryRequest(
+) -> GetPriceHistoryRequest:
+    return GetPriceHistoryRequest(
         item_id=item_id,
         league_name=league_name,
         log_count=log_count,
@@ -37,13 +37,13 @@ def get_item_history_request(
     )
 
 
-GetItemHistoryRequestDep = Annotated[
-    GetItemHistoryRequest,
-    Depends(get_item_history_request),
+GetPriceHistoryRequestDep = Annotated[
+    GetPriceHistoryRequest,
+    Depends(get_price_history_request),
 ]
 
 
-class GetItemHistoryResponse(ApiModel):
+class GetPriceHistoryResponse(ApiModel):
     class _PricePoint(ApiModel):
         price: float
         time: datetime
@@ -71,11 +71,11 @@ class GetItemHistoryResponse(ApiModel):
         )
 
 
-@router.get("/{ItemId}/History")
-async def get_item_history(
-    request: GetItemHistoryRequestDep,
+@router.get("/{LeagueName}/Items/{ItemId}/History")
+async def get_price_history(
+    request: GetPriceHistoryRequestDep,
     item_repository: ItemRepoDep,
-) -> GetItemHistoryResponse:
+) -> GetPriceHistoryResponse:
     if request.log_count % 4 != 0:
         raise HTTPException(400, "LogCount must be a multiple of 4")
 
@@ -146,4 +146,4 @@ async def get_item_history(
             has_more=history.has_more,
         )
 
-    return GetItemHistoryResponse.from_model(history)
+    return GetPriceHistoryResponse.from_model(history)

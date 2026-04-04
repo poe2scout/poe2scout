@@ -1,7 +1,7 @@
 from typing import Self
 
 from poe2scout.api.dependancies import ItemRepoDep
-from poe2scout.api.models import ApiModel
+from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.item_repository.get_all_item_categories import ItemCategory
 
 from . import router
@@ -9,7 +9,7 @@ from . import router
 IGNORE_CURRENCIES = ["gem", "relics", "waystones"]
 
 
-class GetItemCategoriesResponse(ApiModel):
+class GetCategoriesResponse(ApiModel):
     class _ItemCategory(ApiModel):
         id: int
         api_id: str
@@ -58,9 +58,9 @@ class GetItemCategoriesResponse(ApiModel):
 
 
 @router.get("/Categories")
-async def get_item_categories(
+async def get_categories(
     item_repository: ItemRepoDep,
-) -> GetItemCategoriesResponse:
+) -> GetCategoriesResponse:
     all_currency_categories = await item_repository.get_all_currency_categories()
     all_item_categories = await item_repository.get_all_item_categories()
 
@@ -76,7 +76,7 @@ async def get_item_categories(
         if category.api_id not in IGNORE_CURRENCIES
     ]
 
-    return GetItemCategoriesResponse.from_model(
+    return GetCategoriesResponse.from_model(
         unique_categories=unique_item_categories,
         currency_categories=currency_item_categories,
         icon_lookup=icon_dump(),

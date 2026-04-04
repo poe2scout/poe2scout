@@ -4,10 +4,10 @@ from typing import Annotated, Self
 
 from cachetools import TTLCache
 from cachetools.keys import hashkey
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends, HTTPException, Path
 
 from poe2scout.api.dependancies import ItemRepoDep
-from poe2scout.api.models import ApiModel
+from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.item_repository.get_all_unique_items import UniqueItem
 from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
 
@@ -21,7 +21,7 @@ class GetItemsRequest(ApiModel):
 
 
 def get_items_request(
-    league_name: Annotated[str, Query(alias="LeagueName")],
+    league_name: Annotated[str, Path(alias="LeagueName")],
 ) -> GetItemsRequest:
     return GetItemsRequest(league_name=league_name)
 
@@ -104,7 +104,7 @@ class GetItemsResponse(ApiModel):
         )
 
 
-@router.get("")
+@router.get("/{LeagueName}/Items")
 async def get_items(
     request: GetItemsRequestDep,
     item_repository: ItemRepoDep,
