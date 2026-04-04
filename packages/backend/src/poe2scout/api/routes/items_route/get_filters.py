@@ -34,4 +34,4 @@ class GetFiltersResponse(ApiModel):
 async def get_filters(
     item_repository: ItemRepoDep,
 ) -> GetFiltersResponse:
-    return GetFiltersResponse.from_model(await item_repository.GetSearchOptions())
+    return GetFiltersResponse.from_model(await item_repository.get_search_options())

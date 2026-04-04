@@ -10,8 +10,8 @@ from ..base_repository import BaseRepository, RepositoryModel
 class GetItemPriceLogsDto(RepositoryModel):
     item_id: int
     block_index: int
-    price: float
-    quantity: int
+    price: float | None
+    quantity: int | None
     time: datetime
 
 
@@ -84,7 +84,7 @@ async def get_item_price_logs(
         price_logs = await cursor.fetchall()
 
         for log in price_logs:
-            if log.price is not None:
+            if log.price is not None and log.quantity is not None:
                 results[log.item_id][log.block_index] = PriceLogEntry(
                     price=log.price,
                     time=log.time,

@@ -48,8 +48,8 @@ class GetSnapshotHistoryResponse(ApiModel):
         def from_model(cls, model: GetCurrencyExchangeHistoryData) -> Self:
             return cls(
                 epoch=model.epoch,
-                market_cap=model.market_cap,
-                volume=model.volume,
+                market_cap=Decimal(model.market_cap),
+                volume=Decimal(model.volume),
             )
 
     class _Meta(ApiModel):
@@ -70,7 +70,7 @@ class GetSnapshotHistoryResponse(ApiModel):
         )
 
 
-@router.get("/snapshot_history")
+@router.get("/SnapshotHistory")
 async def get_snapshot_history(
     request: GetSnapshotHistoryRequestDep,
     item_repository: ItemRepoDep,

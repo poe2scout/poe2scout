@@ -62,7 +62,7 @@ async def get_item_categories(
     item_repository: ItemRepoDep,
 ) -> GetItemCategoriesResponse:
     all_currency_categories = await item_repository.get_all_currency_categories()
-    all_item_categories = await item_repository.GetAllItemCategories()
+    all_item_categories = await item_repository.get_all_item_categories()
 
     unique_item_categories = [
         category

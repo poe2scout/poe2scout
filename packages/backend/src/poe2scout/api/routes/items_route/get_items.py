@@ -115,7 +115,7 @@ async def get_items(
         return items_cache[cache_key]
 
     unique_items, currency_items, leagues = await gather(
-        item_repository.GetAllUniqueItems(),
+        item_repository.get_all_unique_items(),
         item_repository.get_all_currency_items(),
         item_repository.get_all_leagues(),
     )

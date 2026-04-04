@@ -90,7 +90,7 @@ async def get_item_history(
 
     log_frequency = 1 if await item_repository.is_item_a_currency(request.item_id) else 6
 
-    history = await item_repository.GetItemPriceHistory(
+    history = await item_repository.get_item_price_history(
         request.item_id,
         league_id,
         request.log_count,
@@ -106,7 +106,7 @@ async def get_item_history(
         if reference_currency_item is None:
             raise HTTPException(400, "Reference currency does not exist")
 
-        reference_currency_history = await item_repository.GetItemPriceHistory(
+        reference_currency_history = await item_repository.get_item_price_history(
             reference_currency_item.item_id,
             league_id,
             request.log_count,

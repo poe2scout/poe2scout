@@ -7,7 +7,6 @@ from poe2scout.api.models import ApiModel
 
 league_router = APIRouter(prefix="/Leagues", tags=["Leagues"])
 
-
 class GetLeaguesResponse(ApiModel):
     value: str
     divine_price: float

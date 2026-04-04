@@ -245,7 +245,7 @@ class EconomyCache:
 
         items = [
             CurrencyItemExtended(
-                **item.model_dump(exclude={"currentPrice"}),
+                **item.model_dump(exclude={"current_price"}),
                 current_price=last_price[item.item_id],
             )
             for item in items
