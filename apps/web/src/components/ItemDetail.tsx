@@ -6,11 +6,12 @@ import type { ApiItem } from "../types";
 import { useLanguage } from "../contexts/LanguageContext";
 import translations from "../translationskrmapping.json";
 import { useLeague } from "../contexts/LeagueContext";
-import { PriceLogEntry } from "../types";
+import { ItemHistoryResponse, PriceLogEntry } from "../types";
 import { Chart } from "./Chart";
 import { UTCTimestamp } from "lightweight-charts";
 import ReferenceCurrencySelector, { BaseCurrencies } from "./ReferenceCurrencySelector";
 import { ChartLegend, LegendData } from "./ItemHistoryChartLegend";
+import { fetchItemHistory } from "../api/economy";
 
 const DetailContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -27,16 +28,11 @@ const HeaderContainer = styled(Box)({
 interface ItemDetailProps {
   item: ApiItem;
   onBack: () => void;
-  initialReferenceCurrency: 'exalted' | 'chaos'
-}
-
-interface ApiHistoryResponse {
-    price_history: PriceLogEntry[];
-    has_more: boolean;
+  initialReferenceCurrency: "exalted" | "chaos";
 }
 
 export function ItemDetail({ item, onBack, initialReferenceCurrency }: ItemDetailProps) {
-  const logCountRef = useRef<number>(14 * 24); 
+  const logCountRef = useRef<number>(14 * 24);
   const [history, setHistory] = useState<PriceLogEntry[]>([]);
 
   const [hasMore, setHasMore] = useState(true);
@@ -57,20 +53,20 @@ export function ItemDetail({ item, onBack, initialReferenceCurrency }: ItemDetai
     }
     
     try {
-      const url = `${import.meta.env.VITE_API_URL}/items/${item.itemId}/history?logCount=${logCountRef.current}&league=${league.value}&referenceCurrency=${selectedReference}&endTime=${cursor}`;
-      console.log('Fetching URL:', url);
-      
-      const response = await fetch(url);
-      const data: ApiHistoryResponse = await response.json();
-      console.log('Fetched price history data:', data);
+      const data: ItemHistoryResponse = await fetchItemHistory({
+        itemId: item.itemId,
+        leagueName: league.value,
+        logCount: logCountRef.current,
+        referenceCurrency: selectedReference,
+        endTime: cursor,
+      });
 
-      const reversedData = data.price_history.reverse()
+      const reversedData = [...data.priceHistory].reverse();
 
       setHistory(prevHistory => isInitialLoad ? reversedData : [...reversedData, ...prevHistory]);
-      setHasMore(data.has_more);
+      setHasMore(data.hasMore);
 
-      if (data.price_history.length > 0) {
-        console.log("Setting oldest timestamp to " + reversedData[0].time)
+      if (data.priceHistory.length > 0) {
         setOldestTimestamp(reversedData[0].time);
       }
     } catch (error) {
@@ -79,11 +75,11 @@ export function ItemDetail({ item, onBack, initialReferenceCurrency }: ItemDetai
     } finally {
       if (isInitialLoad) setIsLoading(false);
       else setIsLoadingMore(false);
-      logCountRef.current = logCountRef.current * 2
+      logCountRef.current = logCountRef.current * 2;
     }
   }, [item.itemId, league.value, selectedReference]);
 
-useEffect(() => {
+  useEffect(() => {
     setHistory([]); 
     setHasMore(true);
     const initialCursor = new Date().toISOString();
@@ -91,11 +87,10 @@ useEffect(() => {
     logCountRef.current = 14 * 24; 
 
     fetchPriceHistory(true, initialCursor);
-}, [item.id, selectedReference, fetchPriceHistory]);
+  }, [item.id, selectedReference, fetchPriceHistory]);
 
   const handleLoadMore = useCallback(() => {
     if (!isLoadingMore && hasMore) {
-        console.log(`handleLoadMore triggered, fetching older data...`+ oldestTimestamp);
         fetchPriceHistory(false, oldestTimestamp);
     }
   }, [isLoadingMore, hasMore, oldestTimestamp, fetchPriceHistory]);

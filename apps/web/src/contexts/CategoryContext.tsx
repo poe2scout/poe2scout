@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Category, CategoryResponse } from '../types';
+import { fetchCategories as fetchCategoriesFromApi } from "../api/economy";
 
 interface CategoryContextType {
   uniqueCategories: Category[];
@@ -21,10 +22,9 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/items/categories`);
-        const data: CategoryResponse = await response.json();
-        setUniqueCategories(data.unique_categories);
-        setCurrencyCategories(data.currency_categories);
+        const data: CategoryResponse = await fetchCategoriesFromApi();
+        setUniqueCategories(data.uniqueCategories);
+        setCurrencyCategories(data.currencyCategories);
       } catch (error) {
         console.error('Error fetching categories:', error);
       } finally {

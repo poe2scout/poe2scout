@@ -1,7 +1,9 @@
-from fastapi import APIRouter
+from poe2scout.api.routes.items import items_router
+from poe2scout.api.routes.leagues import leagues_router
+from poe2scout.api.routes.static import static_router
 
-# Create routers
-# Import route handlers
-from .item_route import router as item_router
-from .league_route import router as league_router
-from .currency_exchange_route import router as currency_exchange_router
+__all__ = [
+    "items_router", 
+    "leagues_router", 
+    "static_router", 
+]

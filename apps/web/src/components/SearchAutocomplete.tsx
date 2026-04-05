@@ -1,12 +1,7 @@
 import { TextField, Popper, Paper, MenuItem, IconButton, Box, styled } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState, useRef, useEffect } from "react";
-
-export interface SearchableItem {
-  display_name: string;
-  category: string;
-  identifier: string;
-}
+import type { SearchableItem } from "../types";
 
 interface SearchAutocompleteProps {
   onItemSelect: (category: string, identifier: string) => void;
@@ -49,7 +44,7 @@ export function SearchAutocomplete({
       const lowerSearchTerm = searchTerm.toLowerCase();
       const results = searchableItems
         .filter((item) =>
-          item.display_name.toLowerCase().includes(lowerSearchTerm)
+          item.displayName.toLowerCase().includes(lowerSearchTerm)
         );
       setFilteredResults(results);
       setIsOpen(results.length > 0);
@@ -165,7 +160,7 @@ export function SearchAutocomplete({
               selected={index === activeIndex}
               onMouseDown={() => handleItemClick(item)}
             >
-              {item.display_name}
+              {item.displayName}
             </MenuItem>
           ))}
         </Paper>

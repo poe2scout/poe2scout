@@ -25,31 +25,10 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import { useSearchableItems } from "../hooks/useSearchableItems";
 import { FooterLink } from "../features/landing/FooterLink";
+import type { ApiItem, PriceLogEntry } from "../types";
+import { fetchLandingSplashItems } from "../api/economy";
 
-interface PriceLog {
-  price: number;
-  time: string;
-  quantity: number;
-}
-
-interface SplashItem {
-  id: number;
-  itemId: number;
-  currencyCategoryId: number;
-  apiId: string;
-  text: string;
-  categoryApiId: string;
-  iconUrl: string;
-  itemMetadata: any;
-  priceLogs: (PriceLog | null)[];
-  currentPrice: number | null;
-}
-
-interface SplashInfoResponse {
-  items: SplashItem[];
-}
-
-const getLatestPrice = (priceLogs: (PriceLog | null)[]): number | null => {
+const getLatestPrice = (priceLogs: (PriceLogEntry | null)[]): number | null => {
   for (let i = 0; i < priceLogs.length; i++) {
     if (priceLogs[i]?.price !== null && priceLogs[i]?.price !== undefined) {
       return priceLogs[i]!.price;
@@ -97,7 +76,7 @@ const Footer = styled("footer")(({ theme }) => ({
 
 function LandingPage() {
   const navigate = useNavigate();
-  const [splashItems, setSplashItems] = useState<SplashItem[]>([]);
+  const [splashItems, setSplashItems] = useState<ApiItem[]>([]);
   const [loadingSplash, setLoadingSplash] = useState<boolean>(true);
   const [errorSplash, setErrorSplash] = useState<string | null>(null);
   const {
@@ -111,12 +90,8 @@ function LandingPage() {
       setLoadingSplash(true);
       setErrorSplash(null);
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/items/landingSplashInfo`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: SplashInfoResponse = await response.json();
-        setSplashItems(data.items.slice(0, 4));
+        const items = await fetchLandingSplashItems();
+        setSplashItems(items.slice(0, 4));
       } catch (err) {
         console.error("Failed to fetch splash data:", err);
         setErrorSplash(
@@ -226,10 +201,11 @@ function LandingPage() {
                         ) : splashItems.length > 0 ? (
                           splashItems.map((item) => {
                             const latestPrice = getLatestPrice(item.priceLogs);
+                            const itemLabel = "name" in item ? item.name : item.text;
                             return (
                               <TableRow key={item.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                                 <TableCell component="th" scope="row" sx={{ color: "common.white", borderBottomColor: 'grey.800' }}>
-                                  {item.text}
+                                  {itemLabel}
                                 </TableCell>
                                 <TableCell align="right" sx={{ color: "common.white", borderBottomColor: 'grey.800' }}>
                                   {latestPrice !== null ? latestPrice.toFixed(2) : "N/A"}

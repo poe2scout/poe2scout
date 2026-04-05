@@ -36,11 +36,11 @@ if __name__ == "__main__":
     # Create maintenance timer with POE-specific maintenance schedule
     async def main_loop():
         await BaseRepository.init_pool(config.dbstring)
-        repo = ItemRepository()
-        cxRepo = CurrencyExchangeRepository()
+        item_repo = ItemRepository()
+        currency_exchange_repo = CurrencyExchangeRepository()
 
         while True:
-            await run(config, repo, cxRepo)
+            await run(config, item_repo, currency_exchange_repo)
 
     # Single asyncio.run() call that manages the entire application lifecycle
 

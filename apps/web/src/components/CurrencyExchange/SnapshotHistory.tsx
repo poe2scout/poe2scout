@@ -1,35 +1,23 @@
 import { CircularProgress, Typography, Alert, Box, Paper } from "@mui/material";
 import { useState, useEffect, useCallback } from "react";
-import { CurrencyExchangeSnapshot } from "../../pages/CurrencyExchangePage";
-import { useLeague } from "../../contexts/LeagueContext";
 import { UTCTimestamp } from "lightweight-charts";
+
+import { useLeague } from "../../contexts/LeagueContext";
+import type { CurrencyExchangeSnapshot } from "../../types";
 import { Chart, ChartData } from "../Chart";
-import { SnapshotHistoryChartLegend } from "./SnapshotHistoryChartLegend";
 import { LegendData } from "../ItemHistoryChartLegend";
+import { fetchSnapshotHistory as fetchSnapshotHistoryFromApi } from "./api";
+import { SnapshotHistoryChartLegend } from "./SnapshotHistoryChartLegend";
 
-export const VITE_API_URL = import.meta.env.VITE_API_URL;
-
-interface SnapshotHistoryDto {
-  Data: CurrencyExchangeSnapshot[]
-  Meta: {
-    hasMore: boolean
-  }
-}
-
-const fetchCurrencyExchangeSnapshotHistory = async (league: string, limit: number, endTime: number | null = null): Promise<SnapshotHistoryDto> => {
-  const url = endTime === null 
-    ?`${VITE_API_URL}/currencyExchange/SnapshotHistory?league=${league}&limit=${limit.toString()}` 
-    : `${VITE_API_URL}/currencyExchange/SnapshotHistory?league=${league}&limit=${limit.toString()}&endTime=${endTime}`
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch data: ${response.statusText}`);
-  }
-  return response.json();
-};
-
-export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapshot }) {
-  const [chartData, setChartData] = useState<ChartData>({ lineData: [], histogramData: [] });
+export function SnapshotHistory({
+  snapshot,
+}: {
+  snapshot: CurrencyExchangeSnapshot;
+}) {
+  const [chartData, setChartData] = useState<ChartData>({
+    lineData: [],
+    histogramData: [],
+  });
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [oldestEpoch, setOldestEpoch] = useState<number | undefined>();
@@ -43,23 +31,26 @@ export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapsh
       try {
         setIsLoading(true);
         setError(null);
-        const historyDto = await fetchCurrencyExchangeSnapshotHistory(league.value, 24 * 14);
+        const historyDto = await fetchSnapshotHistoryFromApi(
+          league.value,
+          24 * 14,
+        );
 
-        setHasMore(historyDto.Meta.hasMore);
+        setHasMore(historyDto.hasMore);
 
-        if (historyDto.Data && historyDto.Data.length > 0) {
-            const reversedData = [...historyDto.Data].reverse();
-            setOldestEpoch(reversedData[0].Epoch);
+        if (historyDto.data.length > 0) {
+          const reversedData = [...historyDto.data].reverse();
+          setOldestEpoch(reversedData[0].epoch);
 
-            const marketCaps = reversedData.map(entry => ({
-                time: entry.Epoch as UTCTimestamp,
-                value: entry.MarketCap,
-            }));
-            const volumes = reversedData.map(entry => ({
-                time: entry.Epoch as UTCTimestamp,
-                value: entry.Volume,
-            }));
-            setChartData({ lineData: marketCaps, histogramData: volumes });
+          const marketCaps = reversedData.map((entry) => ({
+            time: entry.epoch as UTCTimestamp,
+            value: entry.marketCap,
+          }));
+          const volumes = reversedData.map((entry) => ({
+            time: entry.epoch as UTCTimestamp,
+            value: entry.volume,
+          }));
+          setChartData({ lineData: marketCaps, histogramData: volumes });
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "An unknown error occurred.");
@@ -67,33 +58,40 @@ export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapsh
         setIsLoading(false);
       }
     };
+
     getHistory();
-  }, [league, snapshot.Epoch]);
+  }, [league, snapshot.epoch]);
 
   const handleLoadMore = useCallback(async () => {
-    if (isLoadingMore || !hasMore || !oldestEpoch) return;
+    if (isLoadingMore || !hasMore || !oldestEpoch) {
+      return;
+    }
 
     setIsLoadingMore(true);
     try {
-      const historyDto = await fetchCurrencyExchangeSnapshotHistory(league.value, 24 * 14, oldestEpoch);
-      setHasMore(historyDto.Meta.hasMore);
+      const historyDto = await fetchSnapshotHistoryFromApi(
+        league.value,
+        24 * 14,
+        oldestEpoch,
+      );
+      setHasMore(historyDto.hasMore);
 
-      if (historyDto.Data && historyDto.Data.length > 0) {
-        const reversedData = [...historyDto.Data].reverse();
-        setOldestEpoch(reversedData[0].Epoch);
+      if (historyDto.data.length > 0) {
+        const reversedData = [...historyDto.data].reverse();
+        setOldestEpoch(reversedData[0].epoch);
 
-        const newMarketCaps = reversedData.map(entry => ({
-            time: entry.Epoch as UTCTimestamp,
-            value: entry.MarketCap,
+        const newMarketCaps = reversedData.map((entry) => ({
+          time: entry.epoch as UTCTimestamp,
+          value: entry.marketCap,
         }));
-        const newVolumes = reversedData.map(entry => ({
-            time: entry.Epoch as UTCTimestamp,
-            value: entry.Volume,
+        const newVolumes = reversedData.map((entry) => ({
+          time: entry.epoch as UTCTimestamp,
+          value: entry.volume,
         }));
 
-        setChartData(prev => ({
-            lineData: [...newMarketCaps, ...prev.lineData],
-            histogramData: [...newVolumes, ...prev.histogramData],
+        setChartData((prev) => ({
+          lineData: [...newMarketCaps, ...prev.lineData],
+          histogramData: [...newVolumes, ...prev.histogramData],
         }));
       }
     } catch (err) {
@@ -105,13 +103,18 @@ export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapsh
 
   if (isLoading) {
     return (
-      <Paper elevation={3} sx={{ p: 2, height: 450, display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '100%'
-        }}>
+      <Paper
+        elevation={3}
+        sx={{ p: 2, height: 450, display: "flex", flexDirection: "column" }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
           <CircularProgress />
         </Box>
       </Paper>
@@ -124,8 +127,11 @@ export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapsh
 
   if (chartData.lineData.length > 0) {
     return (
-      <Paper elevation={3} sx={{ p: 2, height: 375, display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ position: 'relative', height: '100%' }}>
+      <Paper
+        elevation={3}
+        sx={{ p: 2, height: 375, display: "flex", flexDirection: "column" }}
+      >
+        <Box sx={{ position: "relative", height: "100%" }}>
           <Chart
             chartData={chartData}
             onLoadMore={handleLoadMore}
@@ -141,8 +147,19 @@ export function SnapshotHistory({ snapshot }: { snapshot: CurrencyExchangeSnapsh
   }
 
   return (
-    <Paper elevation={3} sx={{ p: 2, height: 450, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Typography color="text.secondary">No historical data available.</Typography>
+    <Paper
+      elevation={3}
+      sx={{
+        p: 2,
+        height: 450,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Typography color="text.secondary">
+        No historical data available.
+      </Typography>
     </Paper>
   );
 }

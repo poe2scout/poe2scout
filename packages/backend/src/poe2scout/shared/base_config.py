@@ -35,13 +35,13 @@ class BaseConfig(BaseModel):
 
             # Convert the string value to the correct type
             try:
-                if field_type == bool:
+                if field_type is bool:
                     config_data[field_name] = env_value.lower() in ("true", "1", "yes")
-                elif field_type == list:
+                elif field_type is list:
                     config_data[field_name] = env_value.split(",")
                 else:
                     config_data[field_name] = field_type(env_value)
             except ValueError as e:
-                raise ValueError(f"Failed to parse {env_name}: {str(e)}")
+                raise ValueError(f"Failed to parse {env_name}: {str(e)}") from e
 
         return cls(**config_data)

@@ -1,8 +1,8 @@
 import { Paper, Stack, Typography } from "@mui/material";
 
-import { ItemName } from "../../TableColumnComponents/ItemName";
+import type { PairHistoryEntry, SnapshotPair } from "../../../types";
 import { FormatTimeFromEpoch } from "../../FormatTime";
-import type { PairHistoryEntry, SnapshotPair } from "../api";
+import { ItemName } from "../../TableColumnComponents/ItemName";
 
 interface PairHistoryHeaderProps {
   pair: SnapshotPair | null;
@@ -17,8 +17,8 @@ export const PairHistoryHeader = ({
   currencyTwoItemId,
   latestEntry,
 }: PairHistoryHeaderProps) => {
-  const baseLabel = pair?.CurrencyOne.text ?? `Item ${currencyOneItemId}`;
-  const quoteLabel = pair?.CurrencyTwo.text ?? `Item ${currencyTwoItemId}`;
+  const baseLabel = pair?.currencyOne.text ?? `Item ${currencyOneItemId}`;
+  const quoteLabel = pair?.currencyTwo.text ?? `Item ${currencyTwoItemId}`;
 
   return (
     <Paper elevation={3} sx={{ p: 2 }}>
@@ -32,19 +32,23 @@ export const PairHistoryHeader = ({
           {pair ? (
             <Stack direction="row" spacing={1} alignItems="center">
               <ItemName
-                iconUrl={pair.CurrencyOne.iconUrl}
-                name={pair.CurrencyOne.text}
+                iconUrl={pair.currencyOne.iconUrl}
+                name={pair.currencyOne.text}
                 isUnique={false}
-                itemMetadata={pair.CurrencyOne.itemMetadata}
+                itemMetadata={pair.currencyOne.itemMetadata}
               />
-              <Typography variant="body2" color="text.secondary" sx={{ px: 0.5 }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ px: 0.5 }}
+              >
                 /
               </Typography>
               <ItemName
-                iconUrl={pair.CurrencyTwo.iconUrl}
-                name={pair.CurrencyTwo.text}
+                iconUrl={pair.currencyTwo.iconUrl}
+                name={pair.currencyTwo.text}
                 isUnique={false}
-                itemMetadata={pair.CurrencyTwo.itemMetadata}
+                itemMetadata={pair.currencyTwo.itemMetadata}
                 iconPostFixed
               />
             </Stack>
@@ -55,7 +59,7 @@ export const PairHistoryHeader = ({
           )}
           {latestEntry && (
             <Typography variant="body2" color="text.secondary">
-              Updated {FormatTimeFromEpoch(latestEntry.Epoch)}
+              Updated {FormatTimeFromEpoch(latestEntry.epoch)}
             </Typography>
           )}
         </Stack>
@@ -69,25 +73,31 @@ export const PairHistoryHeader = ({
             <Stack spacing={0.5}>
               <Typography variant="subtitle2">{quoteLabel}</Typography>
               <Typography variant="body2">
-                Volume traded: {latestEntry.Data.CurrencyTwoData.VolumeTraded.toLocaleString()}
+                Volume traded:{" "}
+                {latestEntry.data.currencyTwoData.volumeTraded.toLocaleString()}
               </Typography>
               <Typography variant="body2">
-                Value traded: {latestEntry.Data.CurrencyTwoData.ValueTraded.toLocaleString()}
+                Value traded:{" "}
+                {latestEntry.data.currencyTwoData.valueTraded.toLocaleString()}
               </Typography>
               <Typography variant="body2">
-                Stock: {latestEntry.Data.CurrencyTwoData.HighestStock.toLocaleString()}
+                Stock:{" "}
+                {latestEntry.data.currencyTwoData.highestStock.toLocaleString()}
               </Typography>
             </Stack>
             <Stack spacing={0.5}>
               <Typography variant="subtitle2">{baseLabel}</Typography>
               <Typography variant="body2">
-                Volume traded: {latestEntry.Data.CurrencyOneData.VolumeTraded.toLocaleString()}
+                Volume traded:{" "}
+                {latestEntry.data.currencyOneData.volumeTraded.toLocaleString()}
               </Typography>
               <Typography variant="body2">
-                Value traded: {latestEntry.Data.CurrencyOneData.ValueTraded.toLocaleString()}
+                Value traded:{" "}
+                {latestEntry.data.currencyOneData.valueTraded.toLocaleString()}
               </Typography>
               <Typography variant="body2">
-                Stock: {latestEntry.Data.CurrencyOneData.HighestStock.toLocaleString()}
+                Stock:{" "}
+                {latestEntry.data.currencyOneData.highestStock.toLocaleString()}
               </Typography>
             </Stack>
           </Stack>

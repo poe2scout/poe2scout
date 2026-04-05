@@ -164,3 +164,4 @@ cython_debug/
 .env
 .idea
 dump.rdb
+*.ruff_cache/

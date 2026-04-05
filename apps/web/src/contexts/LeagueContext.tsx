@@ -5,17 +5,12 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import { fetchLeagues as fetchLeaguesFromApi } from "../api/economy";
 
 export interface League {
   value: string;
   chaosDivinePrice: number;
   exaltedDivinePrice: number;
-}
-
-interface LeagueDto {
-  value: string;
-  divinePrice: number;
-  chaosDivinePrice: number;
 }
 
 interface LeagueContextType {
@@ -27,34 +22,33 @@ interface LeagueContextType {
 
 const LeagueContext = createContext<LeagueContextType | undefined>(undefined);
 
-const DEFAULT_LEAGUE = "Fate of the Vaal"
+const DEFAULT_LEAGUE = "Fate of the Vaal";
 
 export function LeagueProvider({ children }: { children: ReactNode }) {
   const [leagues, setLeagues] = useState<League[]>([]);
   const [loading, setLoading] = useState(true);
-  const [league, setLeague] = useState<League>({ value: DEFAULT_LEAGUE, exaltedDivinePrice: 100, chaosDivinePrice: 50 });
+  const [league, setLeague] = useState<League>({
+    value: DEFAULT_LEAGUE,
+    exaltedDivinePrice: 100,
+    chaosDivinePrice: 50,
+  });
 
   const fetchLeagues = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/leagues`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data: LeagueDto[] = await response.json();
+      const data = await fetchLeaguesFromApi();
+      const leagues = data.map(
+        (leagueRecord): League => ({
+          value: leagueRecord.value,
+          exaltedDivinePrice: leagueRecord.divinePrice,
+          chaosDivinePrice: leagueRecord.chaosDivinePrice,
+        }),
+      );
 
-      const leagues = data.map((league): League => {
-        return {
-          "value": league.value,
-          "exaltedDivinePrice": league.divinePrice,
-          "chaosDivinePrice": league.chaosDivinePrice
-        }
-        
-      })
       setLeagues(leagues);
-      
+
       const updatedLeague = leagues.find((l: League) => l.value === league.value);
 
-      if (updatedLeague !== undefined){
+      if (updatedLeague !== undefined) {
         setLeague(updatedLeague);
       }
     } catch (error) {
@@ -65,7 +59,7 @@ export function LeagueProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    fetchLeagues(); 
+    fetchLeagues();
 
     const intervalId = setInterval(fetchLeagues, 3600000);
 

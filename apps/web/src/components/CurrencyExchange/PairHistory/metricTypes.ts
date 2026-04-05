@@ -1,11 +1,11 @@
-export type DataKey = "CurrencyOneData" | "CurrencyTwoData";
+export type DataKey = "currencyOneData" | "currencyTwoData";
 
 export type MetricKey =
-  | "PairPrice"
-  | "ValueTraded"
-  | "VolumeTraded"
-  | "StockValue"
-  | "HighestStock";
+  | "pairPrice"
+  | "valueTraded"
+  | "volumeTraded"
+  | "stockValue"
+  | "highestStock";
 
 export interface MetricOption {
   id: string;

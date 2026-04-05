@@ -68,9 +68,9 @@ class PoeTradeClient(AsyncClient):
         }
 
         if response.status_code in error_mapping:
-            ErrorClass, message, should_retry = error_mapping[response.status_code]
+            error_class, message, should_retry = error_mapping[response.status_code]
             if not should_retry:
-                raise ErrorClass(f"{message} - Status Code: {response.status_code}")
+                raise error_class(f"{message} - Status Code: {response.status_code}")
             return None  # Signal that this error should be retried
 
         if 400 <= response.status_code < 500:
@@ -136,22 +136,25 @@ class PoeTradeClient(AsyncClient):
 
 class PoeApiClient(AsyncClient):
     def __init__(
-        self, clientId: str, clientSecret: str, headers: Optional[Dict[str, str]] = None
+        self, 
+        client_id: str, 
+        client_secret: str, 
+        headers: Optional[Dict[str, str]] = None
     ):
-        if headers == None:
+        if headers is None:
             headers = {"User-Agent": "POE2SCOUT (contact: b@girardet.co.nz)"}
         super().__init__(
             headers=headers,
-            auth=PoeApiAuth(client_id=clientId, client_secret=clientSecret),
+            auth=PoeApiAuth(client_id=client_id, client_secret=client_secret),
         )
-        self.client_id = clientId
-        self.client_secret = clientSecret
+        self.client_id = client_id
+        self.client_secret = client_secret
         self.max_retries = 5
         self.retry_delay = 300  # 5 minutes in seconds
 
-        if self.client_id == None or self.client_id == "":
+        if self.client_id is None or self.client_id == "":
             raise ValueError
-        if self.client_secret == None or self.client_secret == "":
+        if self.client_secret is None or self.client_secret == "":
             raise ValueError
 
     async def _handle_response(self, response: Response) -> Optional[Response]:
@@ -167,9 +170,9 @@ class PoeApiClient(AsyncClient):
         }
 
         if response.status_code in error_mapping:
-            ErrorClass, message, should_retry = error_mapping[response.status_code]
+            error_class, message, should_retry = error_mapping[response.status_code]
             if not should_retry:
-                raise ErrorClass(f"{message} - Status Code: {response.status_code}")
+                raise error_class(f"{message} - Status Code: {response.status_code}")
             return None  # Signal that this error should be retried
 
         if 400 <= response.status_code < 500:

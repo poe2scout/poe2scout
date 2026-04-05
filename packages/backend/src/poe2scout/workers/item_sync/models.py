@@ -2,34 +2,34 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-class item(BaseModel):
+class Item(BaseModel):
     type: str
     name: Optional[str] = None
     text: Optional[str] = None
     flags: Optional[dict] = None
 
 
-class currencyItem(BaseModel):
+class CurrencyItem(BaseModel):
     id: str
     image: Optional[str] = None
     text: str
 
 
-class itemCategory(BaseModel):
+class ItemCategory(BaseModel):
     id: str
     label: str
-    entries: list[item]
+    entries: list[Item]
 
 
-class currencyCategory(BaseModel):
+class CurrencyCategory(BaseModel):
     id: str
     label: Optional[str] = None
-    entries: list[currencyItem]
+    entries: list[CurrencyItem]
 
 
-class itemResponse(BaseModel):
-    result: list[itemCategory]
+class ItemResponse(BaseModel):
+    result: list[ItemCategory]
 
 
-class currencyResponse(BaseModel):
-    result: list[currencyCategory]
+class CurrencyResponse(BaseModel):
+    result: list[CurrencyCategory]

@@ -65,7 +65,6 @@ def extract_unique_item_metadata(item_info):
             for i, hash_entry in enumerate(
                 item_info["extended"]["hashes"].get("sanctum", [])
             ):
-                hash_id = hash_entry[0]
                 explicit_mod_index = hash_entry[1][0]
                 explicit_mods_mapping[explicit_mod_index] = i
 
@@ -85,7 +84,6 @@ def extract_unique_item_metadata(item_info):
                 for i, hash_entry in enumerate(
                     item_info["extended"]["hashes"]["implicit"]
                 ):
-                    hash_id = hash_entry[0]
                     implicit_mod_index = hash_entry[1][0]
                     implicit_mods_mapping[implicit_mod_index] = i
 
@@ -106,7 +104,6 @@ def extract_unique_item_metadata(item_info):
             for i, hash_entry in enumerate(
                 item_info["extended"]["hashes"].get("explicit", [])
             ):
-                hash_id = hash_entry[0]
                 explicit_mod_index = hash_entry[1][0]
                 explicit_mods_mapping[explicit_mod_index] = i
 

@@ -1,23 +1,24 @@
-from fastapi import FastAPI, Request
-from dotenv import load_dotenv
-import os
-from poe2scout.db.repositories.base_repository import BaseRepository
 from contextlib import asynccontextmanager
-import sys
 import asyncio
-from . import ApiServiceConfig
-import uvicorn
-from poe2scout.api.routes import item_router
-from poe2scout.api.routes import league_router
-from poe2scout.api.routes import currency_exchange_router
 import logging
+import os
+import sys
 import time
+from typing import AsyncIterator, cast
+
+import uvicorn
+from dotenv import load_dotenv
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
 from fastapi.responses import JSONResponse, Response
+from poe2scout.api.config import ApiServiceConfig
+from poe2scout.api.routes import items_router, leagues_router, static_router
+from poe2scout.db.repositories.base_repository import BaseRepository
+from slowapi import Limiter
+from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
+from slowapi.util import get_remote_address
+from starlette.types import ExceptionHandler
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -61,7 +62,7 @@ def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> Res
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     await BaseRepository.init_pool(config.dbstring)
     yield
 
@@ -79,7 +80,10 @@ limiter = Limiter(
     key_func=get_real_ip, application_limits=["100/minute"], headers_enabled=True
 )
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
+app.add_exception_handler(
+    RateLimitExceeded,
+    cast(ExceptionHandler, rate_limit_exceeded_handler),
+)
 app.add_middleware(SlowAPIMiddleware)
 
 if IS_LOCAL:
@@ -95,9 +99,9 @@ if IS_LOCAL:
     )
 
 # Import and include routers
-app.include_router(item_router)
-app.include_router(league_router)
-app.include_router(currency_exchange_router)
+app.include_router(items_router)
+app.include_router(leagues_router)
+app.include_router(static_router)
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -127,7 +131,7 @@ async def log_requests(request: Request, call_next):
 
 
 @app.get("/")
-def read_root():
+def read_root() -> dict[str, str]:
     return {"message": "Hello World"}
 
 
