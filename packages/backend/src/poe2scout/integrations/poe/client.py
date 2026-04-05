@@ -75,12 +75,12 @@ class PoeTradeClient(AsyncClient):
 
         if 400 <= response.status_code < 500:
             raise ClientError(
-                f"Client error occurred - Status Code: {response.status_code}"
+                f"Client error occurred - Status Code: {response.status_code} | {response.text}"
             )
 
         if response.status_code >= 500:
             raise ServerError(
-                f"Server error occurred - Status Code: {response.status_code}"
+                f"Server error occurred - Status Code: {response.status_code}| {response.text}"
             )
 
         return response
