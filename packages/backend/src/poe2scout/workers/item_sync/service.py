@@ -3,6 +3,7 @@ import logging
 from httpx import Client
 from asyncio import sleep
 
+from poe2scout.shared import constants
 from poe2scout.workers.item_sync.models import CurrencyResponse, ItemResponse
 from .functions.sync_currencies import sync_currencies
 from .functions.sync_items import sync_items
@@ -38,8 +39,10 @@ async def run(config: ItemSyncConfig):
             )
 
             logger.info("Starting item sync...")
-            await sync_items(items.result)
+
+            # TODO: Add all games
+            await sync_items(items.result, constants.poe2_game_id)
             logger.info("Starting currency sync...")
-            await sync_currencies(currencies.result)
+            await sync_currencies(currencies.result, constants.poe2_game_id)
             await sleep(60 * 60 * 24)
 

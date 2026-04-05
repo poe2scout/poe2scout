@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from poe2scout.db.repositories.base_repository import RepositoryModel
-from poe2scout.db.repositories.item_repository.get_all_unique_items import UniqueItem
+from poe2scout.db.repositories.unique_item_repository.get_all_unique_items import UniqueItem
 
 
 class PriceLogEntry(RepositoryModel):

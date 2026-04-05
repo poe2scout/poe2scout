@@ -1,5 +1,10 @@
 import sys
 from typing import Dict, List
+from poe2scout.db.repositories.currency_item_repository import CurrencyItemRepository
+from poe2scout.db.repositories.league_repository import LeagueRepository
+from poe2scout.db.repositories.price_log_repository import PriceLogRepository
+from poe2scout.db.repositories.service_repository import ServiceRepository
+from poe2scout.db.repositories.unique_item_repository import UniqueItemRepository
 from pydantic import BaseModel
 from poe2scout.integrations.poe.currency_exchange_response import (
     CurrencyExchangeResponse,
@@ -9,7 +14,7 @@ from poe2scout.db.repositories.currency_exchange_repository import (
     CurrencyExchangeRepository,
 )
 from poe2scout.db.repositories.item_repository import ItemRepository
-from poe2scout.db.repositories.item_repository.record_price import RecordPriceModel
+from poe2scout.db.repositories.price_log_repository.record_price import RecordPriceModel
 from .functions.fetch_unique import PriceFetchResult, fetch_unique
 from .functions.record_price import record_price
 import logging
@@ -17,9 +22,9 @@ from .config import PriceFetchConfig
 from .functions.sync_metadata_and_icon import sync_metadata_and_icon
 from datetime import datetime, timezone
 from poe2scout.integrations.poe.client import PoeApiClient, PoeTradeClient
-from poe2scout.db.repositories.item_repository.get_all_unique_items import UniqueItem
-from poe2scout.db.repositories.item_repository.get_all_currency_items import CurrencyItem
-from poe2scout.db.repositories.item_repository.get_leagues import League
+from poe2scout.db.repositories.unique_item_repository.get_all_unique_items import UniqueItem
+from poe2scout.db.repositories.currency_item_repository.get_all_currency_items import CurrencyItem
+from poe2scout.db.repositories.league_repository.get_leagues import League
 
 import asyncio
 
@@ -28,28 +33,62 @@ logger = logging.getLogger(__name__)
 
 async def run(
     config: PriceFetchConfig, 
-    repo: ItemRepository, 
-    currency_exchange_repo: CurrencyExchangeRepository
+    item_repo: ItemRepository,
+    currency_item_repo: CurrencyItemRepository,
+    league_repo: LeagueRepository,
+    price_log_repo: PriceLogRepository,
+    service_repo: ServiceRepository,
+    currency_exchange_repo: CurrencyExchangeRepository,
+    unique_item_repo: UniqueItemRepository
 ):
     # Define the schedule
 
     logger.info("Price fetch service started.")
     await asyncio.gather(
-        run_currency_exchange_prices(repo, config, currency_exchange_repo), fetch_prices(repo)
+        run_currency_exchange_prices(
+            config,
+            currency_exchange_repo,
+            item_repo,
+            currency_item_repo,
+            league_repo,
+            price_log_repo,
+            service_repo
+        ), 
+        fetch_prices(
+            item_repo,
+            league_repo,
+            currency_item_repo,
+            unique_item_repo,
+            price_log_repo,
+            service_repo
+        )
     )
 
 
 async def run_currency_exchange_prices(
-    repo: ItemRepository, 
     config: PriceFetchConfig, 
-    currency_exchange_repo: CurrencyExchangeRepository
+    currency_exchange_repo: CurrencyExchangeRepository,    
+    item_repo: ItemRepository,
+    currency_item_repo: CurrencyItemRepository,
+    league_repo: LeagueRepository,
+    price_log_repo: PriceLogRepository,
+    service_repo: ServiceRepository,
 ):
     headers = {"User-Agent": "POE2SCOUT (contact: b@girardet.co.nz)"}
     async with PoeApiClient(
         config.POEAPI_CLIENT_ID, config.POEAPI_CLIENT_SECRET, headers=headers
     ) as client:
         while True:
-            await fetch_currency_exchange_prices(repo, config, currency_exchange_repo, client)
+            await fetch_currency_exchange_prices(
+                item_repo,
+                currency_item_repo,
+                league_repo,
+                price_log_repo,
+                service_repo, 
+                config, 
+                currency_exchange_repo, 
+                client
+            )
             await asyncio.sleep(10)
 
 
@@ -60,13 +99,17 @@ class CurrencyPrice(BaseModel):
 
 
 async def fetch_currency_exchange_prices(
-    repo: ItemRepository,
+    item_repo: ItemRepository,
+    currency_item_repo: CurrencyItemRepository,
+    league_repo: LeagueRepository,
+    price_log_repo: PriceLogRepository,
+    service_repo: ServiceRepository,
     config: PriceFetchConfig,
     currency_exchange_repo: CurrencyExchangeRepository,
     client: PoeApiClient,
 ):
     last_fetch_epoch = (
-        await currency_exchange_repo.get_service_cache_value("PriceFetch_Currency")
+        await service_repo.get_service_cache_value("PriceFetch_Currency")
     ).value
     current_epoch = last_fetch_epoch + 60 * 60
 
@@ -75,7 +118,7 @@ async def fetch_currency_exchange_prices(
     await asyncio.sleep(
         current_epoch + 61 * 60 - int(datetime.now(timezone.utc).timestamp())
     )  # Wait til next time
-    leagues = await repo.get_all_leagues()
+    leagues = await league_repo.get_all_leagues()
 
     url = f"https://www.pathofexile.com/api/currency-exchange/poe2/{current_epoch}"
 
@@ -98,12 +141,12 @@ async def fetch_currency_exchange_prices(
 
     if len(data.markets) == 0:  # Current timestamp. Not filled in yet
         logger.info("No pairs in markets.")
-        await currency_exchange_repo.set_service_cache_value("PriceFetch_Currency", current_epoch)
+        await service_repo.set_service_cache_value("PriceFetch_Currency", current_epoch)
         return
     logger.info("Updating correctly")
     try:
         for league in leagues:
-            if await repo.get_prices_checked(current_epoch, league.league_id):
+            if await price_log_repo.get_prices_checked(current_epoch, league.league_id):
                 logger.info(
                     "Price already checked for this timestamp and league. continuing"
                 )
@@ -120,8 +163,10 @@ async def fetch_currency_exchange_prices(
             chaos_price = None
             if len(chaos_pairs) == 0:
                 logger.info("No chaos pair")
-                item_price = await repo.get_item_price(
-                    (await repo.get_chaos_item()).item_id, league.league_id, current_epoch
+                item_price = await price_log_repo.get_item_price(
+                    (await currency_item_repo.get_chaos_item()).item_id, 
+                    league.league_id, 
+                    current_epoch
                 )
                 if item_price == 0:
                     continue
@@ -162,8 +207,10 @@ async def fetch_currency_exchange_prices(
 
             if len(divine_prices) == 0:
                 logger.info("No divine pair")
-                item_price = await repo.get_item_price(
-                    (await repo.get_divine_item()).item_id, league.league_id, current_epoch
+                item_price = await price_log_repo.get_item_price(
+                    (await currency_item_repo.get_divine_item()).item_id, 
+                    league.league_id, 
+                    current_epoch
                 )
                 if item_price == 0:
                     continue
@@ -212,7 +259,9 @@ async def fetch_currency_exchange_prices(
 
             ### Record pricelogs
 
-            currency_items = await repo.get_currency_items([key for key in final_prices.keys()])
+            currency_items = await currency_item_repo.get_currency_items(
+                [key for key in final_prices.keys()]
+            )
 
             item_id_lookup: Dict[str, int] = {}
 
@@ -242,7 +291,7 @@ async def fetch_currency_exchange_prices(
                     f"Saving {len(price_logs)} logs for {league.value} at {current_epoch} "
                     + f"or more specifically {datetime.fromtimestamp(current_epoch)}"
                 )
-                await repo.record_price_bulk(price_logs, current_epoch)
+                await price_log_repo.record_price_bulk(price_logs, current_epoch)
     except Exception as e:
     # Catches any other unexpected exceptions
         logger.info(f"An unexpected error occurred: {e}")
@@ -250,7 +299,7 @@ async def fetch_currency_exchange_prices(
     logger.info(
                 f"Saving cache value. {current_epoch}"
             )
-    await currency_exchange_repo.set_service_cache_value("PriceFetch_Currency", current_epoch)
+    await service_repo.set_service_cache_value("PriceFetch_Currency", current_epoch)
     await currency_exchange_repo.update_pair_histories()
 
 
@@ -331,25 +380,32 @@ async def get_league_data(
     return pairs
 
 
-async def fetch_prices(repo: ItemRepository):
+async def fetch_prices(
+    item_repo: ItemRepository,
+    league_repo: LeagueRepository,
+    currency_item_repo: CurrencyItemRepository,
+    unique_item_repo: UniqueItemRepository,
+    price_log_repo: PriceLogRepository,
+    serive_repository: ServiceRepository
+):
     headers = {"User-Agent": "POE2SCOUT (contact: b@girardet.co.nz)"}
     async with PoeTradeClient(headers=headers) as client:
         while True:
             # Get all unqiue items
-            leagues = await repo.get_leagues()
+            leagues = await league_repo.get_leagues()
             leagues = [league for league in leagues if league.league_id == 7] # Fate of the Vaal
-            base_unique_items = await repo.get_all_unique_items()
-            base_currency_items = await repo.get_all_currency_items()
+            base_unique_items = await unique_item_repo.get_all_unique_items()
+            base_currency_items = await currency_item_repo.get_all_currency_items()
 
-            exalted_item = await repo.get_exalted_item()
-            divine_item = await repo.get_divine_item()
+            exalted_item = await currency_item_repo.get_exalted_item()
+            divine_item = await currency_item_repo.get_divine_item()
 
             for league in leagues:
                 current_time = datetime.now().strftime("%H")
-                fetched_item_ids: list[int] = await repo.get_fetched_item_ids(
+                fetched_item_ids: list[int] = await serive_repository.get_fetched_item_ids(
                     current_time, league.league_id
                 )
-                item_ids = await repo.get_all_items()
+                item_ids = await item_repo.get_all_items()
                 item_ids = [
                     item.item_id for item in item_ids if item.item_id not in fetched_item_ids
                 ]
@@ -368,12 +424,17 @@ async def fetch_prices(repo: ItemRepository):
                     logger.info("No items to fetch")
                     continue
 
-                divine_price = await repo.get_item_price(divine_item.item_id, league.league_id)
+                divine_price = await price_log_repo.get_item_price(
+                    divine_item.item_id, 
+                    league.league_id
+                )
 
                 await process_uniques(
                     unique_items,
                     league,
-                    repo,
+                    unique_item_repo,
+                    currency_item_repo,
+                    price_log_repo,
                     client,
                     exalted_item,
                     divine_item,
@@ -388,7 +449,8 @@ async def fetch_prices(repo: ItemRepository):
                         )
                         await sync_metadata_and_icon(
                             currency_item,
-                            repo,
+                            item_repo,
+                            currency_item_repo,
                             client,
                             BASE_URL,
                             REALM,
@@ -403,7 +465,9 @@ REALM = "poe2"
 async def process_uniques(
     unique_items: list[UniqueItem],
     league: League,
-    repo: ItemRepository,
+    unique_item_repo: UniqueItemRepository,
+    currency_item_repo: CurrencyItemRepository,
+    price_log_repo: PriceLogRepository,
     client: PoeTradeClient,
     exalted_item: CurrencyItem,
     divine_item: CurrencyItem,
@@ -417,13 +481,13 @@ async def process_uniques(
             ### After the league has progressed half a day? Turn on instant buy out only.
             logger.info(f"Fetching price for {unique_item.name} in {league.value}")
             exalt_price_fetch_result: PriceFetchResult = await fetch_unique(
-                unique_item, league, repo, client, "exalted"
+                unique_item, league, unique_item_repo, client, "exalted"
             )
             chaos_price_fetch_result: PriceFetchResult = await fetch_unique(
-                unique_item, league, repo, client, "chaos"
+                unique_item, league, unique_item_repo, client, "chaos"
             )
             divine_price_fetch_result: PriceFetchResult = await fetch_unique(
-                unique_item, league, repo, client, "divine"
+                unique_item, league, unique_item_repo, client, "divine"
             )
             logger.info(f"Exalt price info: {exalt_price_fetch_result}")
 
@@ -441,10 +505,13 @@ async def process_uniques(
             lowest_price = sys.maxsize
             quantity = 0
             for price in prices:
-                currency = await repo.get_currency_item(price.currency)
+                currency = await currency_item_repo.get_currency_item(price.currency)
                 assert currency is not None
 
-                currency_price = await repo.get_item_price(currency.item_id, league.league_id)
+                currency_price = await price_log_repo.get_item_price(
+                    currency.item_id, 
+                    league.league_id
+                )
 
                 item_price = price.price * currency_price
                 quantity += price.quantity
@@ -456,7 +523,7 @@ async def process_uniques(
                 f"with price {lowest_price} and quantity {quantity}"
             )
             await record_price(
-                lowest_price, unique_item.item_id, league.league_id, quantity, repo
+                lowest_price, unique_item.item_id, league.league_id, quantity, price_log_repo
             )
         except:
             logger.error(f"error fetching for {unique_item}")

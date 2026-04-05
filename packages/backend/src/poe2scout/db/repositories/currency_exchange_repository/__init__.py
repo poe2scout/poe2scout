@@ -13,12 +13,6 @@ from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot
 from poe2scout.db.repositories.currency_exchange_repository.get_pair_history import (
     get_pair_history,
 )
-from poe2scout.db.repositories.currency_exchange_repository.get_service_cache_value import (
-    get_service_cache_value,
-)
-from poe2scout.db.repositories.currency_exchange_repository.set_service_cache_value import (
-    set_service_cache_value,
-)
 from poe2scout.db.repositories.currency_exchange_repository.update_pair_histories import (
     update_pair_histories,
 )
@@ -29,8 +23,6 @@ class CurrencyExchangeRepository:
         self.create_snapshot = create_snapshot
         self.get_currency_exchange = get_currency_exchange
         self.get_currency_exchange_history = get_currency_exchange_history
-        self.get_service_cache_value = get_service_cache_value
-        self.set_service_cache_value = set_service_cache_value
         self.get_current_snapshot_pairs = get_current_snapshot_pairs
         self.get_pair_history = get_pair_history
         self.update_pair_histories = update_pair_histories

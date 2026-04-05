@@ -1,8 +1,7 @@
 
 from typing import Self
 
-from fastapi import HTTPException
-from poe2scout.api.dependancies import ItemRepoDep
+from poe2scout.api.dependancies import CurrencyItemRepoDep, LeagueRepoDep, PriceLogRepoDep
 from poe2scout.api.api_model import ApiModel
 from . import router
 
@@ -27,22 +26,26 @@ class GetResponse(ApiModel):
 
 @router.get("")
 async def get(
-    item_repository: ItemRepoDep,
+    league_repository: LeagueRepoDep,
+    currency_item_repository: CurrencyItemRepoDep,
+    price_log_repository: PriceLogRepoDep
 ) -> list[GetResponse]:
-    leagues = await item_repository.get_all_leagues()
+    leagues = await league_repository.get_all_leagues()
 
-    divine_item = await item_repository.get_currency_item("divine")
-    if divine_item is None:
-        raise HTTPException(500)
+    divine_item = await currency_item_repository.get_divine_item()
 
-    chaos_item = await item_repository.get_currency_item("chaos")
-    if chaos_item is None:
-        raise HTTPException(500)
+    chaos_item = await currency_item_repository.get_chaos_item()
 
     responses: list[GetResponse] = []
     for league in leagues:
-        divine_price = await item_repository.get_item_price(divine_item.item_id, league.league_id)
-        chaos_price = await item_repository.get_item_price(chaos_item.item_id, league.league_id)
+        divine_price = await price_log_repository.get_item_price(
+            divine_item.item_id, 
+            league.league_id
+        )
+        chaos_price = await price_log_repository.get_item_price(
+            chaos_item.item_id, 
+            league.league_id
+        )
 
         responses.append(
             GetResponse.from_model(

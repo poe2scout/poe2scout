@@ -1,10 +1,10 @@
-from poe2scout.db.repositories.item_repository import ItemRepository
-from poe2scout.db.repositories.item_repository.get_all_unique_items import UniqueItem
+from poe2scout.db.repositories.unique_item_repository import UniqueItemRepository
+from poe2scout.db.repositories.unique_item_repository.get_all_unique_items import UniqueItem
 from httpx import AsyncClient
 import logging
 from typing import List
 from pydantic import BaseModel
-from poe2scout.db.repositories.item_repository.get_leagues import League
+from poe2scout.db.repositories.league_repository.get_leagues import League
 from .extract_unique_item_metadata import extract_unique_item_metadata
 
 logger = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ def create_query_string(unique_item: UniqueItem, currency_text: str):
 async def fetch_unique(
     unique_item: UniqueItem,
     league: League,
-    repo: ItemRepository,
+    repo: UniqueItemRepository,
     client: AsyncClient,
     currency: str,
 ) -> PriceFetchResult:
@@ -125,7 +125,9 @@ def parse_trade_response(response_data: dict) -> List[float]:
 
 
 async def sync_metadata_and_icon(
-    first_item: dict, unique_item: UniqueItem, repo: ItemRepository
+    first_item: dict, 
+    unique_item: UniqueItem, 
+    repo: UniqueItemRepository
 ):
     item_metadata = extract_unique_item_metadata(first_item)
 

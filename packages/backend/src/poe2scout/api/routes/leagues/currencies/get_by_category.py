@@ -4,7 +4,7 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path, Query
 
-from poe2scout.api.dependancies import EconomyCacheDep, ItemRepoDep, PaginationParamDep
+from poe2scout.api.dependancies import EconomyCacheDep, LeagueRepoDep, PaginationParamDep
 from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.models import CurrencyItemExtended, PriceLogEntry
 
@@ -113,12 +113,12 @@ async def get_by_category(
     request: GetByCategoryRequestDep,
     economy_cache: EconomyCacheDep,
     pagination: PaginationParamDep,
-    item_repository: ItemRepoDep,
+    league_repository: LeagueRepoDep,
 ) -> GetByCategoryResponse:
     if request.reference_currency not in ["exalted", "chaos"]:
         raise HTTPException(400, "reference currency must be exalted or chaos")
 
-    league = await item_repository.get_league_by_value(request.league_name)
+    league = await league_repository.get_league_by_value(request.league_name)
 
     if league is None:
         raise HTTPException(400, "Invalid league name")

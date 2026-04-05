@@ -6,9 +6,15 @@ from cachetools import TTLCache
 from cachetools.keys import hashkey
 from fastapi import Depends, HTTPException, Path
 
-from poe2scout.api.dependancies import ItemRepoDep
+from poe2scout.api.dependancies import (
+    CurrencyItemRepoDep, 
+    ItemRepoDep, 
+    LeagueRepoDep, 
+    PriceLogRepoDep, 
+    UniqueItemRepoDep
+)
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories.item_repository.get_all_unique_items import UniqueItem
+from poe2scout.db.repositories.unique_item_repository.get_all_unique_items import UniqueItem
 from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
 
 from . import router
@@ -107,7 +113,11 @@ class GetItemsResponse(ApiModel):
 @router.get("/{LeagueName}/Items")
 async def get_items(
     request: GetItemsRequestDep,
-    item_repository: ItemRepoDep,
+    item_repository: ItemRepoDep,    
+    league_repository: LeagueRepoDep,
+    currency_item_repository: CurrencyItemRepoDep,
+    unique_item_repository: UniqueItemRepoDep,
+    price_log_repository: PriceLogRepoDep
 ) -> list[GetItemsResponse]:
     cache_key = hashkey(request.league_name)
 
@@ -115,9 +125,9 @@ async def get_items(
         return items_cache[cache_key]
 
     unique_items, currency_items, leagues = await gather(
-        item_repository.get_all_unique_items(),
-        item_repository.get_all_currency_items(),
-        item_repository.get_all_leagues(),
+        unique_item_repository.get_all_unique_items(),
+        currency_item_repository.get_all_currency_items(),
+        league_repository.get_all_leagues(),
     )
 
     item_ids = [item.item_id for item in unique_items] + [
@@ -132,7 +142,7 @@ async def get_items(
     if league_id is None:
         raise HTTPException(status_code=404, detail="League not found")
 
-    price_logs_by_item_id = await item_repository.get_item_price_logs(item_ids, league_id)
+    price_logs_by_item_id = await price_log_repository.get_item_price_logs(item_ids, league_id)
 
     responses = [
         GetItemsResponse.from_unique_item(

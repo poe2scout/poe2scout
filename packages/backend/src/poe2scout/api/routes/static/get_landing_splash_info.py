@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Self
 
-from poe2scout.api.dependancies import ItemRepoDep
+from poe2scout.api.dependancies import CurrencyItemRepoDep, PriceLogRepoDep
 from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.models import CurrencyItemExtended, PriceLogEntry
 
@@ -65,13 +65,14 @@ class GetLandingSplashInfoResponse(ApiModel):
 
 @router.get("/LandingSplashInfo")
 async def get_landing_splash_info(
-    item_repository: ItemRepoDep,
+    currency_item_repository: CurrencyItemRepoDep,
+    price_log_repository: PriceLogRepoDep
 ) -> GetLandingSplashInfoResponse:
-    items = await item_repository.get_currency_items(IMPORTANT_API_IDS)
+    items = await currency_item_repository.get_currency_items(IMPORTANT_API_IDS)
 
     item_ids = [item.item_id for item in items]
 
-    price_logs = await item_repository.get_item_price_logs(item_ids, DEFAULT_LEAGUE_ID)
+    price_logs = await price_log_repository.get_item_price_logs(item_ids, DEFAULT_LEAGUE_ID)
 
     items = [
         CurrencyItemExtended(**item.model_dump(), price_logs=price_logs[item.item_id])

@@ -3,7 +3,7 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path
 
-from poe2scout.api.dependancies import CXRepoDep, ItemRepoDep, cache_response
+from poe2scout.api.dependancies import CXRepoDep, LeagueRepoDep, cache_response
 from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_pairs import (
     GetCurrentSnapshotPairModel,
@@ -98,10 +98,10 @@ class GetSnapshotPairsResponse(ApiModel):
 )
 async def get_snapshot_pairs(
     request: GetSnapshotPairsRequestDep,
-    item_repository: ItemRepoDep,
     currency_exchange_repository: CXRepoDep,
+    league_repository: LeagueRepoDep
 ) -> list[GetSnapshotPairsResponse]:
-    league = await item_repository.get_league_by_value(request.league_name)
+    league = await league_repository.get_league_by_value(request.league_name)
 
     if league is None:
         raise HTTPException(400, "Invalid league name")

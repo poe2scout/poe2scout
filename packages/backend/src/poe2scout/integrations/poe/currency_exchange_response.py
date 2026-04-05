@@ -1,7 +1,7 @@
 from typing import List
 from pydantic import BaseModel
 
-from poe2scout.db.repositories.item_repository.get_leagues import League
+from poe2scout.db.repositories.league_repository.get_leagues import League
 
 
 class TradingPair(BaseModel):

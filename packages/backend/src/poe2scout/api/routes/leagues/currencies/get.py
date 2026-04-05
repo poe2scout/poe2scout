@@ -3,7 +3,12 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path
 
-from poe2scout.api.dependancies import ItemRepoDep, cache_response
+from poe2scout.api.dependancies import (
+    CurrencyItemRepoDep, 
+    LeagueRepoDep, 
+    PriceLogRepoDep, 
+    cache_response
+)
 from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
 
@@ -92,17 +97,19 @@ GetRequestDep = Annotated[
 )
 async def get(
     request: GetRequestDep,
-    repo: ItemRepoDep,
+    currency_item_repository: CurrencyItemRepoDep,
+    league_repository: LeagueRepoDep,
+    price_log_repository: PriceLogRepoDep
 ) -> GetResponse:
-    currency_item = await repo.get_currency_item(request.api_id)
+    currency_item = await currency_item_repository.get_currency_item(request.api_id)
     if currency_item is None:
         raise HTTPException(400, "Invalid currency item api ID")
 
-    league = await repo.get_league_by_value(request.league_name)
+    league = await league_repository.get_league_by_value(request.league_name)
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
-    price_logs_by_item_id = await repo.get_item_price_logs(
+    price_logs_by_item_id = await price_log_repository.get_item_price_logs(
         item_ids=[currency_item.item_id],
         league_id=league.league_id,
     )

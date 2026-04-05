@@ -4,7 +4,7 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path, Query
 
-from poe2scout.api.dependancies import EconomyCacheDep, ItemRepoDep, PaginationParamDep
+from poe2scout.api.dependancies import EconomyCacheDep, LeagueRepoDep, PaginationParamDep
 from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories.models import PriceLogEntry, UniqueItemExtended
 
@@ -111,13 +111,13 @@ GetUniqueCategoryItemsRequestDep = Annotated[
 async def get_unique_category_items(
     request: GetUniqueCategoryItemsRequestDep,
     pagination: PaginationParamDep,
-    repo: ItemRepoDep,
+    league_repository: LeagueRepoDep,
     economy_cache: EconomyCacheDep,
 ) -> GetUniqueItemsResponse:
     if request.reference_currency not in ["exalted", "chaos"]:
         raise HTTPException(400, "reference currency must be exalted or chaos")
 
-    league = await repo.get_league_by_value(request.league_name)
+    league = await league_repository.get_league_by_value(request.league_name)
     if league is None:
         raise HTTPException(400, "Invalid league name")
 

@@ -1,12 +1,17 @@
-from poe2scout.db.repositories.item_repository import ItemRepository
-from poe2scout.db.repositories.item_repository.record_price import RecordPriceModel
+from poe2scout.db.repositories.price_log_repository import PriceLogRepository
+from poe2scout.db.repositories.price_log_repository.record_price import RecordPriceModel
 import logging
+
 
 logger = logging.getLogger(__name__)
 
 
 async def record_price(
-    price: float, item_id: int, league_id: int, quantity: int, repo: ItemRepository
+    price: float, 
+    item_id: int, 
+    league_id: int, 
+    quantity: int, 
+    repo: PriceLogRepository
 ):
     if price <= 0:
         logger.info(

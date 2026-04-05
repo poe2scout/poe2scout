@@ -19,8 +19,8 @@ from poe2scout.db.repositories.currency_exchange_repository import (
 )
 from poe2scout.db.repositories.item_repository import ItemRepository
 from poe2scout.integrations.poe.client import PoeApiClient
-from poe2scout.db.repositories.item_repository.get_all_currency_items import CurrencyItem
-from poe2scout.db.repositories.item_repository.get_item_prices_in_range import (
+from poe2scout.db.repositories.currency_item_repository.get_all_currency_items import CurrencyItem
+from poe2scout.db.repositories.price_log_repository.get_item_prices_in_range import (
     GetItemPricesInRangeModel,
 )
 

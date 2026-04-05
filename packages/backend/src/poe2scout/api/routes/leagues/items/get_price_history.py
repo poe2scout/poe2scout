@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, Path, Query
 
 from poe2scout.api.dependancies import ItemRepoDep
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories.item_repository.get_item_price_history import (
+from poe2scout.db.repositories.price_log_repository.get_item_price_history import (
     GetItemPriceHistoryModel,
 )
 from poe2scout.db.repositories.models import PriceLogEntry

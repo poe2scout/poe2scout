@@ -1,8 +1,9 @@
+from poe2scout.db.repositories.currency_item_repository import CurrencyItemRepository
 from poe2scout.db.repositories.item_repository.create_base_item import CreateBaseItemModel
-from poe2scout.db.repositories.item_repository.create_currency_category import (
+from poe2scout.db.repositories.currency_item_repository.create_currency_category import (
     CreateCurrencyCategoryModel,
 )
-from poe2scout.db.repositories.item_repository.create_currency_item import (
+from poe2scout.db.repositories.currency_item_repository.create_currency_item import (
     CreateCurrencyItemModel,
 )
 from poe2scout.db.repositories.item_repository.create_item_type import CreateItemTypeModel
@@ -16,16 +17,17 @@ from poe2scout.workers.item_sync.models import CurrencyCategory
 logger = logging.getLogger(__name__)
 
 
-async def sync_currencies(categories: list[CurrencyCategory]):
+async def sync_currencies(categories: list[CurrencyCategory], game_id: int):
     repo = ItemRepository()
+    currency_item_repo = CurrencyItemRepository()
     logger.info("Starting currency sync process...")
 
     async def refresh_lists(repo: ItemRepository):
-        all_categories = await repo.get_all_currency_categories()
+        all_categories = await currency_item_repo.get_all_currency_categories()
         all_types = await repo.get_all_item_types()
         all_base_items = await repo.get_all_base_items()
         all_items = await repo.get_all_items()
-        all_currency_items = await repo.get_all_currency_items()
+        all_currency_items = await currency_item_repo.get_all_currency_items()
         return all_categories, all_types, all_base_items, all_items, all_currency_items
 
     (
@@ -50,7 +52,7 @@ async def sync_currencies(categories: list[CurrencyCategory]):
             category_model = CreateCurrencyCategoryModel(
                 api_id=category.id, label=category.label
             )
-            category_id = await repo.create_currency_category(category_model)
+            category_id = await currency_item_repo.create_currency_category(category_model)
         else:
             category_id = next(
                 c.currency_category_id for c in all_categories if c.api_id == category.id
@@ -91,6 +93,7 @@ async def sync_currencies(categories: list[CurrencyCategory]):
             if not base_exists:
                 base_model = CreateBaseItemModel(
                     item_type_id=type_id,
+                    game_id=game_id,
                     icon_url=currency.image,
                     item_metadata={"id": currency.id, "text": currency.text},
                 )
@@ -129,7 +132,7 @@ async def sync_currencies(categories: list[CurrencyCategory]):
                     # Use the safely constructed URL (can be None)
                     image=image_url,
                 )
-                await repo.create_currency_item(currency_model)
+                await currency_item_repo.create_currency_item(currency_model)
 
             (
                 all_categories,
