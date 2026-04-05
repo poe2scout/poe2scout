@@ -85,17 +85,13 @@ async def fetch_unique(
 
     fetch_data = fetch_response.json()
 
-    if "item" not in fetch_data["result"][0]:
-        logger.exception(f"malformed result item: {fetch_data["result"][0]}")
-        raise Exception("Malformed result item from poe2 api.")
-
-    await sync_metadata_and_icon(fetch_data["result"][0]["item"], unique_item, repo)
-
     prices = parse_trade_response(fetch_data)
 
     if len(prices) == 0:
         logger.info(f"No prices found for {unique_item.name} in {league}")
         return PriceFetchResult(price=-1, quantity=0, currency=currency)
+        
+    await sync_metadata_and_icon(fetch_data["result"][0]["item"], unique_item, repo)
 
     return PriceFetchResult(
         price=prices[0], quantity=query_data["total"], currency=currency
