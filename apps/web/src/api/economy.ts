@@ -52,7 +52,7 @@ export const fetchLeagues = async (): Promise<LeaguePayload[]> => {
 };
 
 export const fetchCategories = async (): Promise<CategoryResponse> =>
-  fetchNormalizedJson<CategoryResponse>("/Items/Categories");
+  fetchNormalizedJson<CategoryResponse>("Items/Categories");
 
 export const fetchSearchableItems = async (): Promise<SearchableItem[]> => {
   const data = await fetchNormalizedJson<
