@@ -45,7 +45,7 @@ interface FetchItemHistoryParams {
 
 export const fetchLeagues = async (): Promise<LeaguePayload[]> => {
   const data = await fetchNormalizedJson<LeaguePayload[] | LeagueResponse>(
-    "/Leagues",
+    "Leagues",
   );
 
   return Array.isArray(data) ? data : data.leagues ?? [];
@@ -58,7 +58,7 @@ export const fetchSearchableItems = async (): Promise<SearchableItem[]> => {
   const data = await fetchNormalizedJson<
     SearchableItemsResponse | SearchableItem[]
   >(
-    "/Static/Filters",
+    "Static/Filters",
   );
 
   return Array.isArray(data) ? data : data.filters ?? [];
@@ -74,7 +74,7 @@ export const fetchItemsByCategory = async ({
   isCurrencyCategory,
 }: FetchItemsParams): Promise<PaginatedResponse<ApiItem>> =>
   fetchNormalizedJson<PaginatedResponse<ApiItem>>(
-    `/Leagues/${encodeURIComponent(leagueName)}/${isCurrencyCategory ? "Currencies" : "Uniques"}/ByCategory`,
+    `Leagues/${encodeURIComponent(leagueName)}/${isCurrencyCategory ? "Currencies" : "Uniques"}/ByCategory`,
     {
       Category: category,
       Page: page,
@@ -91,7 +91,7 @@ export const fetchItemHistory = async ({
   referenceCurrency,
   endTime,
 }: FetchItemHistoryParams): Promise<ItemHistoryResponse> =>
-  fetchNormalizedJson<ItemHistoryResponse>(`/Leagues/${encodeURIComponent(leagueName)}/Items/${itemId}/History`, {
+  fetchNormalizedJson<ItemHistoryResponse>(`Leagues/${encodeURIComponent(leagueName)}/Items/${itemId}/History`, {
     LogCount: logCount,
     ReferenceCurrency: referenceCurrency,
     EndTime: endTime,
@@ -99,7 +99,7 @@ export const fetchItemHistory = async ({
 
 export const fetchLandingSplashItems = async (): Promise<ApiItem[]> => {
   const data = await fetchNormalizedJson<LandingSplashResponse>(
-    "/Static/LandingSplashInfo",
+    "Static/LandingSplashInfo",
   );
 
   return data.items ?? [];
