@@ -52,6 +52,30 @@ services:
       api:
         condition: service_started
 
+  currency-price-log-service:
+    image: ghcr.io/poe2scout/poe2scout-currency-price-log:${IMAGE_TAG:-release}
+    restart: "no"
+    environment:
+      DBSTRING: ${DBSTRING}
+      POEAPI_CLIENT_ID: ${POEAPI_CLIENT_ID}
+      POEAPI_CLIENT_SECRET: ${POEAPI_CLIENT_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+
+  unique-price-log-service:
+    image: ghcr.io/poe2scout/poe2scout-unique-price-log:${IMAGE_TAG:-release}
+    restart: "no"
+    environment:
+      DBSTRING: ${DBSTRING}
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+
   db:
     image: postgres:17.6
     restart: always
