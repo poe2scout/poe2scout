@@ -12,9 +12,9 @@ class Item(RepositoryModel):
 async def get_all_items(game_id: int) -> list[Item]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(Item)) as cursor:
         query = """
-            SELECT item_id
-                 , base_item_id
-                 , item_type
+            SELECT i.item_id
+                 , i.base_item_id
+                 , i.item_type
             FROM item i
             JOIN base_item bi ON i.base_item_id = bi.base_item_id
             WHERE bi.game_id = %(game_id)s
