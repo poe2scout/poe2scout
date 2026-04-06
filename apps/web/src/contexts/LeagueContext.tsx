@@ -77,6 +77,9 @@ export function LeagueProvider({ children }: { children: ReactNode }) {
   };
 
   const setRealm = (nextRealm: RealmOption) => {
+    setLoading(true);
+    setLeagues([]);
+    setLeagueState(EMPTY_LEAGUE);
     setActiveRealmPath(nextRealm.realmApiId);
     setRealmState(nextRealm);
   };
@@ -189,7 +192,7 @@ export function LeagueProvider({ children }: { children: ReactNode }) {
     }
 
     persistLeagueSelection(realm.value, league.value);
-  }, [league]);
+  }, [league, realm]);
 
   if (!realm) {
     return null;

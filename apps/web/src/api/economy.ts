@@ -55,8 +55,12 @@ export const fetchLeagues = async (): Promise<LeaguePayload[]> => {
 export const fetchRealmOptions = async (): Promise<RealmOption[]> =>
   fetchNormalizedJson<RealmOption[]>("Static/Realms", undefined, "root");
 
-export const fetchCategories = async (): Promise<CategoryResponse> =>
-  fetchNormalizedJson<CategoryResponse>("Items/Categories");
+export const fetchCategories = async (
+  leagueName: string,
+): Promise<CategoryResponse> =>
+  fetchNormalizedJson<CategoryResponse>("Items/Categories", {
+    LeagueName: leagueName,
+  });
 
 export const fetchSearchableItems = async (): Promise<SearchableItem[]> => {
   const data = await fetchNormalizedJson<

@@ -11,6 +11,7 @@ from .get_currency_item import (
 )
 from .get_currency_items import get_currency_items
 from .get_currency_items_by_category import get_currency_items_by_category
+from .get_priced_currency_categories import get_priced_currency_categories
 from .is_item_a_currency import is_item_a_currency
 from .set_currency_item_metadata import set_currency_item_metadata
 from .update_currency_icon_url import update_currency_icon_url
@@ -27,6 +28,7 @@ __all__ = [
     "get_exalted_item",
     "get_currency_items",
     "get_currency_items_by_category",
+    "get_priced_currency_categories",
     "is_item_a_currency",
     "set_currency_item_metadata",
     "update_currency_icon_url",

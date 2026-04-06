@@ -18,3 +18,8 @@ DROP CONSTRAINT IF EXISTS currency_exchange_snapshot_league_id_realm_id_epoch_ke
 ALTER TABLE currency_exchange_snapshot
 ADD CONSTRAINT currency_exchange_snapshot_league_id_realm_id_epoch_key
 UNIQUE (league_id, realm_id, epoch);
+
+DELETE FROM currency_exchange_history;
+DELETE FROM currency_exchange_snapshot_pair_data;
+DELETE FROM currency_exchange_snapshot_pair;
+DELETE FROM currency_exchange_snapshot;

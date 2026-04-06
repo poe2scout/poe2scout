@@ -6,6 +6,7 @@ from .get_all_base_items import get_all_base_items
 from .get_all_item_categories import get_all_item_categories
 from .get_all_item_types import get_all_item_types
 from .get_all_items import get_all_items
+from .get_priced_item_categories import get_priced_item_categories
 from .get_search_options import get_search_options
 
 __all__ = [
@@ -17,5 +18,6 @@ __all__ = [
     "get_all_item_categories",
     "get_all_item_types",
     "get_all_items",
+    "get_priced_item_categories",
     "get_search_options",
 ]

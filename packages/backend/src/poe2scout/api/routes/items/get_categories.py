@@ -1,8 +1,13 @@
 from typing import Annotated, Self
 
-from fastapi import Depends, HTTPException, Path
+from fastapi import Depends, HTTPException, Path, Query
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories import currency_item_repository, item_repository, realm_repository
+from poe2scout.db.repositories import (
+    currency_item_repository,
+    item_repository,
+    league_repository,
+    realm_repository,
+)
 from poe2scout.db.repositories.currency_item_repository.get_all_currency_categories import (
     CurrencyCategory
 )
@@ -81,13 +86,16 @@ class GetCategoriesResponse(ApiModel):
         )
     
 class GetCategoriesRequest(ApiModel):
-    realm: str    
+    realm: str
+    league_name: str
 
 def get_categories_request(
     realm: Annotated[str, Path(alias="Realm")],
+    league_name: Annotated[str, Query(alias="LeagueName")],
 ) -> GetCategoriesRequest:
     return GetCategoriesRequest(
-        realm=realm
+        realm=realm,
+        league_name=league_name,
     )
 
 
@@ -106,8 +114,21 @@ async def get_categories(
     if realm is None:
         raise HTTPException(400, "Invalid realm")
 
-    all_currency_categories = await currency_item_repository.get_all_currency_categories()
-    all_item_categories = await item_repository.get_all_item_categories()
+    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
+
+    if league is None:
+        raise HTTPException(400, "Invalid league name")
+
+    all_currency_categories = await currency_item_repository.get_priced_currency_categories(
+        league.league_id,
+        realm.realm_id,
+        realm.game_id,
+    )
+    all_item_categories = await item_repository.get_priced_item_categories(
+        league.league_id,
+        realm.realm_id,
+        realm.game_id,
+    )
 
     unique_item_categories = [
         category
