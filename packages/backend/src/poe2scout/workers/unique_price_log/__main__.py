@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import logging
 import dotenv
 
-from .service import run
+from .service import fetch_prices
 from .config import PriceFetchConfig
 from poe2scout.db.repositories.base_repository import BaseRepository
 
@@ -34,9 +34,7 @@ if __name__ == "__main__":
         await BaseRepository.init_pool(config.dbstring)
 
         while True:
-            await run(
-                config, 
-            )
+            await fetch_prices()
 
     # Single asyncio.run() call that manages the entire application lifecycle
 

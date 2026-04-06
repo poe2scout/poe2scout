@@ -9,4 +9,4 @@ COPY packages/backend /app
 RUN pip install uv
 RUN uv pip install --system --no-cache-dir /app
 
-CMD ["python", "-m", "poe2scout.workers.price_fetch"]
+CMD ["python", "-m", "poe2scout.workers.unique_price_log"]
