@@ -12,6 +12,8 @@ interface LeaguePayload {
   value: string;
   divinePrice: number;
   chaosDivinePrice: number;
+  baseCurrencyApiId: string;
+  baseCurrencyText: string;
 }
 
 interface LeagueResponse {

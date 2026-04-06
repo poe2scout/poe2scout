@@ -14,8 +14,11 @@ from poe2scout.db.repositories import (
 )
 from poe2scout.db.repositories.models import (
     CurrencyItemExtended,
-    PriceLogEntry,
     UniqueItemExtended,
+)
+from poe2scout.services.pricing import (
+    convert_price_log_matrix_from_base,
+    convert_prices_from_base,
 )
 
 T = TypeVar("T")
@@ -143,37 +146,32 @@ class EconomyCache:
             cache_key.realm_id
         )
 
-        chaos_price = 1
-        if cache_key.reference_currency == "chaos":
-            chaos_item = await currency_item_repository.get_chaos_item(cache_key.game_id)
-            if chaos_item is None:
+        reference_currency_price = 1.0
+        if cache_key.reference_currency:
+            reference_currency_item = await currency_item_repository.get_currency_item(
+                cache_key.reference_currency,
+                cache_key.game_id,
+            )
+            if reference_currency_item is None:
                 raise Exception()
 
-            chaos_price = await price_log_repository.get_item_price(
-                    chaos_item.item_id, 
+            reference_currency_price = await price_log_repository.get_item_price(
+                reference_currency_item.item_id,
+                cache_key.league_id,
+                cache_key.realm_id,
+                None,
+            )
+            reference_currency_logs = (
+                await price_log_repository.get_item_price_logs(
+                    [reference_currency_item.item_id],
                     cache_key.league_id,
                     cache_key.realm_id,
-                    None
                 )
-            chaos_price_logs = (
-                await price_log_repository.get_item_price_logs(
-                    [chaos_item.item_id],
-                    cache_key.league_id,
-                    cache_key.realm_id
-                )
-            )[chaos_item.item_id]
-
-            for item_price_logs in price_logs:
-                for i, item_price_log_list_item in enumerate(price_logs[item_price_logs]):
-                    chaos_price_item = chaos_price_logs[i]
-                    if item_price_log_list_item is None or chaos_price_item is None:
-                        continue
-
-                    price_logs[item_price_logs][i] = PriceLogEntry(
-                        price=item_price_log_list_item.price / chaos_price_item.price,
-                        time=item_price_log_list_item.time,
-                        quantity=item_price_log_list_item.quantity,
-                    )
+            )[reference_currency_item.item_id]
+            price_logs = convert_price_log_matrix_from_base(
+                price_logs,
+                reference_currency_logs,
+            )
 
         items = [
             UniqueItemExtended(**item.model_dump(), price_logs=price_logs[item.item_id])
@@ -189,9 +187,16 @@ class EconomyCache:
         )
 
         prices_lookup = {price.item_id: price for price in prices}
+        converted_current_prices = convert_prices_from_base(
+            {
+                price.item_id: float(price.price)
+                for price in prices_lookup.values()
+            },
+            reference_currency_price,
+        )
 
         for item in items:
-            last_price[item.item_id] = prices_lookup[item.item_id].price / chaos_price
+            last_price[item.item_id] = converted_current_prices[item.item_id]
 
         items.sort(
             key=lambda item: (
@@ -235,38 +240,33 @@ class EconomyCache:
             cache_key.realm_id
         )
 
-        chaos_price = 1
-        if cache_key.reference_currency == "chaos":
-            chaos_item = await currency_item_repository.get_chaos_item(cache_key.game_id)
+        reference_currency_price = 1.0
+        if cache_key.reference_currency:
+            reference_currency_item = await currency_item_repository.get_currency_item(
+                cache_key.reference_currency,
+                cache_key.game_id,
+            )
 
-            if chaos_item is None:
+            if reference_currency_item is None:
                 raise Exception()
 
-            chaos_price = await price_log_repository.get_item_price(
-                chaos_item.item_id, 
+            reference_currency_price = await price_log_repository.get_item_price(
+                reference_currency_item.item_id,
                 cache_key.league_id,
                 cache_key.realm_id,
-                None
+                None,
             )
-            chaos_price_loags = (
+            reference_currency_logs = (
                 await price_log_repository.get_item_price_logs(
-                    [chaos_item.item_id],
+                    [reference_currency_item.item_id],
                     cache_key.league_id,
                     cache_key.realm_id
                 )
-            )[chaos_item.item_id]
-
-            for item_price_logs in price_logs:
-                for i, item_price_log_list_item in enumerate(price_logs[item_price_logs]):
-                    chaos_price_item = chaos_price_loags[i]
-                    if item_price_log_list_item is None or chaos_price_item is None:
-                        continue
-
-                    price_logs[item_price_logs][i] = PriceLogEntry(
-                        price=item_price_log_list_item.price / chaos_price_item.price,
-                        time=item_price_log_list_item.time,
-                        quantity=item_price_log_list_item.quantity,
-                    )
+            )[reference_currency_item.item_id]
+            price_logs = convert_price_log_matrix_from_base(
+                price_logs,
+                reference_currency_logs,
+            )
 
         items = [
             CurrencyItemExtended(**item.model_dump(), price_logs=price_logs[item.item_id])
@@ -281,9 +281,16 @@ class EconomyCache:
             cache_key.realm_id)
 
         prices_lookup = {price.item_id: price for price in prices}
+        converted_current_prices = convert_prices_from_base(
+            {
+                price.item_id: float(price.price)
+                for price in prices_lookup.values()
+            },
+            reference_currency_price,
+        )
 
         for item in items:
-            last_price[item.item_id] = prices_lookup[item.item_id].price / chaos_price
+            last_price[item.item_id] = converted_current_prices[item.item_id]
 
         items.sort(
             key=lambda item: (

@@ -1,6 +1,7 @@
 import { FormatTimeFromEpoch } from './FormatTime';
 import { BaseCurrencies } from './ReferenceCurrencySelector';
 import { UTCTimestamp } from 'lightweight-charts';
+import { getCurrencyLabel } from '../currencyMeta';
 
 export interface LegendData {
     price?: number;
@@ -10,6 +11,7 @@ export interface LegendData {
 
 export interface ChartLegendProps extends LegendData {
     selectedReference: BaseCurrencies;
+    selectedReferenceText?: string;
     textColor?: string; 
 }
 
@@ -19,6 +21,7 @@ export const ChartLegend = (props: ChartLegendProps) => {
         volume,
         time,
         selectedReference,
+        selectedReferenceText,
         textColor = 'white' 
     } = props;
 
@@ -32,7 +35,7 @@ export const ChartLegend = (props: ChartLegendProps) => {
                 <div>
                     <span style={{ color: '#aaa' }}>Price: </span>
                     <strong style={{ color: 'white' }}>{price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
-                    <span style={{ color: '#aaa' }}> {selectedReference.charAt(0).toUpperCase() + selectedReference.slice(1)} Orbs</span>
+                    <span style={{ color: '#aaa' }}> {getCurrencyLabel(selectedReference, selectedReferenceText)}</span>
                 </div>
             )}
             {volume !== undefined && (

@@ -68,12 +68,21 @@ class GetSnapshotHistoryResponse(ApiModel):
 
     data: list[_Data]
     meta: _Meta
+    base_currency_api_id: str
+    base_currency_text: str
 
     @classmethod
-    def from_model(cls, model: GetCurrencyExchangeHistoryModel) -> Self:
+    def from_model(
+        cls,
+        model: GetCurrencyExchangeHistoryModel,
+        base_currency_api_id: str,
+        base_currency_text: str,
+    ) -> Self:
         return cls(
             data=[cls._Data.from_model(entry) for entry in model.data],
             meta=cls._Meta.from_model(model.meta),
+            base_currency_api_id=base_currency_api_id,
+            base_currency_text=base_currency_text,
         )
 
 
@@ -103,4 +112,8 @@ async def get_snapshot_history(
     if snapshot_history is None:
         raise HTTPException(404, "No data for given league.")
 
-    return GetSnapshotHistoryResponse.from_model(snapshot_history)
+    return GetSnapshotHistoryResponse.from_model(
+        snapshot_history,
+        base_currency_api_id=league.base_currency_api_id,
+        base_currency_text=league.base_currency_text,
+    )

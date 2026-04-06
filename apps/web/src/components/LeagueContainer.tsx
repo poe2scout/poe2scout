@@ -60,7 +60,7 @@ function LeagueContainer() {
             <FormControl 
                 size="small" 
                 sx={{ 
-                    width: { xs: '72px', sm: '120px' }
+                    width: { xs: '88px', sm: '160px' }
                 }}
             >
                 <LeagueSelect
@@ -80,7 +80,7 @@ function LeagueContainer() {
             <FormControl 
                 size="small" 
                 sx={{ 
-                    width: { xs: '60px', sm: '100%' }
+                    width: { xs: '112px', sm: '260px' }
                 }}
             >
                 <LeagueSelect

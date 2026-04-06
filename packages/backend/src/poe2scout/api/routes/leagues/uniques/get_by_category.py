@@ -6,8 +6,9 @@ from fastapi import Depends, HTTPException, Path, Query
 
 from poe2scout.api.dependancies import EconomyCacheDep, PaginationParamDep
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories import league_repository, realm_repository
+from poe2scout.db.repositories import currency_item_repository, league_repository, realm_repository
 from poe2scout.db.repositories.models import PriceLogEntry, UniqueItemExtended
+from poe2scout.services.pricing import resolve_reference_currency_api_id
 
 from .. import router
 
@@ -82,7 +83,7 @@ class GetUniqueCategoryItemsRequest(ApiModel):
     realm: str
     league_name: str
     category: str
-    reference_currency: str
+    reference_currency: str | None
     search: str
 
 
@@ -91,9 +92,9 @@ def get_unique_category_items_request(
     league_name: Annotated[str, Path(alias="LeagueName")],
     category: Annotated[str, Query(alias="Category")],
     reference_currency: Annotated[
-        str,
+        str | None,
         Query(alias="ReferenceCurrency"),
-    ] = "exalted",
+    ] = None,
     search: Annotated[str, Query(alias="Search")] = "",
 ) -> GetUniqueCategoryItemsRequest:
     return GetUniqueCategoryItemsRequest(
@@ -119,19 +120,27 @@ async def get_unique_category_items(
 ) -> GetUniqueItemsResponse:
     realm = await realm_repository.get_realm(request.realm)
 
-    if request.reference_currency not in ["exalted", "chaos"]:
-        raise HTTPException(400, "reference currency must be exalted or chaos")
-
     league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
     if league is None:
         raise HTTPException(400, "Invalid league name")
+
+    reference_currency_api_id = resolve_reference_currency_api_id(
+        request.reference_currency,
+        league.base_currency_api_id,
+    )
+    reference_currency_item = await currency_item_repository.get_currency_item(
+        reference_currency_api_id,
+        realm.game_id,
+    )
+    if reference_currency_item is None:
+        raise HTTPException(400, "Reference currency does not exist")
 
     items = await economy_cache.get_unique_page(
         league.league_id,
         realm.realm_id,
         realm.game_id,
         request.category,
-        request.reference_currency,
+        reference_currency_api_id,
         request.search,
     )
     item_count = len(items)

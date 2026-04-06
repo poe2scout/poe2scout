@@ -40,7 +40,10 @@ const findPairByItems = (
     );
   }) ?? null;
 
-const getLineUnit = (option: MetricOption | null): string => {
+const getLineUnit = (
+  option: MetricOption | null,
+  baseCurrencyText: string,
+): string => {
   if (!option) {
     return "";
   }
@@ -48,7 +51,7 @@ const getLineUnit = (option: MetricOption | null): string => {
   switch (option.metricKey) {
     case "valueTraded":
     case "stockValue":
-      return "Exalted Orbs";
+      return baseCurrencyText;
     case "volumeTraded":
     case "highestStock":
       return option.itemName;
@@ -62,7 +65,7 @@ export function PairHistoryPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const locationState = location.state as { pair?: SnapshotPair } | undefined;
-  const { league, realm } = useLeague();
+  const { league } = useLeague();
   const params = useParams();
 
   const currencyOneItemId = Number(params.currencyOneItemId);
@@ -82,6 +85,8 @@ export function PairHistoryPage() {
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [pairHistoryBaseCurrencyText, setPairHistoryBaseCurrencyText] =
+    useState<string>(league.baseCurrencyText);
 
   const [selectedMetricId, setSelectedMetricId] = useState(DEFAULT_METRIC_ID);
 
@@ -176,6 +181,7 @@ export function PairHistoryPage() {
         setHistory(orderedHistory);
         setHasMore(dto.hasMore);
         setOldestEpoch(orderedHistory[0]?.epoch ?? null);
+        setPairHistoryBaseCurrencyText(dto.baseCurrencyText);
       } catch (err) {
         if (isMounted) {
           const message =
@@ -199,7 +205,7 @@ export function PairHistoryPage() {
     return () => {
       isMounted = false;
     };
-  }, [league.value, realm?.value, currencyOneItemId, currencyTwoItemId, hasInvalidIds]);
+  }, [league.value, currencyOneItemId, currencyTwoItemId, hasInvalidIds]);
 
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !hasMore || !oldestEpoch) {
@@ -225,6 +231,7 @@ export function PairHistoryPage() {
 
       setHistory((prev) => [...orderedHistory, ...prev]);
       setHasMore(dto.hasMore);
+      setPairHistoryBaseCurrencyText(dto.baseCurrencyText);
       setOldestEpoch(orderedHistory[0].epoch);
     } catch (err) {
       console.error("Failed to load more pair history", err);
@@ -235,7 +242,6 @@ export function PairHistoryPage() {
     currencyOneItemId,
     currencyTwoItemId,
     league.value,
-    realm?.value,
     hasMore,
     oldestEpoch,
     isLoadingMore,
@@ -349,7 +355,7 @@ export function PairHistoryPage() {
   const latestEntry = history[history.length - 1];
   const quoteLabel = pair?.currencyTwo.text ?? `Item ${currencyTwoItemId}`;
 
-  const lineUnit = getLineUnit(selectedOption);
+  const lineUnit = getLineUnit(selectedOption, pairHistoryBaseCurrencyText);
   const legendLineLabel = selectedOption
     ? `${METRIC_BASE_LABELS[selectedOption.metricKey]}${lineUnit ? ` (${lineUnit})` : ""}`
     : "Metric";
@@ -418,6 +424,7 @@ export function PairHistoryPage() {
             currencyOneItemId={currencyOneItemId}
             currencyTwoItemId={currencyTwoItemId}
             latestEntry={latestEntry}
+            baseCurrencyText={pairHistoryBaseCurrencyText}
           />
           <PairHistoryChartSection
             chartData={chartData}

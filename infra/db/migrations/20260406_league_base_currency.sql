@@ -1,24 +1,3 @@
-ALTER TABLE game
-ADD COLUMN ggg_api_trade_identifier VARCHAR(8);
-
-UPDATE game
-SET ggg_api_trade_identifier = 'trade2'
-WHERE game_id = 2;
-
-UPDATE game
-SET ggg_api_trade_identifier = 'trade'
-WHERE game_id = 1;
-
-ALTER TABLE currency_exchange_snapshot
-DROP CONSTRAINT IF EXISTS currency_exchange_snapshot_league_id_epoch_key;
-
-ALTER TABLE currency_exchange_snapshot
-DROP CONSTRAINT IF EXISTS currency_exchange_snapshot_league_id_realm_id_epoch_key;
-
-ALTER TABLE currency_exchange_snapshot
-ADD CONSTRAINT currency_exchange_snapshot_league_id_realm_id_epoch_key
-UNIQUE (league_id, realm_id, epoch);
-
 ALTER TABLE league
 ADD COLUMN IF NOT EXISTS base_currency_item_id integer REFERENCES item (item_id);
 
@@ -65,12 +44,3 @@ EXECUTE FUNCTION set_league_base_currency_item_id();
 UPDATE league
    SET base_currency_item_id = get_default_league_base_currency_item_id(game_id)
  WHERE base_currency_item_id IS NULL;
-
-DELETE FROM currency_exchange_history;
-DELETE FROM currency_exchange_snapshot_pair_data;
-DELETE FROM currency_exchange_snapshot_pair;
-DELETE FROM currency_exchange_snapshot;
-
--- Add poe1 leagues
-
--- Reset service_cache values to re consume ggg api.

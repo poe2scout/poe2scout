@@ -15,6 +15,8 @@ class GetResponse(ApiModel):
     value: str
     divine_price: float
     chaos_divine_price: float
+    base_currency_api_id: str
+    base_currency_text: str
 
     @classmethod
     def from_model(
@@ -22,11 +24,15 @@ class GetResponse(ApiModel):
         value: str,
         divine_price: float,
         chaos_divine_price: float,
+        base_currency_api_id: str,
+        base_currency_text: str,
     ) -> Self:
         return cls(
             value=value,
             divine_price=divine_price,
             chaos_divine_price=chaos_divine_price,
+            base_currency_api_id=base_currency_api_id,
+            base_currency_text=base_currency_text,
         )
 
 class GetLeaguesRequest(ApiModel):
@@ -81,6 +87,8 @@ async def get(
                 chaos_divine_price=divine_price / chaos_price
                 if chaos_price is not None and chaos_price != 0
                 else 50,
+                base_currency_api_id=league.base_currency_api_id,
+                base_currency_text=league.base_currency_text,
             )
         )
 

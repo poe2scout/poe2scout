@@ -103,12 +103,21 @@ class GetPairHistoryResponse(ApiModel):
 
     history: list[_Pair]
     meta: _Meta
+    base_currency_api_id: str
+    base_currency_text: str
 
     @classmethod
-    def from_model(cls, model: GetPairHistoryModel) -> Self:
+    def from_model(
+        cls,
+        model: GetPairHistoryModel,
+        base_currency_api_id: str,
+        base_currency_text: str,
+    ) -> Self:
         return cls(
             history=[cls._Pair.from_model(history) for history in model.history],
             meta=cls._Meta.from_model(model.meta),
+            base_currency_api_id=base_currency_api_id,
+            base_currency_text=base_currency_text,
         )
 
 
@@ -142,4 +151,8 @@ async def get_pair_history(
     if pair_history is None:
         raise HTTPException(404, "No data for given league.")
 
-    return GetPairHistoryResponse.from_model(pair_history)
+    return GetPairHistoryResponse.from_model(
+        pair_history,
+        base_currency_api_id=league.base_currency_api_id,
+        base_currency_text=league.base_currency_text,
+    )

@@ -89,10 +89,8 @@ async def process_uniques(
 ):
     for unique_item in unique_items:
         try:
-            ### Fetch price of exalt, chaos, div
-            ### Use price with highest quantity as the actual price
-            ### Gotten rid of all anti price fixing.
-            ### After the league has progressed half a day? Turn on instant buy out only.
+            # Fetch a small quote set, then convert each listing into the league
+            # base currency before choosing the final stored price.
             logger.info(f"Fetching price for {unique_item.name} in {league.value}")
             exalt_price_fetch_result: PriceFetchResult = await fetch_unique(
                 unique_item, league, client, "exalted"
@@ -119,15 +117,27 @@ async def process_uniques(
             lowest_price = sys.maxsize
             quantity = 0
             for price in prices:
-                currency = await currency_item_repository.get_currency_item(price.currency, game_id)
+                if price.currency == league.base_currency_api_id:
+                    item_price = price.price
+                    quantity += price.quantity
+                    if item_price < lowest_price:
+                        lowest_price = item_price
+                    continue
+
+                currency = await currency_item_repository.get_currency_item(
+                    price.currency,
+                    game_id,
+                )
                 assert currency is not None
 
                 currency_price = await price_log_repository.get_item_price(
-                    currency.item_id, 
+                    currency.item_id,
                     league.league_id,
                     realm_id,
                     None
                 )
+                if currency_price == 0:
+                    continue
 
                 item_price = price.price * currency_price
                 quantity += price.quantity

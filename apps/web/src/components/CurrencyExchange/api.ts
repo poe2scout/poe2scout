@@ -21,6 +21,8 @@ interface CurrencyPairDataPayload {
 
 interface SnapshotPairPayload {
   volume: string | number;
+  baseCurrencyApiId: string;
+  baseCurrencyText: string;
   currencyOne: CurrencyItem;
   currencyTwo: CurrencyItem;
   currencyOneData: CurrencyPairDataPayload;
@@ -32,6 +34,8 @@ interface SnapshotHistoryPayload {
   meta?: {
     hasMore?: boolean;
   };
+  baseCurrencyApiId?: string;
+  baseCurrencyText?: string;
 }
 
 interface PairHistoryDataPayload extends CurrencyPairDataPayload {
@@ -51,6 +55,8 @@ interface PairHistoryPayload {
   meta?: {
     hasMore?: boolean;
   };
+  baseCurrencyApiId?: string;
+  baseCurrencyText?: string;
 }
 
 const toNumber = (value: string | number | null | undefined): number => {
@@ -68,6 +74,8 @@ const normalizeSnapshot = (
   epoch: snapshot.epoch,
   volume: toNumber(snapshot.volume),
   marketCap: toNumber(snapshot.marketCap),
+  baseCurrencyApiId: snapshot.baseCurrencyApiId,
+  baseCurrencyText: snapshot.baseCurrencyText,
 });
 
 const normalizePairData = (
@@ -124,6 +132,8 @@ const normalizeSnapshotPair = (row: SnapshotPairPayload): SnapshotPair => {
       );
       return {
         volume: toNumber(row.volume),
+        baseCurrencyApiId: row.baseCurrencyApiId,
+        baseCurrencyText: row.baseCurrencyText,
         currencyOne: row.currencyOne,
         currencyTwo: row.currencyTwo,
         currencyOneData: firstWithPrice,
@@ -137,6 +147,8 @@ const normalizeSnapshotPair = (row: SnapshotPairPayload): SnapshotPair => {
     );
     return {
       volume: toNumber(row.volume),
+      baseCurrencyApiId: row.baseCurrencyApiId,
+      baseCurrencyText: row.baseCurrencyText,
       currencyOne: row.currencyTwo,
       currencyTwo: row.currencyOne,
       currencyOneData: firstWithPrice,
@@ -151,6 +163,8 @@ const normalizeSnapshotPair = (row: SnapshotPairPayload): SnapshotPair => {
     );
     return {
       volume: toNumber(row.volume),
+      baseCurrencyApiId: row.baseCurrencyApiId,
+      baseCurrencyText: row.baseCurrencyText,
       currencyOne: row.currencyOne,
       currencyTwo: row.currencyTwo,
       currencyOneData: firstWithPrice,
@@ -164,6 +178,8 @@ const normalizeSnapshotPair = (row: SnapshotPairPayload): SnapshotPair => {
   );
   return {
     volume: toNumber(row.volume),
+    baseCurrencyApiId: row.baseCurrencyApiId,
+    baseCurrencyText: row.baseCurrencyText,
     currencyOne: row.currencyTwo,
     currencyTwo: row.currencyOne,
     currencyOneData: firstWithPrice,
@@ -267,5 +283,7 @@ export const fetchPairHistory = async ({
   return {
     history: (payload.history ?? []).map(normalizePairHistoryEntry),
     hasMore: Boolean(payload.meta?.hasMore),
+    baseCurrencyApiId: payload.baseCurrencyApiId ?? "exalted",
+    baseCurrencyText: payload.baseCurrencyText ?? "Exalted Orb",
   };
 };

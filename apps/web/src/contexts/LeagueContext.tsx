@@ -14,8 +14,10 @@ import type { RealmOption } from "../types";
 
 export interface League {
   value: string;
+  divinePrice: number;
   chaosDivinePrice: number;
-  exaltedDivinePrice: number;
+  baseCurrencyApiId: string;
+  baseCurrencyText: string;
 }
 
 interface LeagueContextType {
@@ -35,8 +37,10 @@ const REALM_STORAGE_KEY = "poe2scout.realmSelection";
 const LEAGUE_STORAGE_KEY = "poe2scout.leagueSelections";
 const EMPTY_LEAGUE: League = {
   value: "",
-  exaltedDivinePrice: 100,
+  divinePrice: 100,
   chaosDivinePrice: 50,
+  baseCurrencyApiId: "exalted",
+  baseCurrencyText: "Exalted Orb",
 };
 
 const getStoredLeagueSelections = (): Record<string, string> => {
@@ -140,8 +144,10 @@ export function LeagueProvider({ children }: { children: ReactNode }) {
         const nextLeagues = data.map(
           (leagueRecord): League => ({
             value: leagueRecord.value,
-            exaltedDivinePrice: leagueRecord.divinePrice,
+            divinePrice: leagueRecord.divinePrice,
             chaosDivinePrice: leagueRecord.chaosDivinePrice,
+            baseCurrencyApiId: leagueRecord.baseCurrencyApiId,
+            baseCurrencyText: leagueRecord.baseCurrencyText,
           }),
         );
 

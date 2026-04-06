@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Optional
 
 from psycopg.rows import class_row
 
@@ -33,7 +34,7 @@ class _FlatPairRow(RepositoryModel):
     c1_item_id: int
     c1_api_id: str
     c1_text: str
-    c1_icon_url: str
+    c1_icon_url: Optional[str] = None
     c1_currency_category_id: int
     c1_cat_label: str
     c1_cat_api_id: str
@@ -41,7 +42,7 @@ class _FlatPairRow(RepositoryModel):
     c2_item_id: int
     c2_api_id: str
     c2_text: str
-    c2_icon_url: str
+    c2_icon_url: Optional[str] = None
     c2_currency_category_id: int
     c2_cat_label: str
     c2_cat_api_id: str

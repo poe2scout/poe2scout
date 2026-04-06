@@ -19,13 +19,22 @@ class GetExchangeSnapshotResponse(ApiModel):
     epoch: int
     volume: Decimal
     market_cap: Decimal
+    base_currency_api_id: str
+    base_currency_text: str
 
     @classmethod
-    def from_model(cls, model: GetCurrencyExchangeModel) -> Self:
+    def from_model(
+        cls,
+        model: GetCurrencyExchangeModel,
+        base_currency_api_id: str,
+        base_currency_text: str,
+    ) -> Self:
         return cls(
             epoch=model.epoch,
             volume=model.volume,
             market_cap=model.market_cap,
+            base_currency_api_id=base_currency_api_id,
+            base_currency_text=base_currency_text,
         )
 
 class GetExchangeSnapshotRequest(ApiModel):
@@ -68,4 +77,8 @@ async def get_exchange_snapshot(
     if snapshot is None:
         raise HTTPException(404, "No data for given league.")
 
-    return GetExchangeSnapshotResponse.from_model(snapshot)
+    return GetExchangeSnapshotResponse.from_model(
+        snapshot,
+        base_currency_api_id=league.base_currency_api_id,
+        base_currency_text=league.base_currency_text,
+    )

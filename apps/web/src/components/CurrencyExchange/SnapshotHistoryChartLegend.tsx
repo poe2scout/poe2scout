@@ -1,12 +1,21 @@
 import { LegendData } from '../ItemHistoryChartLegend';
 import { FormatTimeFromEpoch } from '../FormatTime';
+import { getCurrencyLabel } from '../../currencyMeta';
 
-export const SnapshotHistoryChartLegend = (props: LegendData) => {
+export const SnapshotHistoryChartLegend = (
+    props: LegendData & {
+        baseCurrencyApiId: string;
+        baseCurrencyText: string;
+    }
+) => {
     const {
         price,
         volume,
         time,
+        baseCurrencyApiId,
+        baseCurrencyText,
     } = props;
+    const baseCurrencyLabel = getCurrencyLabel(baseCurrencyApiId, baseCurrencyText);
 
     if (price === undefined && volume === undefined && time === undefined) {
         return null;
@@ -21,13 +30,13 @@ export const SnapshotHistoryChartLegend = (props: LegendData) => {
             {price !== undefined && (
                 <div>
                     <span style={{ color: '#aaa' }}>Market cap: </span>
-                    <strong style={{ color: 'white' }}>{price.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} ex</strong>
+                    <strong style={{ color: 'white' }}>{price.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {baseCurrencyLabel}</strong>
                 </div>
             )}
             {volume !== undefined && (
                 <div>
                     <span style={{ color: '#aaa' }}>Trading volume: </span>
-                    <strong style={{ color: 'white' }}>{volume.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} ex</strong>
+                    <strong style={{ color: 'white' }}>{volume.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {baseCurrencyLabel}</strong>
                 </div>
             )}
             {time !== undefined && (

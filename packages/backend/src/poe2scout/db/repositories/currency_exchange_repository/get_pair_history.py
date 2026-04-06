@@ -99,7 +99,7 @@ UNION ALL
     FROM currency_exchange_history
     WHERE
         league_id = %(league_id)s
-        AND realm = %(realm_id)s
+        AND realm_id = %(realm_id)s
         AND epoch < %(end_epoch)s
         AND currency_one_item_id = %(currency_one_id)s
         AND currency_two_item_id = %(currency_two_id)s

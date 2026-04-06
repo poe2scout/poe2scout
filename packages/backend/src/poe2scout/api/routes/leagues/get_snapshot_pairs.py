@@ -80,17 +80,26 @@ class GetSnapshotPairsResponse(ApiModel):
     currency_exchange_snapshot_pair_id: int
     currency_exchange_snapshot_id: int
     volume: Decimal
+    base_currency_api_id: str
+    base_currency_text: str
     currency_one: _CurrencyItem
     currency_two: _CurrencyItem
     currency_one_data: _PairData
     currency_two_data: _PairData
 
     @classmethod
-    def from_model(cls, model: GetCurrentSnapshotPairModel) -> Self:
+    def from_model(
+        cls,
+        model: GetCurrentSnapshotPairModel,
+        base_currency_api_id: str,
+        base_currency_text: str,
+    ) -> Self:
         return cls(
             currency_exchange_snapshot_pair_id=model.currency_exchange_snapshot_pair_id,
             currency_exchange_snapshot_id=model.currency_exchange_snapshot_id,
             volume=model.volume,
+            base_currency_api_id=base_currency_api_id,
+            base_currency_text=base_currency_text,
             currency_one=cls._CurrencyItem.from_model(model.currency_one),
             currency_two=cls._CurrencyItem.from_model(model.currency_two),
             currency_one_data=cls._PairData.from_model(model.currency_one_data),
@@ -120,4 +129,11 @@ async def get_snapshot_pairs(
         league.league_id,
         realm.realm_id
     )
-    return [GetSnapshotPairsResponse.from_model(pair) for pair in snapshot_pairs]
+    return [
+        GetSnapshotPairsResponse.from_model(
+            pair,
+            base_currency_api_id=league.base_currency_api_id,
+            base_currency_text=league.base_currency_text,
+        )
+        for pair in snapshot_pairs
+    ]

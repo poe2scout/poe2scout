@@ -6,13 +6,22 @@ from ..base_repository import BaseRepository, RepositoryModel
 class League(RepositoryModel):
     league_id: int
     value: str
+    base_currency_item_id: int
+    base_currency_api_id: str
+    base_currency_text: str
 
 
 async def get_current_leagues(game_id: int) -> list[League]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(League)) as cursor:
         query = """
-            SELECT league_id, value
-             FROM league
+            SELECT l.league_id,
+                   l.value,
+                   l.base_currency_item_id,
+                   ci.api_id AS base_currency_api_id,
+                   ci.text AS base_currency_text
+              FROM league AS l
+              JOIN currency_item AS ci
+                ON ci.item_id = l.base_currency_item_id
             WHERE current_league = true
               AND game_id = %(game_id)s
         """
@@ -29,9 +38,15 @@ async def get_current_leagues(game_id: int) -> list[League]:
 async def get_leagues(game_id: int) -> list[League]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(League)) as cursor:
         query = """
-            SELECT league_id, value
-              FROM league
-             WHERE game_id = %(game_id)s
+            SELECT l.league_id,
+                   l.value,
+                   l.base_currency_item_id,
+                   ci.api_id AS base_currency_api_id,
+                   ci.text AS base_currency_text
+              FROM league AS l
+              JOIN currency_item AS ci
+                ON ci.item_id = l.base_currency_item_id
+             WHERE l.game_id = %(game_id)s
         """
 
         params = {
@@ -44,9 +59,15 @@ async def get_leagues(game_id: int) -> list[League]:
 async def get_league(league_id: int) -> League:
     async with BaseRepository.get_db_cursor(row_factory=class_row(League)) as cursor:
         query = """
-            SELECT league_id, value
-              FROM league
-             WHERE league_id = %(league_id)s
+            SELECT l.league_id,
+                   l.value,
+                   l.base_currency_item_id,
+                   ci.api_id AS base_currency_api_id,
+                   ci.text AS base_currency_text
+              FROM league AS l
+              JOIN currency_item AS ci
+                ON ci.item_id = l.base_currency_item_id
+             WHERE l.league_id = %(league_id)s
         """
 
         params = {

@@ -13,6 +13,10 @@ from poe2scout.db.repositories.price_log_repository.get_item_price_history impor
     GetItemPriceHistoryModel,
 )
 from poe2scout.db.repositories.models import PriceLogEntry
+from poe2scout.services.pricing import (
+    convert_price_history_from_base,
+    resolve_reference_currency_api_id,
+)
 
 from ..leagues import router
 
@@ -23,7 +27,7 @@ class GetPriceHistoryRequest(ApiModel):
     league_name: str
     log_count: int
     end_time: datetime
-    reference_currency: str
+    reference_currency: str | None
 
 
 def get_price_history_request(
@@ -32,7 +36,7 @@ def get_price_history_request(
     item_id: Annotated[int, Path(alias="ItemId")],
     log_count: Annotated[int, Query(alias="LogCount")],
     end_time: Annotated[datetime | None, Query(alias="EndTime")] = None,
-    reference_currency: Annotated[str, Query(alias="ReferenceCurrency")] = "exalted",
+    reference_currency: Annotated[str | None, Query(alias="ReferenceCurrency")] = None,
 ) -> GetPriceHistoryRequest:
     return GetPriceHistoryRequest(
         realm=realm,
@@ -105,9 +109,14 @@ async def get_price_history(
         request.end_time,
     )
 
-    if request.reference_currency != "exalted":
+    reference_currency_api_id = resolve_reference_currency_api_id(
+        request.reference_currency,
+        league.base_currency_api_id,
+    )
+
+    if reference_currency_api_id != league.base_currency_api_id:
         reference_currency_item = await currency_item_repository.get_currency_item(
-            request.reference_currency,
+            reference_currency_api_id,
             realm.game_id
         )
 
@@ -123,35 +132,11 @@ async def get_price_history(
             request.end_time,
         )
 
-        reference_currency_history_lookup = {
-            price_log.time: price_log
-            for price_log in reference_currency_history.price_history
-        }
-
-        adjusted_price_history: list[PriceLogEntry] = []
-        last_reference_price = 0.0
-
-        for price_log in history.price_history:
-            current_reference_log = reference_currency_history_lookup.get(
-                price_log.time
-            )
-
-            if current_reference_log is not None:
-                last_reference_price = current_reference_log.price
-
-            if last_reference_price == 0:
-                continue
-
-            adjusted_price_history.append(
-                PriceLogEntry(
-                    price=price_log.price / last_reference_price,
-                    time=price_log.time,
-                    quantity=price_log.quantity,
-                )
-            )
-
         history = GetItemPriceHistoryModel(
-            price_history=adjusted_price_history,
+            price_history=convert_price_history_from_base(
+                history.price_history,
+                reference_currency_history.price_history,
+            ),
             has_more=history.has_more,
         )
 

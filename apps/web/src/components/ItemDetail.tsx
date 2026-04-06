@@ -12,6 +12,7 @@ import { UTCTimestamp } from "lightweight-charts";
 import ReferenceCurrencySelector, { BaseCurrencies } from "./ReferenceCurrencySelector";
 import { ChartLegend, LegendData } from "./ItemHistoryChartLegend";
 import { fetchItemHistory } from "../api/economy";
+import { getCurrencyLabel } from "../currencyMeta";
 
 const DetailContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -28,10 +29,16 @@ const HeaderContainer = styled(Box)({
 interface ItemDetailProps {
   item: ApiItem;
   onBack: () => void;
-  initialReferenceCurrency: "exalted" | "chaos";
+  initialReferenceCurrency: string;
+  referenceCurrencyOptions: string[];
 }
 
-export function ItemDetail({ item, onBack, initialReferenceCurrency }: ItemDetailProps) {
+export function ItemDetail({
+  item,
+  onBack,
+  initialReferenceCurrency,
+  referenceCurrencyOptions,
+}: ItemDetailProps) {
   const logCountRef = useRef<number>(14 * 24);
   const [history, setHistory] = useState<PriceLogEntry[]>([]);
 
@@ -43,7 +50,7 @@ export function ItemDetail({ item, onBack, initialReferenceCurrency }: ItemDetai
 
   const [selectedReference, setSelectedReference] = useState<BaseCurrencies>(initialReferenceCurrency);
   const { language } = useLanguage();
-  const { league, realm } = useLeague();
+  const { league } = useLeague();
 
   const fetchPriceHistory = useCallback(async (isInitialLoad: boolean, cursor: string) => {
     if (isInitialLoad) {
@@ -77,7 +84,7 @@ export function ItemDetail({ item, onBack, initialReferenceCurrency }: ItemDetai
       else setIsLoadingMore(false);
       logCountRef.current = logCountRef.current * 2;
     }
-  }, [item.itemId, league.value, realm?.value, selectedReference]);
+  }, [item.itemId, league.value, selectedReference]);
 
   useEffect(() => {
     setHistory([]); 
@@ -133,6 +140,7 @@ export function ItemDetail({ item, onBack, initialReferenceCurrency }: ItemDetai
           <ReferenceCurrencySelector
             currentReference={selectedReference}
             onReferenceChange={onSelectedReferenceChange}
+            options={referenceCurrencyOptions}
           />
         </Box>
       </HeaderContainer>
@@ -147,6 +155,12 @@ export function ItemDetail({ item, onBack, initialReferenceCurrency }: ItemDetai
             <ChartLegend
                 {...legendData}
                 selectedReference={selectedReference}
+                selectedReferenceText={getCurrencyLabel(
+                  selectedReference,
+                  selectedReference === league.baseCurrencyApiId
+                    ? league.baseCurrencyText
+                    : undefined,
+                )}
             />
             <Chart
               chartData={processedData}

@@ -146,6 +146,8 @@ export interface CurrencyExchangeSnapshot {
   epoch: number;
   volume: number;
   marketCap: number;
+  baseCurrencyApiId: string;
+  baseCurrencyText: string;
 }
 
 export interface CurrencyPairData {
@@ -159,6 +161,8 @@ export interface CurrencyPairData {
 
 export interface SnapshotPair {
   volume: number;
+  baseCurrencyApiId: string;
+  baseCurrencyText: string;
   currencyOne: CurrencyItem;
   currencyTwo: CurrencyItem;
   currencyOneData: CurrencyPairData;
@@ -180,4 +184,6 @@ export interface PairHistoryEntry {
 export interface PairHistoryResponse {
   history: PairHistoryEntry[];
   hasMore: boolean;
+  baseCurrencyApiId: string;
+  baseCurrencyText: string;
 }
