@@ -2,6 +2,7 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path, Query
 from poe2scout.api.api_model import ApiModel
+from poe2scout.api.dependancies import cache_response
 from poe2scout.db.repositories import (
     currency_item_repository,
     item_repository,
@@ -106,6 +107,12 @@ GetCategoriesRequestDep = Annotated[
 
 
 @router.get("/Categories")
+@cache_response(
+    key=lambda params: (
+        f"get_categories:{params['request'].realm}:{params['request'].league_name}"
+    ),
+    ttl=60 * 10,
+)
 async def get_categories(
     request: GetCategoriesRequestDep
 ) -> GetCategoriesResponse:

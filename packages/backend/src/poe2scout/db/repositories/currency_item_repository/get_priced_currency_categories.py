@@ -11,24 +11,26 @@ async def get_priced_currency_categories(
 ) -> list[CurrencyCategory]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(CurrencyCategory)) as cursor:
         query = """
+            WITH priced_items AS (
+                SELECT DISTINCT pl.item_id
+                  FROM price_log AS pl
+                 WHERE pl.league_id = %(league_id)s
+                   AND pl.realm_id = %(realm_id)s
+            )
             SELECT cc.currency_category_id
                  , cc.api_id
                  , cc.label
              FROM currency_category AS cc
-             WHERE EXISTS (
-                       SELECT 1
-                         FROM currency_item AS ci
-                         JOIN item AS i
-                           ON i.item_id = ci.item_id
-                         JOIN base_item AS bi
-                           ON bi.base_item_id = i.base_item_id
-                         JOIN price_log AS pl
-                           ON pl.item_id = ci.item_id
-                        WHERE ci.currency_category_id = cc.currency_category_id
-                          AND bi.game_id = %(game_id)s
-                          AND pl.league_id = %(league_id)s
-                          AND pl.realm_id = %(realm_id)s
-                   )
+             JOIN currency_item AS ci
+               ON ci.currency_category_id = cc.currency_category_id
+             JOIN priced_items AS pi
+               ON pi.item_id = ci.item_id
+             JOIN item AS i
+               ON i.item_id = ci.item_id
+             JOIN base_item AS bi
+               ON bi.base_item_id = i.base_item_id
+            WHERE bi.game_id = %(game_id)s
+            GROUP BY cc.currency_category_id, cc.api_id, cc.label
              ORDER BY cc.currency_category_id
         """
 
