@@ -27,9 +27,12 @@ jobs:
           - image: poe2scout-item-sync
             context: .
             dockerfile: ./apps/workers/item-sync/Dockerfile
-          - image: poe2scout-price-fetch
+          - image: poe2scout-currency-price-log
             context: .
-            dockerfile: ./apps/workers/price-fetch/Dockerfile
+            dockerfile: ./apps/workers/currency-price-log/Dockerfile
+          - image: poe2scout-unique-price-log
+            context: .
+            dockerfile: ./apps/workers/unique-price-log/Dockerfile
           - image: poe2scout-currency-exchange
             context: .
             dockerfile: ./apps/workers/currency-exchange/Dockerfile
