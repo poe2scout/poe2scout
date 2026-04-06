@@ -34,7 +34,10 @@ async def get_item_price_logs(
                     block_start,
                     block_start + interval '6 hours' as block_end,
                     block_index
-                FROM unnest(%(block_timestamps)s::timestamp[], %(block_indices)s::int[]) AS tb(block_start, block_index)
+                FROM unnest(
+                    %(block_timestamps)s::timestamp[], 
+                    %(block_indices)s::int[]) AS tb(block_start, 
+                    block_index)
             ),
             item_blocks AS (
                 SELECT

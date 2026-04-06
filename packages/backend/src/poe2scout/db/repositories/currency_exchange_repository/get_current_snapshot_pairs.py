@@ -57,7 +57,10 @@ class _FlatPairRow(RepositoryModel):
     c2_highest_stock: int
 
 
-async def get_current_snapshot_pairs(league_id: int, realm_id: int) -> list[GetCurrentSnapshotPairModel]:
+async def get_current_snapshot_pairs(
+    league_id: int, 
+    realm_id: int
+) -> list[GetCurrentSnapshotPairModel]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(_FlatPairRow)) as cursor:
         query = """
 WITH current_snapshot_id AS (

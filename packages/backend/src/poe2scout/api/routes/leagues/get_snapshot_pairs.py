@@ -5,7 +5,11 @@ from fastapi import Depends, HTTPException, Path
 
 from poe2scout.api.dependancies import cache_response
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories import currency_exchange_repository, league_repository, realm_repository
+from poe2scout.db.repositories import (
+    currency_exchange_repository, 
+    league_repository, 
+    realm_repository
+)
 from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_pairs import (
     GetCurrentSnapshotPairModel,
     PairDataDetails,

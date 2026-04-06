@@ -4,7 +4,6 @@ import logging
 from httpx import Client
 from asyncio import sleep
 
-from poe2scout.shared import constants
 from poe2scout.workers.item_sync.models import CurrencyResponse, ItemResponse
 from .functions.sync_currencies import sync_currencies
 from .functions.sync_items import sync_items
@@ -37,8 +36,8 @@ async def run(config: ItemSyncConfig):
                 response = client.get(f"https://www.pathofexile.com/api/{game.ggg_api_trade_identifier}/data/static")
                 currencies: CurrencyResponse = CurrencyResponse(**response.json())
                 logger.info(
-                    f"Retrieved {sum(len(cat.entries) for cat in currencies.result)} currency items "+\
-                    f"across {len(currencies.result)} categories"
+                    f"Retrieved {sum(len(cat.entries) for cat in currencies.result)} " +\
+                    f"currency items across {len(currencies.result)} categories"
                 )
 
                 logger.info("Starting item sync...")

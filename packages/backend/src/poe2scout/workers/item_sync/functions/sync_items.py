@@ -103,7 +103,9 @@ async def sync_items(categories: list[ItemCategory], game: Game):
                         name=item_entry.name,
                     )
                     await unique_item_repository.create_unique_item(unique_model)
-                    all_unique_items = await unique_item_repository.get_all_unique_items(game.game_id)
+                    all_unique_items = await unique_item_repository.get_all_unique_items(
+                        game.game_id
+                    )
 
 
 def is_unique(item: Item):

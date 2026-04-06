@@ -5,7 +5,11 @@ from typing import Annotated, Self
 from fastapi import Depends, HTTPException, Path, Query
 
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories import currency_exchange_repository, league_repository, realm_repository
+from poe2scout.db.repositories import (
+    currency_exchange_repository, 
+    league_repository, 
+    realm_repository
+)
 from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_history import (
     GetCurrencyExchangeHistoryData,
     GetCurrencyExchangeHistoryModel,

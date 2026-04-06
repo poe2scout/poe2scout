@@ -3,7 +3,12 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories import currency_item_repository, game_repository, league_repository, price_log_repository, realm_repository
+from poe2scout.db.repositories import (
+    currency_item_repository, 
+    game_repository, 
+    price_log_repository, 
+    realm_repository
+)
 from poe2scout.db.repositories.models import CurrencyItemExtended, PriceLogEntry
 
 from . import router

@@ -1,6 +1,3 @@
-import itertools
-from datetime import datetime
-from decimal import Decimal, ROUND_HALF_UP
 
 from psycopg.rows import class_row
 

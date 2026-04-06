@@ -52,8 +52,8 @@ async def get_realms() -> list[RealmOptionResponse]:
 
     return [
         RealmOptionResponse(
-            value=f"{game_display_lookup.get(game_lookup[realm.game_id].api_id, game_lookup[realm.game_id].api_id)}/{realm.api_id}",
-            label=f"{game_display_lookup.get(game_lookup[realm.game_id].api_id, game_lookup[realm.game_id].api_id)}/{realm.api_id}",
+            value=f"{game_display_lookup.get(game_lookup[realm.game_id].api_id, game_lookup[realm.game_id].api_id)}/{realm.api_id}",  # noqa: E501
+            label=f"{game_display_lookup.get(game_lookup[realm.game_id].api_id, game_lookup[realm.game_id].api_id)}/{realm.api_id}",  # noqa: E501
             game_api_id=game_lookup[realm.game_id].api_id,
             realm_api_id=realm.api_id,
             trade_api_path=game_lookup[realm.game_id].ggg_api_trade_identifier,

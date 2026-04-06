@@ -106,7 +106,9 @@ async def process_realm_prices(
 
         try:
             for league in leagues:
-                if await price_log_repository.get_prices_checked(current_epoch, league.league_id, realm.realm_id):
+                if await price_log_repository.get_prices_checked(
+                    current_epoch, league.league_id, realm.realm_id
+                ):
                     logger.info(
                         "Price already checked for this timestamp and league. continuing"
                     )

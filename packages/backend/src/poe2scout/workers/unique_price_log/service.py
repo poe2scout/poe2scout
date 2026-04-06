@@ -2,14 +2,12 @@ import sys
 from typing import List
 from poe2scout.db.repositories import (
     currency_item_repository,
-    game_repository, 
     item_repository, 
     league_repository, 
     price_log_repository, 
     service_repository, 
     unique_item_repository
 )
-from poe2scout.shared import constants
 from .functions.fetch_unique import PriceFetchResult, fetch_unique
 from .functions.record_price import record_price
 from .functions.sync_metadata_and_icon import sync_metadata_and_icon

@@ -79,7 +79,7 @@ async def get(
                 value=league.value,
                 divine_price=divine_price if divine_price is not None else 50,
                 chaos_divine_price=divine_price / chaos_price
-                if chaos_price is not None and chaos_price is not 0
+                if chaos_price is not None and chaos_price != 0
                 else 50,
             )
         )

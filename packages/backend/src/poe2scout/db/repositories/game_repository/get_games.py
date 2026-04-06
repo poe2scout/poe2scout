@@ -1,4 +1,4 @@
-from ..base_repository import BaseRepository, RepositoryModel, scalar_as
+from ..base_repository import BaseRepository, RepositoryModel
 from psycopg.rows import class_row
 
 class Game(RepositoryModel):
