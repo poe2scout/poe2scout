@@ -43,7 +43,7 @@ export function ItemDetail({ item, onBack, initialReferenceCurrency }: ItemDetai
 
   const [selectedReference, setSelectedReference] = useState<BaseCurrencies>(initialReferenceCurrency);
   const { language } = useLanguage();
-  const { league } = useLeague();
+  const { league, realm } = useLeague();
 
   const fetchPriceHistory = useCallback(async (isInitialLoad: boolean, cursor: string) => {
     if (isInitialLoad) {
@@ -77,7 +77,7 @@ export function ItemDetail({ item, onBack, initialReferenceCurrency }: ItemDetai
       else setIsLoadingMore(false);
       logCountRef.current = logCountRef.current * 2;
     }
-  }, [item.itemId, league.value, selectedReference]);
+  }, [item.itemId, league.value, realm?.value, selectedReference]);
 
   useEffect(() => {
     setHistory([]); 

@@ -10,6 +10,7 @@ async def record_price(
     price: float, 
     item_id: int, 
     league_id: int, 
+    realm_id: int,
     quantity: int, 
 ):
     if price <= 0:
@@ -22,6 +23,10 @@ async def record_price(
     )
     await price_log_repository.record_price(
         RecordPriceModel(
-            item_id=item_id, league_id=league_id, price=price, quantity=quantity
+            item_id=item_id, 
+            league_id=league_id, 
+            realm_id=realm_id,
+            price=price, 
+            quantity=quantity
         )
     )

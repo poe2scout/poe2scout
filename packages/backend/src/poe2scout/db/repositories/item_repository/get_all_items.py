@@ -9,18 +9,21 @@ class Item(RepositoryModel):
     item_type: str
 
 
-async def get_all_items() -> list[Item]:
+async def get_all_items(game_id: int) -> list[Item]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(Item)) as cursor:
         query = """
-            SELECT item_id, base_item_id, item_type
-            FROM item
+            SELECT item_id
+                 , base_item_id
+                 , item_type
+            FROM item i
+            JOIN base_item bi ON i.base_item_id = bi.base_item_id
+            WHERE bi.game_id = %(game_id)s
         """
 
-        await cursor.execute(query)
+        params = {
+            "game_id": game_id
+        }
+
+        await cursor.execute(query, params)
 
         return await cursor.fetchall()
-
-
-class GetAllItems(BaseRepository):
-    async def execute(self) -> list[Item]:
-        return await get_all_items()

@@ -64,12 +64,14 @@ async def get(
         divine_price = await price_log_repository.get_item_price(
             divine_item.item_id,
             league.league_id,
-            realm.realm_id
+            realm.realm_id,
+            None
         )
         chaos_price = await price_log_repository.get_item_price(
             chaos_item.item_id,
             league.league_id,
-            realm.realm_id
+            realm.realm_id,
+            None
         )
 
         responses.append(
@@ -77,7 +79,7 @@ async def get(
                 value=league.value,
                 divine_price=divine_price if divine_price is not None else 50,
                 chaos_divine_price=divine_price / chaos_price
-                if chaos_price is not None
+                if chaos_price is not None and chaos_price is not 0
                 else 50,
             )
         )

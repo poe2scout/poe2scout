@@ -15,6 +15,7 @@ class GetItemPricesInRangeModel(RepositoryModel):
 async def get_item_prices_in_range(
     item_ids: list[int],
     league_id: int,
+    realm_id: int,
     start_time: datetime,
     end_time: datetime,
 ) -> list[GetItemPricesInRangeModel]:
@@ -29,6 +30,7 @@ async def get_item_prices_in_range(
                        quantity
                   FROM price_log
                  WHERE league_id = %(league_id)s
+                   AND realm_id = %(realm_id)s
                    AND created_at >= %(start_time)s
                    AND created_at < %(end_time)s
                    AND item_id = ANY(%(item_ids)s)
@@ -44,6 +46,7 @@ async def get_item_prices_in_range(
         params = {
             "item_ids": item_ids,
             "league_id": league_id,
+            "realm_id": realm_id,
             "start_time": start_time,
             "end_time": end_time,
         }

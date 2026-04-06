@@ -1,5 +1,6 @@
 import logging
 from poe2scout.db.repositories import item_repository, unique_item_repository
+from poe2scout.db.repositories.game_repository.get_games import Game
 from poe2scout.db.repositories.item_repository.create_item_category import (
     CreateItemCategoryModel,
 )
@@ -14,21 +15,19 @@ from poe2scout.workers.item_sync.models import Item, ItemCategory
 logger = logging.getLogger(__name__)
 
 
-async def sync_items(categories: list[ItemCategory], game_id: int):
+async def sync_items(categories: list[ItemCategory], game: Game):
     logger.info("Starting item sync process...")
 
     async def refresh_lists():
         all_types = await item_repository.get_all_item_types()
-        all_base_items = await item_repository.get_all_base_items()
-        all_items = await item_repository.get_all_items()
+        all_base_items = await item_repository.get_all_base_items(game.game_id)
         all_categories = await item_repository.get_all_item_categories()
-        all_unique_items = await unique_item_repository.get_all_unique_items()
-        return all_types, all_base_items, all_items, all_categories, all_unique_items
+        all_unique_items = await unique_item_repository.get_all_unique_items(game.game_id)
+        return all_types, all_base_items, all_categories, all_unique_items
 
     (
         all_types,
         all_base_items,
-        all_items,
         all_categories,
         all_unique_items,
     ) = await refresh_lists()
@@ -71,12 +70,12 @@ async def sync_items(categories: list[ItemCategory], game_id: int):
             if not base_exists:
                 base_model = CreateBaseItemModel(
                     item_type_id=type_id, 
-                    game_id=game_id,
+                    game_id=game.game_id,
                     icon_url=None, 
                     item_metadata=None
                 )
                 base_id = await item_repository.create_base_item(base_model)
-                all_base_items = await item_repository.get_all_base_items()
+                all_base_items = await item_repository.get_all_base_items(game.game_id)
 
                 item_model = CreateItemModel(base_item_id=base_id, item_type="base")
                 item_id = await item_repository.create_item(item_model)
@@ -104,7 +103,7 @@ async def sync_items(categories: list[ItemCategory], game_id: int):
                         name=item_entry.name,
                     )
                     await unique_item_repository.create_unique_item(unique_model)
-                    all_unique_items = await unique_item_repository.get_all_unique_items()
+                    all_unique_items = await unique_item_repository.get_all_unique_items(game.game_id)
 
 
 def is_unique(item: Item):

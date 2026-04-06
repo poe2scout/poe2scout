@@ -128,8 +128,8 @@ async def get_items(
 
 
     unique_items, currency_items, leagues = await gather(
-        unique_item_repository.get_all_unique_items(),
-        currency_item_repository.get_all_currency_items(),
+        unique_item_repository.get_all_unique_items(realm.game_id),
+        currency_item_repository.get_all_currency_items(realm.game_id),
         league_repository.get_leagues(realm.game_id),
     )
 

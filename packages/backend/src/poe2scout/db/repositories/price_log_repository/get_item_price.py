@@ -16,7 +16,7 @@ async def get_item_price(
     item_id: int,
     league_id: int,
     realm_id: int,
-    epoch: int | None = None,
+    epoch: int | None,
 ) -> float:
     async with BaseRepository.get_db_cursor(row_factory=scalar_as(float)) as cursor:
         epoch = epoch or int(datetime.now(tz=timezone.utc).timestamp())

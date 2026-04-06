@@ -1,13 +1,15 @@
 import sys
 from typing import List
 from poe2scout.db.repositories import (
-    currency_item_repository, 
+    currency_item_repository,
+    game_repository, 
     item_repository, 
     league_repository, 
     price_log_repository, 
     service_repository, 
     unique_item_repository
 )
+from poe2scout.shared import constants
 from .functions.fetch_unique import PriceFetchResult, fetch_unique
 from .functions.record_price import record_price
 from .functions.sync_metadata_and_icon import sync_metadata_and_icon
@@ -28,40 +30,42 @@ async def fetch_prices():
     async with PoeTradeClient(headers=headers) as client:
         while True:
             # Get all unqiue items
-            leagues = await league_repository.get_current_leagues()
-            leagues = [league for league in leagues if league.league_id == 7] # Fate of the Vaal
-            base_unique_items = await unique_item_repository.get_all_unique_items()
-            base_currency_items = await currency_item_repository.get_all_currency_items()
+            game_id = 2
+            league = await league_repository.get_league(7)
+            realm_id = 4
+            base_unique_items = await unique_item_repository.get_all_unique_items(game_id)
+            base_currency_items = await currency_item_repository.get_all_currency_items(game_id)
 
-            for league in leagues:
-                current_time = datetime.now().strftime("%H")
-                fetched_item_ids: list[int] = await service_repository.get_fetched_item_ids(
-                    current_time, league.league_id
-                )
-                item_ids = await item_repository.get_all_items()
-                item_ids = [
-                    item.item_id for item in item_ids if item.item_id not in fetched_item_ids
-                ]
+            current_time = datetime.now().strftime("%H")
+            fetched_item_ids: list[int] = await service_repository.get_fetched_item_ids(
+                current_time, league.league_id
+            )
+            item_ids = await item_repository.get_all_items(game_id)
+            item_ids = [
+                item.item_id for item in item_ids if item.item_id not in fetched_item_ids
+            ]
 
-                item_ids_to_fetch = [
-                    item for item in item_ids if item not in fetched_item_ids
-                ]
+            item_ids_to_fetch = [
+                item for item in item_ids if item not in fetched_item_ids
+            ]
 
-                unique_items = [
-                    item for item in base_unique_items if item.item_id in item_ids_to_fetch
-                ]
+            unique_items = [
+                item for item in base_unique_items if item.item_id in item_ids_to_fetch
+            ]
 
-                logger.info(f"fetching {len(unique_items)} unique items")
+            logger.info(f"fetching {len(unique_items)} unique items")
 
-                if len(item_ids_to_fetch) == 0:
-                    logger.info("No items to fetch")
-                    continue
+            if len(item_ids_to_fetch) == 0:
+                logger.info("No items to fetch")
+                continue
 
-                await process_uniques(
-                    unique_items,
-                    league,
-                    client,
-                )
+            await process_uniques(
+                unique_items,
+                league,
+                client,
+                game_id,
+                realm_id
+            )
 
             currency_items = [item for item in base_currency_items]
             for currency_item in currency_items:
@@ -74,7 +78,7 @@ async def fetch_prices():
                         client,
                         BASE_URL,
                         REALM,
-                        leagues[0].value,
+                        league.value,
                     )
 
 
@@ -82,6 +86,8 @@ async def process_uniques(
     unique_items: list[UniqueItem],
     league: League,
     client: PoeTradeClient,
+    game_id: int,
+    realm_id: int
 ):
     for unique_item in unique_items:
         try:
@@ -115,12 +121,14 @@ async def process_uniques(
             lowest_price = sys.maxsize
             quantity = 0
             for price in prices:
-                currency = await currency_item_repository.get_currency_item(price.currency)
+                currency = await currency_item_repository.get_currency_item(price.currency, game_id)
                 assert currency is not None
 
                 currency_price = await price_log_repository.get_item_price(
                     currency.item_id, 
-                    league.league_id
+                    league.league_id,
+                    realm_id,
+                    None
                 )
 
                 item_price = price.price * currency_price
@@ -133,7 +141,11 @@ async def process_uniques(
                 f"with price {lowest_price} and quantity {quantity}"
             )
             await record_price(
-                lowest_price, unique_item.item_id, league.league_id, quantity
+                lowest_price, 
+                unique_item.item_id, 
+                league.league_id, 
+                realm_id,
+                quantity
             )
         except:
             logger.error(f"error fetching for {unique_item}")

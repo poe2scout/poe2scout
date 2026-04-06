@@ -62,7 +62,7 @@ export function PairHistoryPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const locationState = location.state as { pair?: SnapshotPair } | undefined;
-  const { league } = useLeague();
+  const { league, realm } = useLeague();
   const params = useParams();
 
   const currencyOneItemId = Number(params.currencyOneItemId);
@@ -199,7 +199,7 @@ export function PairHistoryPage() {
     return () => {
       isMounted = false;
     };
-  }, [league.value, currencyOneItemId, currencyTwoItemId, hasInvalidIds]);
+  }, [league.value, realm?.value, currencyOneItemId, currencyTwoItemId, hasInvalidIds]);
 
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore || !hasMore || !oldestEpoch) {
@@ -235,6 +235,7 @@ export function PairHistoryPage() {
     currencyOneItemId,
     currencyTwoItemId,
     league.value,
+    realm?.value,
     hasMore,
     oldestEpoch,
     isLoadingMore,

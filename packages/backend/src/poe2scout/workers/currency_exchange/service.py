@@ -9,6 +9,7 @@ from poe2scout.db.repositories import (
     currency_item_repository,
     league_repository,
     price_log_repository,
+    realm_repository,
     service_repository,
 )
 from poe2scout.db.repositories.currency_item_repository.get_all_currency_items import (
@@ -49,6 +50,7 @@ async def run(
         await asyncio.sleep(60 * 10)
         return
 
+    realms = await realm_repository.get_realms()
     time_to_fetch_utc = (
         last_fetched_epoch_utc + 60 * 60 if last_fetched_epoch_utc is not None else None
     )
@@ -57,10 +59,37 @@ async def run(
         logger.info(f"{time_to_fetch_utc}")
         await asyncio.sleep(time_to_fetch_utc + 60 * 5 - current_epoch_utc)
 
+    next_change_ids = await asyncio.gather(
+        *(process_realm_snapshots(client, realm, time_to_fetch_utc) for realm in realms)
+    )
+
+    if any(next_change_id is None for next_change_id in next_change_ids):
+        return
+
+    data_next_change_id = next_change_ids[0]
+    assert data_next_change_id is not None
+
+    await service_repository.set_service_cache_value(
+        "CurrencyExchange",
+        data_next_change_id - 60 * 60,
+    )
+
+
+async def process_realm_snapshots(
+    client: PoeApiClient,
+    realm,
+    time_to_fetch_utc: int | None,
+) -> int | None:
     if time_to_fetch_utc is None:
-        url = "https://www.pathofexile.com/api/currency-exchange/poe2"
+        if realm.api_id != "pc":
+            url = f"https://www.pathofexile.com/api/currency-exchange/{realm.api_id}"
+        else:
+            url = "https://www.pathofexile.com/api/currency-exchange"
     else:
-        url = f"https://www.pathofexile.com/api/currency-exchange/poe2/{time_to_fetch_utc}"
+        if realm.api_id != "pc":
+            url = f"https://www.pathofexile.com/api/currency-exchange/{realm.api_id}/{time_to_fetch_utc}"
+        else:
+            url = f"https://www.pathofexile.com/api/currency-exchange/{time_to_fetch_utc}"
 
     response = await client.get(url)
 
@@ -75,11 +104,11 @@ async def run(
     if not fetch_status:
         logger.info("Prices not fetched yet")
         await asyncio.sleep(60 * 10)
-        return
+        return None
 
-    leagues = await league_repository.get_leagues()
+    leagues = await league_repository.get_leagues(realm.game_id)
 
-    currencies = await currency_item_repository.get_all_currency_items()
+    currencies = await currency_item_repository.get_all_currency_items(realm.game_id)
 
     currency_lookup_by_api_id = {currency.api_id: currency for currency in currencies}
 
@@ -89,6 +118,7 @@ async def run(
         item_prices = await price_log_repository.get_item_prices_in_range(
             item_ids=[item.item_id for item in currencies],
             league_id=league.league_id,
+            realm_id=realm.realm_id,
             start_time=datetime.fromtimestamp(data.next_change_id - 60 * 60),
             end_time=datetime.fromtimestamp(data.next_change_id),
         )
@@ -122,7 +152,10 @@ async def run(
         pairs = [pair for pair in data.markets if pair.league == league.value]
 
         snapshot = CurrencyExchangeSnapshot(
-            epoch=data.next_change_id - 60 * 60, league_id=league.league_id, pairs=[]
+            epoch=data.next_change_id - 60 * 60,
+            league_id=league.league_id,
+            realm_id=realm.realm_id,
+            pairs=[]
         )
 
         present_api_ids = currency_lookup_by_api_id.keys()
@@ -180,10 +213,8 @@ async def run(
             logger.info("No data in snapshot. Skipping")
             continue
         await currency_exchange_repository.create_snapshot(snapshot)
-    await service_repository.set_service_cache_value(
-        "CurrencyExchange",
-        data.next_change_id - 60 * 60,
-    )
+
+    return data.next_change_id
 
 
 def get_pair_data(

@@ -80,6 +80,15 @@ export interface SearchableItem {
   identifier: string;
 }
 
+export interface RealmOption {
+  value: string;
+  label: string;
+  gameApiId: string;
+  realmApiId: string;
+  tradeApiPath: string;
+  defaultLeagueValue: string;
+}
+
 export const ClassMapping: Record<string, string> = {
   Sorceress1: "Stormweaver",
   Ranger1: "Deadeye",

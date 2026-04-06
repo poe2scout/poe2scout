@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
 import type { SearchableItem } from '../types';
 import { fetchSearchableItems as fetchSearchableItemsFromApi } from "../api/economy";
+import { useLeague } from "../contexts/LeagueContext";
 
 export function useSearchableItems() {
   const [searchableItems, setSearchableItems] = useState<SearchableItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { realm } = useLeague();
 
   useEffect(() => {
+    if (!realm) {
+      return;
+    }
+
     const fetchItems = async () => {
       setLoading(true);
       setError(null);
@@ -24,7 +30,7 @@ export function useSearchableItems() {
     };
 
     fetchItems();
-  }, []); 
+  }, [realm?.value]); 
 
   return { searchableItems, loading, error };
 }

@@ -26,10 +26,10 @@ const Container = styled("div")({
   });
 
 function LeagueContainer() {
-    const { league, setLeague, leagues, loading } = useLeague();
+    const { realm, setRealm, realms, league, setLeague, leagues, loading } = useLeague();
     const { language } = useLanguage();
 
-    if (loading) {
+    if (!realm && loading) {
         return <Fragment />;
     }
 
@@ -40,6 +40,13 @@ function LeagueContainer() {
         return CATEGORY_MAPPING[key] || key;
       };
     
+    const handleRealmChange = (newRealmValue: string) => {
+        const newRealm = realms.find((option) => option.value === newRealmValue);
+        if (!newRealm) return;
+
+        setRealm(newRealm);
+    };
+
     const handleLeagueChange = (newLeagueValue: string) => {
         const newLeague = leagues.find(l => l.value === newLeagueValue);
         if (!newLeague) return;
@@ -49,43 +56,66 @@ function LeagueContainer() {
 
     return (
     <Container>
-        <FormControl 
-            size="small" 
-            sx={{ 
-                width: { xs: '60px', sm: '100%' }
-            }}
-        >
-            <LeagueSelect
-                labelId="league-select-label"
-                id="league-select"
-                value={league.value}
-                onChange={(e) => handleLeagueChange(e.target.value as string)}
-                sx={{
-                    "& .MuiSelect-select": {
-                        paddingY: { xs: "4px", sm: "4px 8px" },
-                        minWidth: { xs: "40px", sm: "auto" },
-                        "&::before": {
-                            content: {
-                                xs: '""',
-                                sm: 'attr(data-value)'
-                            }
-                        },
-                        color: { xs: 'transparent', sm: 'inherit' }
-                    }
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <FormControl 
+                size="small" 
+                sx={{ 
+                    width: { xs: '72px', sm: '120px' }
                 }}
-                renderValue={(value) => (
-                    <span data-value={getTranslatedText(value as string)}>
-                        {getTranslatedText(value as string)}
-                    </span>
-                )}
             >
-                {leagues.map((leagueOption) => (
-                <MenuItem key={leagueOption.value} value={leagueOption.value}>
-                    {getTranslatedText(leagueOption.value)}
-                </MenuItem>
-                ))}
-            </LeagueSelect>
-        </FormControl>
+                <LeagueSelect
+                    labelId="realm-select-label"
+                    id="realm-select"
+                    value={realm?.value ?? ""}
+                    onChange={(e) => handleRealmChange(e.target.value as string)}
+                    disabled={!realms.length}
+                >
+                    {realms.map((realmOption) => (
+                    <MenuItem key={realmOption.value} value={realmOption.value}>
+                        {realmOption.label}
+                    </MenuItem>
+                    ))}
+                </LeagueSelect>
+            </FormControl>
+            <FormControl 
+                size="small" 
+                sx={{ 
+                    width: { xs: '60px', sm: '100%' }
+                }}
+            >
+                <LeagueSelect
+                    labelId="league-select-label"
+                    id="league-select"
+                    value={league.value}
+                    disabled={loading || !league.value}
+                    onChange={(e) => handleLeagueChange(e.target.value as string)}
+                    sx={{
+                        "& .MuiSelect-select": {
+                            paddingY: { xs: "4px", sm: "4px 8px" },
+                            minWidth: { xs: "40px", sm: "auto" },
+                            "&::before": {
+                                content: {
+                                    xs: '""',
+                                    sm: 'attr(data-value)'
+                                }
+                            },
+                            color: { xs: 'transparent', sm: 'inherit' }
+                        }
+                    }}
+                    renderValue={(value) => (
+                        <span data-value={getTranslatedText(value as string)}>
+                            {getTranslatedText(value as string)}
+                        </span>
+                    )}
+                >
+                    {leagues.map((leagueOption) => (
+                    <MenuItem key={leagueOption.value} value={leagueOption.value}>
+                        {getTranslatedText(leagueOption.value)}
+                    </MenuItem>
+                    ))}
+                </LeagueSelect>
+            </FormControl>
+        </div>
     </Container>
     )
 }

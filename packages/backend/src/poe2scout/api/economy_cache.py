@@ -152,7 +152,8 @@ class EconomyCache:
             chaos_price = await price_log_repository.get_item_price(
                     chaos_item.item_id, 
                     cache_key.league_id,
-                    cache_key.realm_id
+                    cache_key.realm_id,
+                    None
                 )
             chaos_price_logs = (
                 await price_log_repository.get_item_price_logs(
@@ -181,7 +182,11 @@ class EconomyCache:
 
         last_price = dict.fromkeys(item_ids, 0.0)
 
-        prices = await price_log_repository.get_item_prices(item_ids, cache_key.league_id)
+        prices = await price_log_repository.get_item_prices(
+            item_ids, 
+            cache_key.league_id,
+            cache_key.realm_id
+        )
 
         prices_lookup = {price.item_id: price for price in prices}
 
@@ -240,7 +245,8 @@ class EconomyCache:
             chaos_price = await price_log_repository.get_item_price(
                 chaos_item.item_id, 
                 cache_key.league_id,
-                cache_key.realm_id
+                cache_key.realm_id,
+                None
             )
             chaos_price_loags = (
                 await price_log_repository.get_item_price_logs(
@@ -269,7 +275,10 @@ class EconomyCache:
 
         last_price = dict.fromkeys(item_ids, 0.0)
 
-        prices = await price_log_repository.get_item_prices(item_ids, cache_key.league_id)
+        prices = await price_log_repository.get_item_prices(
+            item_ids, 
+            cache_key.league_id,
+            cache_key.realm_id)
 
         prices_lookup = {price.item_id: price for price in prices}
 

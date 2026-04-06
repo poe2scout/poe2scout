@@ -22,16 +22,14 @@ async def sync_currencies(categories: list[CurrencyCategory], game_id: int):
     async def refresh_lists():
         all_categories = await currency_item_repository.get_all_currency_categories()
         all_types = await item_repository.get_all_item_types()
-        all_base_items = await item_repository.get_all_base_items()
-        all_items = await item_repository.get_all_items()
-        all_currency_items = await currency_item_repository.get_all_currency_items()
-        return all_categories, all_types, all_base_items, all_items, all_currency_items
+        all_base_items = await item_repository.get_all_base_items(game_id)
+        all_currency_items = await currency_item_repository.get_all_currency_items(game_id)
+        return all_categories, all_types, all_base_items, all_currency_items
 
     (
         all_categories,
         all_types,
         all_base_items,
-        all_items,
         all_currency_items,
     ) = await refresh_lists()
 
@@ -58,7 +56,6 @@ async def sync_currencies(categories: list[CurrencyCategory], game_id: int):
             all_categories,
             all_types,
             all_base_items,
-            all_items,
             all_currency_items,
         ) = await refresh_lists()
 
@@ -81,7 +78,6 @@ async def sync_currencies(categories: list[CurrencyCategory], game_id: int):
                 all_categories,
                 all_types,
                 all_base_items,
-                all_items,
                 all_currency_items,
             ) = await refresh_lists()
 
@@ -135,6 +131,5 @@ async def sync_currencies(categories: list[CurrencyCategory], game_id: int):
                 all_categories,
                 all_types,
                 all_base_items,
-                all_items,
                 all_currency_items,
             ) = await refresh_lists()

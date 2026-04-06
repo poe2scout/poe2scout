@@ -4,6 +4,7 @@ import type {
   CategoryResponse,
   ItemHistoryResponse,
   PaginatedResponse,
+  RealmOption,
   SearchableItem,
 } from "../types";
 
@@ -50,6 +51,9 @@ export const fetchLeagues = async (): Promise<LeaguePayload[]> => {
 
   return Array.isArray(data) ? data : data.leagues ?? [];
 };
+
+export const fetchRealmOptions = async (): Promise<RealmOption[]> =>
+  fetchNormalizedJson<RealmOption[]>("Static/Realms", undefined, "root");
 
 export const fetchCategories = async (): Promise<CategoryResponse> =>
   fetchNormalizedJson<CategoryResponse>("Items/Categories");

@@ -24,7 +24,7 @@ export function SnapshotHistory({
   const [legendData, setLegendData] = useState<LegendData>({});
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const { league } = useLeague();
+  const { league, realm } = useLeague();
 
   useEffect(() => {
     const getHistory = async () => {
@@ -99,7 +99,7 @@ export function SnapshotHistory({
     } finally {
       setIsLoadingMore(false);
     }
-  }, [isLoadingMore, hasMore, oldestEpoch, league.value]);
+  }, [isLoadingMore, hasMore, oldestEpoch, league.value, realm?.value]);
 
   if (isLoading) {
     return (

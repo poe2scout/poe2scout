@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Category, CategoryResponse } from '../types';
 import { fetchCategories as fetchCategoriesFromApi } from "../api/economy";
+import { useLeague } from "./LeagueContext";
 
 interface CategoryContextType {
   uniqueCategories: Category[];
@@ -18,9 +19,15 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
   const [uniqueCategories, setUniqueCategories] = useState<Category[]>([]);
   const [currencyCategories, setCurrencyCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const { realm } = useLeague();
 
   useEffect(() => {
+    if (!realm) {
+      return;
+    }
+
     const fetchCategories = async () => {
+      setLoading(true);
       try {
         const data: CategoryResponse = await fetchCategoriesFromApi();
         setUniqueCategories(data.uniqueCategories);
@@ -33,7 +40,7 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
     };
 
     fetchCategories();
-  }, []);
+  }, [realm?.value]);
 
   return (
     <CategoryContext.Provider value={{ uniqueCategories, currencyCategories, loading }}>

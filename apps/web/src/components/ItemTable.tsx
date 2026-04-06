@@ -45,6 +45,7 @@ import translations from "../translationskrmapping.json";
 import { SearchAutocomplete } from "./SearchAutocomplete";
 import { useNavigate } from "react-router-dom";
 import { useLeague, League } from "../contexts/LeagueContext";
+import type { RealmOption } from "../types";
 import { useCategories } from "../contexts/CategoryContext";
 import { useSearchableItems } from "../hooks/useSearchableItems";
 import ReferenceCurrencySelector from "./ReferenceCurrencySelector";
@@ -103,19 +104,31 @@ interface ItemTableProps {
   initialSearch?: string;
 }
 
-const getWikiUrl = (item: ApiItem) => {
+const getWikiUrl = (item: ApiItem, realm: RealmOption | null) => {
   const wikiNameSource = 'name' in item ? item.name : item.text;
   const wikiName = encodeURIComponent(wikiNameSource);
-  return `https://www.poe2wiki.net/wiki/${wikiName}`;
+  const wikiHost =
+    realm?.gameApiId === "poe" ? "www.poewiki.net" : "www.poe2wiki.net";
+  return `https://${wikiHost}/wiki/${wikiName}`;
 };
 
-const getTradeUrl = (item: ApiItem, league: League) => {
+const getTradeUrl = (
+  item: ApiItem,
+  league: League,
+  realm: RealmOption | null,
+) => {
+  if (!realm || !league.value) {
+    return "#";
+  }
+
   const isUnique = "name" in item;
   const isCurrency = "currencyCategoryId" in item;
+  const tradeBaseUrl = `https://www.pathofexile.com/${realm.tradeApiPath}`;
+  const encodedLeague = encodeURIComponent(league.value.toLowerCase());
 
   if (isCurrency) {
     const currencyItem = item as CurrencyItemExtended;
-    return `https://www.pathofexile.com/trade2/exchange/poe2/${league.value.toLowerCase()}?q=${encodeURIComponent(
+    return `${tradeBaseUrl}/exchange/${realm.realmApiId}/${encodedLeague}?q=${encodeURIComponent(
       JSON.stringify({
         exchange: {
           status: { option: "online" },
@@ -126,7 +139,7 @@ const getTradeUrl = (item: ApiItem, league: League) => {
     )}`;
   } else {
     const searchTerm = isUnique ? (item as UniqueItemExtended).name : (item as CurrencyItemExtended).apiId;
-    return `https://www.pathofexile.com/trade2/search/${league.value.toLowerCase()}?q=${encodeURIComponent(
+    return `${tradeBaseUrl}/search/${realm.realmApiId}/${encodedLeague}?q=${encodeURIComponent(
       JSON.stringify({
         query: {
           filters: {},
@@ -139,7 +152,7 @@ const getTradeUrl = (item: ApiItem, league: League) => {
 
 export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
   const navigate = useNavigate();
-  const { league } = useLeague();
+  const { realm, league } = useLeague();
   const { currencyCategories } = useCategories();
   const [items, setItems] = useState<ApiItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -178,7 +191,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
       item: null,
       scrollPosition: 0,
     });
-  }, [type, league]);
+  }, [type, league, realm]);
 
   const fetchItems = async (currentPage: number, perPage: number, search: string = "") => {
     setLoading(true);
@@ -496,7 +509,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                   <StyledTableCell align="center">
                     <ActionContainer>
                       <ActionLink
-                        href={getWikiUrl(item)}
+                        href={getWikiUrl(item, realm)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -504,7 +517,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                       </ActionLink>
                       /
                       <ActionLink
-                        href={getTradeUrl(item, league)}
+                        href={getTradeUrl(item, league, realm)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >

@@ -27,6 +27,5 @@ if __name__ == "__main__":
         ) as client:
             while True:
                 await run(config, client)
-                await asyncio.sleep(15)
 
     asyncio.run(main_loop())

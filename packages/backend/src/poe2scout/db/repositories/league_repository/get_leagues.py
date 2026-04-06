@@ -40,3 +40,18 @@ async def get_leagues(game_id: int) -> list[League]:
         await cursor.execute(query, params)
 
         return await cursor.fetchall()
+
+async def get_league(league_id: int) -> League:
+    async with BaseRepository.get_db_cursor(row_factory=class_row(League)) as cursor:
+        query = """
+            SELECT league_id, value
+              FROM league
+             WHERE league_id = %(league_id)s
+        """
+
+        params = {
+            "league_id": league_id
+        }
+        await cursor.execute(query, params)
+
+        return await anext(cursor)
