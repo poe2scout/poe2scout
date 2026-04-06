@@ -6,10 +6,10 @@ from poe2scout.db.repositories.service_repository.get_service_cache_value import
 from poe2scout.db.repositories.service_repository.set_service_cache_value import (
     set_service_cache_value,
 )
-class ServiceRepository:
-    def __init__(self):
-        self.get_fetched_item_ids = get_fetched_item_ids
-        self.get_currency_fetch_status = get_currency_fetch_status
-        self.get_service_cache_value = get_service_cache_value
-        self.set_service_cache_value = set_service_cache_value
 
+__all__ = [
+    "get_currency_fetch_status",
+    "get_fetched_item_ids",
+    "get_service_cache_value",
+    "set_service_cache_value",
+]

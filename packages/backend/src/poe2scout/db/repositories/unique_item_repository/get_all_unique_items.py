@@ -17,7 +17,7 @@ class UniqueItem(RepositoryModel):
     is_chanceable: Optional[bool] = False
 
 
-async def get_all_unique_items() -> list[UniqueItem]:
+async def get_all_unique_items(game_id: int) -> list[UniqueItem]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(UniqueItem)) as cursor:
         query = """
             SELECT ui.unique_item_id,
@@ -33,13 +33,12 @@ async def get_all_unique_items() -> list[UniqueItem]:
             JOIN base_item AS bi ON i.base_item_id = bi.base_item_id
             JOIN item_type AS it ON bi.item_type_id = it.item_type_id
             JOIN item_category AS ic on ic.item_category_id = it.item_category_id
+           WHERE bi.game_id = %(game_id)s
         """
 
-        await cursor.execute(query)
+        params = {
+            "game_id": game_id
+        }
+        await cursor.execute(query, params)
 
         return await cursor.fetchall()
-
-
-class GetAllUniqueItems(BaseRepository):
-    async def execute(self) -> list[UniqueItem]:
-        return await get_all_unique_items()

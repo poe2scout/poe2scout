@@ -1,7 +1,13 @@
-from typing import Self
+from typing import Annotated, Self
 
-from poe2scout.api.dependancies import CurrencyItemRepoDep, ItemRepoDep
+from fastapi import Depends, HTTPException, Path, Query
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories import (
+    currency_item_repository,
+    item_repository,
+    league_repository,
+    realm_repository,
+)
 from poe2scout.db.repositories.currency_item_repository.get_all_currency_categories import (
     CurrencyCategory
 )
@@ -78,15 +84,51 @@ class GetCategoriesResponse(ApiModel):
                 for currency_category in currency_categories
             ],
         )
+    
+class GetCategoriesRequest(ApiModel):
+    realm: str
+    league_name: str
+
+def get_categories_request(
+    realm: Annotated[str, Path(alias="Realm")],
+    league_name: Annotated[str, Query(alias="LeagueName")],
+) -> GetCategoriesRequest:
+    return GetCategoriesRequest(
+        realm=realm,
+        league_name=league_name,
+    )
+
+
+GetCategoriesRequestDep = Annotated[
+    GetCategoriesRequest,
+    Depends(get_categories_request),
+]
 
 
 @router.get("/Categories")
 async def get_categories(
-    item_repository: ItemRepoDep,
-    currency_item_repo: CurrencyItemRepoDep
+    request: GetCategoriesRequestDep
 ) -> GetCategoriesResponse:
-    all_currency_categories = await currency_item_repo.get_all_currency_categories()
-    all_item_categories = await item_repository.get_all_item_categories()
+    realm = await realm_repository.get_realm(request.realm)
+
+    if realm is None:
+        raise HTTPException(400, "Invalid realm")
+
+    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
+
+    if league is None:
+        raise HTTPException(400, "Invalid league name")
+
+    all_currency_categories = await currency_item_repository.get_priced_currency_categories(
+        league.league_id,
+        realm.realm_id,
+        realm.game_id,
+    )
+    all_item_categories = await item_repository.get_priced_item_categories(
+        league.league_id,
+        realm.realm_id,
+        realm.game_id,
+    )
 
     unique_item_categories = [
         category

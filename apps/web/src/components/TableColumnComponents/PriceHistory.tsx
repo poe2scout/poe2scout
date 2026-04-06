@@ -1,10 +1,13 @@
 import { Line } from "react-chartjs-2";
 import { styled } from "@mui/material/styles";
+import type { ChartOptions, TooltipItem, TooltipModel } from "chart.js";
+
 import { PriceLogEntry } from "../../types";
 
 interface PriceHistoryProps {
   priceHistory?: (PriceLogEntry | null)[];
   variant?: 'table' | 'compact';
+  referenceCurrencyLabel?: string;
 }
 
 const ChartContainer = styled("div")<{ variant?: 'table' | 'compact' }>(({ variant }) => ({
@@ -30,7 +33,7 @@ const PercentageChange = styled("span")<{ isPositive: boolean }>(
 const normalizeChartData = (priceHistory: (PriceLogEntry | null)[]) => {
   if (!priceHistory || priceHistory.length === 0) return Array(7).fill(0);
 
-  let prices = [...priceHistory]
+  const prices = [...priceHistory]
     .reverse()
     .map((entry) => entry?.price || null);
 
@@ -68,7 +71,16 @@ const calculatePriceChange = (priceHistory: (PriceLogEntry | null)[]) => {
   };
 };
 
-const chartOptions = {
+interface ExternalTooltipContext {
+  chart: {
+    canvas: HTMLCanvasElement;
+  };
+  tooltip: TooltipModel<"line">;
+}
+
+const buildChartOptions = (
+  referenceCurrencyLabel: string,
+): ChartOptions<"line"> => ({
   layout: {
     padding: {
       top: 1,
@@ -87,7 +99,7 @@ const chartOptions = {
       mode: "index",
       intersect: false,
       position: "nearest",
-      external: function (context: any) {
+      external: (context: ExternalTooltipContext) => {
         // Get tooltip element
         const tooltipEl = document.getElementById("chartjs-tooltip");
 
@@ -113,7 +125,7 @@ const chartOptions = {
         // Set Text
         if (context.tooltip.body) {
           const titleLines = context.tooltip.title || [];
-          const bodyLines = context.tooltip.body.map((b: any) => b.lines);
+          const bodyLines = context.tooltip.body.map((body) => body.lines);
 
           let innerHtml = "<div>";
           titleLines.forEach((title: string) => {
@@ -139,10 +151,10 @@ const chartOptions = {
           "px";
       },
       callbacks: {
-        label: (context: any) => {
-          return `${context.parsed.y.toFixed(1)} ex`;
+        label: (context: TooltipItem<"line">) => {
+          return `${context.parsed.y.toFixed(1)} ${referenceCurrencyLabel}`;
         },
-        title: (tooltipItems: any) => {
+        title: (tooltipItems: TooltipItem<"line">[]) => {
           const index = tooltipItems[0].dataIndex;
           const hoursAgo = (6 - index) * 6;
           if (hoursAgo === 0) return "Now";
@@ -173,7 +185,7 @@ const chartOptions = {
     intersect: false,
     mode: "index",
   },
-};
+});
 
 const renderPriceChange = (
   priceChange: { percentageChange: number; isPositive: boolean } | null
@@ -188,26 +200,32 @@ const renderPriceChange = (
   );
 };
 
-export function PriceHistory({ priceHistory, variant = 'compact' }: PriceHistoryProps) {
+export function PriceHistory({
+  priceHistory,
+  variant = 'compact',
+  referenceCurrencyLabel = "base",
+}: PriceHistoryProps) {
   if (!priceHistory) return null;
 
   const normalizedData = normalizeChartData(priceHistory);
   const priceChange = calculatePriceChange(priceHistory);
+  const chartOptions = buildChartOptions(referenceCurrencyLabel);
+  const chartScales = chartOptions.scales ?? {};
 
   const chartOptionsWithVariant = {
     ...chartOptions,
     maintainAspectRatio: true,
     aspectRatio: variant === 'table' ? 4 : 2.5,
     scales: {
-      ...chartOptions.scales,
+      ...chartScales,
       x: {
-        ...chartOptions.scales.x,
+        ...chartScales.x,
         grid: {
           display: false,
         },
       },
       y: {
-        ...chartOptions.scales.y,
+        ...chartScales.y,
         grid: {
           display: false,
         },
@@ -248,7 +266,7 @@ export function PriceHistory({ priceHistory, variant = 'compact' }: PriceHistory
             },
           ],
         }}
-        options={chartOptionsWithVariant as any}
+        options={chartOptionsWithVariant}
       />
       {renderPriceChange(priceChange)}
     </ChartContainer>

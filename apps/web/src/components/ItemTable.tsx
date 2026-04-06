@@ -45,10 +45,12 @@ import translations from "../translationskrmapping.json";
 import { SearchAutocomplete } from "./SearchAutocomplete";
 import { useNavigate } from "react-router-dom";
 import { useLeague, League } from "../contexts/LeagueContext";
+import type { RealmOption } from "../types";
 import { useCategories } from "../contexts/CategoryContext";
 import { useSearchableItems } from "../hooks/useSearchableItems";
 import ReferenceCurrencySelector from "./ReferenceCurrencySelector";
 import { fetchItemsByCategory } from "../api/economy";
+import { getCurrencyLabel } from "../currencyMeta";
 
 ChartJS.register(
   CategoryScale,
@@ -63,13 +65,13 @@ ChartJS.register(
 type Order = "asc" | "desc";
 type OrderBy = "name" | "price";
 
-const ItemRow = styled(TableRow)(({ }) => ({
+const ItemRow = styled(TableRow)(() => ({
   ".MuiTableRow-root": {
     padding: '200px'
   }
 }));
 
-const TableOptions = styled(Box)(({ }) => ({
+const TableOptions = styled(Box)(() => ({
   display: 'flex'
 }))
 
@@ -103,30 +105,42 @@ interface ItemTableProps {
   initialSearch?: string;
 }
 
-const getWikiUrl = (item: ApiItem) => {
+const getWikiUrl = (item: ApiItem, realm: RealmOption | null) => {
   const wikiNameSource = 'name' in item ? item.name : item.text;
   const wikiName = encodeURIComponent(wikiNameSource);
-  return `https://www.poe2wiki.net/wiki/${wikiName}`;
+  const wikiHost =
+    realm?.gameApiId === "poe" ? "www.poewiki.net" : "www.poe2wiki.net";
+  return `https://${wikiHost}/wiki/${wikiName}`;
 };
 
-const getTradeUrl = (item: ApiItem, league: League) => {
+const getTradeUrl = (
+  item: ApiItem,
+  league: League,
+  realm: RealmOption | null,
+) => {
+  if (!realm || !league.value) {
+    return "#";
+  }
+
   const isUnique = "name" in item;
   const isCurrency = "currencyCategoryId" in item;
+  const tradeBaseUrl = `https://www.pathofexile.com/${realm.tradeApiPath}`;
+  const encodedLeague = encodeURIComponent(league.value.toLowerCase());
 
   if (isCurrency) {
     const currencyItem = item as CurrencyItemExtended;
-    return `https://www.pathofexile.com/trade2/exchange/poe2/${league.value.toLowerCase()}?q=${encodeURIComponent(
+      return `${tradeBaseUrl}/exchange/${realm.realmApiId}/${encodedLeague}?q=${encodeURIComponent(
       JSON.stringify({
         exchange: {
           status: { option: "online" },
-          have: ["exalted"],
+          have: [league.baseCurrencyApiId],
           want: [currencyItem.apiId],
         },
       })
     )}`;
   } else {
     const searchTerm = isUnique ? (item as UniqueItemExtended).name : (item as CurrencyItemExtended).apiId;
-    return `https://www.pathofexile.com/trade2/search/${league.value.toLowerCase()}?q=${encodeURIComponent(
+    return `${tradeBaseUrl}/search/${realm.realmApiId}/${encodedLeague}?q=${encodeURIComponent(
       JSON.stringify({
         query: {
           filters: {},
@@ -139,7 +153,7 @@ const getTradeUrl = (item: ApiItem, league: League) => {
 
 export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
   const navigate = useNavigate();
-  const { league } = useLeague();
+  const { realm, league } = useLeague();
   const { currencyCategories } = useCategories();
   const [items, setItems] = useState<ApiItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -148,7 +162,9 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
   const [totalItems, setTotalItems] = useState(0);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<OrderBy>("price");
-  const [referenceCurrency, setReferenceCurrency] = useState<"exalted" | "chaos">("exalted")
+  const [referenceCurrency, setReferenceCurrency] = useState<string>(
+    league.baseCurrencyApiId,
+  )
   const [itemSelection, setItemSelection] = useState<{
     item: ApiItem | null;
     scrollPosition: number;
@@ -178,7 +194,26 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
       item: null,
       scrollPosition: 0,
     });
-  }, [type, league]);
+  }, [type, league, realm]);
+
+  useEffect(() => {
+    setReferenceCurrency(league.baseCurrencyApiId);
+  }, [league.baseCurrencyApiId]);
+
+  const referenceCurrencyOptions = useMemo(() => {
+    const options = [league.baseCurrencyApiId, "chaos", "divine"];
+    return Array.from(new Set(options));
+  }, [league.baseCurrencyApiId]);
+
+  const divinePriceForReference = useMemo(() => {
+    if (referenceCurrency === "divine") {
+      return 1;
+    }
+    if (referenceCurrency === "chaos") {
+      return league.chaosDivinePrice;
+    }
+    return league.divinePrice;
+  }, [league.chaosDivinePrice, league.divinePrice, referenceCurrency]);
 
   const fetchItems = async (currentPage: number, perPage: number, search: string = "") => {
     setLoading(true);
@@ -241,16 +276,18 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
       let compareResult = 0;
 
       switch (orderBy) {
-        case "name":
+        case "name": {
           const nameA = "name" in a ? a.name : a.text;
           const nameB = "name" in b ? b.name : b.text;
           compareResult = nameA.localeCompare(nameB);
           break;
-        case "price":
+        }
+        case "price": {
           const priceA = a.currentPrice ?? 0;
           const priceB = b.currentPrice ?? 0;
           compareResult = priceA - priceB;
           break;
+        }
         default:
           compareResult = 0;
       }
@@ -287,6 +324,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
       <ItemDetail
         item={itemSelection.item}
         initialReferenceCurrency={referenceCurrency}
+        referenceCurrencyOptions={referenceCurrencyOptions}
         onBack={() => {
           setItemSelection((prev) => ({
             item: null,
@@ -398,8 +436,8 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                       </Box>
                       <ReferenceCurrencySelector
                         currentReference={referenceCurrency}
-                        onReferenceChange={(item) => setReferenceCurrency(item as 'exalted'| 'chaos')}
-                        options={['exalted','chaos']}
+                        onReferenceChange={setReferenceCurrency}
+                        options={referenceCurrencyOptions}
                       />
                     </Stack>
                   </Collapse>
@@ -479,7 +517,16 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                     </div>
                   </StyledTableCell>
                   <StyledTableCell>
-                    <PriceDisplay currentPrice={item.currentPrice} divinePrice={referenceCurrency == 'exalted' ? league.exaltedDivinePrice : league.chaosDivinePrice} referenceCurrency={referenceCurrency}/>
+                    <PriceDisplay
+                      currentPrice={item.currentPrice}
+                      divinePrice={divinePriceForReference}
+                      referenceCurrency={referenceCurrency}
+                      referenceCurrencyText={
+                        referenceCurrency === league.baseCurrencyApiId
+                          ? league.baseCurrencyText
+                          : undefined
+                      }
+                    />
                   </StyledTableCell>
                   <StyledTableCell>
                     {item.priceLogs?.[0]?.quantity ?? "N/A"}
@@ -490,13 +537,22 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                     }}
                   >
                     {item.priceLogs != null && item.priceLogs.length > 0 && (
-                      <PriceHistory priceHistory={item.priceLogs} variant="table" />
+                      <PriceHistory
+                        priceHistory={item.priceLogs}
+                        variant="table"
+                        referenceCurrencyLabel={getCurrencyLabel(
+                          referenceCurrency,
+                          referenceCurrency === league.baseCurrencyApiId
+                            ? league.baseCurrencyText
+                            : undefined,
+                        )}
+                      />
                     )}
                   </StyledTableCell>
                   <StyledTableCell align="center">
                     <ActionContainer>
                       <ActionLink
-                        href={getWikiUrl(item)}
+                        href={getWikiUrl(item, realm)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -504,7 +560,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                       </ActionLink>
                       /
                       <ActionLink
-                        href={getTradeUrl(item, league)}
+                        href={getTradeUrl(item, league, realm)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >

@@ -5,7 +5,10 @@ from poe2scout.db.repositories.models import CurrencyItem
 from ..base_repository import BaseRepository
 
 
-async def get_currency_items(api_ids: list[str]) -> list[CurrencyItem]:
+async def get_currency_items(
+    api_ids: list[str],
+    game_id: int
+) -> list[CurrencyItem]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(CurrencyItem)) as cursor:
         query = """
 SELECT ci.currency_item_id
@@ -17,9 +20,17 @@ SELECT ci.currency_item_id
     , cc.api_id AS category_api_id
 FROM currency_item AS ci
 JOIN currency_category AS cc ON ci.currency_category_id = cc.currency_category_id
-WHERE ci.api_id = ANY(%s)
+JOIN item AS i ON ci.item_id = i.item_id
+JOIN base_item AS bi ON i.base_item_id = bi.base_item_id
+WHERE ci.api_id = ANY(%(api_ids)s)
+  AND bi.game_id = %(game_id)s
         """
 
-        await cursor.execute(query, (api_ids,))
+        params = {
+            "api_ids": api_ids,
+            "game_id": game_id
+        }
+
+        await cursor.execute(query, params)
 
         return await cursor.fetchall()

@@ -8,7 +8,10 @@ class GetItemPricesModel(RepositoryModel):
     price: float
 
 
-async def get_item_prices(item_ids: list[int], league_id: int) -> list[GetItemPricesModel]:
+async def get_item_prices(
+        item_ids: list[int], 
+        league_id: int,
+        realm_id: int) -> list[GetItemPricesModel]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(GetItemPricesModel)) as cursor:
         query = """
             WITH latest_prices AS (
@@ -18,6 +21,7 @@ async def get_item_prices(item_ids: list[int], league_id: int) -> list[GetItemPr
                   FROM price_log
                  WHERE item_id = ANY(%(item_ids)s)
                    AND league_id = %(league_id)s
+                   AND realm_id = %(realm_id)s
                  ORDER BY item_id, created_at DESC
             )
             SELECT
@@ -27,7 +31,11 @@ async def get_item_prices(item_ids: list[int], league_id: int) -> list[GetItemPr
               LEFT JOIN latest_prices AS lp ON req_item.item_id = lp.item_id;
         """
 
-        params = {"item_ids": item_ids, "league_id": league_id}
+        params = {
+            "item_ids": item_ids, 
+            "league_id": league_id,
+            "realm_id": realm_id
+        }
         await cursor.execute(query, params)
 
         return await cursor.fetchall()

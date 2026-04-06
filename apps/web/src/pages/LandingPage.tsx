@@ -27,6 +27,7 @@ import { useSearchableItems } from "../hooks/useSearchableItems";
 import { FooterLink } from "../features/landing/FooterLink";
 import type { ApiItem, PriceLogEntry } from "../types";
 import { fetchLandingSplashItems } from "../api/economy";
+import { useLeague } from "../contexts/LeagueContext";
 
 const getLatestPrice = (priceLogs: (PriceLogEntry | null)[]): number | null => {
   for (let i = 0; i < priceLogs.length; i++) {
@@ -79,6 +80,7 @@ function LandingPage() {
   const [splashItems, setSplashItems] = useState<ApiItem[]>([]);
   const [loadingSplash, setLoadingSplash] = useState<boolean>(true);
   const [errorSplash, setErrorSplash] = useState<string | null>(null);
+  const { realm, league, loading: leagueLoading } = useLeague();
   const {
     searchableItems,
     loading: loadingSearchable,
@@ -86,6 +88,10 @@ function LandingPage() {
   } = useSearchableItems();
 
   useEffect(() => {
+    if (!realm) {
+      return;
+    }
+
     const fetchSplashData = async () => {
       setLoadingSplash(true);
       setErrorSplash(null);
@@ -103,7 +109,7 @@ function LandingPage() {
     };
 
     fetchSplashData();
-  }, []);
+  }, [realm?.value]);
 
   const handleSearchSelect = (category: string, identifier: string) => {
     navigate(`/economy/${category}?search=${identifier}`);
@@ -112,7 +118,9 @@ function LandingPage() {
   const handleSearchClear = () => {
   };
 
-  const isLoading = loadingSplash || loadingSearchable;
+  const gameDisplayName =
+    realm?.gameApiId === "poe" ? "Path of Exile" : "Path of Exile 2";
+  const isLoading = loadingSplash || loadingSearchable || leagueLoading;
   const fetchError = errorSplash || errorSearchable;
 
   return (
@@ -127,10 +135,10 @@ function LandingPage() {
                   Poe2 Scout
                 </Typography>
                 <Typography variant="h5" sx={{ color: "grey.300", mb: 2 }}>
-                  Your Ultimate Path of Exile 2 Companion
+                  Your Ultimate {gameDisplayName} Companion
                 </Typography>
                 <Typography sx={{ color: "grey.400", mb: 4 }}>
-                  Track market prices of items, currency, and more with up-to-date POE2 data
+                  Track market prices of items, currency, and more with up-to-date {gameDisplayName} data
                 </Typography>
                 <Button
                   variant="contained"
@@ -146,24 +154,39 @@ function LandingPage() {
               <Grid2 size={{ xs: 12, md: 6 }}>
                 <Paper sx={{ bgcolor: "grey.950", p: 3, border: 1, borderColor: "grey.800", borderRadius: 2 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="overline" sx={{ color: "grey.400" }}>League</Typography>
+                    <Typography variant="overline" sx={{ color: "grey.400" }}>Realm</Typography>
                     <Typography variant="overline" sx={{ color: "primary.light" }}>Economy</Typography>
                   </Box>
-                  <TextField
-                    value="Fate of the Vaal"
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    disabled
-                    sx={{
-                      mb: 3,
-                      bgcolor: "grey.900",
-                      input: { color: "common.white" },
-                      '.MuiOutlinedInput-notchedOutline': { borderColor: 'grey.700' },
-                      '&.Mui-disabled .MuiOutlinedInput-notchedOutline': { borderColor: 'grey.700' },
-                      '&.Mui-disabled .MuiInputBase-input': { '-webkit-text-fill-color': 'rgba(255, 255, 255, 0.7)' },
-                    }}
-                  />
+                  <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+                    <TextField
+                      value={realm?.label ?? ""}
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                      disabled
+                      sx={{
+                        bgcolor: "grey.900",
+                        input: { color: "common.white" },
+                        '.MuiOutlinedInput-notchedOutline': { borderColor: 'grey.700' },
+                        '&.Mui-disabled .MuiOutlinedInput-notchedOutline': { borderColor: 'grey.700' },
+                        '&.Mui-disabled .MuiInputBase-input': { '-webkit-text-fill-color': 'rgba(255, 255, 255, 0.7)' },
+                      }}
+                    />
+                    <TextField
+                      value={league.value}
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                      disabled
+                      sx={{
+                        bgcolor: "grey.900",
+                        input: { color: "common.white" },
+                        '.MuiOutlinedInput-notchedOutline': { borderColor: 'grey.700' },
+                        '&.Mui-disabled .MuiOutlinedInput-notchedOutline': { borderColor: 'grey.700' },
+                        '&.Mui-disabled .MuiInputBase-input': { '-webkit-text-fill-color': 'rgba(255, 255, 255, 0.7)' },
+                      }}
+                    />
+                  </Box>
 
                   <Box sx={{ mb: 3 }}>
                     <SearchAutocomplete

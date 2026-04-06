@@ -52,8 +52,8 @@ services:
       api:
         condition: service_started
 
-  price-fetch-service:
-    image: ghcr.io/poe2scout/poe2scout-price-fetch:${IMAGE_TAG:-release}
+  currency-price-log-service:
+    image: ghcr.io/poe2scout/poe2scout-currency-price-log:${IMAGE_TAG:-release}
     restart: "no"
     environment:
       DBSTRING: ${DBSTRING}
@@ -64,6 +64,21 @@ services:
         condition: service_healthy
       api:
         condition: service_started
+      item-sync-service:
+        condition: service_stopped
+
+  unique-price-log-service:
+    image: ghcr.io/poe2scout/poe2scout-unique-price-log:${IMAGE_TAG:-release}
+    restart: "no"
+    environment:
+      DBSTRING: ${DBSTRING}
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+      item-sync-service:
+        condition: service_stopped
 
   currency-exchange-service:
     image: ghcr.io/poe2scout/poe2scout-currency-exchange:${IMAGE_TAG:-release}
@@ -77,6 +92,8 @@ services:
         condition: service_healthy
       api:
         condition: service_started
+      item-sync-service:
+        condition: service_stopped
 
   db:
     image: postgres:17.6

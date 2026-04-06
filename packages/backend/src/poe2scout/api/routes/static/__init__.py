@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-router = static_router = APIRouter(prefix="/poe2/Static", tags=["Static"])
+router = static_router = APIRouter(prefix="/{Realm}/Static", tags=["Static"])
 
 
 def _register_routes() -> None:

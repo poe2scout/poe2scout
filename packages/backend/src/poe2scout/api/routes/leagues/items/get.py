@@ -6,13 +6,14 @@ from cachetools import TTLCache
 from cachetools.keys import hashkey
 from fastapi import Depends, HTTPException, Path
 
-from poe2scout.api.dependancies import (
-    CurrencyItemRepoDep, 
-    LeagueRepoDep, 
-    PriceLogRepoDep, 
-    UniqueItemRepoDep
-)
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories import (
+    currency_item_repository,
+    league_repository,
+    price_log_repository,
+    realm_repository,
+    unique_item_repository,
+)
 from poe2scout.db.repositories.unique_item_repository.get_all_unique_items import UniqueItem
 from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
 
@@ -22,13 +23,15 @@ items_cache = TTLCache(maxsize=1, ttl=60 * 15)
 
 
 class GetItemsRequest(ApiModel):
+    realm: str
     league_name: str
 
 
 def get_items_request(
+    realm: Annotated[str, Path(alias="Realm")],
     league_name: Annotated[str, Path(alias="LeagueName")],
 ) -> GetItemsRequest:
-    return GetItemsRequest(league_name=league_name)
+    return GetItemsRequest(realm=realm, league_name=league_name)
 
 
 GetItemsRequestDep = Annotated[GetItemsRequest, Depends(get_items_request)]
@@ -112,20 +115,22 @@ class GetItemsResponse(ApiModel):
 @router.get("/{LeagueName}/Items")
 async def get_items(
     request: GetItemsRequestDep,
-    unique_item_repository: UniqueItemRepoDep,
-    currency_item_repository: CurrencyItemRepoDep,
-    league_repository: LeagueRepoDep,
-    price_log_repository: PriceLogRepoDep
 ) -> list[GetItemsResponse]:
-    cache_key = hashkey(request.league_name)
+    cache_key = hashkey(request.league_name, request.realm)
 
     if cache_key in items_cache:
         return items_cache[cache_key]
+    
+    realm = await realm_repository.get_realm(request.realm)
+
+    if realm is None:
+        raise HTTPException(400, "Invalid realm")
+
 
     unique_items, currency_items, leagues = await gather(
-        unique_item_repository.get_all_unique_items(),
-        currency_item_repository.get_all_currency_items(),
-        league_repository.get_all_leagues(),
+        unique_item_repository.get_all_unique_items(realm.game_id),
+        currency_item_repository.get_all_currency_items(realm.game_id),
+        league_repository.get_leagues(realm.game_id),
     )
 
     item_ids = [item.item_id for item in unique_items] + [
@@ -138,9 +143,13 @@ async def get_items(
     )
 
     if league_id is None:
-        raise HTTPException(status_code=404, detail="League not found")
+        raise HTTPException(status_code=400, detail="League not found")
 
-    price_logs_by_item_id = await price_log_repository.get_item_price_logs(item_ids, league_id)
+    price_logs_by_item_id = await price_log_repository.get_item_price_logs(
+        item_ids,
+        league_id,
+        realm.realm_id,
+    )
 
     responses = [
         GetItemsResponse.from_unique_item(

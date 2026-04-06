@@ -23,6 +23,7 @@ class CurrencyExchangeSnapshotPair(BaseModel):
 class CurrencyExchangeSnapshot(BaseModel):
     epoch: int
     league_id: int
+    realm_id: int
     pairs: List[CurrencyExchangeSnapshotPair]
     volume: Decimal = Decimal(0)
     market_cap: Decimal = Decimal(0)

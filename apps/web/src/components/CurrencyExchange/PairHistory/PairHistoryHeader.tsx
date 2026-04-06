@@ -9,6 +9,7 @@ interface PairHistoryHeaderProps {
   currencyOneItemId: number;
   currencyTwoItemId: number;
   latestEntry?: PairHistoryEntry;
+  baseCurrencyText: string;
 }
 
 export const PairHistoryHeader = ({
@@ -16,6 +17,7 @@ export const PairHistoryHeader = ({
   currencyOneItemId,
   currencyTwoItemId,
   latestEntry,
+  baseCurrencyText,
 }: PairHistoryHeaderProps) => {
   const baseLabel = pair?.currencyOne.text ?? `Item ${currencyOneItemId}`;
   const quoteLabel = pair?.currencyTwo.text ?? `Item ${currencyTwoItemId}`;
@@ -78,7 +80,8 @@ export const PairHistoryHeader = ({
               </Typography>
               <Typography variant="body2">
                 Value traded:{" "}
-                {latestEntry.data.currencyTwoData.valueTraded.toLocaleString()}
+                {latestEntry.data.currencyTwoData.valueTraded.toLocaleString()}{" "}
+                {baseCurrencyText}
               </Typography>
               <Typography variant="body2">
                 Stock:{" "}
@@ -93,7 +96,8 @@ export const PairHistoryHeader = ({
               </Typography>
               <Typography variant="body2">
                 Value traded:{" "}
-                {latestEntry.data.currencyOneData.valueTraded.toLocaleString()}
+                {latestEntry.data.currencyOneData.valueTraded.toLocaleString()}{" "}
+                {baseCurrencyText}
               </Typography>
               <Typography variant="body2">
                 Stock:{" "}

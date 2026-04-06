@@ -80,6 +80,15 @@ export interface SearchableItem {
   identifier: string;
 }
 
+export interface RealmOption {
+  value: string;
+  label: string;
+  gameApiId: string;
+  realmApiId: string;
+  tradeApiPath: string;
+  defaultLeagueValue: string;
+}
+
 export const ClassMapping: Record<string, string> = {
   Sorceress1: "Stormweaver",
   Ranger1: "Deadeye",
@@ -137,6 +146,8 @@ export interface CurrencyExchangeSnapshot {
   epoch: number;
   volume: number;
   marketCap: number;
+  baseCurrencyApiId: string;
+  baseCurrencyText: string;
 }
 
 export interface CurrencyPairData {
@@ -150,6 +161,8 @@ export interface CurrencyPairData {
 
 export interface SnapshotPair {
   volume: number;
+  baseCurrencyApiId: string;
+  baseCurrencyText: string;
   currencyOne: CurrencyItem;
   currencyTwo: CurrencyItem;
   currencyOneData: CurrencyPairData;
@@ -171,4 +184,6 @@ export interface PairHistoryEntry {
 export interface PairHistoryResponse {
   history: PairHistoryEntry[];
   hasMore: boolean;
+  baseCurrencyApiId: string;
+  baseCurrencyText: string;
 }

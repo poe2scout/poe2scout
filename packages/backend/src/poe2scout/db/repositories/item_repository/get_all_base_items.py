@@ -13,7 +13,7 @@ class BaseItem(RepositoryModel):
     item_metadata: Optional[dict] = None
 
 
-async def get_all_base_items() -> list[BaseItem]:
+async def get_all_base_items(game_id: int) -> list[BaseItem]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(BaseItem)) as cursor:
         query = """
             SELECT bi.base_item_id
@@ -22,8 +22,13 @@ async def get_all_base_items() -> list[BaseItem]:
                  , bi.item_metadata
                  , bi.game_id
               FROM base_item as bi
+             WHERE bi.game_id = %(game_id)s
         """
 
-        await cursor.execute(query)
+        params = {
+            "game_id": game_id
+        }
+
+        await cursor.execute(query, params)
 
         return await cursor.fetchall()

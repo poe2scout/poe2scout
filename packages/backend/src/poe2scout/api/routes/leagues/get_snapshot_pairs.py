@@ -3,8 +3,13 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path
 
-from poe2scout.api.dependancies import CXRepoDep, LeagueRepoDep, cache_response
+from poe2scout.api.dependancies import cache_response
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories import (
+    currency_exchange_repository, 
+    league_repository, 
+    realm_repository
+)
 from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_pairs import (
     GetCurrentSnapshotPairModel,
     PairDataDetails,
@@ -15,13 +20,15 @@ from . import router
 
 
 class GetSnapshotPairsRequest(ApiModel):
+    realm: str
     league_name: str
 
 
 def get_snapshot_pairs_request(
+    realm: Annotated[str, Path(alias="Realm")],
     league_name: Annotated[str, Path(alias="LeagueName")],
 ) -> GetSnapshotPairsRequest:
-    return GetSnapshotPairsRequest(league_name=league_name)
+    return GetSnapshotPairsRequest(realm=realm, league_name=league_name)
 
 
 GetSnapshotPairsRequestDep = Annotated[
@@ -73,17 +80,26 @@ class GetSnapshotPairsResponse(ApiModel):
     currency_exchange_snapshot_pair_id: int
     currency_exchange_snapshot_id: int
     volume: Decimal
+    base_currency_api_id: str
+    base_currency_text: str
     currency_one: _CurrencyItem
     currency_two: _CurrencyItem
     currency_one_data: _PairData
     currency_two_data: _PairData
 
     @classmethod
-    def from_model(cls, model: GetCurrentSnapshotPairModel) -> Self:
+    def from_model(
+        cls,
+        model: GetCurrentSnapshotPairModel,
+        base_currency_api_id: str,
+        base_currency_text: str,
+    ) -> Self:
         return cls(
             currency_exchange_snapshot_pair_id=model.currency_exchange_snapshot_pair_id,
             currency_exchange_snapshot_id=model.currency_exchange_snapshot_id,
             volume=model.volume,
+            base_currency_api_id=base_currency_api_id,
+            base_currency_text=base_currency_text,
             currency_one=cls._CurrencyItem.from_model(model.currency_one),
             currency_two=cls._CurrencyItem.from_model(model.currency_two),
             currency_one_data=cls._PairData.from_model(model.currency_one_data),
@@ -98,15 +114,26 @@ class GetSnapshotPairsResponse(ApiModel):
 )
 async def get_snapshot_pairs(
     request: GetSnapshotPairsRequestDep,
-    currency_exchange_repository: CXRepoDep,
-    league_repository: LeagueRepoDep
 ) -> list[GetSnapshotPairsResponse]:
-    league = await league_repository.get_league_by_value(request.league_name)
+    realm = await realm_repository.get_realm(request.realm)
+
+    if realm is None:
+        raise HTTPException(400, "Invalid realm")
+
+    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
 
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
     snapshot_pairs = await currency_exchange_repository.get_current_snapshot_pairs(
-        league.league_id
+        league.league_id,
+        realm.realm_id
     )
-    return [GetSnapshotPairsResponse.from_model(pair) for pair in snapshot_pairs]
+    return [
+        GetSnapshotPairsResponse.from_model(
+            pair,
+            base_currency_api_id=league.base_currency_api_id,
+            base_currency_text=league.base_currency_text,
+        )
+        for pair in snapshot_pairs
+    ]

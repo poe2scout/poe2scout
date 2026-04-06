@@ -9,13 +9,14 @@ async def create_snapshot(snapshot: CurrencyExchangeSnapshot) -> Optional[int]:
     if not snapshot.pairs:
         async with BaseRepository.get_db_cursor() as cursor:
             query = """
-INSERT INTO currency_exchange_snapshot(epoch, league_id, volume, market_cap)
-VALUES(%(epoch)s, %(league_id)s, %(volume)s, %(market_cap)s)
+INSERT INTO currency_exchange_snapshot(epoch, league_id, realm_id, volume, market_cap)
+VALUES(%(epoch)s, %(league_id)s, %(realm_id)s, %(volume)s, %(market_cap)s)
 RETURNING currency_exchange_snapshot_id
             """
             params = {
                 "epoch": snapshot.epoch,
                 "league_id": snapshot.league_id,
+                "realm_id": snapshot.realm_id,
                 "volume": snapshot.volume,
                 "market_cap": snapshot.market_cap,
             }
@@ -42,6 +43,7 @@ RETURNING currency_exchange_snapshot_id
     final_params = {
         "epoch": snapshot.epoch,
         "league_id": snapshot.league_id,
+        "realm_id": snapshot.realm_id,
         "volume": snapshot.volume,
         "market_cap": snapshot.market_cap,
         **pair_params,
@@ -50,8 +52,8 @@ RETURNING currency_exchange_snapshot_id
     async with BaseRepository.get_db_cursor() as cursor:
         query = """
 WITH snapshot_insert AS (
-    INSERT INTO currency_exchange_snapshot(epoch, league_id, volume, market_cap)
-    VALUES (%(epoch)s, %(league_id)s, %(volume)s, %(market_cap)s)
+    INSERT INTO currency_exchange_snapshot(epoch, league_id, realm_id, volume, market_cap)
+    VALUES (%(epoch)s, %(league_id)s, %(realm_id)s, %(volume)s, %(market_cap)s)
     RETURNING currency_exchange_snapshot_id
 ),
 pair_data_unnested AS (

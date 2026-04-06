@@ -58,7 +58,8 @@ CREATE TABLE currency_item (
 CREATE TABLE league (
     league_id SERIAL PRIMARY KEY,
     value character varying(300) NOT NULL,
-    current_league boolean NOT NULL DEFAULT TRUE
+    current_league boolean NOT NULL DEFAULT TRUE,
+    base_currency_item_id integer REFERENCES item (item_id)
 );
 
 CREATE TABLE price_log (

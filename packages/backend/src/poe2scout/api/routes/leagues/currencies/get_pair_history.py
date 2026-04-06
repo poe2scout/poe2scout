@@ -4,8 +4,12 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path, Query
 
-from poe2scout.api.dependancies import CXRepoDep, ItemRepoDep, LeagueRepoDep
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories import (
+    currency_exchange_repository, 
+    league_repository, 
+    realm_repository
+)
 from poe2scout.db.repositories.currency_exchange_repository.get_pair_history import (
     GetCurrentSnapshotPairModel,
     GetPairHistoryModel,
@@ -16,6 +20,7 @@ from poe2scout.db.repositories.currency_exchange_repository.get_pair_history imp
 from .. import router
 
 class GetPairHistoryRequest(ApiModel):
+    realm: str
     league_name: str
     currency_one_item_id: int
     currency_two_item_id: int
@@ -24,6 +29,7 @@ class GetPairHistoryRequest(ApiModel):
 
 
 def get_pair_history_request(
+    realm: Annotated[str, Path(alias="Realm")],
     league_name: Annotated[str, Path(alias="LeagueName")],
     currency_one_item_id: Annotated[int, Path(alias="CurrencyOneItemId")],
     currency_two_item_id: Annotated[int, Path(alias="CurrencyTwoItemId")],
@@ -31,6 +37,7 @@ def get_pair_history_request(
     end_epoch: Annotated[int | None, Query(alias="EndEpoch")] = None,
 ) -> GetPairHistoryRequest:
     return GetPairHistoryRequest(
+        realm=realm,
         league_name=league_name,
         currency_one_item_id=currency_one_item_id,
         currency_two_item_id=currency_two_item_id,
@@ -96,12 +103,21 @@ class GetPairHistoryResponse(ApiModel):
 
     history: list[_Pair]
     meta: _Meta
+    base_currency_api_id: str
+    base_currency_text: str
 
     @classmethod
-    def from_model(cls, model: GetPairHistoryModel) -> Self:
+    def from_model(
+        cls,
+        model: GetPairHistoryModel,
+        base_currency_api_id: str,
+        base_currency_text: str,
+    ) -> Self:
         return cls(
             history=[cls._Pair.from_model(history) for history in model.history],
             meta=cls._Meta.from_model(model.meta),
+            base_currency_api_id=base_currency_api_id,
+            base_currency_text=base_currency_text,
         )
 
 
@@ -109,12 +125,14 @@ class GetPairHistoryResponse(ApiModel):
     "/{LeagueName}/Currencies/Pairs/{CurrencyOneItemId}/{CurrencyTwoItemId}/History"
 )
 async def get_pair_history(
-    request: GetPairHistoryRequestDep,
-    item_repository: ItemRepoDep,
-    currency_exchange_repository: CXRepoDep,
-    league_repository: LeagueRepoDep
+    request: GetPairHistoryRequestDep
 ) -> GetPairHistoryResponse:
-    league = await league_repository.get_league_by_value(request.league_name)
+    realm = await realm_repository.get_realm(request.realm)
+
+    if realm is None:
+        raise HTTPException(400, "Invalid realm")
+
+    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
 
     if league is None:
         raise HTTPException(400, "Invalid league name")
@@ -123,6 +141,7 @@ async def get_pair_history(
         request.currency_one_item_id,
         request.currency_two_item_id,
         league.league_id,
+        realm.realm_id,
         request.end_epoch
         if request.end_epoch is not None
         else int(datetime.now(tz=timezone.utc).timestamp()),
@@ -132,4 +151,8 @@ async def get_pair_history(
     if pair_history is None:
         raise HTTPException(404, "No data for given league.")
 
-    return GetPairHistoryResponse.from_model(pair_history)
+    return GetPairHistoryResponse.from_model(
+        pair_history,
+        base_currency_api_id=league.base_currency_api_id,
+        base_currency_text=league.base_currency_text,
+    )

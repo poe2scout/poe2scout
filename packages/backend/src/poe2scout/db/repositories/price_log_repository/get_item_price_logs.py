@@ -16,7 +16,9 @@ class GetItemPriceLogsDto(RepositoryModel):
 
 
 async def get_item_price_logs(
-    item_ids: list[int], league_id: int
+    item_ids: list[int], 
+    league_id: int,
+    realm_id: int
 ) -> dict[int, list[PriceLogEntry | None]]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(GetItemPriceLogsDto)) as cursor:
         now = datetime.now()
@@ -32,7 +34,10 @@ async def get_item_price_logs(
                     block_start,
                     block_start + interval '6 hours' as block_end,
                     block_index
-                FROM unnest(%s::timestamp[], %s::int[]) AS tb(block_start, block_index)
+                FROM unnest(
+                    %(block_timestamps)s::timestamp[], 
+                    %(block_indices)s::int[]) AS tb(block_start, 
+                    block_index)
             ),
             item_blocks AS (
                 SELECT
@@ -41,7 +46,7 @@ async def get_item_price_logs(
                     tb.block_end,
                     tb.block_index
                 FROM time_blocks tb
-                CROSS JOIN unnest(%s::int[]) AS i(item_id)
+                CROSS JOIN unnest(%(item_ids)s::int[]) AS i(item_id)
             ),
             latest_prices AS (
                 SELECT
@@ -57,7 +62,8 @@ async def get_item_price_logs(
                 FROM item_blocks ib
                 LEFT JOIN price_log pl ON
                     pl.item_id = ib.item_id
-                    AND pl.league_id = %s
+                    AND pl.league_id = %(league_id)s
+                    AND pl.realm_id = %(realm_id)s
                     AND pl.created_at >= ib.block_start
                     AND pl.created_at < ib.block_end
             )
@@ -75,7 +81,15 @@ async def get_item_price_logs(
         block_timestamps = [tb for tb in time_blocks]
         block_indices = list(range(7))
 
-        await cursor.execute(query, (block_timestamps, block_indices, item_ids, league_id))
+        params = {
+            "block_timestamps": block_timestamps,
+            "block_indices": block_indices,
+            "item_ids": item_ids,
+            "league_id": league_id,
+            "realm_id": realm_id
+        }
+
+        await cursor.execute(query, params)
 
         results: dict[int, list[PriceLogEntry | None]] = {
             item_id: [None] * 7 for item_id in item_ids

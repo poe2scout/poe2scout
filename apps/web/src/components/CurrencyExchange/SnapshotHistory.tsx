@@ -140,7 +140,11 @@ export function SnapshotHistory({
             onLegendDataChange={setLegendData}
             height={350}
           />
-          <SnapshotHistoryChartLegend {...legendData} />
+          <SnapshotHistoryChartLegend
+            {...legendData}
+            baseCurrencyApiId={snapshot.baseCurrencyApiId}
+            baseCurrencyText={snapshot.baseCurrencyText}
+          />
         </Box>
       </Paper>
     );

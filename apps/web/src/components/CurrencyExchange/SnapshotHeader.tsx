@@ -2,6 +2,7 @@ import { Typography, Paper, Grid, Stack } from "@mui/material";
 
 import { useLeague } from "../../contexts/LeagueContext";
 import type { CurrencyExchangeSnapshot } from "../../types";
+import { getCurrencyLabel } from "../../currencyMeta";
 import { FormatTimeFromEpoch } from "../FormatTime";
 
 interface SnapshotHeaderProps {
@@ -25,6 +26,10 @@ const StatBox = ({ title, value }: { title: string; value: string }) => (
 
 export function SnapshotHeader({ snapshot }: SnapshotHeaderProps) {
   const { league } = useLeague();
+  const baseCurrencyLabel = getCurrencyLabel(
+    snapshot.baseCurrencyApiId,
+    snapshot.baseCurrencyText,
+  );
 
   return (
     <Paper elevation={3} sx={{ p: 2 }}>
@@ -45,17 +50,17 @@ export function SnapshotHeader({ snapshot }: SnapshotHeaderProps) {
           >
             <StatBox
               title="Hourly Volume"
-              value={`$${snapshot.volume.toLocaleString(undefined, {
+              value={`${snapshot.volume.toLocaleString(undefined, {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
-              })} ex`}
+              })} ${baseCurrencyLabel}`}
             />
             <StatBox
               title="Market Cap"
-              value={`$${snapshot.marketCap.toLocaleString(undefined, {
+              value={`${snapshot.marketCap.toLocaleString(undefined, {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
-              })} ex`}
+              })} ${baseCurrencyLabel}`}
             />
           </Stack>
         </Grid>

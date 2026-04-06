@@ -12,7 +12,12 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from poe2scout.api.config import ApiServiceConfig
-from poe2scout.api.routes import items_router, leagues_router, static_router
+from poe2scout.api.routes import (
+    items_router,
+    leagues_router,
+    root_static_router,
+    static_router,
+)
 from poe2scout.db.repositories.base_repository import BaseRepository
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
@@ -101,6 +106,7 @@ if IS_LOCAL:
 # Import and include routers
 app.include_router(items_router)
 app.include_router(leagues_router)
+app.include_router(root_static_router)
 app.include_router(static_router)
 
 if sys.platform == "win32":

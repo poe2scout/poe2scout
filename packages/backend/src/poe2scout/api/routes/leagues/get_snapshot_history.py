@@ -4,8 +4,12 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path, Query
 
-from poe2scout.api.dependancies import CXRepoDep, LeagueRepoDep
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories import (
+    currency_exchange_repository, 
+    league_repository, 
+    realm_repository
+)
 from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_history import (
     GetCurrencyExchangeHistoryData,
     GetCurrencyExchangeHistoryModel,
@@ -15,17 +19,20 @@ from . import router
 
 
 class GetSnapshotHistoryRequest(ApiModel):
+    realm: str
     league_name: str
     limit: int
     end_epoch: int | None
 
 
 def get_snapshot_history_request(
+    realm: Annotated[str, Path(alias="Realm")],
     league_name: Annotated[str, Path(alias="LeagueName")],
     limit: Annotated[int, Query(alias="Limit")],
     end_epoch: Annotated[int | None, Query(alias="EndEpoch")] = None,
 ) -> GetSnapshotHistoryRequest:
     return GetSnapshotHistoryRequest(
+        realm=realm,
         league_name=league_name,
         limit=limit,
         end_epoch=end_epoch,
@@ -61,28 +68,41 @@ class GetSnapshotHistoryResponse(ApiModel):
 
     data: list[_Data]
     meta: _Meta
+    base_currency_api_id: str
+    base_currency_text: str
 
     @classmethod
-    def from_model(cls, model: GetCurrencyExchangeHistoryModel) -> Self:
+    def from_model(
+        cls,
+        model: GetCurrencyExchangeHistoryModel,
+        base_currency_api_id: str,
+        base_currency_text: str,
+    ) -> Self:
         return cls(
             data=[cls._Data.from_model(entry) for entry in model.data],
             meta=cls._Meta.from_model(model.meta),
+            base_currency_api_id=base_currency_api_id,
+            base_currency_text=base_currency_text,
         )
 
 
 @router.get("/{LeagueName}/SnapshotHistory")
 async def get_snapshot_history(
     request: GetSnapshotHistoryRequestDep,
-    currency_exchange_repository: CXRepoDep,
-    league_repository: LeagueRepoDep
 ) -> GetSnapshotHistoryResponse:
-    league = await league_repository.get_league_by_value(request.league_name)
+    realm = await realm_repository.get_realm(request.realm)
+
+    if realm is None:
+        raise HTTPException(400, "Invalid realm")
+
+    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
 
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
     snapshot_history = await currency_exchange_repository.get_currency_exchange_history(
         league.league_id,
+        realm.realm_id,
         request.end_epoch
         if request.end_epoch is not None
         else int(datetime.now(tz=timezone.utc).timestamp()),
@@ -92,4 +112,8 @@ async def get_snapshot_history(
     if snapshot_history is None:
         raise HTTPException(404, "No data for given league.")
 
-    return GetSnapshotHistoryResponse.from_model(snapshot_history)
+    return GetSnapshotHistoryResponse.from_model(
+        snapshot_history,
+        base_currency_api_id=league.base_currency_api_id,
+        base_currency_text=league.base_currency_text,
+    )
