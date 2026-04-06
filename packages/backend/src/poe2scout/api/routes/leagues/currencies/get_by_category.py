@@ -6,7 +6,7 @@ from fastapi import Depends, HTTPException, Path, Query
 
 from poe2scout.api.dependancies import EconomyCacheDep, PaginationParamDep
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories import league_repository
+from poe2scout.db.repositories import league_repository, realm_repository
 from poe2scout.db.repositories.models import CurrencyItemExtended, PriceLogEntry
 
 from .. import router
@@ -80,6 +80,7 @@ class GetByCategoryResponse(ApiModel):
 
 
 class GetByCategoryRequest(ApiModel):
+    realm: str
     league_name: str
     category: str
     reference_currency: str
@@ -87,6 +88,7 @@ class GetByCategoryRequest(ApiModel):
 
 
 def get_by_category_request(
+    realm: Annotated[str, Path(alias="Realm")],
     league_name: Annotated[str, Path(alias="LeagueName")],
     category: Annotated[str, Query(alias="Category")],
     reference_currency: Annotated[
@@ -96,6 +98,7 @@ def get_by_category_request(
     search: Annotated[str, Query(alias="Search")] = "",
 ) -> GetByCategoryRequest:
     return GetByCategoryRequest(
+        realm=realm,
         league_name=league_name,
         category=category,
         reference_currency=reference_currency,
@@ -118,13 +121,20 @@ async def get_by_category(
     if request.reference_currency not in ["exalted", "chaos"]:
         raise HTTPException(400, "reference currency must be exalted or chaos")
 
-    league = await league_repository.get_league_by_value(request.league_name)
+    realm = await realm_repository.get_realm(request.realm)
+
+    if realm is None:
+        HTTPException(400, "Invalid realm")
+
+    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
 
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
     items = await economy_cache.get_currency_page(
         league.league_id,
+        realm.realm_id,
+        realm.game_id,
         request.category,
         request.reference_currency,
         search=request.search,

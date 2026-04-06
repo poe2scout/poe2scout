@@ -57,13 +57,14 @@ class _FlatPairRow(RepositoryModel):
     c2_highest_stock: int
 
 
-async def get_current_snapshot_pairs(league_id: int) -> list[GetCurrentSnapshotPairModel]:
+async def get_current_snapshot_pairs(league_id: int, realm_id: int) -> list[GetCurrentSnapshotPairModel]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(_FlatPairRow)) as cursor:
         query = """
 WITH current_snapshot_id AS (
   SELECT currency_exchange_snapshot_id
     FROM currency_exchange_snapshot
    WHERE league_id = %(league_id)s
+     AND realm_id = %(realm_id)s
    ORDER BY epoch DESC
    LIMIT 1
 )
@@ -111,7 +112,10 @@ SELECT cesp.currency_exchange_snapshot_pair_id AS currency_exchange_snapshot_pai
                                                FROM current_snapshot_id);
       """
 
-        params = {"league_id": league_id}
+        params = {
+            "league_id": league_id,
+            "realm_id": realm_id
+        }
 
         await cursor.execute(query, params)
 

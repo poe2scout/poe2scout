@@ -11,7 +11,7 @@ class GetCurrencyExchangeModel(RepositoryModel):
     market_cap: Decimal
 
 
-async def get_currency_exchange(league_id: int) -> GetCurrencyExchangeModel | None:
+async def get_currency_exchange(league_id: int, realm_id: int) -> GetCurrencyExchangeModel | None:
     async with BaseRepository.get_db_cursor(
         row_factory=class_row(GetCurrencyExchangeModel)
     ) as cursor:
@@ -21,11 +21,15 @@ async def get_currency_exchange(league_id: int) -> GetCurrencyExchangeModel | No
                    market_cap
               FROM currency_exchange_snapshot
              WHERE league_id = %(league_id)s
+               AND realm_id = %(realm_id)s
              ORDER BY epoch DESC
              LIMIT 1
         """
 
-        params = {"league_id": league_id}
+        params = {
+            "league_id": league_id,
+            "realm_id": realm_id
+        }
 
         await cursor.execute(query, params)
 

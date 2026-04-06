@@ -8,24 +8,35 @@ class League(RepositoryModel):
     value: str
 
 
-async def get_leagues() -> list[League]:
+async def get_current_leagues(game_id: int) -> list[League]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(League)) as cursor:
         query = """
             SELECT league_id, value
-            FROM league
+             FROM league
             WHERE current_league = true
+              AND game_id = %(game_id)s
         """
-        await cursor.execute(query)
+
+        params = {
+            "game_id": game_id
+        }
+
+        await cursor.execute(query, params)
 
         return await cursor.fetchall()
 
 
-async def get_all_leagues() -> list[League]:
+async def get_leagues(game_id: int) -> list[League]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(League)) as cursor:
         query = """
             SELECT league_id, value
-            FROM league
+              FROM league
+             WHERE game_id = %(game_id)s
         """
-        await cursor.execute(query)
+
+        params = {
+            "game_id": game_id
+        }
+        await cursor.execute(query, params)
 
         return await cursor.fetchall()

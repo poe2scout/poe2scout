@@ -15,6 +15,7 @@ class GetItemPriceHistoryModel(RepositoryModel):
 async def get_item_price_history(
     item_id: int,
     league_id: int,
+    realm_id: int,
     log_count: int,
     log_frequency: int,
     end_time: datetime,
@@ -34,6 +35,7 @@ SELECT DISTINCT ON (time)
 FROM price_log
 WHERE item_id = %(item_id)s
 AND league_id = %(league_id)s
+AND realm_id = %(realm_id)s
 AND created_at < %(end_time)s
 ORDER BY time DESC, created_at DESC
 LIMIT %(limit)s;
@@ -43,6 +45,7 @@ LIMIT %(limit)s;
             "log_frequency": log_frequency,
             "end_time": end_time,
             "item_id": item_id,
+            "realm_id": realm_id,
             "league_id": league_id,
             "limit": limit,
         }

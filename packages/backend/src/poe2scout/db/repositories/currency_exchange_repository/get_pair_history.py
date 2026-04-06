@@ -49,6 +49,7 @@ async def get_pair_history(
     currency_one_id: int,
     currency_two_id: int,
     league_id: int,
+    realm_id: int,
     end_epoch: int,
     limit: int,
 ) -> GetPairHistoryModel:
@@ -72,6 +73,7 @@ async def get_pair_history(
     FROM currency_exchange_history
     WHERE
         league_id = %(league_id)s
+        AND realm_id = %(realm_id)s
         AND epoch < %(end_epoch)s
         AND currency_one_item_id = %(currency_two_id)s
         AND currency_two_item_id = %(currency_one_id)s
@@ -97,6 +99,7 @@ UNION ALL
     FROM currency_exchange_history
     WHERE
         league_id = %(league_id)s
+        AND realm = %(realm_id)s
         AND epoch < %(end_epoch)s
         AND currency_one_item_id = %(currency_one_id)s
         AND currency_two_item_id = %(currency_two_id)s
@@ -111,6 +114,7 @@ LIMIT %(limit)s;
             "currency_one_id": currency_one_id,
             "currency_two_id": currency_two_id,
             "league_id": league_id,
+            "realm_id": realm_id,
             "end_epoch": end_epoch,
             "limit": limit + 1,
         }

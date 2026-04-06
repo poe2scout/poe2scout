@@ -1,7 +1,8 @@
-from typing import Self
+from typing import Annotated, Self
 
+from fastapi import Depends, HTTPException, Path
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories import item_repository
+from poe2scout.db.repositories import item_repository, realm_repository
 from poe2scout.db.repositories.item_repository.get_search_options import SearchOption
 
 from . import router
@@ -30,6 +31,29 @@ class GetFiltersResponse(ApiModel):
         )
 
 
+class GetFiltersRequest(ApiModel):
+    realm: str
+
+
+def get_filters_request(
+    realm: Annotated[str, Path(alias="Realm")],
+) -> GetFiltersRequest:
+    return GetFiltersRequest(realm=realm)
+
+
+GetFiltersRequestDep = Annotated[
+    GetFiltersRequest,
+    Depends(get_filters_request),
+]
+
+
 @router.get("/Filters")
-async def get_filters() -> GetFiltersResponse:
-    return GetFiltersResponse.from_model(await item_repository.get_search_options())
+async def get_filters(
+    request: GetFiltersRequestDep,
+) -> GetFiltersResponse:
+    realm = await realm_repository.get_realm(request.realm)
+
+    if realm is None:
+        raise HTTPException(400, "Invalid realm")
+
+    return GetFiltersResponse.from_model(await item_repository.get_search_options(realm.game_id))

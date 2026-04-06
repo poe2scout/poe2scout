@@ -5,7 +5,7 @@ from typing import Annotated, Self
 from fastapi import Depends, HTTPException, Path, Query
 
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories import currency_exchange_repository, league_repository
+from poe2scout.db.repositories import currency_exchange_repository, league_repository, realm_repository
 from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_history import (
     GetCurrencyExchangeHistoryData,
     GetCurrencyExchangeHistoryModel,
@@ -15,17 +15,20 @@ from . import router
 
 
 class GetSnapshotHistoryRequest(ApiModel):
+    realm: str
     league_name: str
     limit: int
     end_epoch: int | None
 
 
 def get_snapshot_history_request(
+    realm: Annotated[str, Path(alias="Realm")],
     league_name: Annotated[str, Path(alias="LeagueName")],
     limit: Annotated[int, Query(alias="Limit")],
     end_epoch: Annotated[int | None, Query(alias="EndEpoch")] = None,
 ) -> GetSnapshotHistoryRequest:
     return GetSnapshotHistoryRequest(
+        realm=realm,
         league_name=league_name,
         limit=limit,
         end_epoch=end_epoch,
@@ -74,13 +77,19 @@ class GetSnapshotHistoryResponse(ApiModel):
 async def get_snapshot_history(
     request: GetSnapshotHistoryRequestDep,
 ) -> GetSnapshotHistoryResponse:
-    league = await league_repository.get_league_by_value(request.league_name)
+    realm = await realm_repository.get_realm(request.realm)
+
+    if realm is None:
+        raise HTTPException(400, "Invalid realm")
+
+    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
 
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
     snapshot_history = await currency_exchange_repository.get_currency_exchange_history(
         league.league_id,
+        realm.realm_id,
         request.end_epoch
         if request.end_epoch is not None
         else int(datetime.now(tz=timezone.utc).timestamp()),

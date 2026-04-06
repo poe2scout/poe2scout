@@ -56,7 +56,7 @@ async def fetch_currency_exchange_prices(
     await asyncio.sleep(
         current_epoch + 61 * 60 - int(datetime.now(timezone.utc).timestamp())
     )  # Wait til next time
-    leagues = await league_repository.get_all_leagues()
+    leagues = await league_repository.get_leagues()
 
     url = f"https://www.pathofexile.com/api/currency-exchange/poe2/{current_epoch}"
 

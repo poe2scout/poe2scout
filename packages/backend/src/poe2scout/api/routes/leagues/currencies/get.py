@@ -9,6 +9,7 @@ from poe2scout.db.repositories import (
     currency_item_repository,
     league_repository,
     price_log_repository,
+    realm_repository,
 )
 from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
 
@@ -69,15 +70,18 @@ class GetResponse(ApiModel):
 
 
 class GetRequest(ApiModel):
+    realm: str
     api_id: str
     league_name: str
 
 
 def get_request(
+    realm: Annotated[str, Path(alias="Realm")],
     league_name: Annotated[str, Path(alias="LeagueName")],
     api_id: Annotated[str, Path(alias="ApiId")],
 ) -> GetRequest:
     return GetRequest(
+        realm=realm,
         api_id=api_id,
         league_name=league_name,
     )
@@ -98,17 +102,23 @@ GetRequestDep = Annotated[
 async def get(
     request: GetRequestDep,
 ) -> GetResponse:
-    currency_item = await currency_item_repository.get_currency_item(request.api_id)
+    realm = await realm_repository.get_realm(request.realm)
+
+    if realm is None:
+        raise HTTPException(400, "Invalid realm")
+
+    currency_item = await currency_item_repository.get_currency_item(request.api_id, realm.game_id)
     if currency_item is None:
         raise HTTPException(400, "Invalid currency item api ID")
 
-    league = await league_repository.get_league_by_value(request.league_name)
+    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
     price_logs_by_item_id = await price_log_repository.get_item_price_logs(
         item_ids=[currency_item.item_id],
         league_id=league.league_id,
+        realm_id=realm.realm_id
     )
 
     return GetResponse.from_model(

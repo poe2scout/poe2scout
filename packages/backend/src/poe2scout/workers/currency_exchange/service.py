@@ -77,7 +77,7 @@ async def run(
         await asyncio.sleep(60 * 10)
         return
 
-    leagues = await league_repository.get_all_leagues()
+    leagues = await league_repository.get_leagues()
 
     currencies = await currency_item_repository.get_all_currency_items()
 

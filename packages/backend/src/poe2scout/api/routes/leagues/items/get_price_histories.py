@@ -5,7 +5,7 @@ from typing import Annotated, Self
 from fastapi import Depends, HTTPException, Path
 
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories import league_repository, price_log_repository
+from poe2scout.db.repositories import league_repository, price_log_repository, realm_repository
 from poe2scout.db.repositories.price_log_repository.get_all_item_histories import (
     ItemHistory,
     ItemHistoryLog,
@@ -54,13 +54,15 @@ class GetItemPriceHistoriesResponse(ApiModel):
 
 
 class GetItemPriceHistoriesRequest(ApiModel):
+    realm: str
     league_name: str
 
 
 def get_item_price_histories_request(
+    realm: Annotated[str, Path(alias="Realm")],
     league_name: Annotated[str, Path(alias="LeagueName")],
 ) -> GetItemPriceHistoriesRequest:
-    return GetItemPriceHistoriesRequest(league_name=league_name)
+    return GetItemPriceHistoriesRequest(realm=realm, league_name=league_name)
 
 
 GetItemPriceHistoryRequestDep = Annotated[
@@ -73,11 +75,19 @@ GetItemPriceHistoryRequestDep = Annotated[
 async def get_item_price_histories(
     request: GetItemPriceHistoryRequestDep,
 ) -> GetItemPriceHistoriesResponse:
-    league = await league_repository.get_league_by_value(request.league_name)
+    realm = await realm_repository.get_realm(request.realm)
+
+    if realm is None:
+        raise HTTPException(400, "Invalid realm")
+
+    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
 
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
-    item_histories = await price_log_repository.get_all_item_histories(league.league_id)
+    item_histories = await price_log_repository.get_all_item_histories(
+        league.league_id, 
+        realm.realm_id
+    )
 
     return GetItemPriceHistoriesResponse.from_model(item_histories)

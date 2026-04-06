@@ -28,7 +28,7 @@ async def fetch_prices():
     async with PoeTradeClient(headers=headers) as client:
         while True:
             # Get all unqiue items
-            leagues = await league_repository.get_leagues()
+            leagues = await league_repository.get_current_leagues()
             leagues = [league for league in leagues if league.league_id == 7] # Fate of the Vaal
             base_unique_items = await unique_item_repository.get_all_unique_items()
             base_currency_items = await currency_item_repository.get_all_currency_items()

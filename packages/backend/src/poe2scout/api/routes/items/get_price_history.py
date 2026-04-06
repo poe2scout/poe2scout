@@ -7,6 +7,7 @@ from poe2scout.db.repositories import (
     currency_item_repository,
     league_repository,
     price_log_repository,
+    realm_repository,
 )
 from poe2scout.db.repositories.price_log_repository.get_item_price_history import (
     GetItemPriceHistoryModel,
@@ -17,6 +18,7 @@ from ..leagues import router
 
 
 class GetPriceHistoryRequest(ApiModel):
+    realm: str
     item_id: int
     league_name: str
     log_count: int
@@ -25,6 +27,7 @@ class GetPriceHistoryRequest(ApiModel):
 
 
 def get_price_history_request(
+    realm: Annotated[str, Path(alias="Realm")],
     league_name: Annotated[str, Path(alias="LeagueName")],
     item_id: Annotated[int, Path(alias="ItemId")],
     log_count: Annotated[int, Query(alias="LogCount")],
@@ -32,6 +35,7 @@ def get_price_history_request(
     reference_currency: Annotated[str, Query(alias="ReferenceCurrency")] = "exalted",
 ) -> GetPriceHistoryRequest:
     return GetPriceHistoryRequest(
+        realm=realm,
         item_id=item_id,
         league_name=league_name,
         log_count=log_count,
@@ -78,16 +82,14 @@ class GetPriceHistoryResponse(ApiModel):
 async def get_price_history(
     request: GetPriceHistoryRequestDep
 ) -> GetPriceHistoryResponse:
+    realm = await realm_repository.get_realm(request.realm)
+
     if request.log_count % 4 != 0:
         raise HTTPException(400, "LogCount must be a multiple of 4")
 
-    leagues = await league_repository.get_all_leagues()
-    league_id = next(
-        (league.league_id for league in leagues if league.value == request.league_name),
-        None,
-    )
+    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
 
-    if league_id is None:
+    if league is None:
         raise HTTPException(400, "League does not exist")
 
     log_frequency = (
@@ -96,7 +98,8 @@ async def get_price_history(
 
     history = await price_log_repository.get_item_price_history(
         request.item_id,
-        league_id,
+        league.league_id,
+        realm.realm_id,
         request.log_count,
         log_frequency,
         request.end_time,
@@ -104,7 +107,8 @@ async def get_price_history(
 
     if request.reference_currency != "exalted":
         reference_currency_item = await currency_item_repository.get_currency_item(
-            request.reference_currency
+            request.reference_currency,
+            realm.game_id
         )
 
         if reference_currency_item is None:
@@ -112,7 +116,8 @@ async def get_price_history(
 
         reference_currency_history = await price_log_repository.get_item_price_history(
             reference_currency_item.item_id,
-            league_id,
+            league.league_id,
+            realm.realm_id,
             request.log_count,
             log_frequency,
             request.end_time,

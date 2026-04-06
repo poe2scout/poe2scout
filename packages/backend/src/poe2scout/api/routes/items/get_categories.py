@@ -1,7 +1,8 @@
-from typing import Self
+from typing import Annotated, Self
 
+from fastapi import Depends, HTTPException, Path
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories import currency_item_repository, item_repository
+from poe2scout.db.repositories import currency_item_repository, item_repository, realm_repository
 from poe2scout.db.repositories.currency_item_repository.get_all_currency_categories import (
     CurrencyCategory
 )
@@ -78,10 +79,33 @@ class GetCategoriesResponse(ApiModel):
                 for currency_category in currency_categories
             ],
         )
+    
+class GetCategoriesRequest(ApiModel):
+    realm: str    
+
+def get_categories_request(
+    realm: Annotated[str, Path(alias="Realm")],
+) -> GetCategoriesRequest:
+    return GetCategoriesRequest(
+        realm=realm
+    )
+
+
+GetCategoriesRequestDep = Annotated[
+    GetCategoriesRequest,
+    Depends(get_categories_request),
+]
 
 
 @router.get("/Categories")
-async def get_categories() -> GetCategoriesResponse:
+async def get_categories(
+    request: GetCategoriesRequestDep
+) -> GetCategoriesResponse:
+    realm = await realm_repository.get_realm(request.realm)
+
+    if realm is None:
+        raise HTTPException(400, "Invalid realm")
+
     all_currency_categories = await currency_item_repository.get_all_currency_categories()
     all_item_categories = await item_repository.get_all_item_categories()
 

@@ -31,6 +31,8 @@ class CacheState(BaseModel, Generic[T]):
 class CacheKey(BaseModel):
     category: str
     league_id: int
+    realm_id: int
+    game_id: int
     reference_currency: str
 
     class Config:
@@ -51,13 +53,19 @@ class EconomyCache:
     async def get_currency_page(
         self,
         league_id: int,
+        realm_id: int,
+        game_id: int,
         category: str,
         reference_currency: str,
         search: str,
     ) -> List[CurrencyItemExtended]:
         items: List[CurrencyItemExtended]
         cache_key = CacheKey(
-            category=category, league_id=league_id, reference_currency=reference_currency
+            category=category, 
+            league_id=league_id, 
+            realm_id=realm_id,
+            game_id=game_id,
+            reference_currency=reference_currency
         )
 
         cache_entry = self.CurrencyCache.get(cache_key)
@@ -84,6 +92,8 @@ class EconomyCache:
     async def get_unique_page(
         self,
         league_id: int,
+        realm_id: int,
+        game_id: int,
         category: str,
         reference_currency: str,
         search: str,
@@ -91,7 +101,11 @@ class EconomyCache:
         items: List[UniqueItemExtended]
 
         cache_key = CacheKey(
-            category=category, league_id=league_id, reference_currency=reference_currency
+            category=category, 
+            league_id=league_id, 
+            realm_id=realm_id,
+            game_id=game_id,
+            reference_currency=reference_currency
         )
         if (
             self.UniqueCache.get(cache_key) is not None
@@ -126,21 +140,25 @@ class EconomyCache:
         price_logs = await price_log_repository.get_item_price_logs(
             item_ids,
             cache_key.league_id,
+            cache_key.realm_id
         )
 
         chaos_price = 1
         if cache_key.reference_currency == "chaos":
-            chaos_item = await currency_item_repository.get_currency_item("chaos")
+            chaos_item = await currency_item_repository.get_chaos_item(cache_key.game_id)
             if chaos_item is None:
                 raise Exception()
 
-                chaos_price = await price_log_repository.get_item_price(
-                    chaos_item.item_id, cache_key.league_id
+            chaos_price = await price_log_repository.get_item_price(
+                    chaos_item.item_id, 
+                    cache_key.league_id,
+                    cache_key.realm_id
                 )
             chaos_price_logs = (
                 await price_log_repository.get_item_price_logs(
                     [chaos_item.item_id],
-                    cache_key.league_id
+                    cache_key.league_id,
+                    cache_key.realm_id
                 )
             )[chaos_item.item_id]
 
@@ -209,22 +227,26 @@ class EconomyCache:
         price_logs = await price_log_repository.get_item_price_logs(
             item_ids,
             cache_key.league_id,
+            cache_key.realm_id
         )
 
         chaos_price = 1
         if cache_key.reference_currency == "chaos":
-            chaos_item = await currency_item_repository.get_currency_item("chaos")
+            chaos_item = await currency_item_repository.get_chaos_item(cache_key.game_id)
 
             if chaos_item is None:
                 raise Exception()
 
             chaos_price = await price_log_repository.get_item_price(
-                chaos_item.item_id, cache_key.league_id
+                chaos_item.item_id, 
+                cache_key.league_id,
+                cache_key.realm_id
             )
             chaos_price_loags = (
                 await price_log_repository.get_item_price_logs(
                     [chaos_item.item_id],
-                    cache_key.league_id
+                    cache_key.league_id,
+                    cache_key.realm_id
                 )
             )[chaos_item.item_id]
 
