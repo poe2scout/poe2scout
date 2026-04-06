@@ -6,14 +6,13 @@ from cachetools import TTLCache
 from cachetools.keys import hashkey
 from fastapi import Depends, HTTPException, Path
 
-from poe2scout.api.dependancies import (
-    CurrencyItemRepoDep, 
-    ItemRepoDep, 
-    LeagueRepoDep, 
-    PriceLogRepoDep, 
-    UniqueItemRepoDep
-)
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories import (
+    currency_item_repository,
+    league_repository,
+    price_log_repository,
+    unique_item_repository,
+)
 from poe2scout.db.repositories.unique_item_repository.get_all_unique_items import UniqueItem
 from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
 
@@ -113,11 +112,6 @@ class GetItemsResponse(ApiModel):
 @router.get("/{LeagueName}/Items")
 async def get_items(
     request: GetItemsRequestDep,
-    item_repository: ItemRepoDep,    
-    league_repository: LeagueRepoDep,
-    currency_item_repository: CurrencyItemRepoDep,
-    unique_item_repository: UniqueItemRepoDep,
-    price_log_repository: PriceLogRepoDep
 ) -> list[GetItemsResponse]:
     cache_key = hashkey(request.league_name)
 
@@ -142,7 +136,10 @@ async def get_items(
     if league_id is None:
         raise HTTPException(status_code=404, detail="League not found")
 
-    price_logs_by_item_id = await price_log_repository.get_item_price_logs(item_ids, league_id)
+    price_logs_by_item_id = await price_log_repository.get_item_price_logs(
+        item_ids,
+        league_id,
+    )
 
     responses = [
         GetItemsResponse.from_unique_item(

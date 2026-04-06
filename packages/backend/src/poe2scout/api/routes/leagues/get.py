@@ -1,9 +1,13 @@
-
 from typing import Self
 
-from poe2scout.api.dependancies import CurrencyItemRepoDep, LeagueRepoDep, PriceLogRepoDep
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories import (
+    currency_item_repository,
+    league_repository,
+    price_log_repository,
+)
 from . import router
+
 
 class GetResponse(ApiModel):
     value: str
@@ -25,11 +29,7 @@ class GetResponse(ApiModel):
 
 
 @router.get("")
-async def get(
-    league_repository: LeagueRepoDep,
-    currency_item_repository: CurrencyItemRepoDep,
-    price_log_repository: PriceLogRepoDep
-) -> list[GetResponse]:
+async def get() -> list[GetResponse]:
     leagues = await league_repository.get_all_leagues()
 
     divine_item = await currency_item_repository.get_divine_item()
@@ -39,11 +39,11 @@ async def get(
     responses: list[GetResponse] = []
     for league in leagues:
         divine_price = await price_log_repository.get_item_price(
-            divine_item.item_id, 
+            divine_item.item_id,
             league.league_id
         )
         chaos_price = await price_log_repository.get_item_price(
-            chaos_item.item_id, 
+            chaos_item.item_id,
             league.league_id
         )
 

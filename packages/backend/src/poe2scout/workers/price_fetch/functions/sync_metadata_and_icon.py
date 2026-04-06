@@ -1,5 +1,4 @@
-from poe2scout.db.repositories.currency_item_repository import CurrencyItemRepository
-from poe2scout.db.repositories.item_repository import ItemRepository
+from poe2scout.db.repositories import currency_item_repository
 from poe2scout.db.repositories.currency_item_repository.get_all_currency_items import CurrencyItem
 import logging
 
@@ -11,8 +10,6 @@ logger = logging.getLogger(__name__)
 
 async def sync_metadata_and_icon(
     want_currency: CurrencyItem,
-    repo: ItemRepository,
-    currency_item_repo: CurrencyItemRepository,
     client: PoeTradeClient,
     base_url: str,
     realm: str,
@@ -63,13 +60,13 @@ async def sync_metadata_and_icon(
     logger.info(f"Item metadata: {item_metadata}")
 
     if want_currency.item_metadata is None:
-        await currency_item_repo.set_currency_item_metadata(
+        await currency_item_repository.set_currency_item_metadata(
             item_metadata, 
             want_currency.currency_item_id
         )
 
     if want_currency.icon_url is None:
-        await currency_item_repo.update_currency_icon_url(
+        await currency_item_repository.update_currency_icon_url(
             item_metadata["icon"], 
             want_currency.currency_item_id
         )

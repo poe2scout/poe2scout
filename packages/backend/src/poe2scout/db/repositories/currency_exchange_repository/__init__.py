@@ -17,12 +17,11 @@ from poe2scout.db.repositories.currency_exchange_repository.update_pair_historie
     update_pair_histories,
 )
 
-
-class CurrencyExchangeRepository:
-    def __init__(self):
-        self.create_snapshot = create_snapshot
-        self.get_currency_exchange = get_currency_exchange
-        self.get_currency_exchange_history = get_currency_exchange_history
-        self.get_current_snapshot_pairs = get_current_snapshot_pairs
-        self.get_pair_history = get_pair_history
-        self.update_pair_histories = update_pair_histories
+__all__ = [
+    "create_snapshot",
+    "get_currency_exchange",
+    "get_currency_exchange_history",
+    "get_current_snapshot_pairs",
+    "get_pair_history",
+    "update_pair_histories",
+]

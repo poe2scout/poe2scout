@@ -3,8 +3,9 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path
 
-from poe2scout.api.dependancies import CXRepoDep, LeagueRepoDep, cache_response
+from poe2scout.api.dependancies import cache_response
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories import currency_exchange_repository, league_repository
 from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_pairs import (
     GetCurrentSnapshotPairModel,
     PairDataDetails,
@@ -98,8 +99,6 @@ class GetSnapshotPairsResponse(ApiModel):
 )
 async def get_snapshot_pairs(
     request: GetSnapshotPairsRequestDep,
-    currency_exchange_repository: CXRepoDep,
-    league_repository: LeagueRepoDep
 ) -> list[GetSnapshotPairsResponse]:
     league = await league_repository.get_league_by_value(request.league_name)
 

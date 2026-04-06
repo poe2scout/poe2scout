@@ -30,7 +30,17 @@ async def get_currency_item(api_id: str) -> CurrencyItem | None:
 
         return await cursor.fetchone()
 
+async def get_divine_item() -> CurrencyItem:
+    divine_item = await get_currency_item("divine")
+    assert divine_item is not None
+    return divine_item
+    
+async def get_chaos_item() -> CurrencyItem:
+    chaos_item = await get_currency_item("chaos")
+    assert chaos_item is not None
+    return chaos_item
 
-class GetCurrencyItem(BaseRepository):
-    async def execute(self, api_id: str) -> CurrencyItem | None:
-        return await get_currency_item(api_id)
+async def get_exalted_item() -> CurrencyItem:
+    exalted_item = await get_currency_item("exalted")
+    assert exalted_item is not None
+    return exalted_item

@@ -1,7 +1,7 @@
 from typing import Self
 
-from poe2scout.api.dependancies import ItemRepoDep
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories import item_repository
 from poe2scout.db.repositories.item_repository.get_search_options import SearchOption
 
 from . import router
@@ -31,7 +31,5 @@ class GetFiltersResponse(ApiModel):
 
 
 @router.get("/Filters")
-async def get_filters(
-    item_repository: ItemRepoDep,
-) -> GetFiltersResponse:
+async def get_filters() -> GetFiltersResponse:
     return GetFiltersResponse.from_model(await item_repository.get_search_options())

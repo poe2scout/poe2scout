@@ -1,14 +1,23 @@
 import asyncio
 from datetime import datetime, timezone
-from decimal import Decimal
 import logging
+from decimal import Decimal
 from typing import List
 
-from poe2scout.db.repositories.currency_item_repository import CurrencyItemRepository
-from poe2scout.db.repositories.league_repository import LeagueRepository
-from poe2scout.db.repositories.price_log_repository import PriceLogRepository
-from poe2scout.db.repositories.service_repository import ServiceRepository
-from poe2scout.workers.currency_exchange.config import CurrencyExchangeServiceConfig
+from poe2scout.db.repositories import (
+    currency_exchange_repository,
+    currency_item_repository,
+    league_repository,
+    price_log_repository,
+    service_repository,
+)
+from poe2scout.db.repositories.currency_item_repository.get_all_currency_items import (
+    CurrencyItem,
+)
+from poe2scout.db.repositories.price_log_repository.get_item_prices_in_range import (
+    GetItemPricesInRangeModel,
+)
+from poe2scout.integrations.poe.client import PoeApiClient
 from poe2scout.integrations.poe.currency_exchange_models import (
     CurrencyExchangeSnapshot,
     CurrencyExchangeSnapshotPair,
@@ -18,33 +27,21 @@ from poe2scout.integrations.poe.currency_exchange_response import (
     CurrencyExchangeResponse,
     TradingPair,
 )
-from poe2scout.db.repositories.currency_exchange_repository import (
-    CurrencyExchangeRepository,
-)
-from poe2scout.db.repositories.item_repository import ItemRepository
-from poe2scout.integrations.poe.client import PoeApiClient
-from poe2scout.db.repositories.currency_item_repository.get_all_currency_items import CurrencyItem
-from poe2scout.db.repositories.price_log_repository.get_item_prices_in_range import (
-    GetItemPricesInRangeModel,
-)
+from poe2scout.workers.currency_exchange.config import CurrencyExchangeServiceConfig
 
 logger = logging.getLogger(__name__)
 
 
 async def run(
     config: CurrencyExchangeServiceConfig,
-    item_repo: ItemRepository,
-    cx_repo: CurrencyExchangeRepository,
-    service_repo: ServiceRepository,
-    league_repo: LeagueRepository,
-    price_log_repo: PriceLogRepository,
-    currency_item_repo: CurrencyItemRepository,
     client: PoeApiClient,
 ):
     current_epoch_utc = int(datetime.now(tz=timezone.utc).timestamp())
-    last_fetched_epoch_utc = (await service_repo.get_service_cache_value("CurrencyExchange")).value
+    last_fetched_epoch_utc = (
+        await service_repository.get_service_cache_value("CurrencyExchange")
+    ).value
     last_fetched_price_log_epoch_utc = (
-        await service_repo.get_service_cache_value("PriceFetch_Currency")
+        await service_repository.get_service_cache_value("PriceFetch_Currency")
     ).value
 
     if last_fetched_price_log_epoch_utc <= last_fetched_epoch_utc:
@@ -71,7 +68,7 @@ async def run(
         raise Exception("GetFromApiFailure")
     data = CurrencyExchangeResponse.model_validate(response.json())
 
-    fetch_status = await service_repo.get_currency_fetch_status(
+    fetch_status = await service_repository.get_currency_fetch_status(
         start_time=datetime.fromtimestamp(data.next_change_id)
     )
 
@@ -80,16 +77,16 @@ async def run(
         await asyncio.sleep(60 * 10)
         return
 
-    leagues = await league_repo.get_all_leagues()
+    leagues = await league_repository.get_all_leagues()
 
-    currencies = await currency_item_repo.get_all_currency_items()
+    currencies = await currency_item_repository.get_all_currency_items()
 
     currency_lookup_by_api_id = {currency.api_id: currency for currency in currencies}
 
     league_to_prices_lookup: dict[int, List[GetItemPricesInRangeModel]] = {}
 
     for league in leagues:
-        item_prices = await price_log_repo.get_item_prices_in_range(
+        item_prices = await price_log_repository.get_item_prices_in_range(
             item_ids=[item.item_id for item in currencies],
             league_id=league.league_id,
             start_time=datetime.fromtimestamp(data.next_change_id - 60 * 60),
@@ -182,8 +179,11 @@ async def run(
         if volume == 0 and market_cap == 0:
             logger.info("No data in snapshot. Skipping")
             continue
-        await cx_repo.create_snapshot(snapshot)
-    await service_repo.set_service_cache_value("CurrencyExchange", data.next_change_id - 60 * 60)
+        await currency_exchange_repository.create_snapshot(snapshot)
+    await service_repository.set_service_cache_value(
+        "CurrencyExchange",
+        data.next_change_id - 60 * 60,
+    )
 
 
 def get_pair_data(

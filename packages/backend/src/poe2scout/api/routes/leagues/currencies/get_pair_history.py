@@ -4,8 +4,8 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path, Query
 
-from poe2scout.api.dependancies import CXRepoDep, ItemRepoDep, LeagueRepoDep
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories import currency_exchange_repository, league_repository
 from poe2scout.db.repositories.currency_exchange_repository.get_pair_history import (
     GetCurrentSnapshotPairModel,
     GetPairHistoryModel,
@@ -109,10 +109,7 @@ class GetPairHistoryResponse(ApiModel):
     "/{LeagueName}/Currencies/Pairs/{CurrencyOneItemId}/{CurrencyTwoItemId}/History"
 )
 async def get_pair_history(
-    request: GetPairHistoryRequestDep,
-    item_repository: ItemRepoDep,
-    currency_exchange_repository: CXRepoDep,
-    league_repository: LeagueRepoDep
+    request: GetPairHistoryRequestDep
 ) -> GetPairHistoryResponse:
     league = await league_repository.get_league_by_value(request.league_name)
 

@@ -1,4 +1,4 @@
-from poe2scout.db.repositories.price_log_repository import PriceLogRepository
+from poe2scout.db.repositories import price_log_repository
 from poe2scout.db.repositories.price_log_repository.record_price import RecordPriceModel
 import logging
 
@@ -11,7 +11,6 @@ async def record_price(
     item_id: int, 
     league_id: int, 
     quantity: int, 
-    repo: PriceLogRepository
 ):
     if price <= 0:
         logger.info(
@@ -21,7 +20,7 @@ async def record_price(
     logger.info(
         f"Recording price for {item_id} in {league_id}: {price} with quantity {quantity}"
     )
-    await repo.record_price(
+    await price_log_repository.record_price(
         RecordPriceModel(
             item_id=item_id, league_id=league_id, price=price, quantity=quantity
         )

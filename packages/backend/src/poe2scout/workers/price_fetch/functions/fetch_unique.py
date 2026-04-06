@@ -1,4 +1,4 @@
-from poe2scout.db.repositories.unique_item_repository import UniqueItemRepository
+from poe2scout.db.repositories import unique_item_repository
 from poe2scout.db.repositories.unique_item_repository.get_all_unique_items import UniqueItem
 from httpx import AsyncClient
 import logging
@@ -49,7 +49,6 @@ def create_query_string(unique_item: UniqueItem, currency_text: str):
 async def fetch_unique(
     unique_item: UniqueItem,
     league: League,
-    repo: UniqueItemRepository,
     client: AsyncClient,
     currency: str,
 ) -> PriceFetchResult:
@@ -86,7 +85,7 @@ async def fetch_unique(
     fetch_data = fetch_response.json()
 
     if None not in fetch_data["result"]:
-        await sync_metadata_and_icon(fetch_data["result"][0]["item"], unique_item, repo)
+        await sync_metadata_and_icon(fetch_data["result"][0]["item"], unique_item)
 
     prices = parse_trade_response(fetch_data)
 
@@ -126,14 +125,19 @@ def parse_trade_response(response_data: dict) -> List[float]:
 
 
 async def sync_metadata_and_icon(
-    first_item: dict, 
-    unique_item: UniqueItem, 
-    repo: UniqueItemRepository
+    first_item: dict,
+    unique_item: UniqueItem,
 ):
     item_metadata = extract_unique_item_metadata(first_item)
 
     if unique_item.item_metadata is None:
-        await repo.set_unique_item_metadata(item_metadata, unique_item.unique_item_id)
+        await unique_item_repository.set_unique_item_metadata(
+            item_metadata,
+            unique_item.unique_item_id,
+        )
 
     if unique_item.icon_url is None:
-        await repo.update_unique_icon_url(item_metadata["icon"], unique_item.unique_item_id)
+        await unique_item_repository.update_unique_icon_url(
+            item_metadata["icon"],
+            unique_item.unique_item_id,
+        )

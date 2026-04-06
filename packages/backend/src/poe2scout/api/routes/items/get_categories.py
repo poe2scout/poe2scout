@@ -1,7 +1,7 @@
 from typing import Self
 
-from poe2scout.api.dependancies import CurrencyItemRepoDep, ItemRepoDep
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories import currency_item_repository, item_repository
 from poe2scout.db.repositories.currency_item_repository.get_all_currency_categories import (
     CurrencyCategory
 )
@@ -81,11 +81,8 @@ class GetCategoriesResponse(ApiModel):
 
 
 @router.get("/Categories")
-async def get_categories(
-    item_repository: ItemRepoDep,
-    currency_item_repo: CurrencyItemRepoDep
-) -> GetCategoriesResponse:
-    all_currency_categories = await currency_item_repo.get_all_currency_categories()
+async def get_categories() -> GetCategoriesResponse:
+    all_currency_categories = await currency_item_repository.get_all_currency_categories()
     all_item_categories = await item_repository.get_all_item_categories()
 
     unique_item_categories = [

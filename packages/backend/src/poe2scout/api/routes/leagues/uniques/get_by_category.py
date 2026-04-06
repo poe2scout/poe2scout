@@ -4,8 +4,9 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path, Query
 
-from poe2scout.api.dependancies import EconomyCacheDep, LeagueRepoDep, PaginationParamDep
+from poe2scout.api.dependancies import EconomyCacheDep, PaginationParamDep
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories import league_repository
 from poe2scout.db.repositories.models import PriceLogEntry, UniqueItemExtended
 
 from .. import router
@@ -111,7 +112,6 @@ GetUniqueCategoryItemsRequestDep = Annotated[
 async def get_unique_category_items(
     request: GetUniqueCategoryItemsRequestDep,
     pagination: PaginationParamDep,
-    league_repository: LeagueRepoDep,
     economy_cache: EconomyCacheDep,
 ) -> GetUniqueItemsResponse:
     if request.reference_currency not in ["exalted", "chaos"]:

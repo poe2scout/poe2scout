@@ -3,13 +3,13 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path
 
-from poe2scout.api.dependancies import (
-    CurrencyItemRepoDep, 
-    LeagueRepoDep, 
-    PriceLogRepoDep, 
-    cache_response
-)
 from poe2scout.api.api_model import ApiModel
+from poe2scout.api.dependancies import cache_response
+from poe2scout.db.repositories import (
+    currency_item_repository,
+    league_repository,
+    price_log_repository,
+)
 from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
 
 from .. import router
@@ -97,9 +97,6 @@ GetRequestDep = Annotated[
 )
 async def get(
     request: GetRequestDep,
-    currency_item_repository: CurrencyItemRepoDep,
-    league_repository: LeagueRepoDep,
-    price_log_repository: PriceLogRepoDep
 ) -> GetResponse:
     currency_item = await currency_item_repository.get_currency_item(request.api_id)
     if currency_item is None:

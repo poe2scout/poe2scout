@@ -3,9 +3,12 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path, Query
 
-from poe2scout.api.dependancies import ItemRepoDep
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories import currency_item_repository, league_repository, price_log_repository
+from poe2scout.db.repositories import (
+    currency_item_repository,
+    league_repository,
+    price_log_repository,
+)
 from poe2scout.db.repositories.price_log_repository.get_item_price_history import (
     GetItemPriceHistoryModel,
 )
@@ -75,7 +78,6 @@ class GetPriceHistoryResponse(ApiModel):
 @router.get("/{LeagueName}/Items/{ItemId}/History")
 async def get_price_history(
     request: GetPriceHistoryRequestDep,
-    item_repository: ItemRepoDep,
 ) -> GetPriceHistoryResponse:
     if request.log_count % 4 != 0:
         raise HTTPException(400, "LogCount must be a multiple of 4")
@@ -89,7 +91,9 @@ async def get_price_history(
     if league_id is None:
         raise HTTPException(400, "League does not exist")
 
-    log_frequency = 1 if await currency_item_repository.is_item_a_currency(request.item_id) else 6
+    log_frequency = (
+        1 if await currency_item_repository.is_item_a_currency(request.item_id) else 6
+    )
 
     history = await price_log_repository.get_item_price_history(
         request.item_id,

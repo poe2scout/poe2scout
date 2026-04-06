@@ -8,16 +8,6 @@ from fastapi import Depends, Query
 from pydantic import TypeAdapter
 from redis import asyncio as aioredis
 
-from poe2scout.db.repositories.currency_exchange_repository import (
-    CurrencyExchangeRepository,
-)
-from poe2scout.db.repositories.item_repository import ItemRepository
-from poe2scout.db.repositories.league_repository import LeagueRepository
-from poe2scout.db.repositories.currency_item_repository import CurrencyItemRepository
-from poe2scout.db.repositories.unique_item_repository import UniqueItemRepository
-from poe2scout.db.repositories.price_log_repository import PriceLogRepository
-
-
 from poe2scout.shared.pagination import PaginationParams
 
 from .economy_cache import EconomyCache
@@ -82,44 +72,6 @@ def cache_response(key: Callable[[dict[str, Any]], str], ttl: int = 300):
 def get_economy_cache() -> EconomyCache:
     return _economy_cache
 
-
-
-_item_repository = ItemRepository()
-def get_item_repository() -> ItemRepository:
-    return _item_repository
-ItemRepoDep = Annotated[ItemRepository, Depends(get_item_repository)]
-
-_currency_exchange_repository = CurrencyExchangeRepository()
-def get_currency_exchange_repo() -> CurrencyExchangeRepository:
-    return _currency_exchange_repository
-CXRepoDep = Annotated[CurrencyExchangeRepository, Depends(get_currency_exchange_repo)]
-
-_currency_item_repository = CurrencyItemRepository()
-def get_currency_item_repository() -> CurrencyItemRepository:
-    return _currency_item_repository
-CurrencyItemRepoDep = Annotated[CurrencyItemRepository, Depends(get_currency_item_repository)]
-
-_league_repository = LeagueRepository()
-def get_league_repo() -> LeagueRepository:
-    return _league_repository
-LeagueRepoDep = Annotated[LeagueRepository, Depends(get_league_repo)]
-
-_price_log_repository = PriceLogRepository()
-def get_price_log_repo() -> PriceLogRepository:
-    return _price_log_repository
-PriceLogRepoDep = Annotated[PriceLogRepository, Depends(get_price_log_repo)]
-
-_unique_item_repository = UniqueItemRepository()
-def get_unique_item_repo() -> UniqueItemRepository:
-    return _unique_item_repository
-UniqueItemRepoDep = Annotated[UniqueItemRepository, Depends(get_unique_item_repo)]
-
-_economy_cache: EconomyCache = EconomyCache(
-    _item_repository,
-    _unique_item_repository,
-    _currency_item_repository,
-    _price_log_repository,
-    _league_repository
-)
+_economy_cache: EconomyCache = EconomyCache()
 
 EconomyCacheDep = Annotated[EconomyCache, Depends(get_economy_cache)]

@@ -4,8 +4,8 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path
 
-from poe2scout.api.dependancies import ItemRepoDep, LeagueRepoDep, PriceLogRepoDep
 from poe2scout.api.api_model import ApiModel
+from poe2scout.db.repositories import league_repository, price_log_repository
 from poe2scout.db.repositories.price_log_repository.get_all_item_histories import (
     ItemHistory,
     ItemHistoryLog,
@@ -72,9 +72,6 @@ GetItemPriceHistoryRequestDep = Annotated[
 @router.get("/{LeagueName}/Items/PriceHistory")
 async def get_item_price_histories(
     request: GetItemPriceHistoryRequestDep,
-    item_repository: ItemRepoDep,
-    league_repository: LeagueRepoDep,
-    price_log_repository: PriceLogRepoDep
 ) -> GetItemPriceHistoriesResponse:
     league = await league_repository.get_league_by_value(request.league_name)
 
