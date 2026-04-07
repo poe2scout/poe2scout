@@ -10,6 +10,7 @@ async def get_currency_fetch_status(start_time: datetime) -> bool:
               FROM currency_item AS ci
               JOIN price_log AS pl ON ci.item_id = pl.item_id
              WHERE pl.created_at >= %(start_time)s
+             LIMIT 1
         """
 
         params = {

@@ -1,3 +1,14 @@
+def _get_hash_mod_index(hash_entry):
+    if not isinstance(hash_entry, (list, tuple)) or len(hash_entry) < 2:
+        return None
+
+    hash_targets = hash_entry[1]
+    if not isinstance(hash_targets, (list, tuple)) or len(hash_targets) == 0:
+        return None
+
+    return hash_targets[0]
+
+
 def extract_unique_item_metadata(item_info):
     formatted_data = {
         "name": item_info.get("name"),
@@ -65,7 +76,9 @@ def extract_unique_item_metadata(item_info):
             for i, hash_entry in enumerate(
                 item_info["extended"]["hashes"].get("sanctum", [])
             ):
-                explicit_mod_index = hash_entry[1][0]
+                explicit_mod_index = _get_hash_mod_index(hash_entry)
+                if explicit_mod_index is None:
+                    continue
                 explicit_mods_mapping[explicit_mod_index] = i
 
             for i, mod in enumerate(item_info["extended"]["mods"]["sanctum"]):
@@ -84,7 +97,9 @@ def extract_unique_item_metadata(item_info):
                 for i, hash_entry in enumerate(
                     item_info["extended"]["hashes"]["implicit"]
                 ):
-                    implicit_mod_index = hash_entry[1][0]
+                    implicit_mod_index = _get_hash_mod_index(hash_entry)
+                    if implicit_mod_index is None:
+                        continue
                     implicit_mods_mapping[implicit_mod_index] = i
 
                 for i, mod in enumerate(
@@ -104,7 +119,9 @@ def extract_unique_item_metadata(item_info):
             for i, hash_entry in enumerate(
                 item_info["extended"]["hashes"].get("explicit", [])
             ):
-                explicit_mod_index = hash_entry[1][0]
+                explicit_mod_index = _get_hash_mod_index(hash_entry)
+                if explicit_mod_index is None:
+                    continue
                 explicit_mods_mapping[explicit_mod_index] = i
 
             for i, mod in enumerate(item_info["extended"]["mods"].get("explicit", [])):
