@@ -125,18 +125,19 @@ class EconomyCache:
         return items
 
     async def fetch_unique_page(self, cache_key: CacheKey) -> List[UniqueItemExtended]:
-        unique_items = await unique_item_repository.get_unique_items_by_category(
-            cache_key.category
+        items_in_current_league, unique_items = await asyncio.gather(
+            league_repository.get_items_in_current_league(
+                cache_key.league_id,
+                cache_key.realm_id,
+            ),
+            unique_item_repository.get_unique_items_by_category(cache_key.category),
         )
-
-        items_in_current_league = await league_repository.get_items_in_current_league(
-            cache_key.league_id
-        )
+        items_in_current_league_set = set(items_in_current_league)
 
         unique_items = [
             uniqueItem
             for uniqueItem in unique_items
-            if uniqueItem.item_id in items_in_current_league
+            if uniqueItem.item_id in items_in_current_league_set
         ]
         item_ids = [item.item_id for item in unique_items]
 
@@ -221,16 +222,18 @@ class EconomyCache:
         return items
 
     async def fetch_currency_page(self, cache_key: CacheKey) -> List[CurrencyItemExtended]:
-        items_in_current_league = await league_repository.get_items_in_current_league(
-            cache_key.league_id
+        items_in_current_league, currency_items = await asyncio.gather(
+            league_repository.get_items_in_current_league(
+                cache_key.league_id,
+                cache_key.realm_id,
+            ),
+            currency_item_repository.get_currency_items_by_category(cache_key.category),
         )
-        currency_items = await currency_item_repository.get_currency_items_by_category(
-            cache_key.category
-        )
+        items_in_current_league_set = set(items_in_current_league)
         currency_items = [
             currencyItem
             for currencyItem in currency_items
-            if currencyItem.item_id in items_in_current_league
+            if currencyItem.item_id in items_in_current_league_set
         ]
         item_ids = [item.item_id for item in currency_items]
 

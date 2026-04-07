@@ -14,21 +14,19 @@ async def get_item_prices(
         realm_id: int) -> list[GetItemPricesModel]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(GetItemPricesModel)) as cursor:
         query = """
-            WITH latest_prices AS (
-                SELECT DISTINCT ON (item_id)
-                       item_id,
-                       price
-                  FROM price_log
-                 WHERE item_id = ANY(%(item_ids)s)
-                   AND league_id = %(league_id)s
-                   AND realm_id = %(realm_id)s
-                 ORDER BY item_id, created_at DESC
-            )
             SELECT
                 req_item.item_id AS item_id,
-                COALESCE(lp.price, 0) AS price
+                COALESCE(latest_price.price, 0) AS price
               FROM UNNEST(%(item_ids)s) AS req_item(item_id)
-              LEFT JOIN latest_prices AS lp ON req_item.item_id = lp.item_id;
+              LEFT JOIN LATERAL (
+                  SELECT price
+                    FROM price_log
+                   WHERE item_id = req_item.item_id
+                     AND league_id = %(league_id)s
+                     AND realm_id = %(realm_id)s
+                   ORDER BY created_at DESC
+                   LIMIT 1
+              ) AS latest_price ON TRUE;
         """
 
         params = {

@@ -166,3 +166,4 @@ cython_debug/
 dump.rdb
 *.ruff_cache/
 .scripts
+scripts
