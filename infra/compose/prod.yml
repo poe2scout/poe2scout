@@ -76,6 +76,19 @@ services:
       api:
         condition: service_started
 
+  currency-exchange-service:
+    image: ghcr.io/poe2scout/poe2scout-currency-exchange:${IMAGE_TAG:-release}
+    restart: always
+    environment:
+      DBSTRING: ${DBSTRING}
+      POEAPI_CLIENT_ID: ${POEAPI_CLIENT_ID}
+      POEAPI_CLIENT_SECRET: ${POEAPI_CLIENT_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+
   db:
     image: postgres:17.6
     restart: always
