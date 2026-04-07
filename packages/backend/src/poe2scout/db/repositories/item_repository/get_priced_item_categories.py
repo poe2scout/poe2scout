@@ -35,6 +35,7 @@ async def get_priced_item_categories(
              FROM item_category AS ic
              JOIN priced_categories AS pc
                ON pc.item_category_id = ic.item_category_id
+            WHERE ic.category_kind = 'item'
              ORDER BY ic.item_category_id
         """
 

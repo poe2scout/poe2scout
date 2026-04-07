@@ -132,8 +132,8 @@ async def get_categories(
     (
         all_currency_categories,
         all_item_categories,
-        currency_icon_lookup,
-        unique_icon_lookup,
+        currency_icon_rows,
+        unique_icon_rows,
     ) = await asyncio.gather(
         currency_item_repository.get_priced_currency_categories(
             league.league_id,
@@ -148,6 +148,9 @@ async def get_categories(
         currency_item_repository.get_category_icons(realm.game_id),
         item_repository.get_category_icons(realm.game_id),
     )
+
+    currency_icon_lookup = {icon.api_id: icon.icon_url for icon in currency_icon_rows}
+    unique_icon_lookup = {icon.api_id: icon.icon_url for icon in unique_icon_rows}
 
     unique_item_categories = [
         category

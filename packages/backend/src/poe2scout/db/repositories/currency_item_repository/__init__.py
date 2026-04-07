@@ -1,6 +1,10 @@
 from poe2scout.db.repositories.models import CurrencyItem
 from .create_currency_category import create_currency_category
-from .create_currency_item import create_currency_item
+from .create_currency_item import (
+    CreateCurrencyItemError,
+    CreateCurrencyItemResult,
+    create_currency_item,
+)
 from .get_all_currency_categories import get_all_currency_categories
 from .get_all_currency_items import get_all_currency_items
 from .get_category_icons import get_category_icons
@@ -19,6 +23,8 @@ from .update_currency_icon_url import update_currency_icon_url
 
 __all__ = [
     "CurrencyItem",
+    "CreateCurrencyItemError",
+    "CreateCurrencyItemResult",
     "create_currency_category",
     "create_currency_item",
     "get_all_currency_categories",

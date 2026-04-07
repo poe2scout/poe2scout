@@ -20,14 +20,22 @@ async def sync_currencies(categories: list[CurrencyCategory], game_id: int):
     logger.info("Starting currency sync process...")
 
     async def refresh_lists():
-        all_categories = await currency_item_repository.get_all_currency_categories()
+        all_currency_categories = await currency_item_repository.get_all_currency_categories()
+        all_item_categories = await item_repository.get_all_item_categories()
         all_types = await item_repository.get_all_item_types()
         all_base_items = await item_repository.get_all_base_items(game_id)
         all_currency_items = await currency_item_repository.get_all_currency_items(game_id)
-        return all_categories, all_types, all_base_items, all_currency_items
+        return (
+            all_currency_categories,
+            all_item_categories,
+            all_types,
+            all_base_items,
+            all_currency_items,
+        )
 
     (
-        all_categories,
+        all_currency_categories,
+        all_item_categories,
         all_types,
         all_base_items,
         all_currency_items,
@@ -39,7 +47,7 @@ async def sync_currencies(categories: list[CurrencyCategory], game_id: int):
             continue
         # Create currency category
         category.id = category.id.lower()
-        category_exists = any(c.api_id == category.id for c in all_categories)
+        category_exists = any(c.api_id == category.id for c in all_currency_categories)
         if not category_exists:
             logger.info(
                 f"Creating new currency category: {category.label or category.id}"
@@ -50,10 +58,13 @@ async def sync_currencies(categories: list[CurrencyCategory], game_id: int):
             category_id = await currency_item_repository.create_currency_category(category_model)
         else:
             category_id = next(
-                c.currency_category_id for c in all_categories if c.api_id == category.id
+                c.currency_category_id
+                for c in all_currency_categories
+                if c.api_id == category.id
             )
         (
-            all_categories,
+            all_currency_categories,
+            all_item_categories,
             all_types,
             all_base_items,
             all_currency_items,
@@ -64,18 +75,19 @@ async def sync_currencies(categories: list[CurrencyCategory], game_id: int):
             type_exists = any(t.value == currency.id for t in all_types)
             if currency.text == "":
                 continue
-            currency_category_id = next(
-                c.currency_category_id for c in all_categories if c.api_id == "currency"
+            item_currency_category_id = next(
+                c.item_category_id for c in all_item_categories if c.api_id == "currency"
             )
             if not type_exists:
                 type_model = CreateItemTypeModel(
-                    value=currency.id, item_category_id=currency_category_id
+                    value=currency.id, item_category_id=item_currency_category_id
                 )
                 type_id = await item_repository.create_item_type(type_model)
             else:
                 type_id = next(t.item_type_id for t in all_types if t.value == currency.id)
             (
-                all_categories,
+                all_currency_categories,
+                all_item_categories,
                 all_types,
                 all_base_items,
                 all_currency_items,
@@ -119,16 +131,24 @@ async def sync_currencies(categories: list[CurrencyCategory], game_id: int):
 
                 currency_model = CreateCurrencyItemModel(
                     item_id=item_id,
-                    currency_category_id=category_id,
+                    item_category_id=category_id,
                     api_id=currency.id,
                     text=currency.text,
                     # Use the safely constructed URL (can be None)
                     image=image_url,
                 )
-                await currency_item_repository.create_currency_item(currency_model)
+                create_result = await currency_item_repository.create_currency_item(
+                    currency_model
+                )
+                if not create_result.ok:
+                    raise ValueError(
+                        "Failed to create currency item "
+                        f"{currency.id}: {create_result.error}"
+                    )
 
             (
-                all_categories,
+                all_currency_categories,
+                all_item_categories,
                 all_types,
                 all_base_items,
                 all_currency_items,

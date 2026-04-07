@@ -12,7 +12,7 @@ async def get_priced_currency_categories(
     async with BaseRepository.get_db_cursor(row_factory=class_row(CurrencyCategory)) as cursor:
         query = """
             WITH priced_items AS (
-                SELECT DISTINCT ci.currency_category_id
+                SELECT DISTINCT ci.item_category_id
                   FROM currency_item AS ci
                   JOIN item AS i
                     ON i.item_id = ci.item_id
@@ -27,13 +27,12 @@ async def get_priced_currency_categories(
                           AND pl.item_id = ci.item_id
                    )
             )
-            SELECT cc.currency_category_id
+            SELECT cc.item_category_id AS currency_category_id
                  , cc.api_id
                  , cc.label
-             FROM currency_category AS cc
-             JOIN priced_items AS pi
-               ON pi.currency_category_id = cc.currency_category_id
-             ORDER BY cc.currency_category_id
+             FROM item_category AS cc
+             JOIN priced_items AS pi ON pi.item_category_id = cc.item_category_id
+             ORDER BY cc.item_category_id
         """
 
         params = {

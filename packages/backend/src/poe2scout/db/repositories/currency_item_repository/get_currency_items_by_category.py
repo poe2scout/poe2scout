@@ -13,10 +13,10 @@ async def get_currency_items_by_category(category: str) -> list[CurrencyItem]:
                 , cc.api_id as category_api_id
                 , ci.api_id, ci.text
                 , ci.icon_url
-                , ci.currency_category_id
+                , ci.item_category_id AS currency_category_id
                 , ci.item_metadata
             FROM currency_item AS ci
-            JOIN currency_category AS cc ON ci.currency_category_id = cc.currency_category_id
+            JOIN item_category AS cc ON ci.item_category_id = cc.item_category_id
             WHERE cc.api_id ILIKE %s
         """
         params = (category,)

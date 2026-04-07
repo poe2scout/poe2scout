@@ -12,14 +12,11 @@ class ItemCategory(RepositoryModel):
 async def get_all_item_categories() -> list[ItemCategory]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(ItemCategory)) as cursor:
         query = """
-            SELECT item_category_id, api_id, label FROM item_category
+            SELECT item_category_id, api_id, label
+              FROM item_category
+             WHERE category_kind = 'item'
         """
 
         await cursor.execute(query)
 
         return await cursor.fetchall()
-
-
-class GetAllItemCategories(BaseRepository):
-    async def execute(self) -> list[ItemCategory]:
-        return await get_all_item_categories()

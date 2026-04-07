@@ -80,7 +80,7 @@ SELECT cesp.currency_exchange_snapshot_pair_id AS currency_exchange_snapshot_pai
        ci1.api_id AS c1_api_id,
        ci1.text AS c1_text,
        ci1.icon_url AS c1_icon_url,
-       cc1.currency_category_id AS c1_currency_category_id,
+       ci1.item_category_id AS c1_currency_category_id,
        cc1.label AS c1_cat_label,
        cc1.api_id AS c1_cat_api_id,
        ci2.currency_item_id AS c2_currency_item_id,
@@ -88,7 +88,7 @@ SELECT cesp.currency_exchange_snapshot_pair_id AS currency_exchange_snapshot_pai
        ci2.api_id AS c2_api_id,
        ci2.text AS c2_text,
        ci2.icon_url AS c2_icon_url,
-       cc2.currency_category_id AS c2_currency_category_id,
+       ci2.item_category_id AS c2_currency_category_id,
        cc2.label AS c2_cat_label,
        cc2.api_id AS c2_cat_api_id,
        cespd1.value_traded AS c1_value_traded,
@@ -103,9 +103,9 @@ SELECT cesp.currency_exchange_snapshot_pair_id AS currency_exchange_snapshot_pai
        cespd2.highest_stock AS c2_highest_stock
   FROM currency_exchange_snapshot_pair AS cesp
   JOIN currency_item AS ci1 ON cesp.currency_one_item_id = ci1.item_id
-  JOIN currency_category AS cc1 ON ci1.currency_category_id = cc1.currency_category_id
+  JOIN item_category AS cc1 ON ci1.item_category_id = cc1.item_category_id
   JOIN currency_item AS ci2 ON cesp.currency_two_item_id = ci2.item_id
-  JOIN currency_category AS cc2 ON ci2.currency_category_id = cc2.currency_category_id
+  JOIN item_category AS cc2 ON ci2.item_category_id = cc2.item_category_id
   JOIN currency_exchange_snapshot_pair_data AS cespd1
         ON cespd1.currency_exchange_snapshot_pair_id = cesp.currency_exchange_snapshot_pair_id
         AND cespd1.item_id = cesp.currency_one_item_id

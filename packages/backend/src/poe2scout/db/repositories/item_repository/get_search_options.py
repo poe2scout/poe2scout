@@ -22,17 +22,18 @@ async def get_search_options(game_id: int) -> list[SearchOption]:
             JOIN item_type it ON bi.item_type_id = it.item_type_id
             JOIN item_category ic ON ic.item_category_id = it.item_category_id
             WHERE i.item_type = 'unique'
+              AND ic.category_kind = 'item'
               AND bi.game_id = %(game_id)s
 
             UNION ALL
 
             SELECT
                 ci.text AS display_name,
-                LOWER(COALESCE(cc.api_id, '')) AS category,
+                cc.api_id AS category,
                 ci.text AS identifier
             FROM currency_item ci
             JOIN item i ON ci.item_id = i.item_id
-            JOIN currency_category cc ON cc.currency_category_id = ci.currency_category_id
+            JOIN item_category cc ON cc.item_category_id = ci.item_category_id
             JOIN base_item bi ON i.base_item_id = bi.base_item_id
             WHERE i.item_type = 'currency'
               AND bi.game_id = %(game_id)s;
