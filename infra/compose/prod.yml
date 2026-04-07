@@ -78,7 +78,7 @@ services:
 
   currency-exchange-service:
     image: ghcr.io/poe2scout/poe2scout-currency-exchange:${IMAGE_TAG:-release}
-    restart: always
+    restart: "no"
     environment:
       DBSTRING: ${DBSTRING}
       POEAPI_CLIENT_ID: ${POEAPI_CLIENT_ID}
