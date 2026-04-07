@@ -18,6 +18,13 @@ export interface League {
   chaosDivinePrice: number;
   baseCurrencyApiId: string;
   baseCurrencyText: string;
+  baseCurrencyIconUrl: string | null;
+  exaltedCurrencyText: string;
+  exaltedCurrencyIconUrl: string | null;
+  divineCurrencyText: string;
+  divineCurrencyIconUrl: string | null;
+  chaosCurrencyText: string;
+  chaosCurrencyIconUrl: string | null;
 }
 
 interface LeagueContextType {
@@ -41,6 +48,13 @@ const EMPTY_LEAGUE: League = {
   chaosDivinePrice: 50,
   baseCurrencyApiId: "exalted",
   baseCurrencyText: "Exalted Orb",
+  baseCurrencyIconUrl: null,
+  exaltedCurrencyText: "Exalted Orb",
+  exaltedCurrencyIconUrl: null,
+  divineCurrencyText: "Divine Orb",
+  divineCurrencyIconUrl: null,
+  chaosCurrencyText: "Chaos Orb",
+  chaosCurrencyIconUrl: null,
 };
 
 const getStoredLeagueSelections = (): Record<string, string> => {
@@ -148,6 +162,13 @@ export function LeagueProvider({ children }: { children: ReactNode }) {
             chaosDivinePrice: leagueRecord.chaosDivinePrice,
             baseCurrencyApiId: leagueRecord.baseCurrencyApiId,
             baseCurrencyText: leagueRecord.baseCurrencyText,
+            baseCurrencyIconUrl: leagueRecord.baseCurrencyIconUrl,
+            exaltedCurrencyText: leagueRecord.exaltedCurrencyText,
+            exaltedCurrencyIconUrl: leagueRecord.exaltedCurrencyIconUrl,
+            divineCurrencyText: leagueRecord.divineCurrencyText,
+            divineCurrencyIconUrl: leagueRecord.divineCurrencyIconUrl,
+            chaosCurrencyText: leagueRecord.chaosCurrencyText,
+            chaosCurrencyIconUrl: leagueRecord.chaosCurrencyIconUrl,
           }),
         );
 

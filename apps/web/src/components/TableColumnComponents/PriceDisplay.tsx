@@ -1,13 +1,18 @@
 import { Box, Typography, Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-import { getCurrencyIconUrl, getCurrencyLabel } from "../../currencyMeta";
+import {
+  CurrencyMetaSource,
+  getCurrencyIconUrl,
+  getCurrencyLabel,
+} from "../../currencyMeta";
 
 interface PriceDisplayProps {
   currentPrice: number | null;
   divinePrice: number;
   referenceCurrency: string;
   referenceCurrencyText?: string;
+  currencyMeta?: CurrencyMetaSource;
 }
 
 const PriceContainer = styled(Box)({
@@ -29,6 +34,7 @@ export function PriceDisplay({
   divinePrice,
   referenceCurrency,
   referenceCurrencyText,
+  currencyMeta,
 }: PriceDisplayProps) {
   if (currentPrice === null || currentPrice === undefined) {
     return <Typography variant="body2">N/A</Typography>;
@@ -45,7 +51,12 @@ export function PriceDisplay({
         maximumFractionDigits: 2,
       });
 
-  const currencyName = getCurrencyLabel(referenceCurrency, referenceCurrencyText);
+  const currencyName = getCurrencyLabel(
+    referenceCurrency,
+    referenceCurrencyText,
+    currencyMeta,
+  );
+  const displayCurrencyName = getCurrencyLabel("divine", undefined, currencyMeta);
 
   const tooltipTitle = showInDivine
     ? `${currentPrice.toLocaleString(undefined, {
@@ -54,8 +65,8 @@ export function PriceDisplay({
       })} ${currencyName} Equivalent`
     : `${displayPrice} ${currencyName}${currentPrice !== 1 ? 's' : ''}`;
 
-  const baseIconUrl = getCurrencyIconUrl(referenceCurrency);
-  const divineIconUrl = getCurrencyIconUrl("divine");
+  const baseIconUrl = getCurrencyIconUrl(referenceCurrency, currencyMeta);
+  const divineIconUrl = getCurrencyIconUrl("divine", currencyMeta);
   return (
     <Tooltip title={tooltipTitle}>
       <PriceContainer>
@@ -63,11 +74,11 @@ export function PriceDisplay({
         {(showInDivine ? divineIconUrl : baseIconUrl) ? (
           <CurrencyIcon
             src={(showInDivine ? divineIconUrl : baseIconUrl) ?? ""}
-            alt={showInDivine ? "divine" : referenceCurrency}
+            alt={showInDivine ? displayCurrencyName : currencyName}
           />
         ) : (
           <Typography variant="caption" color="text.secondary">
-            {showInDivine ? "Div" : referenceCurrency}
+            {showInDivine ? displayCurrencyName : currencyName}
           </Typography>
         )}
       </PriceContainer>

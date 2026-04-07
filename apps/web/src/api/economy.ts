@@ -14,6 +14,13 @@ interface LeaguePayload {
   chaosDivinePrice: number;
   baseCurrencyApiId: string;
   baseCurrencyText: string;
+  baseCurrencyIconUrl: string | null;
+  exaltedCurrencyText: string;
+  exaltedCurrencyIconUrl: string | null;
+  divineCurrencyText: string;
+  divineCurrencyIconUrl: string | null;
+  chaosCurrencyText: string;
+  chaosCurrencyIconUrl: string | null;
 }
 
 interface LeagueResponse {

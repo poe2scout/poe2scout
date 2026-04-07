@@ -8,7 +8,7 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 
-import { getCurrencyLabel } from "../currencyMeta";
+import { CurrencyMetaSource, getCurrencyLabel } from "../currencyMeta";
 
 export type BaseCurrencies = string;
 export const BaseCurrencyList: BaseCurrencies[] = ["exalted", "divine", "chaos"];
@@ -18,6 +18,7 @@ interface ReferenceCurrencySelectorProps {
   options?: BaseCurrencies[];
   onReferenceChange: (newReference: BaseCurrencies) => void;
   labelMap?: Record<string, string>;
+  currencyMeta?: CurrencyMetaSource;
 }
 
 const ReferenceCurrencySelector: React.FC<ReferenceCurrencySelectorProps> = ({
@@ -25,6 +26,7 @@ const ReferenceCurrencySelector: React.FC<ReferenceCurrencySelectorProps> = ({
   onReferenceChange,
   options = BaseCurrencyList,
   labelMap,
+  currencyMeta,
 }) => {
   const handlePresetChange = (event: SelectChangeEvent) => {
     const newSelection = event.target.value as BaseCurrencies;
@@ -45,7 +47,7 @@ const ReferenceCurrencySelector: React.FC<ReferenceCurrencySelectorProps> = ({
         >
           {options.map((option) => (
             <MenuItem key={option} value={option}>
-              {labelMap?.[option] ?? getCurrencyLabel(option)}
+              {labelMap?.[option] ?? getCurrencyLabel(option, undefined, currencyMeta)}
             </MenuItem>
           ))}
         </Select>

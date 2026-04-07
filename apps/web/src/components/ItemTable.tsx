@@ -438,6 +438,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                         currentReference={referenceCurrency}
                         onReferenceChange={setReferenceCurrency}
                         options={referenceCurrencyOptions}
+                        currencyMeta={league}
                       />
                     </Stack>
                   </Collapse>
@@ -526,6 +527,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                           ? league.baseCurrencyText
                           : undefined
                       }
+                      currencyMeta={league}
                     />
                   </StyledTableCell>
                   <StyledTableCell>
@@ -545,6 +547,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                           referenceCurrency === league.baseCurrencyApiId
                             ? league.baseCurrencyText
                             : undefined,
+                          league,
                         )}
                       />
                     )}

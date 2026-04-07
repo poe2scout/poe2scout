@@ -141,6 +141,7 @@ export function ItemDetail({
             currentReference={selectedReference}
             onReferenceChange={onSelectedReferenceChange}
             options={referenceCurrencyOptions}
+            currencyMeta={league}
           />
         </Box>
       </HeaderContainer>
@@ -160,6 +161,7 @@ export function ItemDetail({
                   selectedReference === league.baseCurrencyApiId
                     ? league.baseCurrencyText
                     : undefined,
+                  league,
                 )}
             />
             <Chart
