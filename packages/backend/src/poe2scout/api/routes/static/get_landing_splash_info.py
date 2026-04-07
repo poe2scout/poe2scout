@@ -14,7 +14,6 @@ from poe2scout.db.repositories.models import CurrencyItemExtended, PriceLogEntry
 from . import router
 
 IMPORTANT_API_IDS = ["mirror", "divine", "exalted", "annul"]
-DEFAULT_LEAGUE_ID = 7
 
 class GetLandingSplashInfoResponse(ApiModel):
     class _Item(ApiModel):

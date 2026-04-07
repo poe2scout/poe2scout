@@ -24,8 +24,7 @@ async def get_realms() -> list[RealmOptionResponse]:
     game_lookup = {game.game_id: game for game in games}
     default_league_lookup: dict[int, str] = {}
     for game in games:
-        default_league_id = await game_repository.get_default_league(game.game_id)
-        default_league = await league_repository.get_league(default_league_id)
+        default_league = await league_repository.get_league(game.default_league_id)
         default_league_lookup[game.game_id] = default_league.value
 
     game_display_lookup = {
