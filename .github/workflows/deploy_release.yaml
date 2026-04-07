@@ -66,7 +66,7 @@ jobs:
           export GHCR_TOKEN='${{ secrets.GHCR_READ_PACKAGES_TOKEN }}'
           export DOCKER_CONFIG=\$(mktemp -d)
           trap 'docker logout ghcr.io >/dev/null 2>&1 || true; rm -rf \"\$DOCKER_CONFIG\"' EXIT
-          echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin && \
+          echo \"\$GHCR_TOKEN\" | docker login ghcr.io -u \"\$GHCR_USERNAME\" --password-stdin && \
           cd ${{ env.DEPLOY_ROOT }} && \
           docker compose -f infra/compose/prod.yml --env-file .env pull && \
           docker compose -f infra/compose/prod.yml --env-file .env up -d --remove-orphans"
