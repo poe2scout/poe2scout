@@ -1,3 +1,4 @@
+import asyncio
 from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path, Query
@@ -126,15 +127,17 @@ async def get_categories(
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
-    all_currency_categories = await currency_item_repository.get_priced_currency_categories(
-        league.league_id,
-        realm.realm_id,
-        realm.game_id,
-    )
-    all_item_categories = await item_repository.get_priced_item_categories(
-        league.league_id,
-        realm.realm_id,
-        realm.game_id,
+    all_currency_categories, all_item_categories = await asyncio.gather(
+        currency_item_repository.get_priced_currency_categories(
+            league.league_id,
+            realm.realm_id,
+            realm.game_id,
+        ),
+        item_repository.get_priced_item_categories(
+            league.league_id,
+            realm.realm_id,
+            realm.game_id,
+        ),
     )
 
     unique_item_categories = [
