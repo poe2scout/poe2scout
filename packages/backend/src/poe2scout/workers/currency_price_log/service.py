@@ -44,8 +44,7 @@ async def run_currency_exchange_prices(config: PriceFetchConfig):
     async with PoeApiClient(
         config.POEAPI_CLIENT_ID, config.POEAPI_CLIENT_SECRET, headers=headers
     ) as client:
-        while True:
-            await fetch_currency_exchange_prices(config, client)
+        await fetch_currency_exchange_prices(config, client)
 
 
 async def fetch_currency_exchange_prices(
@@ -59,14 +58,10 @@ async def fetch_currency_exchange_prices(
 
     logger.info("Checking for currencies")
 
-    await asyncio.sleep(
-        current_epoch + 61 * 60 - int(datetime.now(timezone.utc).timestamp())
-    )
+    await asyncio.sleep(current_epoch + 61 * 60 - int(datetime.now(timezone.utc).timestamp()))
     realms = await realm_repository.get_realms()
 
-    await asyncio.gather(
-        *(process_realm_prices(client, current_epoch, realm) for realm in realms)
-    )
+    await asyncio.gather(*(process_realm_prices(client, current_epoch, realm) for realm in realms))
 
     logger.info(f"Saving cache value. {current_epoch}")
     await service_repository.set_service_cache_value("PriceFetch_Currency", current_epoch)
@@ -114,9 +109,7 @@ async def process_realm_prices(
                 league.league_id,
                 realm.realm_id,
             ):
-                logger.info(
-                    "Price already checked for this timestamp and league. continuing"
-                )
+                logger.info("Price already checked for this timestamp and league. continuing")
                 continue
 
             final_prices = await build_final_prices_for_league(
@@ -136,10 +129,7 @@ async def process_realm_prices(
                 if value.item_id in item_id_lookup and value.value != 0
             ]
 
-            if (
-                len(price_logs) == 1
-                and price_logs[0].item_id == league.base_currency_item_id
-            ):
+            if len(price_logs) == 1 and price_logs[0].item_id == league.base_currency_item_id:
                 logger.info("Only price is the league base currency. Skipping save.")
                 continue
 
@@ -231,17 +221,14 @@ def aggregate_prices_from_observations(
     aggregated_prices: Dict[str, CurrencyPrice] = {}
     for currency_api_id, candidates in price_candidates.items():
         min_depth = min(candidate[0] for candidate in candidates)
-        best_candidates = [
-            candidate for candidate in candidates if candidate[0] == min_depth
-        ]
+        best_candidates = [candidate for candidate in candidates if candidate[0] == min_depth]
         total_quantity = sum(candidate[2] for candidate in best_candidates)
 
         if total_quantity == 0:
             continue
 
         weighted_price = sum(
-            price * (quantity / total_quantity)
-            for _, price, quantity in best_candidates
+            price * (quantity / total_quantity) for _, price, quantity in best_candidates
         )
         aggregated_prices[currency_api_id] = CurrencyPrice(
             item_id=currency_api_id,
@@ -257,9 +244,7 @@ def get_league_observations(
     league: League,
 ) -> List[PriceObservation]:
     observations: List[PriceObservation] = []
-    current_league_markets = [
-        pair for pair in data.markets if pair.league == league.value
-    ]
+    current_league_markets = [pair for pair in data.markets if pair.league == league.value]
 
     for listing in current_league_markets:
         item_one, item_two = listing.market_id.split("|")

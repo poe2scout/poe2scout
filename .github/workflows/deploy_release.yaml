@@ -39,13 +39,21 @@ jobs:
           POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           DBSTRING=${{ secrets.DBSTRING }}
           SECRET_KEY=${{ secrets.SECRET_KEY }}
-          DOMAINS=${{ secrets.DOMAINS }}
+          MONITORING_DOMAIN=monitoring.${{ secrets.DOMAINS }}
+          DOMAINS=${{ secrets.DOMAINS }},${{ secrets.GRAFANA_BASIC_AUTH_USER }}:${{ secrets.GRAFANA_BASIC_AUTH_PASSWORD }}@monitoring.${{ secrets.DOMAINS }}
           STAGE=${{ secrets.STAGE }}
           POEAPI_CLIENT_ID=${{ secrets.POEAPI_CLIENT_ID }}
           POEAPI_CLIENT_SECRET=${{ secrets.POEAPI_CLIENT_SECRET }}
           UNIQUE_ITEM_URL=https://www.pathofexile.com/api/trade2/data/items
           CURRENCY_ITEM_URL=https://www.pathofexile.com/api/trade2/data/static
           LOCAL=False
+          LOG_JSON=true
+          LOG_LEVEL=INFO
+          SLOW_REQUEST_THRESHOLD_MS=750
+          DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
+          GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          GRAFANA_BASIC_AUTH_USER=${{ secrets.GRAFANA_BASIC_AUTH_USER }}
+          GRAFANA_BASIC_AUTH_PASSWORD=${{ secrets.GRAFANA_BASIC_AUTH_PASSWORD }}
           REALM=poe2
           IMAGE_TAG=${{ github.event.workflow_run.head_sha }}
           EOF
@@ -68,8 +76,8 @@ jobs:
           trap 'docker logout ghcr.io >/dev/null 2>&1 || true; rm -rf \"\$DOCKER_CONFIG\"' EXIT
           echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin && \
           cd ${{ env.DEPLOY_ROOT }} && \
-          docker compose -f infra/compose/prod.yml --env-file .env pull && \
-          docker compose -f infra/compose/prod.yml --env-file .env up -d --remove-orphans"
+          docker compose -f infra/compose/prod.yml -f infra/compose/observability.yml --env-file .env pull && \
+          docker compose -f infra/compose/prod.yml -f infra/compose/observability.yml --env-file .env up -d --remove-orphans"
 
       - name: Purge Cloudflare cache
         run: |

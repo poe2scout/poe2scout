@@ -40,6 +40,12 @@ class BaseRepository:
             logger.error(f"Failed to initialize connection pool: {str(e)}")
             raise
 
+    @classmethod
+    async def close_pool(cls) -> None:
+        if cls._pool is not None:
+            await cls._pool.close()
+            cls._pool = None
+
     @overload
     @classmethod
     def get_db_cursor(

@@ -7,10 +7,11 @@ services:
       - "443:443"
     environment:
       DOMAINS: ${DOMAINS}
+      MONITORING_DOMAIN: ${MONITORING_DOMAIN}
       STAGE: ${STAGE}
     volumes:
-      - ../https-portal/custom.conf.erb:/var/lib/nginx-conf/${DOMAINS}.conf.erb:ro
-      - ../https-portal/custom.ssl.conf.erb:/var/lib/nginx-conf/${DOMAINS}.ssl.conf.erb:ro
+      - ../https-portal/custom.conf.erb:/var/lib/nginx-conf/default.conf.erb:ro
+      - ../https-portal/custom.ssl.conf.erb:/var/lib/nginx-conf/default.ssl.conf.erb:ro
       - https-portal-data:/var/lib/https-portal
     depends_on:
       - web
