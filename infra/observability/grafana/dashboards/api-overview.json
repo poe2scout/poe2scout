@@ -88,7 +88,7 @@
         "x": 0,
         "y": 0
       },
-      "id": 1,
+      "id": 9,
       "options": {
         "legend": {
           "calcs": [],
@@ -98,25 +98,21 @@
         },
         "tooltip": {
           "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "12.4.2",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "builder",
-          "expr": "sum by(route_template) (rate(poe2scout_http_requests_total{service=\"api\", route_template!=\"unmatched\"}[30m])) * 60",
-          "legendFormat": "{{ route_template }}",
+          "editorMode": "code",
+          "expr": "sum by(job) (rate(poe2scout_http_requests_total{status_code=\"200\"}[30m])) * 60",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Request Rate By Route",
+      "title": "Successful Requests",
       "type": "timeseries"
     },
     {
@@ -278,11 +274,175 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 12,
         "x": 0,
         "y": 8
       },
-      "id": 3,
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "builder",
+          "expr": "sum by(route_template) (rate(poe2scout_http_requests_total{service=\"api\", route_template!=\"unmatched\"}[30m])) * 60",
+          "legendFormat": "{{ route_template }}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Request Rate By Route",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 8
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "sum(rate(poe2scout_redis_cache_total{service=\"api\",result=\"hit\"}[5m])) / clamp_min(sum(rate(poe2scout_redis_cache_total{service=\"api\",result=~\"hit|miss\"}[5m])), 1)",
+          "instant": true,
+          "legendFormat": "cache hit ratio",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Cache Hit Ratio",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "reqpm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "id": 4,
       "options": {
         "legend": {
           "calcs": [],
@@ -293,27 +453,28 @@
         "tooltip": {
           "hideZeros": false,
           "mode": "multi",
-          "sort": "none"
+          "sort": "desc"
         }
       },
       "pluginVersion": "12.4.2",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(poe2scout_http_4xx_total{service=\"api\"}[30m])) * 60",
-          "legendFormat": "4xx",
+          "expr": "sum(rate(poe2scout_http_429_total{service=\"api\"}[30m])) * 60",
+          "interval": "",
+          "legendFormat": "429 rate",
           "range": true,
           "refId": "A"
         },
         {
           "editorMode": "code",
-          "expr": "sum(rate(poe2scout_http_5xx_total{service=\"api\"}[30m])) * 60",
-          "legendFormat": "5xx",
+          "expr": "sum(rate(poe2scout_http_slow_requests_total{service=\"api\"}[30m])) * 60",
+          "legendFormat": "slow requests",
           "range": true,
           "refId": "B"
         }
       ],
-      "title": "4xx / 5xx Rate",
+      "title": "429 And Slow Requests",
       "type": "timeseries"
     },
     {
@@ -380,11 +541,11 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 8
+        "w": 12,
+        "x": 0,
+        "y": 16
       },
-      "id": 4,
+      "id": 3,
       "options": {
         "legend": {
           "calcs": [],
@@ -395,94 +556,28 @@
         "tooltip": {
           "hideZeros": false,
           "mode": "multi",
-          "sort": "desc"
+          "sort": "none"
         }
       },
       "pluginVersion": "12.4.2",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(poe2scout_http_429_total{service=\"api\"}[30m])) * 60",
-          "interval": "",
-          "legendFormat": "429 rate",
+          "expr": "sum(rate(poe2scout_http_4xx_total{service=\"api\"}[30m])) * 60",
+          "legendFormat": "4xx",
           "range": true,
           "refId": "A"
         },
         {
           "editorMode": "code",
-          "expr": "sum(rate(poe2scout_http_slow_requests_total{service=\"api\"}[30m])) * 60",
-          "legendFormat": "slow requests",
+          "expr": "sum(rate(poe2scout_http_5xx_total{service=\"api\"}[30m])) * 60",
+          "legendFormat": "5xx",
           "range": true,
           "refId": "B"
         }
       ],
-      "title": "429 And Slow Requests",
+      "title": "4xx / 5xx Rate",
       "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 8
-      },
-      "id": 5,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.4.2",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "sum(rate(poe2scout_redis_cache_total{service=\"api\",result=\"hit\"}[5m])) / clamp_min(sum(rate(poe2scout_redis_cache_total{service=\"api\",result=~\"hit|miss\"}[5m])), 1)",
-          "instant": true,
-          "legendFormat": "cache hit ratio",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Cache Hit Ratio",
-      "type": "stat"
     },
     {
       "datasource": {
@@ -519,9 +614,9 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
+        "h": 7,
+        "w": 12,
+        "x": 12,
         "y": 16
       },
       "id": 6,
@@ -620,10 +715,10 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
-        "y": 26
+        "x": 12,
+        "y": 23
       },
-      "id": 8,
+      "id": 2,
       "options": {
         "legend": {
           "calcs": [],
@@ -641,13 +736,13 @@
       "targets": [
         {
           "editorMode": "builder",
-          "expr": "histogram_quantile(0.95, sum by(le, route_template) (rate(poe2scout_http_request_duration_seconds_bucket{service=\"api\"}[30m])))",
-          "legendFormat": "p95 {{ route_template }}",
+          "expr": "histogram_quantile(0.5, sum by(le, route_template) (rate(poe2scout_http_request_duration_seconds_bucket{service=\"api\"}[30m])))",
+          "legendFormat": "p50 {{ route_template }}",
           "range": true,
-          "refId": "C"
+          "refId": "A"
         }
       ],
-      "title": "P95 Latency By Route",
+      "title": "P50 Latency by route",
       "type": "timeseries"
     },
     {
@@ -715,10 +810,10 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
-        "y": 26
+        "x": 0,
+        "y": 24
       },
-      "id": 2,
+      "id": 8,
       "options": {
         "legend": {
           "calcs": [],
@@ -736,13 +831,13 @@
       "targets": [
         {
           "editorMode": "builder",
-          "expr": "histogram_quantile(0.5, sum by(le, route_template) (rate(poe2scout_http_request_duration_seconds_bucket{service=\"api\"}[30m])))",
-          "legendFormat": "p50 {{ route_template }}",
+          "expr": "histogram_quantile(0.95, sum by(le, route_template) (rate(poe2scout_http_request_duration_seconds_bucket{service=\"api\"}[30m])))",
+          "legendFormat": "p95 {{ route_template }}",
           "range": true,
-          "refId": "A"
+          "refId": "C"
         }
       ],
-      "title": "P50 Latency by route",
+      "title": "P95 Latency By Route",
       "type": "timeseries"
     }
   ],
