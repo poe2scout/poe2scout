@@ -41,7 +41,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (route_template) (rate(poe2scout_http_requests_total{service=\"api\"}[5m]))",
+          "expr": "sum by (route_template) (rate(poe2scout_http_requests_total{service=\"api\",route_template!=\"unmatched\"}[5m]))",
           "legendFormat": "{{ route_template }}",
           "range": true,
           "refId": "A"
