@@ -8,7 +8,8 @@ contactPoints:
         type: discord
         disableResolveMessage: false
         settings:
-          url: $DISCORD_WEBHOOK_URL
           use_discord_username: false
           message: |
             {{ template "default.message" . }}
+        secure_settings:
+          url: $DISCORD_WEBHOOK_URL
