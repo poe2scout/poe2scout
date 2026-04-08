@@ -78,7 +78,7 @@
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "reqpm"
         },
         "overrides": []
       },
@@ -110,7 +110,7 @@
             "uid": "prometheus"
           },
           "editorMode": "builder",
-          "expr": "sum by(route_template) (rate(poe2scout_http_requests_total{service=\"api\", route_template!=\"unmatched\"}[30m]))",
+          "expr": "sum by(route_template) (rate(poe2scout_http_requests_total{service=\"api\", route_template!=\"unmatched\"}[30m])) * 60",
           "legendFormat": "{{ route_template }}",
           "range": true,
           "refId": "A"
@@ -272,7 +272,7 @@
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "reqpm"
         },
         "overrides": []
       },
@@ -300,14 +300,14 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(poe2scout_http_4xx_total{service=\"api\"}[5m]))",
+          "expr": "sum(rate(poe2scout_http_4xx_total{service=\"api\"}[30m])) * 60",
           "legendFormat": "4xx",
           "range": true,
           "refId": "A"
         },
         {
           "editorMode": "code",
-          "expr": "sum(rate(poe2scout_http_5xx_total{service=\"api\"}[5m]))",
+          "expr": "sum(rate(poe2scout_http_5xx_total{service=\"api\"}[30m])) * 60",
           "legendFormat": "5xx",
           "range": true,
           "refId": "B"
@@ -374,7 +374,7 @@
               }
             ]
           },
-          "unit": "reqps"
+          "unit": "reqpm"
         },
         "overrides": []
       },
@@ -402,7 +402,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(poe2scout_http_429_total{service=\"api\"}[30m]))",
+          "expr": "sum(rate(poe2scout_http_429_total{service=\"api\"}[30m])) * 60",
           "interval": "",
           "legendFormat": "429 rate",
           "range": true,
@@ -410,7 +410,7 @@
         },
         {
           "editorMode": "code",
-          "expr": "sum(rate(poe2scout_http_slow_requests_total{service=\"api\"}[30m]))",
+          "expr": "sum(rate(poe2scout_http_slow_requests_total{service=\"api\"}[30m])) * 60",
           "legendFormat": "slow requests",
           "range": true,
           "refId": "B"
