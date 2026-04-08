@@ -33,6 +33,7 @@ dependencies = [
   "psycopg==3.3.3",
   "psycopg-binary==3.3.3",
   "psycopg-pool==3.3.0",
+  "prometheus-client==0.23.1",
   "pydantic==2.12.5",
   "pygments==2.20.0",
   "python-dotenv==1.1.0",

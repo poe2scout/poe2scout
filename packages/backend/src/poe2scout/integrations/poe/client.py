@@ -136,10 +136,7 @@ class PoeTradeClient(AsyncClient):
 
 class PoeApiClient(AsyncClient):
     def __init__(
-        self, 
-        client_id: str, 
-        client_secret: str, 
-        headers: Optional[Dict[str, str]] = None
+        self, client_id: str, client_secret: str, headers: Optional[Dict[str, str]] = None
     ):
         if headers is None:
             headers = {"User-Agent": "POE2SCOUT (contact: b@girardet.co.nz)"}
@@ -176,14 +173,10 @@ class PoeApiClient(AsyncClient):
             return None  # Signal that this error should be retried
 
         if 400 <= response.status_code < 500:
-            raise ClientError(
-                f"Client error occurred - Status Code: {response.status_code}"
-            )
+            raise ClientError(f"Client error occurred - Status Code: {response.status_code}")
 
         if response.status_code >= 500:
-            raise ServerError(
-                f"Server error occurred - Status Code: {response.status_code}"
-            )
+            raise ServerError(f"Server error occurred - Status Code: {response.status_code}")
 
         return response
 
@@ -239,9 +232,7 @@ class PoeApiClient(AsyncClient):
 class PoeApiAuth(httpx.Auth):
     requires_response_body = True
 
-    def __init__(
-        self, client_id: str, client_secret: str, scope: str = "service:cxapi"
-    ):
+    def __init__(self, client_id: str, client_secret: str, scope: str = "service:cxapi"):
         self.client_id = client_id
         self.client_secret = client_secret
         self.scope = scope
@@ -250,15 +241,12 @@ class PoeApiAuth(httpx.Auth):
 
     def auth_flow(self, request: httpx.Request):
         # If we don't have a token yet, fetch one before sending the request.
-        logger.info(f"access_token_value: {self.access_token}")
         if self.access_token is None:
             token_response = yield self.build_token_request()
             self.update_token(token_response)
 
         request.headers["Authorization"] = f"Bearer {self.access_token}"
-        request.headers["User-Agent"] = (
-            f"OAuth {self.client_id}/1.0.0 (contact: b@girardet.co.nz)"
-        )
+        request.headers["User-Agent"] = f"OAuth {self.client_id}/1.0.0 (contact: b@girardet.co.nz)"
         response = yield request
 
         if response.status_code == 401:

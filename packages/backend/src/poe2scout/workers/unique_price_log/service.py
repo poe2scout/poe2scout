@@ -1,18 +1,20 @@
 import sys
 from typing import List
+import asyncio
+import logging
+from datetime import datetime
+
 from poe2scout.db.repositories import (
     currency_item_repository,
-    item_repository, 
-    league_repository, 
-    price_log_repository, 
-    service_repository, 
-    unique_item_repository
+    item_repository,
+    league_repository,
+    price_log_repository,
+    service_repository,
+    unique_item_repository,
 )
 from .functions.fetch_unique import PriceFetchResult, fetch_unique
 from .functions.record_price import record_price
 from .functions.sync_metadata_and_icon import sync_metadata_and_icon
-import logging
-from datetime import datetime
 from poe2scout.integrations.poe.client import PoeTradeClient
 from poe2scout.db.repositories.unique_item_repository.get_all_unique_items import UniqueItem
 from poe2scout.db.repositories.league_repository.get_leagues import League
@@ -23,61 +25,54 @@ logger = logging.getLogger(__name__)
 BASE_URL = "https://www.pathofexile.com/api/trade2"
 REALM = "poe2"
 
-async def fetch_prices():
-    headers = {"User-Agent": "POE2SCOUT (contact: b@girardet.co.nz)"}
-    async with PoeTradeClient(headers=headers) as client:
-        while True:
-            # Get all unqiue items
-            game_id = 2
-            league = await league_repository.get_league(7)
-            realm_id = 4
-            base_unique_items = await unique_item_repository.get_all_unique_items(game_id)
-            base_currency_items = await currency_item_repository.get_all_currency_items(game_id)
 
-            current_time = datetime.now().strftime("%H")
-            fetched_item_ids: list[int] = await service_repository.get_fetched_item_ids(
-                current_time, league.league_id
-            )
-            item_ids = await item_repository.get_all_items(game_id)
-            item_ids = [
-                item.item_id for item in item_ids if item.item_id not in fetched_item_ids
-            ]
+async def fetch_prices(client: PoeTradeClient) -> None:
+    # Get all unique items
+    game_id = 2
+    league = await league_repository.get_league(7)
+    realm_id = 4
+    base_unique_items = await unique_item_repository.get_all_unique_items(game_id)
+    base_currency_items = await currency_item_repository.get_all_currency_items(game_id)
 
-            item_ids_to_fetch = [
-                item for item in item_ids if item not in fetched_item_ids
-            ]
+    current_time = datetime.now().strftime("%H")
+    fetched_item_ids: list[int] = await service_repository.get_fetched_item_ids(
+        current_time, league.league_id
+    )
+    item_ids = await item_repository.get_all_items(game_id)
+    item_ids = [item.item_id for item in item_ids if item.item_id not in fetched_item_ids]
 
-            unique_items = [
-                item for item in base_unique_items if item.item_id in item_ids_to_fetch
-            ]
+    item_ids_to_fetch = [item for item in item_ids if item not in fetched_item_ids]
 
-            logger.info(f"fetching {len(unique_items)} unique items")
+    unique_items = [item for item in base_unique_items if item.item_id in item_ids_to_fetch]
 
-            if len(item_ids_to_fetch) == 0:
-                logger.info("No items to fetch")
-                continue
+    logger.info(f"fetching {len(unique_items)} unique items")
 
-            await process_uniques(
-                unique_items,
-                league,
+    if len(item_ids_to_fetch) == 0:
+        logger.info("No items to fetch")
+        await asyncio.sleep(60 * 5)
+        return
+
+    await process_uniques(
+        unique_items,
+        league,
+        client,
+        game_id,
+        realm_id,
+    )
+
+    currency_items = [item for item in base_currency_items]
+    for currency_item in currency_items:
+        if currency_item.item_metadata is None:
+            logger.info(f"Syncing metadata and icon for {currency_item.text}")
+            await sync_metadata_and_icon(
+                currency_item,
                 client,
-                game_id,
-                realm_id
+                BASE_URL,
+                REALM,
+                league.value,
             )
 
-            currency_items = [item for item in base_currency_items]
-            for currency_item in currency_items:
-                if currency_item.item_metadata is None:
-                    logger.info(
-                        f"Syncing metadata and icon for {currency_item.text}"
-                    )
-                    await sync_metadata_and_icon(
-                        currency_item,
-                        client,
-                        BASE_URL,
-                        REALM,
-                        league.value,
-                    )
+    await asyncio.sleep(60)
 
 
 async def process_uniques(
@@ -85,7 +80,7 @@ async def process_uniques(
     league: League,
     client: PoeTradeClient,
     game_id: int,
-    realm_id: int
+    realm_id: int,
 ):
     for unique_item in unique_items:
         try:
@@ -131,10 +126,7 @@ async def process_uniques(
                 assert currency is not None
 
                 currency_price = await price_log_repository.get_item_price(
-                    currency.item_id,
-                    league.league_id,
-                    realm_id,
-                    None
+                    currency.item_id, league.league_id, realm_id, None
                 )
                 if currency_price == 0:
                     continue
@@ -145,16 +137,12 @@ async def process_uniques(
                     lowest_price = item_price
 
             logger.info(
-                f"Recording price for {unique_item.name} in {league.value}" + \
-                f"with price {lowest_price} and quantity {quantity}"
+                f"Recording price for {unique_item.name} in {league.value}"
+                + f"with price {lowest_price} and quantity {quantity}"
             )
             await record_price(
-                lowest_price, 
-                unique_item.item_id, 
-                league.league_id, 
-                realm_id,
-                quantity
+                lowest_price, unique_item.item_id, league.league_id, realm_id, quantity
             )
-        except:
+        except Exception:
             logger.error(f"error fetching for {unique_item}")
             raise

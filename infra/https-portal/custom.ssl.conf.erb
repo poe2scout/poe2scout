@@ -1,10 +1,4 @@
-<% if domain.multiple_upstreams? %>
-upstream <%= domain.upstream_backend_name %> {
-    <% domain.upstreams.each do |upstream| %>
-        server <%= upstream[:address] %> <%= upstream[:parameters] %>;
-    <% end %>
-}
-<% end %>
+<% monitoring_domain = ENV["MONITORING_DOMAIN"] %>
 
 server {
     listen <%= domain.port %> ssl;
@@ -49,7 +43,15 @@ server {
         <%= ENV["CUSTOM_NGINX_#{domain.env_format_name}_CONFIG_BLOCK"] %>
     <% end %>
 
-    # Frontend routing
+    <% if domain.name == monitoring_domain %>
+    location / {
+        proxy_pass http://grafana:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    <% else %>
     location / {
         proxy_pass http://web:3000;
         proxy_set_header Host $host;
@@ -58,7 +60,6 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # Backend API routing - Handle all requests to /api
     location /api {
         proxy_pass http://api:5000;
         proxy_set_header Host $host;
@@ -66,4 +67,5 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
-} 
+    <% end %>
+}

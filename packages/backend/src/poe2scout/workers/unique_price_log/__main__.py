@@ -1,25 +1,13 @@
 import sys
 import asyncio
-from datetime import datetime, timedelta
-import logging
 import dotenv
 
 from .service import fetch_prices
 from .config import PriceFetchConfig
 from poe2scout.db.repositories.base_repository import BaseRepository
-
-logger = logging.getLogger(__name__)
-
-
-def calculate_poe_maintenance_time() -> float:
-    """Calculate seconds until 10 minutes before next POE maintenance window (every 6 hours)"""
-    current_time = datetime.now()
-    hours_until_maintenance = 12 - (current_time.hour % 12)
-    next_maintenance = current_time.replace(
-        minute=0, second=0, microsecond=0
-    ) + timedelta(hours=hours_until_maintenance)
-    maintenance_warning = next_maintenance - timedelta(minutes=10)
-    return (maintenance_warning - current_time).total_seconds()
+from poe2scout.integrations.poe.client import PoeTradeClient
+from poe2scout.observability.logging import configure_logging
+from poe2scout.observability.worker_runner import ServiceRunner
 
 
 if __name__ == "__main__":
@@ -28,14 +16,25 @@ if __name__ == "__main__":
 
     dotenv.load_dotenv()
     config = PriceFetchConfig.load_from_env()
+    configure_logging(
+        service_name=config.service_name,
+        log_level=config.log_level,
+        log_json=config.log_json,
+    )
 
-    # Create maintenance timer with POE-specific maintenance schedule
-    async def main_loop():
+    async def main_loop() -> None:
         await BaseRepository.init_pool(config.dbstring)
+        runner = ServiceRunner(
+            service_name=config.service_name,
+            metrics_port=config.metrics_port,
+            expected_interval_seconds=config.expected_interval_seconds,
+        )
+        headers = {"User-Agent": "POE2SCOUT (contact: b@girardet.co.nz)"}
+        async with PoeTradeClient(headers=headers) as client:
+            await runner.run_forever(
+                lambda: fetch_prices(client),
+                backoff_initial_seconds=config.backoff_initial_seconds,
+                backoff_max_seconds=config.backoff_max_seconds,
+            )
 
-        while True:
-            await fetch_prices()
-
-    # Single asyncio.run() call that manages the entire application lifecycle
-
-    asyncio.run(main_loop(), debug=True)
+    asyncio.run(main_loop())
