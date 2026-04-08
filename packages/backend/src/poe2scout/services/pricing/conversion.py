@@ -17,7 +17,7 @@ def convert_price_history_from_base(
     }
 
     adjusted_price_history: list[PriceLogEntry] = []
-    last_reference_price = 0.0 
+    last_reference_price = 0.0  
 
     for price_log in history:
         current_reference_log = reference_currency_history_lookup.get(price_log.time)
