@@ -60,11 +60,11 @@ jobs:
 
       - name: Prepare deploy directory
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p ${{ env.DEPLOY_ROOT }}"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p ${{ env.DEPLOY_ROOT }}/infra"
 
       - name: Sync infrastructure files
         run: |
-          scp -r infra ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/
+          rsync -az --delete infra/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/infra/
           scp .deploy.env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/.env
 
       - name: Deploy stack
