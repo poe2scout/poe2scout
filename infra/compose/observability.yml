@@ -108,6 +108,7 @@ services:
     image: grafana/grafana:12.4
     restart: unless-stopped
     environment:
+      DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL}
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
       GF_SERVER_ROOT_URL: https://${MONITORING_DOMAIN}
@@ -195,7 +196,7 @@ services:
     image: quay.io/prometheuscommunity/postgres-exporter:latest
     restart: unless-stopped
     environment:
-      DATA_SOURCE_NAME: ${DBSTRING}
+      DATA_SOURCE_NAME: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
     expose:
       - "9187"
     depends_on:
