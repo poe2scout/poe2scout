@@ -1,18 +1,21 @@
 import asyncio
 import logging
+from collections import defaultdict
 from datetime import datetime, timezone
-from typing import Dict, List
+from typing import Dict, List, Mapping
 
 from pydantic import BaseModel
 
 from poe2scout.db.repositories import (
     currency_exchange_repository,
     currency_item_repository,
+    game_repository,
     league_repository,
     price_log_repository,
     realm_repository,
     service_repository,
 )
+from poe2scout.db.repositories.game_repository import BridgeCurrency
 from poe2scout.db.repositories.league_repository.get_leagues import League
 from poe2scout.db.repositories.price_log_repository.record_price import RecordPriceModel
 from poe2scout.integrations.poe.client import PoeApiClient
@@ -30,6 +33,11 @@ class CurrencyPrice(BaseModel):
     item_id: str
     value: float  # In the league base currency.
     quantity_traded: int
+
+
+class PriceCandidate(BaseModel):
+    value: float
+    quantity: int
 
 
 class PriceObservation(BaseModel):
@@ -98,6 +106,7 @@ async def process_realm_prices(
 
     leagues = await league_repository.get_leagues(realm.game_id)
     currency_items = await currency_item_repository.get_all_currency_items(realm.game_id)
+    bridge_currencies = await game_repository.get_bridge_currencies(realm.game_id)
     item_id_lookup = {
         currency_item.api_id: currency_item.item_id for currency_item in currency_items
     }
@@ -115,6 +124,9 @@ async def process_realm_prices(
             final_prices = await build_final_prices_for_league(
                 data=data,
                 league=league,
+                bridge_currencies=bridge_currencies,
+                realm_id=realm.realm_id,
+                epoch=current_epoch,
             )
 
             price_logs = [
@@ -146,97 +158,150 @@ async def process_realm_prices(
 async def build_final_prices_for_league(
     data: CurrencyExchangeResponse,
     league: League,
+    bridge_currencies: list[BridgeCurrency],
+    realm_id: int,
+    epoch: int,
 ) -> Dict[str, CurrencyPrice]:
     observations = get_league_observations(data, league)
+    historical_bridge_prices = {}
+    if bridge_currencies:
+        bridge_prices = await price_log_repository.get_item_prices_before(
+            [item.item_id for item in bridge_currencies],
+            league.league_id,
+            realm_id,
+            epoch,
+        )
+        historical_bridge_prices = {
+            bridge_item.api_id: price.price
+            for bridge_item, price in zip(bridge_currencies, bridge_prices, strict=False)
+            if price.price != 0
+        }
+
+    return build_final_prices_from_observations(
+        observations=observations,
+        league=league,
+        bridge_currencies=bridge_currencies,
+        fallback_bridge_prices=historical_bridge_prices,
+    )
+
+
+def build_final_prices_from_observations(
+    observations: list[PriceObservation],
+    league: League,
+    bridge_currencies: list[BridgeCurrency],
+    fallback_bridge_prices: Mapping[str, float],
+) -> Dict[str, CurrencyPrice]:
+    # Keep this aggregation linear-ish in the market snapshot size: this worker runs
+    # against hourly full-market snapshots and is guarded by a load/performance test.
+    observations_by_target: dict[str, list[PriceObservation]] = defaultdict(list)
+    for observation in observations:
+        observations_by_target[observation.target_item].append(observation)
+
     resolved_prices: Dict[str, CurrencyPrice] = {
         league.base_currency_api_id: CurrencyPrice(
             item_id=league.base_currency_api_id,
             value=1.0,
-            quantity_traded=1,
+            quantity_traded=max(
+                get_total_quantity(observations_by_target, league.base_currency_api_id),
+                1,
+            ),
         )
     }
-    price_depths: dict[str, int] = {league.base_currency_api_id: 0}
+    resolved_quote_items = {league.base_currency_api_id}
 
-    direct_prices = aggregate_prices_from_observations(
-        [
+    for bridge_item in bridge_currencies:
+        target_observations = observations_by_target.get(bridge_item.api_id, [])
+        direct_base_pairs = [
             observation
-            for observation in observations
+            for observation in target_observations
             if observation.base_item == league.base_currency_api_id
-        ],
-        resolved_prices,
-        price_depths,
-    )
-    resolved_prices.update(direct_prices)
-    for currency_api_id in direct_prices:
-        price_depths[currency_api_id] = 1
-
-    while True:
-        next_prices = aggregate_prices_from_observations(
-            observations,
-            resolved_prices,
-            price_depths,
-        )
-        pending_prices = {
-            currency_api_id: price
-            for currency_api_id, price in next_prices.items()
-            if currency_api_id not in resolved_prices
-        }
-        if not pending_prices:
-            break
-
-        resolved_prices.update(pending_prices)
-        for currency_api_id, _price in pending_prices.items():
-            matching_depth = min(
-                price_depths[observation.base_item] + 1
-                for observation in observations
-                if observation.target_item == currency_api_id
-                and observation.base_item in price_depths
+        ]
+        bridge_price = (
+            aggregate_target_price(
+                target_observations,
+                resolved_prices,
+                allowed_bases=resolved_quote_items,
             )
-            price_depths[currency_api_id] = matching_depth
+            if direct_base_pairs
+            else None
+        )
+
+        if bridge_price is None:
+            fallback_price = fallback_bridge_prices.get(bridge_item.api_id)
+            if fallback_price is None:
+                continue
+
+            bridge_price = fallback_price
+
+        resolved_prices[bridge_item.api_id] = CurrencyPrice(
+            item_id=bridge_item.api_id,
+            value=bridge_price,
+            quantity_traded=get_total_quantity(observations_by_target, bridge_item.api_id),
+        )
+        resolved_quote_items.add(bridge_item.api_id)
+
+    bridge_api_ids = {bridge_item.api_id for bridge_item in bridge_currencies}
+    for item_api_id in sorted(observations_by_target):
+        if item_api_id == league.base_currency_api_id or item_api_id in bridge_api_ids:
+            continue
+
+        item_price = aggregate_target_price(
+            observations_by_target[item_api_id],
+            resolved_prices,
+            allowed_bases=resolved_quote_items,
+        )
+        if item_price is None:
+            continue
+
+        resolved_prices[item_api_id] = CurrencyPrice(
+            item_id=item_api_id,
+            value=item_price,
+            quantity_traded=get_total_quantity(observations_by_target, item_api_id),
+        )
 
     return resolved_prices
 
 
-def aggregate_prices_from_observations(
-    observations: list[PriceObservation],
-    resolved_prices: dict[str, CurrencyPrice],
-    price_depths: dict[str, int],
-) -> Dict[str, CurrencyPrice]:
-    price_candidates: Dict[str, list[tuple[int, float, int]]] = {}
+def get_total_quantity(
+    observations_by_target: Mapping[str, list[PriceObservation]],
+    target_item: str,
+) -> int:
+    return sum(
+        observation.quantity_of_target_item
+        for observation in observations_by_target.get(target_item, [])
+    )
 
+
+def aggregate_target_price(
+    observations: list[PriceObservation],
+    resolved_prices: Mapping[str, CurrencyPrice],
+    allowed_bases: set[str],
+) -> float | None:
+    candidates: list[PriceCandidate] = []
     for observation in observations:
-        base_price = resolved_prices.get(observation.base_item)
-        base_depth = price_depths.get(observation.base_item)
-        if base_price is None or base_depth is None:
+        if observation.base_item not in allowed_bases:
             continue
 
-        price_candidates.setdefault(observation.target_item, []).append(
-            (
-                base_depth + 1,
-                observation.value_of_target_item_in_base_items * base_price.value,
-                observation.quantity_of_target_item,
+        base_price = resolved_prices.get(observation.base_item)
+        if base_price is None:
+            continue
+
+        candidates.append(
+            PriceCandidate(
+                value=observation.value_of_target_item_in_base_items * base_price.value,
+                quantity=observation.quantity_of_target_item,
             )
         )
 
-    aggregated_prices: Dict[str, CurrencyPrice] = {}
-    for currency_api_id, candidates in price_candidates.items():
-        min_depth = min(candidate[0] for candidate in candidates)
-        best_candidates = [candidate for candidate in candidates if candidate[0] == min_depth]
-        total_quantity = sum(candidate[2] for candidate in best_candidates)
+    return aggregate_weighted_price(candidates)
 
-        if total_quantity == 0:
-            continue
 
-        weighted_price = sum(
-            price * (quantity / total_quantity) for _, price, quantity in best_candidates
-        )
-        aggregated_prices[currency_api_id] = CurrencyPrice(
-            item_id=currency_api_id,
-            value=weighted_price,
-            quantity_traded=total_quantity,
-        )
+def aggregate_weighted_price(candidates: list[PriceCandidate]) -> float | None:
+    total_quantity = sum(candidate.quantity for candidate in candidates)
+    if total_quantity == 0:
+        return None
 
-    return aggregated_prices
+    return sum(candidate.value * candidate.quantity for candidate in candidates) / total_quantity
 
 
 def get_league_observations(
