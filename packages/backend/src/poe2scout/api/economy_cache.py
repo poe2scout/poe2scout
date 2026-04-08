@@ -119,6 +119,10 @@ class EconomyCache:
         else:
             logger.info(f"Cache empty for {cache_key}")
             items = await self.fetch_unique_page(cache_key)
+            self.UniqueCache[cache_key] = CacheState[UniqueItemExtended](
+                value=items,
+                expires=datetime.now() + timedelta(hours=1, minutes=random.randint(0, 15)),
+            )
         if search != "":
             items = [item for item in items if item.name.lower() == search.lower()]
 
@@ -140,6 +144,9 @@ class EconomyCache:
             if uniqueItem.item_id in items_in_current_league_set
         ]
         item_ids = [item.item_id for item in unique_items]
+
+        if not item_ids:
+            return []
 
         price_logs = await price_log_repository.get_item_price_logs(
             item_ids,
@@ -214,11 +221,6 @@ class EconomyCache:
             for item in items
         ]
 
-        self.UniqueCache[cache_key] = CacheState[UniqueItemExtended](
-            value=items,
-            expires=datetime.now() + timedelta(hours=1, minutes=random.randint(0, 15)),
-        )
-
         return items
 
     async def fetch_currency_page(self, cache_key: CacheKey) -> List[CurrencyItemExtended]:
@@ -236,6 +238,21 @@ class EconomyCache:
             if currencyItem.item_id in items_in_current_league_set
         ]
         item_ids = [item.item_id for item in currency_items]
+
+        if not item_ids:
+            next_hour = datetime.now().replace(
+                minute=0,
+                second=0,
+                microsecond=0,
+            ) + timedelta(hours=1)
+
+            expiration_time = next_hour + timedelta(minutes=random.randint(5, 10))
+
+            self.CurrencyCache[cache_key] = CacheState[CurrencyItemExtended](
+                value=[],
+                expires=expiration_time,
+            )
+            return []
 
         price_logs = await price_log_repository.get_item_price_logs(
             item_ids,
