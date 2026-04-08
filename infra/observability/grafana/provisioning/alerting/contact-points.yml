@@ -12,4 +12,4 @@ contactPoints:
           message: |
             {{ template "default.message" . }}
         secure_settings:
-          url: $DISCORD_WEBHOOK_URL
+          url: ${DISCORD_WEBHOOK_URL}
