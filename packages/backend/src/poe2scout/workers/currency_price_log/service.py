@@ -141,8 +141,8 @@ async def process_realm_prices(
                 if value.item_id in item_id_lookup and value.value != 0
             ]
 
-            if len(price_logs) == 1 and price_logs[0].item_id == league.base_currency_item_id:
-                logger.info("Only price is the league base currency. Skipping save.")
+            if len(price_logs) == 0:
+                logger.info(f"no prices found for {league.value}")
                 continue
 
             logger.info(
@@ -163,6 +163,10 @@ async def build_final_prices_for_league(
     epoch: int,
 ) -> Dict[str, CurrencyPrice]:
     observations = get_league_observations(data, league)
+
+    if len(observations) == 0:
+        return {}
+
     historical_bridge_prices = {}
     if bridge_currencies:
         bridge_prices = await price_log_repository.get_item_prices_before(
