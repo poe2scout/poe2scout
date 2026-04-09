@@ -1,27 +1,14 @@
-from typing import Optional
-
 from psycopg.rows import class_row
 
-from ..base_repository import BaseRepository, RepositoryModel
+from ..base_repository import BaseRepository
+from .get_all_unique_items import UniqueItem
 
 
-class UniqueItem(RepositoryModel):
-    unique_item_id: int
-    item_id: int
-    icon_url: Optional[str] = None
-    text: str
-    name: str
-    category_api_id: str
-    item_metadata: Optional[dict] = None
-    type: str
-    is_chanceable: Optional[bool] = False
-    is_current: bool = True
-
-
-async def get_all_unique_items(game_id: int) -> list[UniqueItem]:
+async def get_current_unique_items(game_id: int) -> list[UniqueItem]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(UniqueItem)) as cursor:
         query = """
-            SELECT ui.unique_item_id,
+            SELECT 
+                ui.unique_item_id,
                 ui.item_id,
                 ui.icon_url,
                 ui.text,
@@ -35,12 +22,9 @@ async def get_all_unique_items(game_id: int) -> list[UniqueItem]:
             JOIN base_item AS bi ON i.base_item_id = bi.base_item_id
             JOIN item_type AS it ON bi.item_type_id = it.item_type_id
             JOIN item_category AS ic on ic.item_category_id = it.item_category_id
-           WHERE bi.game_id = %(game_id)s
+            WHERE bi.game_id = %(game_id)s
+              AND ui.is_current = TRUE
         """
 
-        params = {
-            "game_id": game_id
-        }
-        await cursor.execute(query, params)
-
+        await cursor.execute(query, {"game_id": game_id})
         return await cursor.fetchall()

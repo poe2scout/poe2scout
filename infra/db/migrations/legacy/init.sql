@@ -36,7 +36,8 @@ CREATE TABLE unique_item (
     name character varying(300),
     text character varying(300),
     item_metadata json,
-    is_chanceable boolean NOT NULL DEFAULT FALSE
+    is_chanceable boolean NOT NULL DEFAULT FALSE,
+    is_current boolean NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE currency_category (

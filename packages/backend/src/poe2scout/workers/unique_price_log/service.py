@@ -15,6 +15,7 @@ from poe2scout.db.repositories import (
 from .functions.fetch_unique import PriceFetchResult, fetch_unique
 from .functions.record_price import record_price
 from .functions.sync_metadata_and_icon import sync_metadata_and_icon
+from .exceptions import UniqueItemDelistedError
 from poe2scout.integrations.poe.client import PoeTradeClient
 from poe2scout.db.repositories.unique_item_repository.get_all_unique_items import UniqueItem
 from poe2scout.db.repositories.league_repository.get_leagues import League
@@ -31,7 +32,7 @@ async def fetch_prices(client: PoeTradeClient) -> None:
     game_id = 2
     league = await league_repository.get_league(7)
     realm_id = 4
-    base_unique_items = await unique_item_repository.get_all_unique_items(game_id)
+    base_unique_items = await unique_item_repository.get_current_unique_items(game_id)
     base_currency_items = await currency_item_repository.get_all_currency_items(game_id)
 
     current_time = datetime.now().strftime("%H")
@@ -143,6 +144,17 @@ async def process_uniques(
             await record_price(
                 lowest_price, unique_item.item_id, league.league_id, realm_id, quantity
             )
+        except UniqueItemDelistedError:
+            await unique_item_repository.set_unique_item_current(
+                unique_item.unique_item_id,
+                False,
+            )
+            logger.info(
+                "Deactivated unique item %s (%s) after POE Trade reported it as unknown",
+                unique_item.name,
+                unique_item.unique_item_id,
+            )
+            continue
         except Exception:
             logger.error(f"error fetching for {unique_item}")
             raise

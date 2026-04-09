@@ -16,6 +16,7 @@ async def get_unique_items_by_category(category: str) -> list[UniqueItem]:
                 , ui.icon_url
                 , it."value" as type
                 , ui.item_metadata
+                , ui.is_current
             FROM unique_item AS ui
             JOIN item AS i ON ui.item_id = i.item_id
             JOIN base_item AS bi ON i.base_item_id = bi.base_item_id
@@ -28,4 +29,3 @@ async def get_unique_items_by_category(category: str) -> list[UniqueItem]:
         await cursor.execute(query, params)
 
         return await cursor.fetchall()
-
