@@ -7,7 +7,7 @@ class Realm(RepositoryModel):
     realm_id: int
     game_id: int
 
-async def get_realm(api_id: str) -> Realm:
+async def get_realm(api_id: str) -> Realm | None:
     async with BaseRepository.get_db_cursor(row_factory=class_row(Realm)) as cursor:
         query = """
 SELECT realm_id
@@ -18,6 +18,6 @@ SELECT realm_id
         params = {"api_id": api_id}
 
         await cursor.execute(query, params)
-        return await anext(cursor)
+        return await cursor.fetchone()
 
 

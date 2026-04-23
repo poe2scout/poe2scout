@@ -38,32 +38,18 @@ GetItemsRequestDep = Annotated[GetItemsRequest, Depends(get_items_request)]
 
 
 class GetItemsResponse(ApiModel):
-    class _PriceLogEntry(ApiModel):
-        price: float
-        time: datetime
-        quantity: int
-
-        @classmethod
-        def from_model(cls, price_log: PriceLogEntry) -> Self:
-            return cls(
-                price=price_log.price,
-                time=price_log.time,
-                quantity=price_log.quantity,
-            )
-
     item_id: int
     category_api_id: str
     text: str
     name: str | None = None
     type: str | None = None
     api_id: str | None = None
-    price_logs: list[_PriceLogEntry | None]
     current_price: float
     icon_url: str | None
 
     @classmethod
     def from_unique_item(
-        cls, item: UniqueItem, price_logs: list[PriceLogEntry | None]
+        cls, item: UniqueItem, current_price: float
     ) -> Self:
         return cls(
             item_id=item.item_id,
@@ -72,14 +58,13 @@ class GetItemsResponse(ApiModel):
             name=item.name,
             type=item.type,
             api_id=None,
-            price_logs=cls._map_price_logs(price_logs),
-            current_price=cls._get_current_price(price_logs),
+            current_price=current_price,
             icon_url=item.icon_url,
         )
 
     @classmethod
     def from_currency_item(
-        cls, item: CurrencyItem, price_logs: list[PriceLogEntry | None]
+        cls, item: CurrencyItem, current_price: float
     ) -> Self:
         return cls(
             item_id=item.item_id,
@@ -88,28 +73,10 @@ class GetItemsResponse(ApiModel):
             name=None,
             type=None,
             api_id=item.api_id,
-            price_logs=cls._map_price_logs(price_logs),
-            current_price=cls._get_current_price(price_logs),
+            current_price=current_price,
             icon_url=item.icon_url,
         )
 
-    @classmethod
-    def _map_price_logs(
-        cls, price_logs: list[PriceLogEntry | None]
-    ) -> list[_PriceLogEntry | None]:
-        return [
-            cls._PriceLogEntry.from_model(price_log)
-            if price_log is not None
-            else None
-            for price_log in price_logs
-        ]
-
-    @staticmethod
-    def _get_current_price(price_logs: list[PriceLogEntry | None]) -> float:
-        return next(
-            (price_log.price for price_log in price_logs if price_log is not None),
-            0,
-        )
 
 
 @router.get("/{LeagueName}/Items")
@@ -145,22 +112,24 @@ async def get_items(
     if league_id is None:
         raise HTTPException(status_code=400, detail="League not found")
 
-    price_logs_by_item_id = await price_log_repository.get_item_price_logs(
+    price_logs_by_item_id = await price_log_repository.get_item_prices(
         item_ids,
         league_id,
         realm.realm_id,
     )
 
+    current_price_dict: dict[int, float] = dict(zip([current_price.item_id for current_price in price_logs_by_item_id], [current_price.price for current_price in price_logs_by_item_id]))
+
     responses = [
         GetItemsResponse.from_unique_item(
             item,
-            price_logs_by_item_id.get(item.item_id, []),
+            current_price_dict.get(item.item_id, 0),
         )
         for item in unique_items
     ] + [
         GetItemsResponse.from_currency_item(
             item,
-            price_logs_by_item_id.get(item.item_id, []),
+            current_price_dict.get(item.item_id, 0),
         )
         for item in currency_items
     ]
