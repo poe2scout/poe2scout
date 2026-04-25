@@ -476,7 +476,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                   textAlign: "center",
                 }}
               >
-                {getTranslatedText("Price History", language)}
+                Price History (7D)
               </StyledTableCell>
               <StyledTableCell
                 sx={{
