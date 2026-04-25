@@ -1,4 +1,5 @@
 from ..price_log_repository.get_all_item_histories import get_all_item_histories
+from ..price_log_repository.get_item_daily_stats import get_item_daily_stats
 from ..price_log_repository.get_item_price import get_item_price
 from ..price_log_repository.get_item_price_history import get_item_price_history
 from ..price_log_repository.get_item_price_logs import get_item_price_logs
@@ -10,6 +11,7 @@ from ..price_log_repository.record_price import record_price, record_price_bulk
 
 __all__ = [
     "get_all_item_histories",
+    "get_item_daily_stats",
     "get_item_price",
     "get_item_price_history",
     "get_item_price_logs",

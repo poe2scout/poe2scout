@@ -1,6 +1,6 @@
 import asyncio
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 import logging
 import random
 from typing import Generic, List, TypeVar
@@ -14,7 +14,11 @@ from poe2scout.db.repositories import (
 )
 from poe2scout.db.repositories.models import (
     CurrencyItemExtended,
+    PriceLogEntry,
     UniqueItemExtended,
+)
+from poe2scout.db.repositories.price_log_repository.get_item_daily_stats import (
+    GetItemDailyStatsDto,
 )
 from poe2scout.services.pricing import (
     convert_price_log_matrix_from_base,
@@ -24,6 +28,37 @@ from poe2scout.services.pricing import (
 T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
+
+
+def get_daily_stat_dates():
+    current_date = datetime.now(tz=timezone.utc).date()
+    return [current_date - timedelta(days=i) for i in range(7)]
+
+
+def build_daily_stat_price_logs(
+    item_ids: list[int],
+    dates: list[date],
+    daily_stats: list[GetItemDailyStatsDto],
+) -> dict[int, list[PriceLogEntry | None]]:
+    results: dict[int, list[PriceLogEntry | None]] = {
+        item_id: [None] * len(dates) for item_id in item_ids
+    }
+    date_indices: dict[date, list[int]] = {}
+    for index, stat_date in enumerate(dates):
+        date_indices.setdefault(stat_date, []).append(index)
+
+    for stat in daily_stats:
+        if stat.item_id not in results:
+            continue
+
+        for date_index in date_indices.get(stat.day, []):
+            results[stat.item_id][date_index] = PriceLogEntry(
+                price=stat.avg_price,
+                time=datetime.combine(stat.day, time.min),
+                quantity=stat.data_points,
+            )
+
+    return results
 
 
 class CacheState(BaseModel, Generic[T]):
@@ -148,10 +183,16 @@ class EconomyCache:
         if not item_ids:
             return []
 
-        price_logs = await price_log_repository.get_item_price_logs(
+        daily_stat_dates = get_daily_stat_dates()
+        price_logs = build_daily_stat_price_logs(
             item_ids,
-            cache_key.league_id,
-            cache_key.realm_id
+            daily_stat_dates,
+            await price_log_repository.get_item_daily_stats(
+                item_ids,
+                cache_key.league_id,
+                cache_key.realm_id,
+                daily_stat_dates,
+            ),
         )
 
         reference_currency_price = 1.0
@@ -169,12 +210,15 @@ class EconomyCache:
                 cache_key.realm_id,
                 None,
             )
-            reference_currency_logs = (
-                await price_log_repository.get_item_price_logs(
+            reference_currency_logs = build_daily_stat_price_logs(
+                [reference_currency_item.item_id],
+                daily_stat_dates,
+                await price_log_repository.get_item_daily_stats(
                     [reference_currency_item.item_id],
                     cache_key.league_id,
                     cache_key.realm_id,
-                )
+                    daily_stat_dates,
+                ),
             )[reference_currency_item.item_id]
             price_logs = convert_price_log_matrix_from_base(
                 price_logs,
@@ -254,10 +298,16 @@ class EconomyCache:
             )
             return []
 
-        price_logs = await price_log_repository.get_item_price_logs(
+        daily_stat_dates = get_daily_stat_dates()
+        price_logs = build_daily_stat_price_logs(
             item_ids,
-            cache_key.league_id,
-            cache_key.realm_id
+            daily_stat_dates,
+            await price_log_repository.get_item_daily_stats(
+                item_ids,
+                cache_key.league_id,
+                cache_key.realm_id,
+                daily_stat_dates,
+            ),
         )
 
         reference_currency_price = 1.0
@@ -276,12 +326,15 @@ class EconomyCache:
                 cache_key.realm_id,
                 None,
             )
-            reference_currency_logs = (
-                await price_log_repository.get_item_price_logs(
+            reference_currency_logs = build_daily_stat_price_logs(
+                [reference_currency_item.item_id],
+                daily_stat_dates,
+                await price_log_repository.get_item_daily_stats(
                     [reference_currency_item.item_id],
                     cache_key.league_id,
-                    cache_key.realm_id
-                )
+                    cache_key.realm_id,
+                    daily_stat_dates,
+                ),
             )[reference_currency_item.item_id]
             price_logs = convert_price_log_matrix_from_base(
                 price_logs,
