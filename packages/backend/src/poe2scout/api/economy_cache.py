@@ -55,7 +55,7 @@ def build_daily_stat_price_logs(
             results[stat.item_id][date_index] = PriceLogEntry(
                 price=stat.avg_price,
                 time=datetime.combine(stat.day, time.min),
-                quantity=stat.data_points,
+                quantity=stat.volume,
             )
 
     return results

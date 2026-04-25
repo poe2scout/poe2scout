@@ -149,6 +149,7 @@ export interface DailyStatEntry {
   low: number;
   close: number;
   average: number;
+  volume: number;
 }
 
 export interface ItemDailyStatsHistoryResponse {

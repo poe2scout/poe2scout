@@ -50,6 +50,7 @@ class GetDailyStatsHistoryResponse(ApiModel):
         low: float
         close: float
         average: float
+        volume: int
 
         @classmethod
         def from_model(cls, daily_stats: DailyStatsHistoryEntry) -> Self:
@@ -60,6 +61,7 @@ class GetDailyStatsHistoryResponse(ApiModel):
                 low=daily_stats.min_price,
                 close=daily_stats.close_price,
                 average=daily_stats.avg_price,
+                volume=daily_stats.volume,
             )
 
     daily_stats: list[_DailyStatsPoint]

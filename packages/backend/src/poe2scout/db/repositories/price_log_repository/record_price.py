@@ -15,7 +15,7 @@ async def record_price(price: RecordPriceModel):
 WITH inserted_price_log AS (
     INSERT INTO price_log (item_id, league_id, realm_id, price, quantity, created_at)
     VALUES (%(item_id)s, %(league_id)s, %(realm_id)s, %(price)s, %(quantity)s, NOW())
-    RETURNING item_id, league_id, realm_id, price, created_at
+    RETURNING item_id, league_id, realm_id, price, quantity, created_at
 ),
 inserted_daily_stats AS (
     SELECT
@@ -28,7 +28,8 @@ inserted_daily_stats AS (
         price AS min_price,
         price AS max_price,
         price AS avg_price,
-        1 AS data_points
+        1 AS data_points,
+        quantity AS volume
     FROM inserted_price_log
 )
 INSERT INTO item_daily_stats (
@@ -41,7 +42,8 @@ INSERT INTO item_daily_stats (
     min_price,
     max_price,
     avg_price,
-    data_points
+    data_points,
+    volume
 )
 SELECT
     inserted.realm_id,
@@ -53,7 +55,8 @@ SELECT
     inserted.min_price,
     inserted.max_price,
     inserted.avg_price,
-    inserted.data_points
+    inserted.data_points,
+    inserted.volume
 FROM inserted_daily_stats AS inserted
 ON CONFLICT (realm_id, item_id, league_id, day) DO UPDATE SET
     close_price = EXCLUDED.close_price,
@@ -63,7 +66,8 @@ ON CONFLICT (realm_id, item_id, league_id, day) DO UPDATE SET
         (item_daily_stats.avg_price * item_daily_stats.data_points)
         + (EXCLUDED.avg_price * EXCLUDED.data_points)
     ) / (item_daily_stats.data_points + EXCLUDED.data_points),
-    data_points = item_daily_stats.data_points + EXCLUDED.data_points
+    data_points = item_daily_stats.data_points + EXCLUDED.data_points,
+    volume = item_daily_stats.volume + EXCLUDED.volume
         """
 
         await cursor.execute(query, price.model_dump())
@@ -111,7 +115,7 @@ inserted_price_log AS (
     INSERT INTO price_log (item_id, league_id, realm_id, price, quantity, created_at)
     SELECT item_id, league_id, realm_id, price, quantity, created_at
     FROM input_prices
-    RETURNING item_id, league_id, realm_id, price, created_at
+    RETURNING item_id, league_id, realm_id, price, quantity, created_at
 ),
 inserted_daily_stats AS (
     SELECT
@@ -124,7 +128,8 @@ inserted_daily_stats AS (
         price AS min_price,
         price AS max_price,
         price AS avg_price,
-        1 AS data_points
+        1 AS data_points,
+        quantity AS volume
     FROM inserted_price_log
 )
 INSERT INTO item_daily_stats (
@@ -137,7 +142,8 @@ INSERT INTO item_daily_stats (
     min_price,
     max_price,
     avg_price,
-    data_points
+    data_points,
+    volume
 )
 SELECT
     inserted.realm_id,
@@ -149,7 +155,8 @@ SELECT
     inserted.min_price,
     inserted.max_price,
     inserted.avg_price,
-    inserted.data_points
+    inserted.data_points,
+    inserted.volume
 FROM inserted_daily_stats AS inserted
 ON CONFLICT (realm_id, item_id, league_id, day) DO UPDATE SET
     close_price = EXCLUDED.close_price,
@@ -159,7 +166,8 @@ ON CONFLICT (realm_id, item_id, league_id, day) DO UPDATE SET
         (item_daily_stats.avg_price * item_daily_stats.data_points)
         + (EXCLUDED.avg_price * EXCLUDED.data_points)
     ) / (item_daily_stats.data_points + EXCLUDED.data_points),
-    data_points = item_daily_stats.data_points + EXCLUDED.data_points
+    data_points = item_daily_stats.data_points + EXCLUDED.data_points,
+    volume = item_daily_stats.volume + EXCLUDED.volume
         """
 
         params = {

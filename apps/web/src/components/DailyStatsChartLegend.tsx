@@ -6,6 +6,7 @@ export interface DailyStatsLegendData {
   low?: number;
   close?: number;
   average?: number;
+  volume?: number;
   time?: string;
 }
 
@@ -21,12 +22,18 @@ const formatPrice = (value: number) =>
     maximumFractionDigits: 2,
   });
 
+const formatVolume = (value: number) =>
+  value.toLocaleString(undefined, {
+    maximumFractionDigits: 0,
+  });
+
 export const DailyStatsChartLegend = ({
   open,
   high,
   low,
   close,
   average,
+  volume,
   time,
   baseCurrencyApiId,
   baseCurrencyText,
@@ -38,6 +45,7 @@ export const DailyStatsChartLegend = ({
     low === undefined &&
     close === undefined &&
     average === undefined &&
+    volume === undefined &&
     time === undefined
   ) {
     return null;
@@ -82,6 +90,12 @@ export const DailyStatsChartLegend = ({
           <span style={{ color: "#aaa" }}>Average: </span>
           <strong>{formatPrice(average)}</strong>
           <span style={{ color: "#aaa" }}> {currencyText}</span>
+        </div>
+      )}
+      {volume !== undefined && (
+        <div>
+          <span style={{ color: "#aaa" }}>Volume: </span>
+          <strong>{formatVolume(volume)}</strong>
         </div>
       )}
     </div>

@@ -9,6 +9,7 @@ class GetItemDailyStatsDto(RepositoryModel):
     item_id: int
     avg_price: float
     data_points: int
+    volume: int
     day: date
 
 
@@ -28,6 +29,7 @@ async def get_item_daily_stats(
             SELECT ids.item_id
                  , ids.avg_price
                  , ids.data_points
+                 , ids.volume
                  , ids.day
               FROM item_daily_stats ids
              WHERE ids.day = ANY(%(dates)s::date[])

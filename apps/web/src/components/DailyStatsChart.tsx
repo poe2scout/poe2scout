@@ -2,9 +2,11 @@ import {
   CandlestickSeries,
   ColorType,
   createChart,
+  HistogramSeries,
 } from "lightweight-charts";
 import type {
   CandlestickData,
+  HistogramData,
   IChartApi,
   ISeriesApi,
   MouseEventParams,
@@ -16,6 +18,7 @@ import type { DailyStatsLegendData } from "./DailyStatsChartLegend";
 
 export interface DailyStatsChartData {
   candlestickData: CandlestickData<Time>[];
+  histogramData: HistogramData<Time>[];
 }
 
 interface DailyStatsChartProps {
@@ -49,7 +52,8 @@ export const DailyStatsChart = ({
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<{
     candle: ISeriesApi<"Candlestick"> | null;
-  }>({ candle: null });
+    volume: ISeriesApi<"Histogram"> | null;
+  }>({ candle: null, volume: null });
   const loadingRef = useRef(false);
   const justLoadedRef = useRef(false);
 
@@ -73,7 +77,11 @@ export const DailyStatsChart = ({
     });
 
     chart.priceScale("right").applyOptions({
-      scaleMargins: { top: 0.1, bottom: 0.1 },
+      scaleMargins: { top: 0.1, bottom: 0.25 },
+    });
+
+    chart.priceScale("left").applyOptions({
+      scaleMargins: { top: 0.8, bottom: 0 },
     });
 
     const candleSeries = chart.addSeries(CandlestickSeries, {
@@ -85,9 +93,18 @@ export const DailyStatsChart = ({
       wickUpColor: "#26a69a",
       wickDownColor: "#ef5350",
     });
+    const volumeSeries = chart.addSeries(
+      HistogramSeries,
+      {
+        color: "rgba(38, 166, 154, 0.45)",
+        priceFormat: { type: "volume" },
+        priceScaleId: "left",
+      },
+      1,
+    );
 
     chartRef.current = chart;
-    seriesRef.current = { candle: candleSeries };
+    seriesRef.current = { candle: candleSeries, volume: volumeSeries };
 
     const handleResize = () => {
       chart.applyOptions({ width: chartContainerRef.current!.clientWidth });
@@ -104,29 +121,35 @@ export const DailyStatsChart = ({
   useEffect(() => {
     const chart = chartRef.current;
     const candleSeries = seriesRef.current.candle;
-    if (!chart || !candleSeries) return;
+    const volumeSeries = seriesRef.current.volume;
+    if (!chart || !candleSeries || !volumeSeries) return;
 
     const handleCrosshairMove = (param: MouseEventParams<Time>) => {
       const data = param.seriesData;
       if (!param.time || !data.has(candleSeries)) {
         const lastCandle =
           chartData.candlestickData[chartData.candlestickData.length - 1];
+        const lastVolume =
+          chartData.histogramData[chartData.histogramData.length - 1];
         onLegendDataChange({
           open: lastCandle?.open,
           high: lastCandle?.high,
           low: lastCandle?.low,
           close: lastCandle?.close,
+          volume: lastVolume?.value,
           time: lastCandle?.time?.toString(),
         });
         return;
       }
 
       const candleData = data.get(candleSeries) as CandlestickData<Time>;
+      const volumeData = data.get(volumeSeries) as HistogramData<Time> | undefined;
       onLegendDataChange({
         open: candleData.open,
         high: candleData.high,
         low: candleData.low,
         close: candleData.close,
+        volume: volumeData?.value,
         time: candleData.time.toString(),
       });
     };
@@ -165,6 +188,7 @@ export const DailyStatsChart = ({
     justLoadedRef.current = true;
 
     seriesRef.current.candle?.setData(chartData.candlestickData);
+    seriesRef.current.volume?.setData(chartData.histogramData);
 
     if (chartData.candlestickData.length > 0 && chartData.candlestickData.length <= 100) {
       chartRef.current?.timeScale().fitContent();
@@ -172,11 +196,14 @@ export const DailyStatsChart = ({
 
     const lastCandle =
       chartData.candlestickData[chartData.candlestickData.length - 1];
+    const lastVolume =
+      chartData.histogramData[chartData.histogramData.length - 1];
     onLegendDataChange({
       open: lastCandle?.open,
       high: lastCandle?.high,
       low: lastCandle?.low,
       close: lastCandle?.close,
+      volume: lastVolume?.value,
       time: lastCandle?.time?.toString(),
     });
   }, [chartData, onLegendDataChange]);

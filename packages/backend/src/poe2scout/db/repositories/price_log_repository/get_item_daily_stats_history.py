@@ -12,6 +12,7 @@ class DailyStatsHistoryEntry(RepositoryModel):
     min_price: float
     max_price: float
     avg_price: float
+    volume: int
 
 
 async def get_item_daily_stats_history(
@@ -31,7 +32,8 @@ SELECT
     close_price,
     min_price,
     max_price,
-    avg_price
+    avg_price,
+    volume
 FROM item_daily_stats
 WHERE item_id = %(item_id)s
 AND league_id = %(league_id)s

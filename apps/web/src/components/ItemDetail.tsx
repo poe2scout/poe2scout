@@ -224,7 +224,7 @@ export function ItemDetail({
   }, [history]);
 
   const dailyChartData = useMemo<DailyStatsChartData>(() => {
-    if (!dailyStats.length) return { candlestickData: [] };
+    if (!dailyStats.length) return { candlestickData: [], histogramData: [] };
 
     return {
       candlestickData: dailyStats.map((entry) => ({
@@ -233,6 +233,10 @@ export function ItemDetail({
         high: entry.high,
         low: entry.low,
         close: entry.close,
+      })),
+      histogramData: dailyStats.map((entry) => ({
+        time: entry.time,
+        value: entry.volume,
       })),
     };
   }, [dailyStats]);

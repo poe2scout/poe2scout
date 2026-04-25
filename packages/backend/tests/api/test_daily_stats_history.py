@@ -41,7 +41,7 @@ class FakeCursorContext:
         return None
 
 
-def make_daily_stat(day: date, close_price: float) -> DailyStatsHistoryEntry:
+def make_daily_stat(day: date, close_price: float, volume: int = 100) -> DailyStatsHistoryEntry:
     return DailyStatsHistoryEntry(
         day=day,
         open_price=close_price - 1,
@@ -49,6 +49,7 @@ def make_daily_stat(day: date, close_price: float) -> DailyStatsHistoryEntry:
         min_price=close_price - 2,
         max_price=close_price + 2,
         avg_price=close_price + 0.5,
+        volume=volume,
     )
 
 
@@ -90,6 +91,7 @@ class DailyStatsHistoryRepositoryTests(unittest.IsolatedAsyncioTestCase):
             date(2026, 4, 24),
             date(2026, 4, 23),
         ])
+        self.assertIn("volume", cursor.query)
         self.assertEqual(cursor.params["end_date"], None)
         self.assertEqual(cursor.params["limit"], 3)
 
@@ -161,6 +163,7 @@ class DailyStatsHistoryRouteTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.daily_stats[1].low, 28)
         self.assertEqual(response.daily_stats[1].close, 30)
         self.assertEqual(response.daily_stats[1].average, 30.5)
+        self.assertEqual(response.daily_stats[1].volume, 100)
 
     async def test_route_computes_has_more_and_trims_extra_row(self):
         request = GetDailyStatsHistoryRequest(
