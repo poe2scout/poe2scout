@@ -11,7 +11,6 @@ from poe2scout.api.routes.leagues.items.get_daily_stats_history import (
 from poe2scout.db.repositories.league_repository.get_leagues import League
 from poe2scout.db.repositories.price_log_repository.get_item_daily_stats_history import (
     DailyStatsHistoryEntry,
-    GetItemDailyStatsHistoryModel,
     get_item_daily_stats_history,
 )
 from poe2scout.db.repositories.realm_repository.get_realm import Realm
@@ -82,14 +81,14 @@ class DailyStatsHistoryRepositoryTests(unittest.IsolatedAsyncioTestCase):
                 item_id=100,
                 league_id=7,
                 realm_id=2,
-                day_count=2,
+                limit=3,
                 end_date=None,
             )
 
-        self.assertTrue(history.has_more)
-        self.assertEqual([stat.day for stat in history.daily_stats], [
+        self.assertEqual([stat.day for stat in history], [
             date(2026, 4, 25),
             date(2026, 4, 24),
+            date(2026, 4, 23),
         ])
         self.assertEqual(cursor.params["end_date"], None)
         self.assertEqual(cursor.params["limit"], 3)
@@ -107,14 +106,13 @@ class DailyStatsHistoryRepositoryTests(unittest.IsolatedAsyncioTestCase):
                 item_id=100,
                 league_id=7,
                 realm_id=2,
-                day_count=2,
+                limit=2,
                 end_date=end_date,
             )
 
-        self.assertFalse(history.has_more)
         self.assertIn("day < %(end_date)s::date", cursor.query)
         self.assertEqual(cursor.params["end_date"], end_date)
-        self.assertEqual([stat.day for stat in history.daily_stats], [date(2026, 4, 23)])
+        self.assertEqual([stat.day for stat in history], [date(2026, 4, 23)])
 
 
 class DailyStatsHistoryRouteTests(unittest.IsolatedAsyncioTestCase):
@@ -126,13 +124,10 @@ class DailyStatsHistoryRouteTests(unittest.IsolatedAsyncioTestCase):
             day_count=2,
             end_date=None,
         )
-        history = GetItemDailyStatsHistoryModel(
-            daily_stats=[
-                make_daily_stat(date(2026, 4, 25), 30),
-                make_daily_stat(date(2026, 4, 24), 20),
-            ],
-            has_more=False,
-        )
+        history = [
+            make_daily_stat(date(2026, 4, 25), 30),
+            make_daily_stat(date(2026, 4, 24), 20),
+        ]
 
         with (
             patch(
@@ -153,7 +148,7 @@ class DailyStatsHistoryRouteTests(unittest.IsolatedAsyncioTestCase):
         ):
             response = await get_daily_stats_history(request)
 
-        get_history.assert_awaited_once_with(100, 7, 2, 2, None)
+        get_history.assert_awaited_once_with(100, 7, 2, 3, None)
         self.assertFalse(response.has_more)
         self.assertEqual(response.base_currency_api_id, "exalted")
         self.assertEqual(response.base_currency_text, "Exalted Orb")
@@ -166,6 +161,46 @@ class DailyStatsHistoryRouteTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.daily_stats[1].low, 28)
         self.assertEqual(response.daily_stats[1].close, 30)
         self.assertEqual(response.daily_stats[1].average, 30.5)
+
+    async def test_route_computes_has_more_and_trims_extra_row(self):
+        request = GetDailyStatsHistoryRequest(
+            realm="poe2",
+            item_id=100,
+            league_name="Standard",
+            day_count=2,
+            end_date=date(2026, 4, 26),
+        )
+        history = [
+            make_daily_stat(date(2026, 4, 25), 30),
+            make_daily_stat(date(2026, 4, 24), 20),
+            make_daily_stat(date(2026, 4, 23), 10),
+        ]
+
+        with (
+            patch(
+                "poe2scout.api.routes.leagues.items.get_daily_stats_history."
+                "realm_repository.get_realm",
+                AsyncMock(return_value=Realm(realm_id=2, game_id=3)),
+            ),
+            patch(
+                "poe2scout.api.routes.leagues.items.get_daily_stats_history."
+                "league_repository.get_league_by_value",
+                AsyncMock(return_value=make_league()),
+            ),
+            patch(
+                "poe2scout.api.routes.leagues.items.get_daily_stats_history."
+                "price_log_repository.get_item_daily_stats_history",
+                AsyncMock(return_value=history),
+            ) as get_history,
+        ):
+            response = await get_daily_stats_history(request)
+
+        get_history.assert_awaited_once_with(100, 7, 2, 3, date(2026, 4, 26))
+        self.assertTrue(response.has_more)
+        self.assertEqual([stat.time for stat in response.daily_stats], [
+            date(2026, 4, 24),
+            date(2026, 4, 25),
+        ])
 
     async def test_route_rejects_non_positive_day_count(self):
         request = GetDailyStatsHistoryRequest(
