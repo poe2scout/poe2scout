@@ -52,7 +52,7 @@ interface ItemDetailProps {
   referenceCurrencyOptions: string[];
 }
 
-type ChartMode = "recent" | "daily";
+type ChartMode = "raw" | "daily";
 const DAILY_CHART_SEEN_STORAGE_KEY = "poe2scout.dailyChartSeen";
 
 export function ItemDetail({
@@ -75,7 +75,7 @@ export function ItemDetail({
   const [isDailyLoadingMore, setIsDailyLoadingMore] = useState(false);
   const [legendData, setLegendData] = useState<LegendData>({});
   const [dailyLegendData, setDailyLegendData] = useState<DailyStatsLegendData>({});
-  const [chartMode, setChartMode] = useState<ChartMode>("recent");
+  const [chartMode, setChartMode] = useState<ChartMode>("raw");
   const [showDailyNewBadge, setShowDailyNewBadge] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.localStorage.getItem(DAILY_CHART_SEEN_STORAGE_KEY) !== "true";
@@ -158,7 +158,7 @@ export function ItemDetail({
   }, [item.itemId, league.value]);
 
   useEffect(() => {
-    if (chartMode !== "recent") return;
+    if (chartMode !== "raw") return;
 
     setHistory([]); 
     setHasMore(true);
@@ -237,7 +237,7 @@ export function ItemDetail({
     };
   }, [dailyStats]);
 
-  const isCurrentChartLoading = chartMode === "recent" ? isLoading : isDailyLoading;
+  const isCurrentChartLoading = chartMode === "raw" ? isLoading : isDailyLoading;
 
   return (
     <DetailContainer>
@@ -260,7 +260,7 @@ export function ItemDetail({
             value={chartMode}
             onChange={handleChartModeChange}
           >
-            <ToggleButton value="recent">Recent</ToggleButton>
+            <ToggleButton value="raw">Raw</ToggleButton>
             <ToggleButton
               value="daily"
               sx={
@@ -291,7 +291,7 @@ export function ItemDetail({
               Daily
             </ToggleButton>
           </ToggleButtonGroup>
-          {chartMode === "recent" && (
+          {chartMode === "raw" && (
             <ReferenceCurrencySelector
               currentReference={selectedReference}
               onReferenceChange={onSelectedReferenceChange}
@@ -307,7 +307,7 @@ export function ItemDetail({
           <Box sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <CircularProgress />
           </Box>
-        ) : chartMode === "recent" ? (
+        ) : chartMode === "raw" ? (
           <div style={{ position: 'relative', width: '100%'}} >
             <ChartLegend
                 {...legendData}
