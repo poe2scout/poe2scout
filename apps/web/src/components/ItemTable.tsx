@@ -531,7 +531,7 @@ export function ItemTable({ type, language, initialSearch }: ItemTableProps) {
                     />
                   </StyledTableCell>
                   <StyledTableCell>
-                    {item.priceLogs?.[0]?.quantity ?? "N/A"}
+                    {item.currentQuantity ?? "N/A"}
                   </StyledTableCell>
                   <StyledTableCell
                     sx={{

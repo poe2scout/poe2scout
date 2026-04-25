@@ -225,11 +225,6 @@ class EconomyCache:
                 reference_currency_logs,
             )
 
-        items = [
-            UniqueItemExtended(**item.model_dump(), price_logs=price_logs[item.item_id])
-            for item in unique_items
-        ]
-
         last_price = dict.fromkeys(item_ids, 0.0)
 
         prices = await price_log_repository.get_item_prices(
@@ -247,6 +242,11 @@ class EconomyCache:
             reference_currency_price,
         )
 
+        items = [
+            UniqueItemExtended(**item.model_dump(), price_logs=price_logs[item.item_id])
+            for item in unique_items
+        ]
+
         for item in items:
             last_price[item.item_id] = converted_current_prices[item.item_id]
 
@@ -259,8 +259,9 @@ class EconomyCache:
 
         items = [
             UniqueItemExtended(
-                **item.model_dump(exclude={"current_price"}),
+                **item.model_dump(exclude={"current_price", "current_quantity"}),
                 current_price=last_price[item.item_id],
+                current_quantity=prices_lookup[item.item_id].quantity,
             )
             for item in items
         ]
@@ -341,11 +342,6 @@ class EconomyCache:
                 reference_currency_logs,
             )
 
-        items = [
-            CurrencyItemExtended(**item.model_dump(), price_logs=price_logs[item.item_id])
-            for item in currency_items
-        ]
-
         last_price = dict.fromkeys(item_ids, 0.0)
 
         prices = await price_log_repository.get_item_prices(
@@ -362,6 +358,11 @@ class EconomyCache:
             reference_currency_price,
         )
 
+        items = [
+            CurrencyItemExtended(**item.model_dump(), price_logs=price_logs[item.item_id])
+            for item in currency_items
+        ]
+
         for item in items:
             last_price[item.item_id] = converted_current_prices[item.item_id]
 
@@ -374,8 +375,9 @@ class EconomyCache:
 
         items = [
             CurrencyItemExtended(
-                **item.model_dump(exclude={"current_price"}),
+                **item.model_dump(exclude={"current_price", "current_quantity"}),
                 current_price=last_price[item.item_id],
+                current_quantity=prices_lookup[item.item_id].quantity,
             )
             for item in items
         ]

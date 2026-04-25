@@ -70,6 +70,7 @@ export const DailyStatsChart = ({
         textColor,
       },
       rightPriceScale: { borderVisible: false },
+      leftPriceScale: { visible: true, borderVisible: false },
       grid: { vertLines: { color: gridColor }, horzLines: { color: gridColor } },
       width: chartContainerRef.current.clientWidth,
       height,
@@ -77,11 +78,7 @@ export const DailyStatsChart = ({
     });
 
     chart.priceScale("right").applyOptions({
-      scaleMargins: { top: 0.1, bottom: 0.25 },
-    });
-
-    chart.priceScale("left").applyOptions({
-      scaleMargins: { top: 0.8, bottom: 0 },
+      scaleMargins: { top: 0.1, bottom: 0.1 },
     });
 
     const candleSeries = chart.addSeries(CandlestickSeries, {
@@ -93,10 +90,13 @@ export const DailyStatsChart = ({
       wickUpColor: "#26a69a",
       wickDownColor: "#ef5350",
     });
+    candleSeries.priceScale().applyOptions({
+      scaleMargins: { top: 0.15, bottom: 0.15 },
+    });
     const volumeSeries = chart.addSeries(
       HistogramSeries,
       {
-        color: "rgba(38, 166, 154, 0.45)",
+        color: "#26a69a",
         priceFormat: { type: "volume" },
         priceScaleId: "left",
       },
