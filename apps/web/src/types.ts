@@ -142,6 +142,22 @@ export interface ItemHistoryResponse {
   hasMore: boolean;
 }
 
+export interface DailyStatEntry {
+  time: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  average: number;
+}
+
+export interface ItemDailyStatsHistoryResponse {
+  dailyStats: DailyStatEntry[];
+  hasMore: boolean;
+  baseCurrencyApiId: string;
+  baseCurrencyText: string;
+}
+
 export interface CurrencyExchangeSnapshot {
   epoch: number;
   volume: number;
