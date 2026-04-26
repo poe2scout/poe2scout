@@ -15,16 +15,22 @@ export default function Footer() {
   }
 
   return (
-    <footer className="flex flex-col w-full flex-wrap items-center">
+    <footer className="flex w-full flex-col flex-wrap items-center">
       <section className="gap-x-4 gap-y-2 px-2 py-4">
         <Link className="mx-5 underline" to="/privacy">
           Privacy Policy
         </Link>
-        <button className="mx-5 underline" type="button" onClick={showPrivacySettings}>
+        <button
+          className="mx-5 underline"
+          type="button"
+          onClick={showPrivacySettings}
+        >
           Privacy and cookie settings
         </button>
       </section>
-      <span className="mb-2.5">© 2026 POE2 Scout. Not affiliated with Grinding Gear Games.</span>
+      <span className="mb-2.5">
+        © 2026 POE2 Scout. Not affiliated with Grinding Gear Games.
+      </span>
     </footer>
   );
 }

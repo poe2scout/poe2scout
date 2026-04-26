@@ -36,11 +36,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col">
-          <Header/>
+          <Header />
           <main className="flex w-full flex-1 flex-col items-center justify-start pt-8">
             {children}
           </main>
-          <Footer/>
+          <Footer />
         </div>
         <ScrollRestoration />
         <Scripts />
@@ -74,7 +74,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       <h1>{message}</h1>
       <p>{details}</p>
       {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
+        <pre className="w-full overflow-x-auto p-4">
           <code>{stack}</code>
         </pre>
       )}
