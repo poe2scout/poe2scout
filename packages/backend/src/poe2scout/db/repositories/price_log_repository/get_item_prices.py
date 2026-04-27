@@ -6,6 +6,7 @@ from ..base_repository import BaseRepository, RepositoryModel
 class GetItemPricesModel(RepositoryModel):
     item_id: int
     price: float
+    quantity: int
 
 
 async def get_item_prices(
@@ -16,10 +17,11 @@ async def get_item_prices(
         query = """
             SELECT
                 req_item.item_id AS item_id,
-                COALESCE(latest_price.price, 0) AS price
+                COALESCE(latest_price.price, 0) AS price,
+                COALESCE(latest_price.quantity, 0) AS quantity
               FROM UNNEST(%(item_ids)s) AS req_item(item_id)
               LEFT JOIN LATERAL (
-                  SELECT price
+                  SELECT price, quantity
                     FROM price_log
                    WHERE item_id = req_item.item_id
                      AND league_id = %(league_id)s

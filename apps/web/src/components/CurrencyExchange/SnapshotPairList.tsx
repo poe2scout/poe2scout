@@ -2,6 +2,9 @@ import {
   Paper,
   CircularProgress,
   Alert,
+  Box,
+  IconButton,
+  InputAdornment,
   TableContainer,
   Table,
   TableHead,
@@ -10,8 +13,12 @@ import {
   TableBody,
   TableSortLabel,
   TablePagination,
+  TextField,
+  Typography,
 } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import ClearIcon from "@mui/icons-material/Clear";
+import SearchIcon from "@mui/icons-material/Search";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useLeague } from "../../contexts/LeagueContext";
@@ -36,6 +43,9 @@ export function SnapshotPairList({ snapshot }: SnapshotPairListProps) {
   const [orderBy, setOrderBy] = useState<OrderBy>("volume");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const searchDebounceTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const getPairs = async () => {
@@ -56,6 +66,34 @@ export function SnapshotPairList({ snapshot }: SnapshotPairListProps) {
 
     getPairs();
   }, [league, snapshot.epoch]);
+
+  const scheduleSearchUpdate = (value: string) => {
+    if (searchDebounceTimeoutRef.current !== null) {
+      window.clearTimeout(searchDebounceTimeoutRef.current);
+    }
+
+    searchDebounceTimeoutRef.current = window.setTimeout(() => {
+      setDebouncedSearchTerm(value.trim().toLowerCase());
+      setPage(0);
+      searchDebounceTimeoutRef.current = null;
+    }, 250);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchInput(value);
+    scheduleSearchUpdate(value);
+  };
+
+  const handleSearchClear = () => {
+    if (searchDebounceTimeoutRef.current !== null) {
+      window.clearTimeout(searchDebounceTimeoutRef.current);
+      searchDebounceTimeoutRef.current = null;
+    }
+
+    setSearchInput("");
+    setDebouncedSearchTerm("");
+    setPage(0);
+  };
 
   const handleRequestSort = (property: OrderBy) => {
     const isAsc = orderBy === property && order === "asc";
@@ -82,8 +120,29 @@ export function SnapshotPairList({ snapshot }: SnapshotPairListProps) {
     );
   };
 
+  const filteredPairs = useMemo(() => {
+    if (!debouncedSearchTerm) {
+      return snapshotPairs;
+    }
+
+    return snapshotPairs.filter((pair) => {
+      const pairSearchText = [
+        pair.currencyOne.text,
+        pair.currencyTwo.text,
+        pair.currencyOne.apiId,
+        pair.currencyTwo.apiId,
+        `${pair.currencyOne.text}/${pair.currencyTwo.text}`,
+        `${pair.currencyOne.text} / ${pair.currencyTwo.text}`,
+        `${pair.currencyOne.apiId}/${pair.currencyTwo.apiId}`,
+        `${pair.currencyOne.apiId} / ${pair.currencyTwo.apiId}`,
+      ].join(" ").toLowerCase();
+
+      return pairSearchText.includes(debouncedSearchTerm);
+    });
+  }, [snapshotPairs, debouncedSearchTerm]);
+
   const visiblePairs = useMemo(() => {
-    const sorted = [...snapshotPairs].sort((a, b) => {
+    const sorted = [...filteredPairs].sort((a, b) => {
       let compareResult = 0;
       switch (orderBy) {
         case "pair": {
@@ -101,7 +160,7 @@ export function SnapshotPairList({ snapshot }: SnapshotPairListProps) {
     });
 
     return sorted.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  }, [snapshotPairs, order, orderBy, page, rowsPerPage]);
+  }, [filteredPairs, order, orderBy, page, rowsPerPage]);
 
   if (isLoading) {
     return (
@@ -134,8 +193,50 @@ export function SnapshotPairList({ snapshot }: SnapshotPairListProps) {
         height: "100%",
       }}
     >
+      <Box sx={{ p: 2, pb: 1 }}>
+        <TextField
+          value={searchInput}
+          onChange={(event) => handleSearchChange(event.target.value)}
+          placeholder="Search trading pairs"
+          variant="outlined"
+          size="small"
+          fullWidth
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" />
+              </InputAdornment>
+            ),
+            endAdornment: searchInput ? (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="Clear trading pair search"
+                  edge="end"
+                  size="small"
+                  onClick={handleSearchClear}
+                >
+                  <ClearIcon fontSize="small" />
+                </IconButton>
+              </InputAdornment>
+            ) : null,
+          }}
+          inputProps={{
+            "aria-label": "Search trading pairs",
+            autoComplete: "off",
+          }}
+        />
+      </Box>
       <TableContainer sx={{ flexGrow: 1 }}>
-        <Table stickyHeader size="small">
+        <Table
+          stickyHeader
+          size="small"
+          sx={{
+            "& .MuiTableHead-root .MuiTableCell-root": {
+              backgroundColor: (theme) =>
+                theme.palette.mode === "dark" ? "#1e1e1e" : "#fff",
+            },
+          }}
+        >
           <TableHead>
             <TableRow>
               <TableCell sortDirection={orderBy === "pair" ? order : false}>
@@ -165,20 +266,30 @@ export function SnapshotPairList({ snapshot }: SnapshotPairListProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {visiblePairs.map((pair) => (
-              <SnapshotPairRow
-                key={`${pair.currencyOne.itemId}-${pair.currencyTwo.itemId}`}
-                pair={pair}
-                onPairClick={handlePairClick}
-              />
-            ))}
+            {visiblePairs.length > 0 ? (
+              visiblePairs.map((pair) => (
+                <SnapshotPairRow
+                  key={`${pair.currencyOne.itemId}-${pair.currencyTwo.itemId}`}
+                  pair={pair}
+                  onPairClick={handlePairClick}
+                />
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={3} align="center" sx={{ py: 6 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    No trading pairs match your search.
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[10, 25, 50, 100]}
         component="div"
-        count={snapshotPairs.length}
+        count={filteredPairs.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

@@ -1,18 +1,37 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
-import { Button, Paper, Box, CircularProgress } from "@mui/material";
+import type { MouseEvent } from "react";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Paper,
+  ToggleButton,
+  ToggleButtonGroup,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { ItemName } from "./TableColumnComponents/ItemName";
 import type { ApiItem } from "../types";
 import { useLanguage } from "../contexts/LanguageContext";
 import translations from "../translationskrmapping.json";
 import { useLeague } from "../contexts/LeagueContext";
-import { ItemHistoryResponse, PriceLogEntry } from "../types";
+import type {
+  DailyStatEntry,
+  ItemDailyStatsHistoryResponse,
+  ItemHistoryResponse,
+  PriceLogEntry,
+} from "../types";
 import { Chart } from "./Chart";
 import { UTCTimestamp } from "lightweight-charts";
-import ReferenceCurrencySelector, { BaseCurrencies } from "./ReferenceCurrencySelector";
-import { ChartLegend, LegendData } from "./ItemHistoryChartLegend";
-import { fetchItemHistory } from "../api/economy";
+import ReferenceCurrencySelector, { type BaseCurrencies } from "./ReferenceCurrencySelector";
+import { ChartLegend, type LegendData } from "./ItemHistoryChartLegend";
+import { fetchItemDailyStatsHistory, fetchItemHistory } from "../api/economy";
 import { getCurrencyLabel } from "../currencyMeta";
+import { DailyStatsChart } from "./DailyStatsChart";
+import type { DailyStatsChartData } from "./DailyStatsChart";
+import {
+  DailyStatsChartLegend,
+} from "./DailyStatsChartLegend";
+import type { DailyStatsLegendData } from "./DailyStatsChartLegend";
 
 const DetailContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -33,6 +52,9 @@ interface ItemDetailProps {
   referenceCurrencyOptions: string[];
 }
 
+type ChartMode = "raw" | "daily";
+const DAILY_CHART_SEEN_STORAGE_KEY = "poe2scout.dailyChartSeen";
+
 export function ItemDetail({
   item,
   onBack,
@@ -41,12 +63,23 @@ export function ItemDetail({
 }: ItemDetailProps) {
   const logCountRef = useRef<number>(14 * 24);
   const [history, setHistory] = useState<PriceLogEntry[]>([]);
+  const [dailyStats, setDailyStats] = useState<DailyStatEntry[]>([]);
 
   const [hasMore, setHasMore] = useState(true);
+  const [dailyHasMore, setDailyHasMore] = useState(true);
   const [oldestTimestamp, setOldestTimestamp] = useState<string>(() => new Date().toISOString());
+  const [oldestDailyDate, setOldestDailyDate] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false); 
+  const [isDailyLoading, setIsDailyLoading] = useState(false);
+  const [isDailyLoadingMore, setIsDailyLoadingMore] = useState(false);
   const [legendData, setLegendData] = useState<LegendData>({});
+  const [dailyLegendData, setDailyLegendData] = useState<DailyStatsLegendData>({});
+  const [chartMode, setChartMode] = useState<ChartMode>("raw");
+  const [showDailyNewBadge, setShowDailyNewBadge] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(DAILY_CHART_SEEN_STORAGE_KEY) !== "true";
+  });
 
   const [selectedReference, setSelectedReference] = useState<BaseCurrencies>(initialReferenceCurrency);
   const { language } = useLanguage();
@@ -86,7 +119,47 @@ export function ItemDetail({
     }
   }, [item.itemId, league.value, selectedReference]);
 
+  const fetchDailyStats = useCallback(async (isInitialLoad: boolean, cursor?: string) => {
+    if (isInitialLoad) {
+      setIsDailyLoading(true);
+    } else {
+      setIsDailyLoadingMore(true);
+    }
+
+    try {
+      const data: ItemDailyStatsHistoryResponse = await fetchItemDailyStatsHistory({
+        itemId: item.itemId,
+        leagueName: league.value,
+        dayCount: 90,
+        endDate: cursor,
+      });
+
+      setDailyStats((prevDailyStats) => {
+        if (isInitialLoad) return data.dailyStats;
+
+        const existingTimes = new Set(prevDailyStats.map((entry) => entry.time));
+        const olderStats = data.dailyStats.filter(
+          (entry) => !existingTimes.has(entry.time),
+        );
+        return [...olderStats, ...prevDailyStats];
+      });
+      setDailyHasMore(data.hasMore);
+
+      if (data.dailyStats.length > 0) {
+        setOldestDailyDate(data.dailyStats[0].time);
+      }
+    } catch (error) {
+      console.error("Error fetching daily stat history:", error);
+      setDailyStats([]);
+    } finally {
+      if (isInitialLoad) setIsDailyLoading(false);
+      else setIsDailyLoadingMore(false);
+    }
+  }, [item.itemId, league.value]);
+
   useEffect(() => {
+    if (chartMode !== "raw") return;
+
     setHistory([]); 
     setHasMore(true);
     const initialCursor = new Date().toISOString();
@@ -94,7 +167,16 @@ export function ItemDetail({
     logCountRef.current = 14 * 24; 
 
     fetchPriceHistory(true, initialCursor);
-  }, [item.id, selectedReference, fetchPriceHistory]);
+  }, [item.id, selectedReference, fetchPriceHistory, chartMode]);
+
+  useEffect(() => {
+    if (chartMode !== "daily") return;
+
+    setDailyStats([]);
+    setDailyHasMore(true);
+    setOldestDailyDate(undefined);
+    fetchDailyStats(true);
+  }, [item.id, fetchDailyStats, chartMode]);
 
   const handleLoadMore = useCallback(() => {
     if (!isLoadingMore && hasMore) {
@@ -102,8 +184,27 @@ export function ItemDetail({
     }
   }, [isLoadingMore, hasMore, oldestTimestamp, fetchPriceHistory]);
 
+  const handleDailyLoadMore = useCallback(() => {
+    if (!isDailyLoadingMore && dailyHasMore && oldestDailyDate) {
+      fetchDailyStats(false, oldestDailyDate);
+    }
+  }, [dailyHasMore, fetchDailyStats, isDailyLoadingMore, oldestDailyDate]);
+
   const onSelectedReferenceChange = (newReference: BaseCurrencies) => {
     setSelectedReference(newReference);
+  };
+
+  const handleChartModeChange = (
+    _: MouseEvent<HTMLElement>,
+    newMode: ChartMode | null,
+  ) => {
+    if (newMode !== null) {
+      setChartMode(newMode);
+      if (newMode === "daily" && showDailyNewBadge) {
+        window.localStorage.setItem(DAILY_CHART_SEEN_STORAGE_KEY, "true");
+        setShowDailyNewBadge(false);
+      }
+    }
   };
 
   const processedData = useMemo(() => {
@@ -122,6 +223,26 @@ export function ItemDetail({
     return { lineData: prices, histogramData: quantities };
   }, [history]);
 
+  const dailyChartData = useMemo<DailyStatsChartData>(() => {
+    if (!dailyStats.length) return { candlestickData: [], histogramData: [] };
+
+    return {
+      candlestickData: dailyStats.map((entry) => ({
+        time: entry.time,
+        open: entry.open,
+        high: entry.high,
+        low: entry.low,
+        close: entry.close,
+      })),
+      histogramData: dailyStats.map((entry) => ({
+        time: entry.time,
+        value: entry.volume,
+      })),
+    };
+  }, [dailyStats]);
+
+  const isCurrentChartLoading = chartMode === "raw" ? isLoading : isDailyLoading;
+
   return (
     <DetailContainer>
       <HeaderContainer>
@@ -136,22 +257,61 @@ export function ItemDetail({
             itemMetadata={item.itemMetadata}
           />
         </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-          <ReferenceCurrencySelector
-            currentReference={selectedReference}
-            onReferenceChange={onSelectedReferenceChange}
-            options={referenceCurrencyOptions}
-            currencyMeta={league}
-          />
+        <Box sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
+          <ToggleButtonGroup
+            exclusive
+            size="small"
+            value={chartMode}
+            onChange={handleChartModeChange}
+          >
+            <ToggleButton value="raw">Raw</ToggleButton>
+            <ToggleButton
+              value="daily"
+              sx={
+                showDailyNewBadge
+                  ? {
+                      "@keyframes dailyChartPulse": {
+                        "0%": {
+                          borderColor: "rgba(212, 175, 55, 0.55)",
+                          boxShadow: "0 0 0 0 rgba(212, 175, 55, 0.45)",
+                          color: "#f7d774",
+                        },
+                        "70%": {
+                          borderColor: "rgba(247, 215, 116, 0.95)",
+                          boxShadow: "0 0 0 8px rgba(212, 175, 55, 0)",
+                          color: "#ffe08a",
+                        },
+                        "100%": {
+                          borderColor: "rgba(212, 175, 55, 0.55)",
+                          boxShadow: "0 0 0 0 rgba(212, 175, 55, 0)",
+                          color: "#f7d774",
+                        },
+                      },
+                      animation: "dailyChartPulse 1.8s ease-out infinite",
+                    }
+                  : undefined
+              }
+            >
+              Daily
+            </ToggleButton>
+          </ToggleButtonGroup>
+          {chartMode === "raw" && (
+            <ReferenceCurrencySelector
+              currentReference={selectedReference}
+              onReferenceChange={onSelectedReferenceChange}
+              options={referenceCurrencyOptions}
+              currencyMeta={league}
+            />
+          )}
         </Box>
       </HeaderContainer>
 
       <Box sx={{ width: "100%", height: "500px", position: 'relative' }}>
-        {isLoading ? (
+        {isCurrentChartLoading ? (
           <Box sx={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <CircularProgress />
           </Box>
-        ) : (
+        ) : chartMode === "raw" ? (
           <div style={{ position: 'relative', width: '100%'}} >
             <ChartLegend
                 {...legendData}
@@ -172,6 +332,22 @@ export function ItemDetail({
               onLegendDataChange={setLegendData}
               height={500}
             />          
+          </div>
+        ) : (
+          <div style={{ position: "relative", width: "100%" }}>
+            <DailyStatsChartLegend
+              {...dailyLegendData}
+              baseCurrencyApiId={league.baseCurrencyApiId}
+              baseCurrencyText={league.baseCurrencyText}
+            />
+            <DailyStatsChart
+              chartData={dailyChartData}
+              onLoadMore={handleDailyLoadMore}
+              hasMore={dailyHasMore}
+              isLoadingMore={isDailyLoadingMore}
+              onLegendDataChange={setDailyLegendData}
+              height={500}
+            />
           </div>
         )}
       </Box>

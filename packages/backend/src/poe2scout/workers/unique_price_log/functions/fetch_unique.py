@@ -5,7 +5,9 @@ import logging
 from typing import List
 from pydantic import BaseModel
 from poe2scout.db.repositories.league_repository.get_leagues import League
+from poe2scout.integrations.poe.client import ClientError
 from .extract_unique_item_metadata import extract_unique_item_metadata
+from ..exceptions import UniqueItemDelistedError
 
 logger = logging.getLogger(__name__)
 
@@ -56,12 +58,11 @@ async def fetch_unique(
     query_data = create_query_string(unique_item, currency_text=currency)
 
     # Make first request to get the query id
-    query_response = await client.post(query_url, json=query_data)
-    if query_response.status_code != 200:
-        raise Exception(
-            f"Search request failed for {unique_item.name}" +\
-            f" with status code {query_response.status_code}"
-        )
+    try:
+        query_response = await client.post(query_url, json=query_data)
+    except ClientError as exc:
+        raise_for_delisted_unique(unique_item, exc)
+        raise
 
     query_data = query_response.json()
 
@@ -74,13 +75,11 @@ async def fetch_unique(
     # Second request - GET items
     items_url = f"{BASE_URL}/fetch/{','.join(item_ids)}"
     params = {"query": query_data["id"], "realm": REALM}
-    fetch_response = await client.get(items_url, params=params)
-
-    if fetch_response.status_code != 200:
-        raise Exception(
-            f"Fetch request failed for {unique_item.name} " +\
-            f"with status code {fetch_response.status_code}"
-        )
+    try:
+        fetch_response = await client.get(items_url, params=params)
+    except ClientError as exc:
+        raise_for_delisted_unique(unique_item, exc)
+        raise
 
     fetch_data = fetch_response.json()
 
@@ -96,6 +95,12 @@ async def fetch_unique(
     return PriceFetchResult(
         price=prices[0], quantity=query_data["total"], currency=currency
     )
+
+
+def raise_for_delisted_unique(unique_item: UniqueItem, error: ClientError) -> None:
+    error_message = str(error)
+    if "Status Code: 400" in error_message and "Unknown item name" in error_message:
+        raise UniqueItemDelistedError(unique_item.unique_item_id, unique_item.name) from error
 
 
 def parse_trade_response(response_data: dict) -> List[float]:

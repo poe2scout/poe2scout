@@ -27,6 +27,7 @@ export interface UniqueItemExtended {
   itemMetadata: ItemMetadata | null;
   priceLogs: (PriceLogEntry | null)[];
   currentPrice: number | null;
+  currentQuantity: number | null;
   isChanceable: boolean;
 }
 
@@ -40,6 +41,7 @@ export interface UniqueBaseItem {
   categoryApiId: string;
   priceLogs: (PriceLogEntry | null)[];
   currentPrice: number | null;
+  currentQuantity: number | null;
   averageUniquePrice: number | null;
   isChanceable: boolean;
 }
@@ -54,6 +56,7 @@ export interface CurrencyItemExtended {
   iconUrl: string | null;
   priceLogs: (PriceLogEntry | null)[];
   currentPrice: number | null;
+  currentQuantity: number | null;
   type: string;
   itemMetadata: CurrencyMetadata | null;
 }
@@ -140,6 +143,23 @@ export interface CategoryResponse {
 export interface ItemHistoryResponse {
   priceHistory: PriceLogEntry[];
   hasMore: boolean;
+}
+
+export interface DailyStatEntry {
+  time: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  average: number;
+  volume: number;
+}
+
+export interface ItemDailyStatsHistoryResponse {
+  dailyStats: DailyStatEntry[];
+  hasMore: boolean;
+  baseCurrencyApiId: string;
+  baseCurrencyText: string;
 }
 
 export interface CurrencyExchangeSnapshot {

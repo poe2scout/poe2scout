@@ -15,6 +15,7 @@ class UniqueItem(RepositoryModel):
     item_metadata: Optional[dict] = None
     type: str
     is_chanceable: Optional[bool] = False
+    is_current: bool = True
 
 
 async def get_all_unique_items(game_id: int) -> list[UniqueItem]:
@@ -26,6 +27,7 @@ async def get_all_unique_items(game_id: int) -> list[UniqueItem]:
                 ui.text,
                 ui.name,
                 ui.item_metadata,
+                ui.is_current,
                 it.value as type,
                 ic.api_id as category_api_id
             FROM unique_item as ui

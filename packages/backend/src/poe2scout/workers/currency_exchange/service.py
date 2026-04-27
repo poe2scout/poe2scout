@@ -96,6 +96,7 @@ async def process_realm_snapshots(
     if response.status_code != 200:
         raise Exception("GetFromApiFailure")
     data = CurrencyExchangeResponse.model_validate(response.json())
+    target_epoch = data.next_change_id - 60 * 60
 
     fetch_status = await service_repository.get_currency_fetch_status(
         start_time=datetime.fromtimestamp(data.next_change_id)
@@ -107,6 +108,25 @@ async def process_realm_snapshots(
         return None
 
     leagues = await league_repository.get_leagues(realm.game_id)
+    existing_snapshot_league_ids = set(
+        await currency_exchange_repository.get_existing_snapshot_league_ids(
+            epoch=target_epoch,
+            realm_id=realm.realm_id,
+        )
+    )
+    leagues = [
+        league
+        for league in leagues
+        if league.league_id not in existing_snapshot_league_ids
+    ]
+
+    if not leagues:
+        logger.info(
+            "Skipping realm %s for epoch %s because all league snapshots already exist",
+            realm.api_id,
+            target_epoch,
+        )
+        return data.next_change_id
 
     currencies = await currency_item_repository.get_all_currency_items(realm.game_id)
 
@@ -119,7 +139,7 @@ async def process_realm_snapshots(
             item_ids=[item.item_id for item in currencies],
             league_id=league.league_id,
             realm_id=realm.realm_id,
-            start_time=datetime.fromtimestamp(data.next_change_id - 60 * 60),
+            start_time=datetime.fromtimestamp(target_epoch),
             end_time=datetime.fromtimestamp(data.next_change_id),
         )
         league_to_prices_lookup[league.league_id] = item_prices
@@ -152,7 +172,7 @@ async def process_realm_snapshots(
         pairs = [pair for pair in data.markets if pair.league == league.value]
 
         snapshot = CurrencyExchangeSnapshot(
-            epoch=data.next_change_id - 60 * 60,
+            epoch=target_epoch,
             league_id=league.league_id,
             realm_id=realm.realm_id,
             pairs=[]

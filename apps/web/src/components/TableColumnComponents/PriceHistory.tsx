@@ -156,19 +156,10 @@ const buildChartOptions = (
         },
         title: (tooltipItems: TooltipItem<"line">[]) => {
           const index = tooltipItems[0].dataIndex;
-          const hoursAgo = (6 - index) * 6;
-          if (hoursAgo === 0) return "Now";
-          if (hoursAgo === 6) return "6 hours ago";
-          if (hoursAgo === 24) return "1 day ago";
-          if (hoursAgo >= 24) {
-            const days = Math.floor(hoursAgo / 24);
-            const remainingHours = hoursAgo % 24;
-            if (remainingHours === 0) {
-              return `${days} ${days === 1 ? "day" : "days"} ago`;
-            }
-            return `${days}d ${remainingHours}h ago`;
-          }
-          return `${hoursAgo} hours ago`;
+          const daysAgo = 6 - index;
+          if (daysAgo === 0) return "Today";
+          if (daysAgo === 1) return "Yesterday";
+          return `${daysAgo} days ago`;
         },
       },
     },
@@ -238,13 +229,13 @@ export function PriceHistory({
       <Line
         data={{
           labels: [
-            "36h ago",
-            "30h ago",
-            "24h ago",
-            "18h ago",
-            "12h ago",
-            "6h ago",
-            "Now",
+            "6 days ago",
+            "5 days ago",
+            "4 days ago",
+            "3 days ago",
+            "2 days ago",
+            "Yesterday",
+            "Today",
           ],
           datasets: [
             {

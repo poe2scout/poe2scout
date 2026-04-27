@@ -25,8 +25,10 @@ class CurrencyItem(RepositoryModel):
 class CurrencyItemExtended(CurrencyItem):
     price_logs: list[PriceLogEntry | None]
     current_price: Optional[float] = None
+    current_quantity: Optional[int] = None
 
 
 class UniqueItemExtended(UniqueItem):
     price_logs: list[PriceLogEntry | None]
     current_price: Optional[float] = None
+    current_quantity: Optional[int] = None

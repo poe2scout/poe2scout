@@ -106,6 +106,16 @@ async def sync_items(categories: list[ItemCategory], game: Game):
                     all_unique_items = await unique_item_repository.get_all_unique_items(
                         game.game_id
                     )
+                else:
+                    existing_unique = next(
+                        u for u in all_unique_items if u.name == item_entry.name
+                    )
+                    if not existing_unique.is_current:
+                        await unique_item_repository.set_unique_item_current(
+                            existing_unique.unique_item_id,
+                            True,
+                        )
+                        existing_unique.is_current = True
 
 
 def is_unique(item: Item):

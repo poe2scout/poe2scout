@@ -2,6 +2,7 @@ import { fetchNormalizedJson } from "./client";
 import type {
   ApiItem,
   CategoryResponse,
+  ItemDailyStatsHistoryResponse,
   ItemHistoryResponse,
   PaginatedResponse,
   RealmOption,
@@ -51,6 +52,13 @@ interface FetchItemHistoryParams {
   logCount: number;
   referenceCurrency: string;
   endTime: string;
+}
+
+interface FetchItemDailyStatsHistoryParams {
+  itemId: number;
+  leagueName: string;
+  dayCount: number;
+  endDate?: string;
 }
 
 export const fetchLeagues = async (): Promise<LeaguePayload[]> => {
@@ -113,6 +121,20 @@ export const fetchItemHistory = async ({
     ReferenceCurrency: referenceCurrency,
     EndTime: endTime,
   });
+
+export const fetchItemDailyStatsHistory = async ({
+  itemId,
+  leagueName,
+  dayCount,
+  endDate,
+}: FetchItemDailyStatsHistoryParams): Promise<ItemDailyStatsHistoryResponse> =>
+  fetchNormalizedJson<ItemDailyStatsHistoryResponse>(
+    `Leagues/${encodeURIComponent(leagueName)}/Items/${itemId}/DailyStatsHistory`,
+    {
+      DayCount: dayCount,
+      EndDate: endDate,
+    },
+  );
 
 export const fetchLandingSplashItems = async (): Promise<ApiItem[]> => {
   const data = await fetchNormalizedJson<LandingSplashResponse>(

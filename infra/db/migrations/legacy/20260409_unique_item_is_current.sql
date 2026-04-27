@@ -1,0 +1,2 @@
+ALTER TABLE unique_item
+    ADD COLUMN IF NOT EXISTS is_current boolean NOT NULL DEFAULT TRUE;

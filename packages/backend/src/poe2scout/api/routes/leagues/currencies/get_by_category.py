@@ -38,6 +38,7 @@ class GetByCategoryResponse(ApiModel):
         item_metadata: dict | None = None
         price_logs: list[_PriceLogEntry | None]
         current_price: float | None = None
+        current_quantity: int | None = None
 
         @classmethod
         def from_model(cls, model: CurrencyItemExtended) -> Self:
@@ -57,6 +58,7 @@ class GetByCategoryResponse(ApiModel):
                     for price_log in model.price_logs
                 ],
                 current_price=model.current_price,
+                current_quantity=model.current_quantity,
             )
 
     current_page: int
@@ -122,7 +124,7 @@ async def get_by_category(
     realm = await realm_repository.get_realm(request.realm)
 
     if realm is None:
-        HTTPException(400, "Invalid realm")
+        raise HTTPException(400, "Invalid realm")
 
     league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
 
