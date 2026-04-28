@@ -9,8 +9,9 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import Header from "./components/header";
-import Footer from "./components/footer";
+import Header from "./components/layout/header";
+import Footer from "./components/layout/footer";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -34,14 +35,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
-        <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col">
-          <Header />
-          <main className="flex w-full flex-1 flex-col items-center justify-start pt-8">
-            {children}
-          </main>
-          <Footer />
-        </div>
+      <body className="flex flex-col">
+        <Header />
+        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-start pt-8">
+          {children}
+        </main>
+        <Footer />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -49,8 +48,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+const queryClient = new QueryClient();
+
 export default function App() {
-  return <Outlet />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Outlet />
+    </QueryClientProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

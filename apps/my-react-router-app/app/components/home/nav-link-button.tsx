@@ -10,9 +10,9 @@ export default function NavLinkButton({
   return (
     <NavLink
       to={route}
-      className="mt-2.5 inline-flex items-center justify-center gap-2.5 rounded-md bg-secondary px-5 py-2.5 text-gray-950 uppercase"
+      className="inline-flex w-full items-center justify-center gap-2.5 rounded-md bg-secondary px-5 py-2.5 text-center text-gray-950 uppercase"
     >
-      <span>{children}</span>
+      <span className="truncate">{children}</span>
       <span aria-hidden="true" className="leading-none font-normal">
         &rarr;
       </span>
