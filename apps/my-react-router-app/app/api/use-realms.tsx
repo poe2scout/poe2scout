@@ -1,15 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import type Realm from "~/types/realm";
-import * as changeKeys from "change-case/keys";
+import fetchRoute from "./fetch-route";
 
-async function FetchRealms(): Promise<Realm[]> {
-  const response = await fetch("api/Static/Realms");
-  return changeKeys.camelCase(await response.json(), 10) as Realm[];
-}
-
-export default function useRealms() {
-  return useQuery({
+export default function getRealmsQueryOptions() {
+  return queryOptions({
     queryKey: ["realms"],
-    queryFn: FetchRealms,
+    queryFn: async () =>
+      (await fetchRoute(`api/Static/Realms`)) as Promise<Realm[]>,
   });
 }

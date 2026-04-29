@@ -1,11 +1,4 @@
-import {
-  isRouteErrorResponse,
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-} from "react-router";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -37,7 +30,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="flex flex-col">
         <Header />
-        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-start pt-8">
+        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col items-center p-5">
           {children}
         </main>
         <Footer />
@@ -55,34 +48,5 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <Outlet />
     </QueryClientProvider>
-  );
-}
-
-export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
-  let stack: string | undefined;
-
-  if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
-    details = error.message;
-    stack = error.stack;
-  }
-
-  return (
-    <main className="flex w-full flex-1 flex-col items-center justify-start pt-8">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full overflow-x-auto p-4">
-          <code>{stack}</code>
-        </pre>
-      )}
-    </main>
   );
 }

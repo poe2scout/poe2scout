@@ -1,29 +1,33 @@
-import useRealms from "~/api/use-realms";
 import type Realm from "~/types/realm";
-import EconomyLinkButton from "./economy-link-button";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "../loading";
+import getRealmsQueryOptions from "~/api/use-realms";
 
 export default function RealmSelector({
   setSelectedRealm,
+  selectedRealm,
 }: {
+  selectedRealm: Realm | null;
   setSelectedRealm: (realm: Realm) => void;
 }) {
-  const { data, isLoading } = useRealms();
+  const { data, isPending } = useQuery(getRealmsQueryOptions());
 
-  if (isLoading) {
-    return <span>Loading...</span>;
-  }
+  if (isPending) return <Loading />;
 
   return (
     <>
       <span className="text-2xl">Select your realm</span>
-      <div className="flex w-full flex-col justify-around pt-2.5 md:flex-row">
+      <div className="flex flex-col gap-6 md:flex-row">
         {data &&
           data.map((realm) => (
-            <EconomyLinkButton
-              onClick={setSelectedRealm}
-              key={realm.realmApiId}
-              realm={realm}
-            />
+            <button
+              key={`${realm.gameApiId}-${realm.realmApiId}`}
+              aria-pressed={realm.realmApiId === selectedRealm?.realmApiId}
+              onClick={() => setSelectedRealm(realm)}
+              className="my-2.5 items-center rounded-md border border-secondary bg-transparent px-5 py-2.5 text-secondary aria-pressed:bg-secondary aria-pressed:text-gray-950"
+            >
+              {realm.gameApiId}/{realm.realmApiId} Realm
+            </button>
           ))}
       </div>
     </>

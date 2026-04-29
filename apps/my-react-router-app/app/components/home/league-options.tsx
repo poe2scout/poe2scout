@@ -1,13 +1,15 @@
-import useLeagues from "~/api/use-leagues";
 import type Realm from "~/types/realm";
 import NavLinkButton from "./nav-link-button";
+import Loading from "../loading";
+import getLeaguesQueryOptions from "~/api/use-leagues";
+import { useQuery } from "@tanstack/react-query";
 
 export default function LeagueOptions({ realm }: { realm: Realm }) {
-  const { data, isLoading } = useLeagues(realm.realmApiId);
+  const { data, isPending } = useQuery(
+    getLeaguesQueryOptions(realm.realmApiId),
+  );
 
-  if (isLoading) {
-    return <span>Loading...</span>;
-  }
+  if (isPending) return <Loading />;
 
   return (
     <>
@@ -17,7 +19,7 @@ export default function LeagueOptions({ realm }: { realm: Realm }) {
           data.map((league) => {
             return (
               <NavLinkButton
-                route={`${realm.realmApiId}/${league.value}/economy`}
+                route={`${realm.realmApiId}/${league.value}`}
                 key={league.value}
               >
                 {league.value}

@@ -4,11 +4,10 @@ export default [
   index("./routes/home.tsx"),
   route("privacy", "./routes/privacy.tsx"),
 
-  ...prefix(":realmId/economy", [
-    index("./routes/economy/index.tsx"),
-    ...prefix(":leagueId", [
-      index("./routes/economy/overview.tsx"),
-      route("exchange", "./routes/economy/exchange.tsx")
+  ...prefix(":realmId/:leagueId", [
+      index("./routes/:realmId/:leagueId/index.tsx"),
+      route("exchange", "./routes/:realmId/:leagueId/exchange.tsx"),
+      route("economy", "./routes/:realmId/:leagueId/economy.tsx")
     ])
-  ]),
+  ,
 ] satisfies RouteConfig;
