@@ -7,6 +7,10 @@ export default [
   route(":realmId/:leagueId", "./routes/:realmId/:leagueId/layout.tsx", [
     index("./routes/:realmId/:leagueId/index.tsx"),
     route("exchange", "./routes/:realmId/:leagueId/exchange.tsx"),
-    route("economy", "./routes/:realmId/:leagueId/economy.tsx"),
+
+    route("economy", "./routes/:realmId/:leagueId/economy/layout.tsx", [
+      index("./routes/:realmId/:leagueId/economy/index.tsx"),
+      route(":category", "./routes/:realmId/:leagueId/economy/:category/index.tsx")
+    ]),
   ]),
 ] satisfies RouteConfig;

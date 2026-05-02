@@ -1,10 +1,20 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import {
+  isRouteErrorResponse,
+  Links,
+  Meta,
+  NavLink,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useRouteError,
+} from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
 import Header from "./components/layout/header";
 import Footer from "./components/layout/footer";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import NavLinkButton from "./components/home/nav-link-button";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -38,8 +48,30 @@ export function Layout({ children }: { children: React.ReactNode }) {
     </html>
   );
 }
+export function ErrorBoundary() {
+  const error = useRouteError();
 
-const queryClient = new QueryClient();
+  if (isRouteErrorResponse(error) && error.status === 404) {
+    return (
+      <div className="flex min-h-96 flex-col items-center justify-center gap-4 text-center">
+        <h1 className="text-4xl font-bold text-white">Page not found</h1>
+        <p className="text-gray-300">This page does not exist.</p>
+        <NavLinkButton route="/">Home</NavLinkButton>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-96 flex-col items-center justify-center gap-4 text-center">
+      <h1 className="text-4xl font-bold text-white">Something went wrong</h1>
+      <p className="text-gray-300">
+        Please try again or return to the home page.
+      </p>
+    </div>
+  );
+}
+
+export const queryClient = new QueryClient();
 
 export default function App() {
   return (

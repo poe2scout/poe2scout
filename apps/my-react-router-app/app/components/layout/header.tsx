@@ -33,7 +33,10 @@ export default function Header() {
               <HeaderNavLink route={`/${realmId}/${leagueId}`}>
                 Home
               </HeaderNavLink>
-              <HeaderNavLink route={`/${realmId}/${leagueId}/economy`}>
+              <HeaderNavLink
+                route={`/${realmId}/${leagueId}/economy`}
+                end={false}
+              >
                 Economy
               </HeaderNavLink>
               <HeaderNavLink route={`/${realmId}/${leagueId}/exchange`}>

@@ -6,6 +6,6 @@ export default function getLeaguesQueryOptions(realmApiId: string) {
   return queryOptions({
     queryKey: ["leagues", realmApiId],
     queryFn: async () =>
-      (await fetchRoute(`api/${realmApiId}/Leagues`)) as Promise<League[]>,
+      (await fetchRoute(`/api/${realmApiId}/Leagues`)) as Promise<League[]>,
   });
 }
