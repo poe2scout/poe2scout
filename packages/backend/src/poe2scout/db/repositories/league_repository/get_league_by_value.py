@@ -11,7 +11,8 @@ async def get_league_by_value(value: str, game_id: int) -> League | None:
                    l.value,
                    l.base_currency_item_id,
                    ci.api_id AS base_currency_api_id,
-                   ci.text AS base_currency_text
+                   ci.text AS base_currency_text,
+                   l.current_league
               FROM league AS l
               JOIN currency_item AS ci
                 ON ci.item_id = l.base_currency_item_id

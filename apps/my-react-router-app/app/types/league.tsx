@@ -1,5 +1,6 @@
 export default interface League {
   value: string;
+  isCurrent: boolean;
   divinePrice: number;
   chaosDivinePrice: number;
   baseCurrencyApiId: string;

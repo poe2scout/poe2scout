@@ -3,6 +3,9 @@ import NavLinkButton from "./nav-link-button";
 import Loading from "../loading";
 import getLeaguesQueryOptions from "~/api/use-leagues";
 import { useQuery } from "@tanstack/react-query";
+import SectionTitle from "../section-title";
+import SectionDivider from "../section-divider";
+import SectionContent from "../section-content";
 
 export default function LeagueOptions({ realm }: { realm: Realm }) {
   const { data, isPending } = useQuery(
@@ -11,22 +14,51 @@ export default function LeagueOptions({ realm }: { realm: Realm }) {
 
   if (isPending) return <Loading />;
 
+  const currentLeagues = data?.filter((l) => {
+    return l.isCurrent;
+  });
+
+  const inactiveLeagues = data?.filter((l) => {
+    return !l.isCurrent;
+  });
+
   return (
     <>
-      <span className="text-2xl">Select your league</span>
-      <div className="mt-2.5 grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {data &&
-          data.map((league) => {
-            return (
-              <NavLinkButton
-                route={`${realm.realmApiId}/${league.value}`}
-                key={league.value}
-              >
-                {league.value}
-              </NavLinkButton>
-            );
-          })}
-      </div>
+      <SectionTitle>Select a League</SectionTitle>
+      <SectionDivider />
+      <SectionContent>
+        <div className="flex flex-col items-center">
+          <span className="mb-3">Active</span>
+          <div className="grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {currentLeagues &&
+              currentLeagues.map((league) => {
+                return (
+                  <NavLinkButton
+                    route={`${realm.realmApiId}/${league.value}`}
+                    key={league.value}
+                  >
+                    {league.value}
+                  </NavLinkButton>
+                );
+              })}
+          </div>
+          <span className="mt-6 mb-3">Past</span>
+          <div className="grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {inactiveLeagues &&
+              inactiveLeagues.map((league) => {
+                return (
+                  <NavLinkButton
+                    route={`${realm.realmApiId}/${league.value}`}
+                    key={league.value}
+                    filled={false}
+                  >
+                    {league.value}
+                  </NavLinkButton>
+                );
+              })}
+          </div>
+        </div>
+      </SectionContent>
     </>
   );
 }

@@ -13,6 +13,7 @@ from . import router
 
 class GetResponse(ApiModel):
     value: str
+    is_current: bool
     divine_price: float
     chaos_divine_price: float
     base_currency_api_id: str
@@ -28,7 +29,8 @@ class GetResponse(ApiModel):
     @classmethod
     def from_model(
         cls,
-        value: str,
+        value: str,        
+        is_current: bool,
         divine_price: float,
         chaos_divine_price: float,
         base_currency_api_id: str,
@@ -43,6 +45,7 @@ class GetResponse(ApiModel):
     ) -> Self:
         return cls(
             value=value,
+            is_current=is_current,
             divine_price=divine_price,
             chaos_divine_price=chaos_divine_price,
             base_currency_api_id=base_currency_api_id,
@@ -109,6 +112,7 @@ async def get(
         responses.append(
             GetResponse.from_model(
                 value=league.value,
+                is_current=league.current_league,
                 divine_price=divine_price if divine_price is not None else 50,
                 chaos_divine_price=divine_price / chaos_price
                 if chaos_price is not None and chaos_price != 0

@@ -30,9 +30,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="flex flex-col">
         <Header />
-        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col items-center p-5">
-          {children}
-        </main>
+        <main className="mx-auto w-full max-w-7xl flex-1 px-5">{children}</main>
         <Footer />
         <ScrollRestoration />
         <Scripts />
