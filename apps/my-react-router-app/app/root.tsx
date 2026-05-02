@@ -2,7 +2,6 @@ import {
   isRouteErrorResponse,
   Links,
   Meta,
-  NavLink,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -13,8 +12,9 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import Header from "./components/layout/header";
 import Footer from "./components/layout/footer";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import NavLinkButton from "./components/home/nav-link-button";
+import { queryClient } from "./api/query-client";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -70,8 +70,6 @@ export function ErrorBoundary() {
     </div>
   );
 }
-
-export const queryClient = new QueryClient();
 
 export default function App() {
   return (

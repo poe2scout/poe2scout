@@ -1,10 +1,9 @@
 import { Outlet, useLoaderData, useOutletContext } from "react-router";
 import getLeaguesQueryOptions from "~/api/use-leagues";
 import type { BreadcrumbHandle } from "~/components/layout/header-breadcrumbs";
-import { queryClient } from "~/root";
 import type { Route } from "./+types";
-import type Realm from "~/types/realm";
 import type League from "~/types/league";
+import { queryClient } from "~/api/query-client";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: ({ params }) => ({
@@ -15,7 +14,6 @@ export const handle: BreadcrumbHandle = {
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   let leagues;
-
   try {
     leagues = await queryClient.ensureQueryData(
       getLeaguesQueryOptions(params.realmId),
@@ -37,7 +35,7 @@ export function useLeagueContext() {
   return useOutletContext<{ league: League }>();
 }
 
-export default function LeagueLayout({ params }: Route.ComponentProps) {
+export default function LeagueLayout() {
   const loaderData = useLoaderData<typeof clientLoader>();
-  return <Outlet context={{ league: loaderData.league }} />;
+  return <Outlet context={loaderData} />;
 }
