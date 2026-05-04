@@ -1,12 +1,17 @@
 import { NavLink } from "react-router";
 import { Outlet } from "react-router";
 import type { BreadcrumbHandle } from "~/components/layout/header-breadcrumbs";
-import { useQuery } from "@tanstack/react-query";
+import {
+  usePrefetchQuery,
+  useQuery,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import getCategoriesQueryOptions from "~/api/query-options/categories";
 import type { Route } from "./+types";
 import Loading from "~/components/loading";
 import ItemSearch from "~/components/economy/item-search";
 import { useLeagueContext } from "~/contexts/league-context";
+import { queryClient } from "~/api/query-client";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: ({ params }) => ({
@@ -15,15 +20,17 @@ export const handle: BreadcrumbHandle = {
   }),
 };
 
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+  await queryClient.prefetchQuery(
+    getCategoriesQueryOptions(params.realmId, params.leagueId),
+  );
+}
+
 export default function EconomyLayout({ params }: Route.ComponentProps) {
   const { league } = useLeagueContext();
-  const { data, isPending } = useQuery({
-    ...getCategoriesQueryOptions(params.realmId, league.value),
-  });
-
-  if (isPending) {
-    return <Loading />;
-  }
+  const { data } = useSuspenseQuery(
+    getCategoriesQueryOptions(params.realmId, league.value),
+  );
 
   return (
     <div>
@@ -40,7 +47,7 @@ export default function EconomyLayout({ params }: Route.ComponentProps) {
                     isActive ? "bg-secondary/30 text-white" : "text-white/80"
                   }`
                 }
-                to={`${category.apiId}`}
+                to={`currencies/${category.apiId}`}
                 end
                 key={category.label}
               >
@@ -66,7 +73,7 @@ export default function EconomyLayout({ params }: Route.ComponentProps) {
                     isActive ? "bg-secondary/30 text-white" : "text-white/80"
                   }`
                 }
-                to={`${category.apiId}`}
+                to={`uniques/${category.apiId}`}
                 end
                 key={category.label}
               >

@@ -1,8 +1,15 @@
-import type { Route } from "./+types";
-import getCurrencyItemsQueryOptions from "~/api/query-options/currency-items";
-import { queryClient } from "~/api/query-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useLoaderData } from "react-router";
+import { queryClient } from "~/api/query-client";
+import getUniqueItemsQueryOptions from "~/api/query-options/unique-items";
+import type { BreadcrumbHandle } from "~/components/layout/header-breadcrumbs";
+import type { Route } from "./+types";
+
+export const handle: BreadcrumbHandle = {
+  breadcrumb: ({ params }) => ({
+    label: params.category,
+  }),
+};
 
 export async function clientLoader({
   request,
@@ -15,15 +22,15 @@ export async function clientLoader({
   const page = queryParams.get("page");
   const perPage = queryParams.get("perPage");
 
-  await queryClient.prefetchQuery(
-    getCurrencyItemsQueryOptions({
+  queryClient.prefetchQuery(
+    getUniqueItemsQueryOptions({
       realmApiId: params.realmId,
       leagueName: params.leagueId,
       category: params.category,
-      referenceCurrency: referenceCurrency,
-      search: search,
-      page: page,
-      perPage: perPage,
+      referenceCurrency,
+      search,
+      page,
+      perPage,
     }),
   );
 
@@ -35,11 +42,11 @@ export async function clientLoader({
   };
 }
 
-export default function Economy({ params }: Route.ComponentProps) {
+export default function UniqueCategory({ params }: Route.ComponentProps) {
   const loaderData = useLoaderData<typeof clientLoader>();
 
-  const { data, isPending } = useSuspenseQuery(
-    getCurrencyItemsQueryOptions({
+  const { data } = useSuspenseQuery(
+    getUniqueItemsQueryOptions({
       realmApiId: params.realmId,
       leagueName: params.leagueId,
       category: params.category,

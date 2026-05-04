@@ -1,15 +1,24 @@
 import { queryOptions } from "@tanstack/react-query";
 import fetchRoute from "../fetch-route";
+import toQueryString from "~/utils/to-query-string";
 
-export default function getUniqueItemsQueryOptions(
-  realmApiId: string,
-  leagueName: string,
-  category: string,
-  referenceCurrency: string,
-  search: string,
-  page: number,
-  perPage: number,
-) {
+export default function getUniqueItemsQueryOptions({
+  realmApiId,
+  leagueName,
+  category,
+  referenceCurrency,
+  search,
+  page,
+  perPage,
+}: {
+  realmApiId: string;
+  leagueName: string;
+  category: string;
+  referenceCurrency: string | null;
+  search: string | null;
+  page: string | null;
+  perPage: string | null;
+}) {
   return queryOptions({
     queryKey: [
       "uniques",
@@ -22,10 +31,17 @@ export default function getUniqueItemsQueryOptions(
       page,
       perPage,
     ],
-    queryFn: () =>
-      fetchRoute(
-        `/api/${realmApiId}/Leagues/${leagueName}/Uniques/ByCategory?Category=${category}&ReferenceCurrency=${referenceCurrency}&Search=${search}&Page=${page}&PerPage=${perPage}`,
-      ) as Promise<{
+    queryFn: () => {
+      const baseUrl = `/api/${realmApiId}/Leagues/${leagueName}/Uniques/ByCategory`;
+      const query = toQueryString({
+        Category: category,
+        ReferenceCurrency: referenceCurrency,
+        Search: search,
+        Page: page,
+        PerPage: perPage,
+      });
+
+      return fetchRoute(`${baseUrl}${query}`) as Promise<{
         currentPage: number;
         pages: number;
         total: number;
@@ -42,6 +58,7 @@ export default function getUniqueItemsQueryOptions(
           currentPrice: number;
           currentQuantity: number;
         }[];
-      }>,
+      }>;
+    },
   });
 }
