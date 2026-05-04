@@ -2,7 +2,7 @@ import type { Route } from "./+types";
 import NavLinkButton from "~/components/home/nav-link-button";
 import SectionTitle from "~/components/section-title";
 import Section from "~/components/section";
-import useCurrentGame from "~/hooks/useCurrentGame";
+import useCurrentGame from "~/hooks/use-current-game";
 import SectionContent from "~/components/section-content";
 import SectionDivider from "~/components/section-divider";
 

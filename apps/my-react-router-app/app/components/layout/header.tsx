@@ -1,6 +1,6 @@
 import { NavLink, useMatch } from "react-router";
 import HeaderNavLink from "./header-nav-link";
-import useLeagueParams from "~/hooks/useLeagueParams";
+import useLeagueParams from "~/hooks/use-league-params";
 import HeaderBreadcrumbs from "./header-breadcrumbs";
 
 export default function Header() {
