@@ -1,9 +1,22 @@
-import type { BreadcrumbHandle } from "~/components/layout/header-breadcrumbs";
+import Section from "~/components/section";
 import type { Route } from "./+types";
-import { redirect } from "react-router";
+import SectionTitle from "~/components/section-title";
+import SectionDivider from "~/components/section-divider";
+import SectionContent from "~/components/section-content";
 
 export async function clientLoader({ params }: Route.LoaderArgs) {}
 
 export default function Economy({ params }: Route.ComponentProps) {
-  return <></>;
+  return (
+    <>
+      <Section>
+        <SectionTitle>Welcome to the economy overview</SectionTitle>
+        <SectionDivider />
+        <SectionContent>
+          Select a category on the left to get started or search for an item
+          above.
+        </SectionContent>
+      </Section>
+    </>
+  );
 }

@@ -10,7 +10,9 @@ export default [
 
     route("economy", "./routes/:realmId/:leagueId/economy/layout.tsx", [
       index("./routes/:realmId/:leagueId/economy/index.tsx"),
-      route(":category", "./routes/:realmId/:leagueId/economy/:category/index.tsx")
+      route(":category", "./routes/:realmId/:leagueId/economy/:category/layout.tsx", [
+        index("./routes/:realmId/:leagueId/economy/:category/index.tsx")
+      ])
     ]),
   ]),
 ] satisfies RouteConfig;

@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import type Realm from "~/types/realm";
-import fetchRoute from "./fetch-route";
+import fetchRoute from "../fetch-route";
 
 export default function getRealmsQueryOptions() {
   return queryOptions({

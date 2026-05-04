@@ -1,7 +1,7 @@
 import type Realm from "~/types/realm";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../loading";
-import getRealmsQueryOptions from "~/api/use-realms";
+import getRealmsQueryOptions from "~/api/query-options/realms";
 import SectionTitle from "../section-title";
 import SectionDivider from "../section-divider";
 import SectionContent from "../section-content";

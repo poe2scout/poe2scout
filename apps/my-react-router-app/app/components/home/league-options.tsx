@@ -1,7 +1,7 @@
 import type Realm from "~/types/realm";
 import NavLinkButton from "./nav-link-button";
 import Loading from "../loading";
-import getLeaguesQueryOptions from "~/api/use-leagues";
+import getLeaguesQueryOptions from "~/api/query-options/leagues";
 import { useQuery } from "@tanstack/react-query";
 import SectionTitle from "../section-title";
 import SectionDivider from "../section-divider";
