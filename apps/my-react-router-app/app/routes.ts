@@ -1,23 +1,20 @@
-import { type RouteConfig, index, route } from "@react-router/dev/routes";
+import { type RouteConfig, index, relative, route } from "@react-router/dev/routes";
+
+const league = relative("./routes/:realmId/:leagueId");
+const economy = relative("./routes/:realmId/:leagueId/economy");
 
 export default [
   index("./routes/home.tsx"),
   route("privacy", "./routes/privacy.tsx"),
 
-  route(":realmId/:leagueId", "./routes/:realmId/:leagueId/layout.tsx", [
-    index("./routes/:realmId/:leagueId/index.tsx"),
-    route("exchange", "./routes/:realmId/:leagueId/exchange.tsx"),
+  league.route(":realmId/:leagueId", "layout.tsx", [
+    league.index("index.tsx"),
+    league.route("exchange", "exchange.tsx"),
 
-    route("economy", "./routes/:realmId/:leagueId/economy/layout.tsx", [
-      index("./routes/:realmId/:leagueId/economy/index.tsx"),
-      route(
-        "currencies/:category",
-        "./routes/:realmId/:leagueId/economy/currencies/:category/index.tsx",
-      ),
-      route(
-        "uniques/:category",
-        "./routes/:realmId/:leagueId/economy/uniques/:category/index.tsx",
-      ),
+    economy.route("economy", "layout.tsx", [
+      economy.index("index.tsx"),
+      economy.route("currencies/:category", "currencies/:category/index.tsx"),
+      economy.route("uniques/:category", "uniques/:category/index.tsx"),
     ]),
   ]),
 ] satisfies RouteConfig;

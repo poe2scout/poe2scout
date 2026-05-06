@@ -1,12 +1,9 @@
 import Section from "~/components/section";
-import type { Route } from "./+types";
 import SectionTitle from "~/components/section-title";
 import SectionDivider from "~/components/section-divider";
 import SectionContent from "~/components/section-content";
 
-export async function clientLoader({ params }: Route.LoaderArgs) {}
-
-export default function Economy({ params }: Route.ComponentProps) {
+export default function Economy() {
   return (
     <>
       <Section>

@@ -29,7 +29,7 @@ class GetResponse(ApiModel):
     @classmethod
     def from_model(
         cls,
-        value: str,        
+        value: str,
         is_current: bool,
         divine_price: float,
         chaos_divine_price: float,
@@ -59,25 +59,23 @@ class GetResponse(ApiModel):
             chaos_currency_icon_url=chaos_currency_icon_url,
         )
 
+
 class GetLeaguesRequest(ApiModel):
     realm: str
 
-def get_leagues_request(
-    realm: Annotated[str, Path(alias="Realm")]
-) -> GetLeaguesRequest:
-    return GetLeaguesRequest(
-        realm=realm
-    )
+
+def get_leagues_request(realm: Annotated[str, Path(alias="Realm")]) -> GetLeaguesRequest:
+    return GetLeaguesRequest(realm=realm)
+
 
 GetLeaguesRequestDep = Annotated[
     GetLeaguesRequest,
     Depends(get_leagues_request),
 ]
 
+
 @router.get("")
-async def get(
-    request: GetLeaguesRequestDep
-) -> list[GetResponse]:
+async def get(request: GetLeaguesRequestDep) -> list[GetResponse]:
     realm = await realm_repository.get_realm(request.realm)
 
     if realm is None:
@@ -97,16 +95,10 @@ async def get(
     responses: list[GetResponse] = []
     for league in leagues:
         divine_price = await price_log_repository.get_item_price(
-            divine_item.item_id,
-            league.league_id,
-            realm.realm_id,
-            None
+            divine_item.item_id, league.league_id, realm.realm_id, None
         )
         chaos_price = await price_log_repository.get_item_price(
-            chaos_item.item_id,
-            league.league_id,
-            realm.realm_id,
-            None
+            chaos_item.item_id, league.league_id, realm.realm_id, None
         )
 
         responses.append(

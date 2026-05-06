@@ -1,5 +1,4 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useLoaderData } from "react-router";
 import { queryClient } from "~/api/query-client";
 import getUniqueItemsQueryOptions from "~/api/query-options/unique-items";
 import type { BreadcrumbHandle } from "~/components/layout/header-breadcrumbs";
@@ -42,9 +41,10 @@ export async function clientLoader({
   };
 }
 
-export default function UniqueCategory({ params }: Route.ComponentProps) {
-  const loaderData = useLoaderData<typeof clientLoader>();
-
+export default function UniqueCategory({
+  params,
+  loaderData,
+}: Route.ComponentProps) {
   const { data } = useSuspenseQuery(
     getUniqueItemsQueryOptions({
       realmApiId: params.realmId,

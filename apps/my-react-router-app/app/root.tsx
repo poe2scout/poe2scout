@@ -15,7 +15,7 @@ import Footer from "./components/layout/footer";
 import { QueryClientProvider } from "@tanstack/react-query";
 import NavLinkButton from "./components/home/nav-link-button";
 import { queryClient } from "./api/query-client";
-import GlobalNavigationProgress from "./components/global-navigation-progress";
+import GlobalNavigationProgress from "./components/layout/global-navigation-progress";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },

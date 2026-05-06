@@ -1,9 +1,9 @@
-import { Outlet, useLoaderData } from "react-router";
+import { Outlet } from "react-router";
 import getLeaguesQueryOptions from "~/api/query-options/leagues";
 import type { BreadcrumbHandle } from "~/components/layout/header-breadcrumbs";
-import type { Route } from "./+types";
 import { queryClient } from "~/api/query-client";
 import { LeagueContext } from "~/contexts/league-context";
+import type { Route } from "./+types/layout";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: ({ params }) => ({
@@ -26,9 +26,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   return { league };
 }
 
-export default function LeagueLayout() {
-  const loaderData = useLoaderData<typeof clientLoader>();
-
+export default function LeagueLayout({ loaderData }: Route.ComponentProps) {
   return (
     <LeagueContext.Provider value={{ league: loaderData.league }}>
       <Outlet />

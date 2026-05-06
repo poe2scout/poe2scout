@@ -1,14 +1,9 @@
 import { NavLink } from "react-router";
 import { Outlet } from "react-router";
 import type { BreadcrumbHandle } from "~/components/layout/header-breadcrumbs";
-import {
-  usePrefetchQuery,
-  useQuery,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import getCategoriesQueryOptions from "~/api/query-options/categories";
-import type { Route } from "./+types";
-import Loading from "~/components/loading";
+import type { Route } from "./+types/layout";
 import ItemSearch from "~/components/economy/item-search";
 import { useLeagueContext } from "~/contexts/league-context";
 import { queryClient } from "~/api/query-client";
