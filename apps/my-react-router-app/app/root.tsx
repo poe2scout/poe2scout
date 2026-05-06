@@ -15,6 +15,7 @@ import Footer from "./components/layout/footer";
 import { QueryClientProvider } from "@tanstack/react-query";
 import NavLinkButton from "./components/home/nav-link-button";
 import { queryClient } from "./api/query-client";
+import GlobalNavigationProgress from "./components/global-navigation-progress";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -39,6 +40,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="flex flex-col">
+        <GlobalNavigationProgress />
         <Header />
         <main className="mx-auto w-full max-w-7xl flex-1 px-5">{children}</main>
         <Footer />

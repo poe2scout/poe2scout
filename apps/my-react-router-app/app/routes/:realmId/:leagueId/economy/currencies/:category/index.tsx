@@ -22,7 +22,7 @@ export async function clientLoader({
   const page = queryParams.get("page");
   const perPage = queryParams.get("perPage");
 
-  queryClient.prefetchQuery(
+  await queryClient.prefetchQuery(
     getCurrencyItemsQueryOptions({
       realmApiId: params.realmId,
       leagueName: params.leagueId,

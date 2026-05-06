@@ -36,53 +36,30 @@ export default function EconomyLayout({ params }: Route.ComponentProps) {
     <div>
       <div className="flex flex-row justify-between">
         <nav className="m-3 flex w-57.5 flex-col overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30">
-          <span className="px-3 py-2 text-sm text-white/70">
-            Currency categories
-          </span>
+          <NavHeader>Currency categories</NavHeader>
+
           {data?.currencyCategories.map((category) => {
             return (
-              <NavLink
-                className={({ isActive }) =>
-                  `flex w-full justify-between px-3 py-2 text-sm transition outline-none hover:bg-secondary/20 focus:bg-secondary/25 ${
-                    isActive ? "bg-secondary/30 text-white" : "text-white/80"
-                  }`
-                }
-                to={`currencies/${category.apiId}`}
-                end
-                key={category.label}
-              >
-                <img
-                  className="h-6 w-6"
-                  src={category.icon !== "" ? category.icon : undefined}
-                ></img>
-                <span className="w-35.25">{category.label}</span>
-              </NavLink>
+              <NavItem
+                apiId={category.apiId}
+                label={category.label}
+                icon={category.icon}
+                type="currencies"
+              />
             );
           })}
           {data?.uniqueCategories.length !== 0 && (
-            <span className="border-t border-secondary/20 px-3 py-2 text-sm text-white/70">
-              Unique categories
-            </span>
+            <NavHeader>Unique categories</NavHeader>
           )}
 
           {data?.uniqueCategories.map((category) => {
             return (
-              <NavLink
-                className={({ isActive }) =>
-                  `flex w-full justify-between px-3 py-2 text-sm transition outline-none hover:bg-secondary/20 focus:bg-secondary/25 ${
-                    isActive ? "bg-secondary/30 text-white" : "text-white/80"
-                  }`
-                }
-                to={`uniques/${category.apiId}`}
-                end
-                key={category.label}
-              >
-                <img
-                  className="h-6 w-6"
-                  src={category.icon !== "" ? category.icon : undefined}
-                ></img>
-                <span className="w-35.25">{category.label}</span>
-              </NavLink>
+              <NavItem
+                apiId={category.apiId}
+                label={category.label}
+                icon={category.icon}
+                type="uniques"
+              />
             );
           })}
         </nav>
@@ -94,5 +71,40 @@ export default function EconomyLayout({ params }: Route.ComponentProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+function NavHeader({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="border-t border-secondary/20 px-3 py-2 text-sm text-white/70">
+      {children}
+    </span>
+  );
+}
+
+function NavItem({
+  apiId,
+  label,
+  type,
+  icon,
+}: {
+  apiId: string;
+  label: string;
+  type: string;
+  icon: string;
+}) {
+  return (
+    <NavLink
+      className={({ isActive }) =>
+        `flex w-full justify-between px-3 py-2 text-sm transition outline-none hover:bg-secondary/20 focus:bg-secondary/25 ${isActive ? "bg-secondary/30 text-white" : "text-white/80"}`
+      }
+      to={`${type}/${apiId}`}
+      end
+      key={label}
+      prefetch="intent"
+    >
+      <img className="h-6 w-6" src={icon !== "" ? icon : undefined}></img>
+      <span className="w-35.25">{label}</span>
+    </NavLink>
   );
 }

@@ -2,6 +2,33 @@ import { queryOptions } from "@tanstack/react-query";
 import fetchRoute from "../fetch-route";
 import toQueryString from "~/utils/to-query-string";
 
+type PriceLog = {
+  price: number;
+  time: string;
+  quantity: number;
+}[];
+
+type CurrencyItem = {
+  currencyItemId: number;
+  itemId: number;
+  currencyCategoryId: number;
+  apiId: string;
+  text: string;
+  categoryApiId: string;
+  iconUrl: string;
+  itemMetaData: any;
+  priceLogs: PriceLog | null;
+  currentPrice: number;
+  currentQuantity: number;
+};
+
+type GetCurrencyItemsResponse = {
+  currentPage: number;
+  pages: number;
+  total: number;
+  items: CurrencyItem[];
+};
+
 export default function getCurrencyItemsQueryOptions({
   realmApiId,
   leagueName,
@@ -21,15 +48,17 @@ export default function getCurrencyItemsQueryOptions({
 }) {
   return queryOptions({
     queryKey: [
-      "currency",
-      "items",
-      realmApiId,
-      leagueName,
-      category,
-      referenceCurrency,
-      search,
-      page,
-      perPage,
+      "currency-items",
+      "list",
+      {
+        realmApiId,
+        leagueName,
+        category,
+        referenceCurrency,
+        search,
+        page,
+        perPage,
+      },
     ],
     queryFn: () => {
       const baseUrl = `/api/${realmApiId}/Leagues/${leagueName}/Currencies/ByCategory`;
@@ -41,24 +70,9 @@ export default function getCurrencyItemsQueryOptions({
         PerPage: perPage,
       });
 
-      return fetchRoute(`${baseUrl}${query}`) as Promise<{
-        currentPage: number;
-        pages: number;
-        total: number;
-        items: {
-          currencyItemId: number;
-          itemId: number;
-          currencyCategoryId: number;
-          apiId: string;
-          text: string;
-          categoryApiId: string;
-          iconUrl: string;
-          itemMetaData: any;
-          priceLogs: { price: number; time: string; quantity: number }[] | null;
-          currentPrice: number;
-          currentQuantity: number;
-        }[];
-      }>;
+      return fetchRoute(
+        `${baseUrl}${query}`,
+      ) as Promise<GetCurrencyItemsResponse>;
     },
   });
 }

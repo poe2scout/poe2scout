@@ -13,14 +13,9 @@ export const handle: BreadcrumbHandle = {
 };
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-  let leagues;
-  try {
-    leagues = await queryClient.ensureQueryData(
-      getLeaguesQueryOptions(params.realmId),
-    );
-  } catch {
-    throw new Response("Invalid realm", { status: 404 });
-  }
+  const leagues = await queryClient.fetchQuery(
+    getLeaguesQueryOptions(params.realmId),
+  );
 
   const league = leagues.find((l) => l.value === params.leagueId);
 
