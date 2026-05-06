@@ -1,11 +1,11 @@
 import { type RouteConfig, index, relative, route } from "@react-router/dev/routes";
 
-const league = relative("./routes/:realmId/:leagueId");
-const economy = relative("./routes/:realmId/:leagueId/economy");
+const league = relative("app/routes/:realmId/:leagueId");
+const economy = relative("app/routes/:realmId/:leagueId/economy");
 
 export default [
-  index("./routes/home.tsx"),
-  route("privacy", "./routes/privacy.tsx"),
+  index("routes/home.tsx"),
+  route("privacy", "routes/privacy.tsx"),
 
   league.route(":realmId/:leagueId", "layout.tsx", [
     league.index("index.tsx"),

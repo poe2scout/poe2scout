@@ -1,33 +1,13 @@
 import { queryOptions } from "@tanstack/react-query";
 import fetchRoute from "../fetch-route";
 import toQueryString from "~/utils/to-query-string";
+import type {
+  CurrencyEconomyItem,
+  PaginatedEconomyResponse,
+} from "~/types/economy";
 
-type PriceLog = {
-  price: number;
-  time: string;
-  quantity: number;
-}[];
-
-type CurrencyItem = {
-  currencyItemId: number;
-  itemId: number;
-  currencyCategoryId: number;
-  apiId: string;
-  text: string;
-  categoryApiId: string;
-  iconUrl: string;
-  itemMetaData: any;
-  priceLogs: PriceLog | null;
-  currentPrice: number;
-  currentQuantity: number;
-};
-
-type GetCurrencyItemsResponse = {
-  currentPage: number;
-  pages: number;
-  total: number;
-  items: CurrencyItem[];
-};
+export type GetCurrencyItemsResponse =
+  PaginatedEconomyResponse<CurrencyEconomyItem>;
 
 export default function getCurrencyItemsQueryOptions({
   realmApiId,
@@ -43,8 +23,8 @@ export default function getCurrencyItemsQueryOptions({
   category: string;
   referenceCurrency: string | null;
   search: string | null;
-  page: string | null;
-  perPage: string | null;
+  page: Number | null;
+  perPage: Number | null;
 }) {
   return queryOptions({
     queryKey: [

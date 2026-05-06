@@ -1,8 +1,10 @@
 import { createContext, useContext } from "react";
 import type League from "~/types/league";
+import type Realm from "~/types/realm";
 
 type LeagueContextValue = {
   league: League;
+  realm: Realm;
 };
 
 export const LeagueContext = createContext<LeagueContextValue | null>(null);

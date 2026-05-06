@@ -1,8 +1,13 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router";
 import { queryClient } from "~/api/query-client";
 import getCurrencyItemsQueryOptions from "~/api/query-options/currency-items";
+import EconomyTable from "~/components/economy/economy-table";
+import { getEconomyTableColumns } from "~/components/economy/economy-table-columns";
 import type { BreadcrumbHandle } from "~/components/layout/header-breadcrumbs";
+import { useLeagueContext } from "~/contexts/league-context";
 import type { Route } from "./+types";
+import getNumberNonZero from "~/utils/get-number-non-zero";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: ({ params }) => ({
@@ -18,8 +23,8 @@ export async function clientLoader({
   const queryParams = url.searchParams;
   const referenceCurrency = queryParams.get("referenceCurrency");
   const search = queryParams.get("search");
-  const page = queryParams.get("page");
-  const perPage = queryParams.get("perPage");
+  const page = getNumberNonZero(queryParams.get("page")) ?? 1;
+  const perPage = getNumberNonZero(queryParams.get("perPage")) ?? 25;
 
   await queryClient.prefetchQuery(
     getCurrencyItemsQueryOptions({
@@ -45,6 +50,8 @@ export default function CurrencyCategory({
   params,
   loaderData,
 }: Route.ComponentProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { league, realm } = useLeagueContext();
   const { data } = useSuspenseQuery(
     getCurrencyItemsQueryOptions({
       realmApiId: params.realmId,
@@ -57,5 +64,33 @@ export default function CurrencyCategory({
     }),
   );
 
-  return <></>;
+  const referenceCurrency =
+    loaderData.referenceCurrency ?? league.baseCurrencyApiId;
+
+  const columns = getEconomyTableColumns({
+    realm,
+    league,
+    referenceCurrency,
+  });
+
+  const updatePagination = (page: number, perPage: number) => {
+    const nextSearchParams = new URLSearchParams(searchParams);
+    nextSearchParams.set("page", String(page));
+    nextSearchParams.set("perPage", String(perPage));
+
+    setSearchParams(nextSearchParams);
+  };
+
+  return (
+    <EconomyTable
+      items={data.items}
+      page={data.currentPage}
+      pages={data.pages}
+      totalItems={data.total}
+      columns={columns}
+      rowsPerPage={loaderData.perPage}
+      onPaginationChange={updatePagination}
+      rowsPerPageOptions={[10, 25, 50, 100]}
+    />
+  );
 }

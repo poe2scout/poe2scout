@@ -29,8 +29,11 @@ export default function EconomyLayout({ params }: Route.ComponentProps) {
 
   return (
     <div>
-      <div className="flex flex-row justify-between">
-        <nav className="m-3 flex w-57.5 flex-col overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30">
+      <div className="mb-3">
+        <ItemSearch realmId={params.realmId}></ItemSearch>
+      </div>
+      <div className="flex flex-row items-start justify-between gap-3">
+        <nav className="flex w-57.5 flex-col overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30">
           <NavHeader>Currency categories</NavHeader>
 
           {data?.currencyCategories.map((category) => {
@@ -59,9 +62,6 @@ export default function EconomyLayout({ params }: Route.ComponentProps) {
           })}
         </nav>
         <div className="flex-1">
-          <div>
-            <ItemSearch realmId={params.realmId}></ItemSearch>
-          </div>
           <Outlet />
         </div>
       </div>
