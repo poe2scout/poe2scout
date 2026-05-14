@@ -1,0 +1,64 @@
+import { useQuery } from "@tanstack/react-query";
+import getLeaguesQueryOptions from "~/features/league/queries/leagues";
+import type { Realm } from "~/features/league/types";
+import Loading from "~/shared/components/loading";
+import SectionContent from "~/shared/components/section/section-content";
+import SectionDivider from "~/shared/components/section/section-divider";
+import SectionTitle from "~/shared/components/section/section-title";
+import NavLinkButton from "./nav-link-button";
+
+export default function LeagueOptions({ realm }: { realm: Realm }) {
+  const { data, isPending } = useQuery(
+    getLeaguesQueryOptions(realm.realmApiId),
+  );
+
+  if (isPending) return <Loading />;
+
+  const currentLeagues = data?.filter((l) => {
+    return l.isCurrent;
+  });
+
+  const inactiveLeagues = data?.filter((l) => {
+    return !l.isCurrent;
+  });
+
+  return (
+    <>
+      <SectionTitle>Select a League</SectionTitle>
+      <SectionDivider />
+      <SectionContent>
+        <div className="flex flex-col items-center">
+          <span className="mb-3">Active</span>
+          <div className="grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {currentLeagues &&
+              currentLeagues.map((league) => {
+                return (
+                  <NavLinkButton
+                    route={`${realm.realmApiId}/${league.value}`}
+                    key={league.value}
+                  >
+                    {league.value}
+                  </NavLinkButton>
+                );
+              })}
+          </div>
+          <span className="mt-6 mb-3">Past</span>
+          <div className="grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {inactiveLeagues &&
+              inactiveLeagues.map((league) => {
+                return (
+                  <NavLinkButton
+                    route={`${realm.realmApiId}/${league.value}`}
+                    key={league.value}
+                    filled={false}
+                  >
+                    {league.value}
+                  </NavLinkButton>
+                );
+              })}
+          </div>
+        </div>
+      </SectionContent>
+    </>
+  );
+}

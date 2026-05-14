@@ -10,12 +10,12 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import Header from "./components/layout/header";
-import Footer from "./components/layout/footer";
 import { QueryClientProvider } from "@tanstack/react-query";
-import NavLinkButton from "./components/home/nav-link-button";
-import { queryClient } from "./api/query-client";
-import GlobalNavigationProgress from "./components/layout/global-navigation-progress";
+import { queryClient } from "./shared/api/query-client";
+import GlobalNavigationProgress from "./features/app-shell/components/global-navigation-progress";
+import Header from "./features/app-shell/components/header";
+import Footer from "./features/app-shell/components/footer";
+import NavLinkButton from "./features/landing/components/nav-link-button";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
