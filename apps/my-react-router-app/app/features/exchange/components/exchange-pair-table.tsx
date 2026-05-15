@@ -60,7 +60,7 @@ export default function ExchangePairTable({
     nextSearchParams.set("page", String(nextState.page));
     nextSearchParams.set("perPage", String(nextState.perPage));
 
-    setSearchParams(nextSearchParams);
+    setSearchParams(nextSearchParams, { preventScrollReset: true });
   };
 
   const toggleSort = (sort: ExchangeSort) => {
