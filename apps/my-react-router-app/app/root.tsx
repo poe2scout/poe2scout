@@ -8,7 +8,6 @@ import {
   useRouteError,
 } from "react-router";
 
-import type { Route } from "./+types/root";
 import "./app.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./shared/api/query-client";
@@ -16,19 +15,6 @@ import GlobalNavigationProgress from "./features/app-shell/components/global-nav
 import Header from "./features/app-shell/components/header";
 import Footer from "./features/app-shell/components/footer";
 import NavLinkButton from "./features/landing/components/nav-link-button";
-
-export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
-  },
-];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
