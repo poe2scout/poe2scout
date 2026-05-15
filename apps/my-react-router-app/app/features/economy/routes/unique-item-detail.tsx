@@ -73,7 +73,9 @@ export default function UniqueItemDetail({
       item={loaderData.item}
       routeKind={routeKind}
       chartMode={loaderData.chartMode}
-      referenceCurrency={loaderData.referenceCurrency ?? "chaos"}
+      referenceCurrency={
+        loaderData.referenceCurrency ?? league.defaultCurrency.apiId
+      }
       league={league}
       realm={realm}
       backTo={backTo}

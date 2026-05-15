@@ -17,6 +17,7 @@ import type {
 } from "~/features/exchange/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import getNumberNonZero from "~/shared/utils/get-number-non-zero";
+import getLeaguesQueryOptions from "../queries/leagues";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: () => ({ label: "Currency Exchange" }),
@@ -37,6 +38,16 @@ export async function clientLoader({
 }: Route.ClientLoaderArgs) {
   const url = new URL(request.url);
   const tableState = getExchangeTableState(url.searchParams);
+  const leagues = await queryClient.fetchQuery(
+    getLeaguesQueryOptions(params.realmId),
+  );
+  const league = leagues.find((league) => league.value === params.leagueId);
+
+  if (!league) {
+    throw new Response("Invalid league", { status: 404 });
+  }
+
+  const baseCurrencyApiIds = getBaseCurrencyApiIds(league);
 
   await Promise.all([
     queryClient.prefetchQuery(
@@ -56,6 +67,7 @@ export async function clientLoader({
       getSnapshotPairsQueryOptions({
         realmApiId: params.realmId,
         leagueName: params.leagueId,
+        baseCurrencyApiIds,
       }),
     ),
   ]);
@@ -65,6 +77,7 @@ export async function clientLoader({
 
 export default function Exchange({ params, loaderData }: Route.ComponentProps) {
   const { league } = useLeagueContext();
+  const baseCurrencyApiIds = getBaseCurrencyApiIds(league);
   const { data: snapshot } = useSuspenseQuery(
     getExchangeSnapshotQueryOptions({
       realmApiId: params.realmId,
@@ -82,6 +95,7 @@ export default function Exchange({ params, loaderData }: Route.ComponentProps) {
     getSnapshotPairsQueryOptions({
       realmApiId: params.realmId,
       leagueName: params.leagueId,
+      baseCurrencyApiIds,
     }),
   );
 
@@ -95,6 +109,15 @@ export default function Exchange({ params, loaderData }: Route.ComponentProps) {
       <ExchangePairTable pairs={pairs} tableState={loaderData} />
     </div>
   );
+}
+
+function getBaseCurrencyApiIds(league: {
+  baseCurrencies: { apiId: string }[];
+  defaultCurrency: { apiId: string };
+}) {
+  return league.baseCurrencies.length > 0
+    ? league.baseCurrencies.map((currency) => currency.apiId)
+    : [league.defaultCurrency.apiId];
 }
 
 function getExchangeTableState(

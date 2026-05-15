@@ -50,13 +50,18 @@ export default function ItemDetail({
   setDetailParam: (key: string, value: string) => void;
 }) {
   const displayItem = getDisplayItem(item, item.itemId);
+  const referenceCurrencyOptions = getReferenceCurrencyOptions(league);
+  const selectedReferenceCurrency = getValidReferenceCurrency(
+    referenceCurrency,
+    league,
+  );
 
   const rawHistory = useRawItemHistory({
     enabled: chartMode === "raw" && Number.isFinite(item.itemId),
     realmApiId: realm.realmApiId,
     leagueName: league.value,
     itemId: item.itemId,
-    referenceCurrency,
+    referenceCurrency: selectedReferenceCurrency,
   });
 
   const dailyHistory = useDailyItemHistory({
@@ -131,13 +136,13 @@ export default function ItemDetail({
             <label className="flex items-center gap-2 text-sm text-white/70">
               <span>Currency</span>
               <select
-                value={referenceCurrency}
+                value={selectedReferenceCurrency}
                 onChange={(event) =>
                   setDetailParam("referenceCurrency", event.currentTarget.value)
                 }
                 className="h-9 rounded-sm border border-secondary/35 bg-black/30 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
               >
-                {getReferenceCurrencyOptions(league).map((option) => (
+                {referenceCurrencyOptions.map((option) => (
                   <option key={option.apiId} value={option.apiId}>
                     {option.label}
                   </option>
@@ -157,7 +162,10 @@ export default function ItemDetail({
           >
             <RawLegend
               data={rawLegendData}
-              referenceCurrency={getCurrencyLabel(referenceCurrency, league)}
+              referenceCurrency={getCurrencyLabel(
+                selectedReferenceCurrency,
+                league,
+              )}
             />
             <RawPriceChart
               chartData={rawChartData}
@@ -595,6 +603,13 @@ function getMetadataSubtitle(
 }
 
 function getReferenceCurrencyOptions(league: League) {
+  if (league.baseCurrencies.length > 0) {
+    return league.baseCurrencies.map((currency) => ({
+      apiId: currency.apiId,
+      label: currency.text,
+    }));
+  }
+
   const options = [
     { apiId: league.baseCurrencyApiId, label: league.baseCurrencyText },
     { apiId: "exalted", label: league.exaltedCurrencyText },
@@ -607,6 +622,14 @@ function getReferenceCurrencyOptions(league: League) {
     seen.add(option.apiId);
     return true;
   });
+}
+
+function getValidReferenceCurrency(apiId: string, league: League) {
+  return getReferenceCurrencyOptions(league).some(
+    (option) => option.apiId === apiId,
+  )
+    ? apiId
+    : league.defaultCurrency.apiId;
 }
 
 function getCurrencyLabel(apiId: string, league: League) {

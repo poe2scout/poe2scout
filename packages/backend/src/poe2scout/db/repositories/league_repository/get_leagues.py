@@ -9,7 +9,8 @@ class League(RepositoryModel):
     base_currency_item_id: int
     base_currency_api_id: str
     base_currency_text: str
-    current_league: bool
+    base_currency_icon_url: str | None = None
+    current_league: bool = False
 
 
 async def get_current_leagues(game_id: int) -> list[League]:
@@ -20,6 +21,7 @@ async def get_current_leagues(game_id: int) -> list[League]:
                    l.base_currency_item_id,
                    ci.api_id AS base_currency_api_id,
                    ci.text AS base_currency_text,
+                   ci.icon_url AS base_currency_icon_url,
                    l.current_league
               FROM league AS l
               JOIN currency_item AS ci
@@ -45,6 +47,7 @@ async def get_leagues(game_id: int) -> list[League]:
                    l.base_currency_item_id,
                    ci.api_id AS base_currency_api_id,
                    ci.text AS base_currency_text,
+                   ci.icon_url AS base_currency_icon_url,
                    l.current_league
               FROM league AS l
               JOIN currency_item AS ci
@@ -67,6 +70,7 @@ async def get_league(league_id: int) -> League:
                    l.base_currency_item_id,
                    ci.api_id AS base_currency_api_id,
                    ci.text AS base_currency_text,
+                   ci.icon_url AS base_currency_icon_url,
                    l.current_league
               FROM league AS l
               JOIN currency_item AS ci

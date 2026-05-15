@@ -49,7 +49,6 @@ type SnapshotHistoryPayload = {
   baseCurrencyText?: string;
 };
 
-const BASE_CURRENCY_API_IDS = ["exalted", "divine", "chaos"];
 const SNAPSHOT_STALE_TIME_MS = 60 * 1000;
 const SNAPSHOT_PAIRS_STALE_TIME_MS = 10 * 60 * 1000;
 
@@ -109,8 +108,11 @@ function computePairPrices(
   ];
 }
 
-function isBaseCurrency(item: ExchangeCurrencyItem) {
-  return BASE_CURRENCY_API_IDS.includes(item.apiId);
+function isBaseCurrency(
+  item: ExchangeCurrencyItem,
+  baseCurrencyApiIds: Set<string>,
+) {
+  return baseCurrencyApiIds.has(item.apiId);
 }
 
 function buildSnapshotPair(
@@ -135,11 +137,13 @@ function buildSnapshotPair(
 
 function normalizeSnapshotPair(
   row: ExchangeSnapshotPairPayload,
+  baseCurrencyApiIds: Set<string>,
 ): ExchangeSnapshotPair {
   const currencyOneData = normalizePairData(row.currencyOneData);
   const currencyTwoData = normalizePairData(row.currencyTwoData);
   const areBothCurrencyBases =
-    isBaseCurrency(row.currencyOne) && isBaseCurrency(row.currencyTwo);
+    isBaseCurrency(row.currencyOne, baseCurrencyApiIds) &&
+    isBaseCurrency(row.currencyTwo, baseCurrencyApiIds);
 
   if (areBothCurrencyBases) {
     const isCorrectOrder =
@@ -158,7 +162,7 @@ function normalizeSnapshotPair(
     );
   }
 
-  if (!isBaseCurrency(row.currencyOne)) {
+  if (!isBaseCurrency(row.currencyOne, baseCurrencyApiIds)) {
     const [firstWithPrice, secondWithPrice] = computePairPrices(
       currencyOneData,
       currencyTwoData,
@@ -242,19 +246,28 @@ export function getSnapshotHistoryQueryOptions({
 export function getSnapshotPairsQueryOptions({
   realmApiId,
   leagueName,
+  baseCurrencyApiIds,
 }: {
   realmApiId: string;
   leagueName: string;
+  baseCurrencyApiIds: string[];
 }) {
   return queryOptions({
-    queryKey: ["exchange", "snapshot-pairs", { realmApiId, leagueName }],
+    queryKey: [
+      "exchange",
+      "snapshot-pairs",
+      { realmApiId, leagueName, baseCurrencyApiIds },
+    ],
     staleTime: SNAPSHOT_PAIRS_STALE_TIME_MS,
     queryFn: async () => {
       const payload = (await fetchRoute(
         `/api/${realmApiId}/Leagues/${leagueName}/SnapshotPairs`,
       )) as ExchangeSnapshotPairPayload[];
+      const baseCurrencyApiIdSet = new Set(baseCurrencyApiIds);
 
-      return payload.map(normalizeSnapshotPair);
+      return payload.map((row) =>
+        normalizeSnapshotPair(row, baseCurrencyApiIdSet),
+      );
     },
   });
 }
