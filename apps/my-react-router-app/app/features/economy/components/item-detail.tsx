@@ -1,13 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link, useLocation, useSearchParams } from "react-router";
+import { Link } from "react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import type { UTCTimestamp } from "lightweight-charts";
 
-import { useLeagueContext } from "~/features/league/context";
-import type { League } from "~/features/league/types";
+import type { League, Realm } from "~/features/league/types";
 import { queryClient } from "~/shared/api/query-client";
-import type { BreadcrumbHandle } from "~/features/app-shell/components/header-breadcrumbs";
 import type {
   DailyStatEntry,
   EconomyItem,
@@ -16,79 +13,57 @@ import type {
   ItemSummary,
   PriceLogEntry,
 } from "../types";
-import getItemsQueryOptions from "../queries/items";
 import {
   getItemDailyStatsHistoryQueryOptions,
   getItemHistoryQueryOptions,
 } from "../queries/item-history";
 import {
-  DailyStatsChart,
-  RawPriceChart,
+  type ChartMode,
   type DailyChartData,
   type DailyLegendData,
   type RawChartData,
   type RawLegendData,
-} from "../components/item-history-charts";
-
-type ChartMode = "raw" | "daily";
+} from "./item-history-charts";
+import { RawPriceChart } from "./item-history-raw-chart";
+import { DailyStatsChart } from "./item-history-daily-chart";
+import { formatEpoch, formatFixed, formatInteger, toEpoch } from "../utils";
 
 const INITIAL_RAW_LOG_COUNT = 14 * 24;
 const DAILY_DAY_COUNT = 90;
 
-export const handle: BreadcrumbHandle = {
-  breadcrumb: () => ({
-    label: "Item",
-  }),
-};
-
-export type ItemDetailRouteParams = {
-  realmId: string;
-  leagueId: string;
-  category: string;
-  itemId: string;
-};
-
 export default function ItemDetail({
-  params,
+  item,
+  chartMode,
+  realm,
+  league,
+  referenceCurrency,
+  backTo,
+  setDetailParam,
 }: {
-  params: ItemDetailRouteParams;
+  routeKind: "currencies" | "uniques";
+  item: ItemSummary;
+  chartMode: ChartMode;
+  realm: Realm;
+  league: League;
+  referenceCurrency: string;
+  backTo: string;
+  setDetailParam: (key: string, value: string) => void;
 }) {
-  const itemId = Number(params.itemId);
-  const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { league } = useLeagueContext();
-  const routeKind = location.pathname.includes("/currencies/")
-    ? "currencies"
-    : "uniques";
-
-  const chartMode = getChartMode(searchParams.get("chart"));
-  const referenceCurrency =
-    searchParams.get("referenceCurrency") ?? league.baseCurrencyApiId;
-  const stateItem = getStateItem(location.state);
-
-  const itemsQuery = useQuery({
-    ...getItemsQueryOptions({
-      realmApiId: params.realmId,
-      leagueName: params.leagueId,
-    }),
-    enabled: !stateItem && Number.isFinite(itemId),
-  });
-  const item =
-    stateItem ?? itemsQuery.data?.find((entry) => entry.itemId === itemId);
-  const displayItem = getDisplayItem(item, itemId);
+  const displayItem = getDisplayItem(item, item.itemId);
 
   const rawHistory = useRawItemHistory({
-    enabled: chartMode === "raw" && Number.isFinite(itemId),
-    realmApiId: params.realmId,
-    leagueName: params.leagueId,
-    itemId,
+    enabled: chartMode === "raw" && Number.isFinite(item.itemId),
+    realmApiId: realm.realmApiId,
+    leagueName: league.value,
+    itemId: item.itemId,
     referenceCurrency,
   });
+
   const dailyHistory = useDailyItemHistory({
-    enabled: chartMode === "daily" && Number.isFinite(itemId),
-    realmApiId: params.realmId,
-    leagueName: params.leagueId,
-    itemId,
+    enabled: chartMode === "daily" && Number.isFinite(item.itemId),
+    realmApiId: realm.realmApiId,
+    leagueName: league.value,
+    itemId: item.itemId,
   });
 
   const rawChartData = useMemo(
@@ -102,26 +77,6 @@ export default function ItemDetail({
 
   const [rawLegendData, setRawLegendData] = useState<RawLegendData>({});
   const [dailyLegendData, setDailyLegendData] = useState<DailyLegendData>({});
-
-  const backTo = useMemo(() => {
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.delete("chart");
-    const query = nextParams.toString();
-
-    return `/${params.realmId}/${params.leagueId}/economy/${routeKind}/${params.category}${query ? `?${query}` : ""}`;
-  }, [
-    params.category,
-    params.leagueId,
-    params.realmId,
-    routeKind,
-    searchParams,
-  ]);
-
-  const setDetailParam = (key: string, value: string) => {
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set(key, value);
-    setSearchParams(nextParams);
-  };
 
   return (
     <section className="overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30">
@@ -193,7 +148,7 @@ export default function ItemDetail({
         </div>
       </header>
 
-      <div className="relative min-h-[520px] px-2 py-4 sm:px-4">
+      <div className="relative min-h-130 px-2 py-4 sm:px-4">
         {chartMode === "raw" ? (
           <ChartState
             isLoading={rawHistory.isInitialLoading}
@@ -434,12 +389,12 @@ function ChartState({
     return <ChartMessage>No price history is available.</ChartMessage>;
   }
 
-  return <div className="relative h-[500px] w-full">{children}</div>;
+  return <div className="relative h-125 w-full">{children}</div>;
 }
 
 function ChartMessage({ children }: { children: ReactNode }) {
   return (
-    <div className="flex h-[500px] items-center justify-center text-sm text-white/60">
+    <div className="flex h-125 items-center justify-center text-sm text-white/60">
       {children}
     </div>
   );
@@ -580,10 +535,6 @@ function prependUniqueDailyStats(
   ];
 }
 
-function getChartMode(value: string | null): ChartMode {
-  return value === "daily" ? "daily" : "raw";
-}
-
 function getStateItem(state: unknown): EconomyItem | null {
   if (!state || typeof state !== "object" || !("item" in state)) {
     return null;
@@ -663,31 +614,4 @@ function getCurrencyLabel(apiId: string, league: League) {
     getReferenceCurrencyOptions(league).find((option) => option.apiId === apiId)
       ?.label ?? apiId
   );
-}
-
-function toEpoch(time: string): UTCTimestamp {
-  const date = time.endsWith("Z") ? time : `${time}Z`;
-  return Math.floor(new Date(date).getTime() / 1000) as UTCTimestamp;
-}
-
-function formatEpoch(time: UTCTimestamp) {
-  return new Date(time * 1000).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatFixed(value: number) {
-  return value.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-}
-
-function formatInteger(value: number) {
-  return value.toLocaleString(undefined, {
-    maximumFractionDigits: 0,
-  });
 }
