@@ -1,7 +1,5 @@
 import * as changeKeys from "change-case/keys";
 
-type Error = { detail: string };
-
 export default async function fetchRoute(route: string) {
   const response = await fetch(route);
 

@@ -7,6 +7,7 @@ import type {
   UniqueEconomyItem,
 } from "../types";
 import type { League, Realm } from "~/features/league/types";
+import PriceHistoryCell from "./price-history-cell";
 
 const DIVINE_THRESHOLD = 1.2;
 
@@ -56,6 +57,20 @@ export function getEconomyTableColumns({
       className: "w-28 text-right text-white/80",
       headerClassName: "w-28 text-right",
       cell: (item) => item.currentQuantity?.toLocaleString() ?? "N/A",
+    },
+    {
+      id: "history",
+      header: "History",
+      className: "w-52",
+      headerClassName: "w-52 text-right",
+      cell: (item) => (
+        <PriceHistoryCell
+          priceLogs={item.priceLogs}
+          referenceCurrencyLabel={
+            getCurrencyDisplay(referenceCurrency, league).label
+          }
+        />
+      ),
     },
     {
       id: "actions",

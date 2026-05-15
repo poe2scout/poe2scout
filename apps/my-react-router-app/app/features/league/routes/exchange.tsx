@@ -1,4 +1,5 @@
 import type { BreadcrumbHandle } from "~/features/app-shell/components/header-breadcrumbs";
+import fetchRoute from "~/shared/api/fetch-route";
 import type { Route } from "./+types/exchange";
 
 export const handle: BreadcrumbHandle = {
@@ -6,7 +7,7 @@ export const handle: BreadcrumbHandle = {
 };
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-  const response = await fetch(`/api/${params.realmId}/Leagues`);
+  const response = await fetchRoute(`/api/${params.realmId}/Leagues`);
   console.log(response);
 }
 
