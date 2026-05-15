@@ -1,6 +1,4 @@
 import { queryOptions } from "@tanstack/react-query";
-import fetchRoute from "~/shared/api/fetch-route";
-import toQueryString from "~/shared/utils/to-query-string";
 import type {
   ExchangeCurrencyItem,
   ExchangePairData,
@@ -8,10 +6,12 @@ import type {
   ExchangeSnapshotPair,
   SnapshotHistoryResponse,
 } from "../types";
+import fetchRoute from "~/shared/api/fetch-route";
+import toQueryString from "~/shared/utils/to-query-string";
 
-type NumberLike = string | number | null | undefined;
+export type NumberLike = string | number | null | undefined;
 
-type ExchangeSnapshotPayload = {
+export type ExchangeSnapshotPayload = {
   epoch: number;
   volume: NumberLike;
   marketCap: NumberLike;
@@ -19,7 +19,7 @@ type ExchangeSnapshotPayload = {
   baseCurrencyText: string;
 };
 
-type ExchangePairDataPayload = {
+export type ExchangePairDataPayload = {
   valueTraded?: NumberLike;
   valuetraded?: NumberLike;
   relativePrice?: NumberLike;
@@ -28,7 +28,7 @@ type ExchangePairDataPayload = {
   highestStock?: NumberLike;
 };
 
-type ExchangeSnapshotPairPayload = {
+export type ExchangeSnapshotPairPayload = {
   currencyExchangeSnapshotPairId: number;
   currencyExchangeSnapshotId: number;
   volume: NumberLike;
@@ -61,7 +61,7 @@ function toNumber(value: NumberLike) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function normalizeSnapshot(
+export function normalizeSnapshot(
   snapshot: ExchangeSnapshotPayload,
 ): ExchangeSnapshot {
   return {
@@ -135,7 +135,7 @@ function buildSnapshotPair(
   };
 }
 
-function normalizeSnapshotPair(
+export function normalizeSnapshotPair(
   row: ExchangeSnapshotPairPayload,
   baseCurrencyApiIds: Set<string>,
 ): ExchangeSnapshotPair {

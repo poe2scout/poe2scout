@@ -5,11 +5,9 @@ import type { Route } from "./+types/exchange";
 import ExchangePairTable from "~/features/exchange/components/exchange-pair-table";
 import ExchangeSummary from "~/features/exchange/components/exchange-summary";
 import MarketHistoryChart from "~/features/exchange/components/market-history-chart";
-import {
-  getExchangeSnapshotQueryOptions,
-  getSnapshotHistoryQueryOptions,
-  getSnapshotPairsQueryOptions,
-} from "~/features/exchange/queries/exchange";
+import { getExchangeSnapshotQueryOptions } from "~/features/exchange/queries/exchange-snapshot";
+import { getSnapshotHistoryQueryOptions } from "~/features/exchange/queries/snapshot-history";
+import { getSnapshotPairsQueryOptions } from "~/features/exchange/queries/snapshot-pairs";
 import type {
   ExchangeOrder,
   ExchangeSort,

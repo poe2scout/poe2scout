@@ -12,7 +12,9 @@ import {
   type UTCTimestamp,
 } from "lightweight-charts";
 import { useEffect, useMemo, useRef, useState } from "react";
+import formatNumber from "~/shared/utils/format-number";
 import type { ExchangeSnapshot } from "../types";
+import formatEpoch from "../utils/format-epoch";
 
 type LegendValues = {
   marketCap?: number;
@@ -214,17 +216,4 @@ function LegendValue({
       {value === undefined ? "N/A" : formatNumber(value)} {suffix}
     </span>
   );
-}
-
-function formatNumber(value: number) {
-  return value.toLocaleString(undefined, {
-    maximumFractionDigits: 0,
-  });
-}
-
-function formatEpoch(epoch: number) {
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(epoch * 1000));
 }
