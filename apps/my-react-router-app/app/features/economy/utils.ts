@@ -1,5 +1,7 @@
 import type { UTCTimestamp } from "lightweight-charts";
 
+export { default as formatInteger } from "~/shared/utils/format-number";
+
 export function toEpoch(time: string): UTCTimestamp {
   const date = time.endsWith("Z") ? time : `${time}Z`;
   return Math.floor(new Date(date).getTime() / 1000) as UTCTimestamp;
@@ -18,11 +20,5 @@ export function formatFixed(value: number) {
   return value.toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  });
-}
-
-export function formatInteger(value: number) {
-  return value.toLocaleString(undefined, {
-    maximumFractionDigits: 0,
   });
 }

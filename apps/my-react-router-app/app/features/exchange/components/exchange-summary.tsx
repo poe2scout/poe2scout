@@ -1,5 +1,7 @@
 import type { League } from "~/features/league/types";
+import formatNumber from "~/shared/utils/format-number";
 import type { ExchangeSnapshot } from "../types";
+import formatEpoch from "../utils/format-epoch";
 
 export default function ExchangeSummary({
   league,
@@ -50,12 +52,12 @@ function StatBox({
   currencyIconUrl: string | null;
 }) {
   return (
-    <div className="min-w-48 rounded-sm border border-white/10 bg-white/[0.03] px-3 py-2">
+    <div className="min-w-48 rounded-sm border border-white/10 bg-white/3 px-3 py-2">
       <div className="text-xs font-medium tracking-wide text-white/50 uppercase">
         {title}
       </div>
       <div className="mt-1 flex items-center justify-end gap-1.5 text-lg text-white">
-        <span>{formatInteger(value)}</span>
+        <span>{formatNumber(value)}</span>
         {currencyIconUrl ? (
           <img
             src={currencyIconUrl}
@@ -86,17 +88,4 @@ function getBaseCurrencyIconUrl(
     default:
       return null;
   }
-}
-
-function formatInteger(value: number) {
-  return value.toLocaleString(undefined, {
-    maximumFractionDigits: 0,
-  });
-}
-
-function formatEpoch(epoch: number) {
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(epoch * 1000));
 }

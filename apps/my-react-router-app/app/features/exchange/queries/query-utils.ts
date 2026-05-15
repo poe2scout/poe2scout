@@ -1,17 +1,13 @@
-import { queryOptions } from "@tanstack/react-query";
-import fetchRoute from "~/shared/api/fetch-route";
-import toQueryString from "~/shared/utils/to-query-string";
 import type {
   ExchangeCurrencyItem,
   ExchangePairData,
   ExchangeSnapshot,
   ExchangeSnapshotPair,
-  SnapshotHistoryResponse,
 } from "../types";
 
-type NumberLike = string | number | null | undefined;
+export type NumberLike = string | number | null | undefined;
 
-type ExchangeSnapshotPayload = {
+export type ExchangeSnapshotPayload = {
   epoch: number;
   volume: NumberLike;
   marketCap: NumberLike;
@@ -19,7 +15,7 @@ type ExchangeSnapshotPayload = {
   baseCurrencyText: string;
 };
 
-type ExchangePairDataPayload = {
+export type ExchangePairDataPayload = {
   valueTraded?: NumberLike;
   valuetraded?: NumberLike;
   relativePrice?: NumberLike;
@@ -28,7 +24,7 @@ type ExchangePairDataPayload = {
   highestStock?: NumberLike;
 };
 
-type ExchangeSnapshotPairPayload = {
+export type ExchangeSnapshotPairPayload = {
   currencyExchangeSnapshotPairId: number;
   currencyExchangeSnapshotId: number;
   volume: NumberLike;
@@ -40,18 +36,7 @@ type ExchangeSnapshotPairPayload = {
   currencyTwoData: ExchangePairDataPayload;
 };
 
-type SnapshotHistoryPayload = {
-  data?: ExchangeSnapshotPayload[];
-  meta?: {
-    hasMore?: boolean;
-  };
-  baseCurrencyApiId?: string;
-  baseCurrencyText?: string;
-};
-
 const BASE_CURRENCY_API_IDS = ["exalted", "divine", "chaos"];
-const SNAPSHOT_STALE_TIME_MS = 60 * 1000;
-const SNAPSHOT_PAIRS_STALE_TIME_MS = 10 * 60 * 1000;
 
 function toNumber(value: NumberLike) {
   if (value === null || value === undefined) {
@@ -62,7 +47,7 @@ function toNumber(value: NumberLike) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function normalizeSnapshot(
+export function normalizeSnapshot(
   snapshot: ExchangeSnapshotPayload,
 ): ExchangeSnapshot {
   return {
@@ -133,7 +118,7 @@ function buildSnapshotPair(
   };
 }
 
-function normalizeSnapshotPair(
+export function normalizeSnapshotPair(
   row: ExchangeSnapshotPairPayload,
 ): ExchangeSnapshotPair {
   const currencyOneData = normalizePairData(row.currencyOneData);
@@ -185,76 +170,4 @@ function normalizeSnapshotPair(
     firstWithPrice,
     secondWithPrice,
   );
-}
-
-export function getExchangeSnapshotQueryOptions({
-  realmApiId,
-  leagueName,
-}: {
-  realmApiId: string;
-  leagueName: string;
-}) {
-  return queryOptions({
-    queryKey: ["exchange", "snapshot", { realmApiId, leagueName }],
-    staleTime: SNAPSHOT_STALE_TIME_MS,
-    queryFn: async () => {
-      const payload = await fetchRoute(
-        `/api/${realmApiId}/Leagues/${leagueName}/ExchangeSnapshot`,
-      );
-
-      return normalizeSnapshot(payload as ExchangeSnapshotPayload);
-    },
-  });
-}
-
-export function getSnapshotHistoryQueryOptions({
-  realmApiId,
-  leagueName,
-  limit,
-}: {
-  realmApiId: string;
-  leagueName: string;
-  limit: number;
-}) {
-  return queryOptions({
-    queryKey: [
-      "exchange",
-      "snapshot-history",
-      { realmApiId, leagueName, limit },
-    ],
-    staleTime: SNAPSHOT_STALE_TIME_MS,
-    queryFn: async (): Promise<SnapshotHistoryResponse> => {
-      const query = toQueryString({ Limit: limit });
-      const payload = (await fetchRoute(
-        `/api/${realmApiId}/Leagues/${leagueName}/SnapshotHistory${query}`,
-      )) as SnapshotHistoryPayload;
-
-      return {
-        data: (payload.data ?? []).map(normalizeSnapshot),
-        hasMore: Boolean(payload.meta?.hasMore),
-        baseCurrencyApiId: payload.baseCurrencyApiId ?? "",
-        baseCurrencyText: payload.baseCurrencyText ?? "",
-      };
-    },
-  });
-}
-
-export function getSnapshotPairsQueryOptions({
-  realmApiId,
-  leagueName,
-}: {
-  realmApiId: string;
-  leagueName: string;
-}) {
-  return queryOptions({
-    queryKey: ["exchange", "snapshot-pairs", { realmApiId, leagueName }],
-    staleTime: SNAPSHOT_PAIRS_STALE_TIME_MS,
-    queryFn: async () => {
-      const payload = (await fetchRoute(
-        `/api/${realmApiId}/Leagues/${leagueName}/SnapshotPairs`,
-      )) as ExchangeSnapshotPairPayload[];
-
-      return payload.map(normalizeSnapshotPair);
-    },
-  });
 }
