@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useSearchParams } from "react-router";
+import { useLocation, useSearchParams } from "react-router";
 import { queryClient } from "~/shared/api/query-client";
 import { useLeagueContext } from "~/features/league/context";
 import getNumberNonZero from "~/shared/utils/get-number-non-zero";
@@ -50,6 +50,7 @@ export default function CurrencyCategory({
   params,
   loaderData,
 }: Route.ComponentProps) {
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { league, realm } = useLeagueContext();
   const { data } = useSuspenseQuery(
@@ -91,6 +92,7 @@ export default function CurrencyCategory({
       rowsPerPage={loaderData.perPage}
       onPaginationChange={updatePagination}
       rowsPerPageOptions={[10, 25, 50, 100]}
+      getRowTo={(item) => `${item.itemId}${location.search}`}
     />
   );
 }

@@ -58,3 +58,36 @@ export type PaginatedEconomyResponse<T extends EconomyItem> = {
   total: number;
   items: T[];
 };
+
+export type ItemSummary = {
+  itemId: number;
+  categoryApiId: string;
+  text: string;
+  name: string | null;
+  type: string | null;
+  apiId: string | null;
+  currentPrice: number | null;
+  iconUrl: string | null;
+};
+
+export type ItemHistoryResponse = {
+  priceHistory: PriceLogEntry[];
+  hasMore: boolean;
+};
+
+export type DailyStatEntry = {
+  time: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  average: number;
+  volume: number;
+};
+
+export type ItemDailyStatsHistoryResponse = {
+  dailyStats: DailyStatEntry[];
+  hasMore: boolean;
+  baseCurrencyApiId: string;
+  baseCurrencyText: string;
+};

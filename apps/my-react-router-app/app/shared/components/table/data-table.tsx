@@ -9,6 +9,7 @@ export default function DataTable<T>({
   loadingContent,
   errorContent,
   footer,
+  onRowClick,
 }: {
   rows: T[];
   columns: TableColumn<T>[];
@@ -17,6 +18,7 @@ export default function DataTable<T>({
   loadingContent?: ReactNode;
   errorContent?: ReactNode;
   footer?: ReactNode;
+  onRowClick?: (row: T) => void;
 }) {
   const hasMessage = loadingContent || errorContent || rows.length === 0;
   const message = loadingContent ?? errorContent ?? emptyContent;
@@ -52,7 +54,20 @@ export default function DataTable<T>({
               rows.map((row, index) => (
                 <tr
                   key={getRowKey ? getRowKey(row, index) : index}
-                  className="transition hover:bg-secondary/10"
+                  tabIndex={onRowClick ? 0 : undefined}
+                  role={onRowClick ? "button" : undefined}
+                  onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  onKeyDown={
+                    onRowClick
+                      ? (event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            onRowClick(row);
+                          }
+                        }
+                      : undefined
+                  }
+                  className={`transition hover:bg-secondary/10 ${onRowClick ? "cursor-pointer focus:bg-secondary/15 focus:outline-none" : ""}`}
                 >
                   {columns.map((column) => (
                     <td

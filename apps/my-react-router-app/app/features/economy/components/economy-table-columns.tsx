@@ -159,7 +159,11 @@ function ActionLinks({
   realm: Realm;
 }) {
   return (
-    <div className="flex justify-center gap-1.5 text-xs">
+    <div
+      className="flex justify-center gap-1.5 text-xs"
+      onClick={(event) => event.stopPropagation()}
+      onKeyDown={(event) => event.stopPropagation()}
+    >
       <a
         href={getWikiUrl(item, realm)}
         target="_blank"
