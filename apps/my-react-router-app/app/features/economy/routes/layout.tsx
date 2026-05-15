@@ -39,6 +39,7 @@ export default function EconomyLayout({ params }: Route.ComponentProps) {
           {data?.currencyCategories.map((category) => {
             return (
               <NavItem
+                key={category.apiId}
                 apiId={category.apiId}
                 label={category.label}
                 icon={category.icon}
@@ -53,6 +54,7 @@ export default function EconomyLayout({ params }: Route.ComponentProps) {
           {data?.uniqueCategories.map((category) => {
             return (
               <NavItem
+                key={category.apiId}
                 apiId={category.apiId}
                 label={category.label}
                 icon={category.icon}
