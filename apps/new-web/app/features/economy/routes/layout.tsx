@@ -1,14 +1,10 @@
-import { NavLink } from "react-router";
-import { Outlet } from "react-router";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { queryClient } from "~/shared/api/query-client";
 import type { BreadcrumbHandle } from "~/features/app-shell/components/header-breadcrumbs";
 import getCategoriesQueryOptions from "../queries/categories";
 import type { Route } from "./+types/layout";
 import ItemSearch from "../components/item-search";
-import {
-  formatTitle,
-  getLeagueContextTitle,
-} from "~/shared/meta/page-title";
+import { formatTitle, getLeagueContextTitle } from "~/shared/meta/page-title";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: ({ params }) => ({
@@ -33,16 +29,55 @@ export default function EconomyLayout({
   params,
   loaderData,
 }: Route.ComponentProps) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const basePath = `/${params.realmId}/${params.leagueId}/economy`;
+  const currencyCategoryOptions = loaderData.currencyCategories.map(
+    (category) => ({
+      ...category,
+      type: "currencies" as const,
+      value: `currencies/${category.apiId}`,
+    }),
+  );
+  const uniqueCategoryOptions = loaderData.uniqueCategories.map((category) => ({
+    ...category,
+    type: "uniques" as const,
+    value: `uniques/${category.apiId}`,
+  }));
+  const categoryOptions = [
+    ...currencyCategoryOptions,
+    ...uniqueCategoryOptions,
+  ];
+  const currentCategoryValue =
+    categoryOptions.find((category) => {
+      const categoryPath = `${basePath}/${category.value}`;
+
+      return (
+        location.pathname === categoryPath ||
+        location.pathname.startsWith(`${categoryPath}/`)
+      );
+    })?.value ?? "";
+
+  const handleCategoryChange = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    const nextCategory = event.currentTarget.value;
+
+    if (nextCategory) {
+      navigate(`${basePath}/${nextCategory}`);
+    }
+  };
+
   return (
     <div>
       <div className="mb-3">
         <ItemSearch realmId={params.realmId}></ItemSearch>
       </div>
-      <div className="flex flex-row items-start justify-between gap-3">
-        <nav className="flex w-57.5 flex-col overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
+        <nav className="hidden w-57.5 shrink-0 flex-col overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30 lg:flex">
           <NavHeader>Currency categories</NavHeader>
 
-          {loaderData.currencyCategories.map((category) => {
+          {currencyCategoryOptions.map((category) => {
             return (
               <NavItem
                 key={category.apiId}
@@ -53,11 +88,11 @@ export default function EconomyLayout({
               />
             );
           })}
-          {loaderData.uniqueCategories.length !== 0 && (
+          {uniqueCategoryOptions.length !== 0 && (
             <NavHeader>Unique categories</NavHeader>
           )}
 
-          {loaderData.uniqueCategories.map((category) => {
+          {uniqueCategoryOptions.map((category) => {
             return (
               <NavItem
                 key={category.apiId}
@@ -69,7 +104,36 @@ export default function EconomyLayout({
             );
           })}
         </nav>
-        <div className="flex-1">
+        <div className="lg:hidden">
+          <label className="sr-only" htmlFor="economy-category-select">
+            Economy category
+          </label>
+          <select
+            id="economy-category-select"
+            value={currentCategoryValue}
+            onChange={handleCategoryChange}
+            className="h-10 w-full rounded-sm border border-secondary/35 bg-zinc-950 px-3 text-sm text-white shadow-lg shadow-black/30 outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
+          >
+            <option value="">Select category</option>
+            <optgroup label="Currency categories">
+              {currencyCategoryOptions.map((category) => (
+                <option key={category.apiId} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </optgroup>
+            {uniqueCategoryOptions.length !== 0 && (
+              <optgroup label="Unique categories">
+                {uniqueCategoryOptions.map((category) => (
+                  <option key={category.apiId} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </optgroup>
+            )}
+          </select>
+        </div>
+        <div className="min-w-0 flex-1">
           <Outlet />
         </div>
       </div>
