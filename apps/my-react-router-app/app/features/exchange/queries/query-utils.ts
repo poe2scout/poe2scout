@@ -1,13 +1,9 @@
-import { queryOptions } from "@tanstack/react-query";
 import type {
   ExchangeCurrencyItem,
   ExchangePairData,
   ExchangeSnapshot,
   ExchangeSnapshotPair,
-  SnapshotHistoryResponse,
 } from "../types";
-import fetchRoute from "~/shared/api/fetch-route";
-import toQueryString from "~/shared/utils/to-query-string";
 
 export type NumberLike = string | number | null | undefined;
 
@@ -39,18 +35,6 @@ export type ExchangeSnapshotPairPayload = {
   currencyOneData: ExchangePairDataPayload;
   currencyTwoData: ExchangePairDataPayload;
 };
-
-type SnapshotHistoryPayload = {
-  data?: ExchangeSnapshotPayload[];
-  meta?: {
-    hasMore?: boolean;
-  };
-  baseCurrencyApiId?: string;
-  baseCurrencyText?: string;
-};
-
-const SNAPSHOT_STALE_TIME_MS = 60 * 1000;
-const SNAPSHOT_PAIRS_STALE_TIME_MS = 10 * 60 * 1000;
 
 function toNumber(value: NumberLike) {
   if (value === null || value === undefined) {
@@ -189,85 +173,4 @@ export function normalizeSnapshotPair(
     firstWithPrice,
     secondWithPrice,
   );
-}
-
-export function getExchangeSnapshotQueryOptions({
-  realmApiId,
-  leagueName,
-}: {
-  realmApiId: string;
-  leagueName: string;
-}) {
-  return queryOptions({
-    queryKey: ["exchange", "snapshot", { realmApiId, leagueName }],
-    staleTime: SNAPSHOT_STALE_TIME_MS,
-    queryFn: async () => {
-      const payload = await fetchRoute(
-        `/api/${realmApiId}/Leagues/${leagueName}/ExchangeSnapshot`,
-      );
-
-      return normalizeSnapshot(payload as ExchangeSnapshotPayload);
-    },
-  });
-}
-
-export function getSnapshotHistoryQueryOptions({
-  realmApiId,
-  leagueName,
-  limit,
-}: {
-  realmApiId: string;
-  leagueName: string;
-  limit: number;
-}) {
-  return queryOptions({
-    queryKey: [
-      "exchange",
-      "snapshot-history",
-      { realmApiId, leagueName, limit },
-    ],
-    staleTime: SNAPSHOT_STALE_TIME_MS,
-    queryFn: async (): Promise<SnapshotHistoryResponse> => {
-      const query = toQueryString({ Limit: limit });
-      const payload = (await fetchRoute(
-        `/api/${realmApiId}/Leagues/${leagueName}/SnapshotHistory${query}`,
-      )) as SnapshotHistoryPayload;
-
-      return {
-        data: (payload.data ?? []).map(normalizeSnapshot),
-        hasMore: Boolean(payload.meta?.hasMore),
-        baseCurrencyApiId: payload.baseCurrencyApiId ?? "",
-        baseCurrencyText: payload.baseCurrencyText ?? "",
-      };
-    },
-  });
-}
-
-export function getSnapshotPairsQueryOptions({
-  realmApiId,
-  leagueName,
-  baseCurrencyApiIds,
-}: {
-  realmApiId: string;
-  leagueName: string;
-  baseCurrencyApiIds: string[];
-}) {
-  return queryOptions({
-    queryKey: [
-      "exchange",
-      "snapshot-pairs",
-      { realmApiId, leagueName, baseCurrencyApiIds },
-    ],
-    staleTime: SNAPSHOT_PAIRS_STALE_TIME_MS,
-    queryFn: async () => {
-      const payload = (await fetchRoute(
-        `/api/${realmApiId}/Leagues/${leagueName}/SnapshotPairs`,
-      )) as ExchangeSnapshotPairPayload[];
-      const baseCurrencyApiIdSet = new Set(baseCurrencyApiIds);
-
-      return payload.map((row) =>
-        normalizeSnapshotPair(row, baseCurrencyApiIdSet),
-      );
-    },
-  });
 }

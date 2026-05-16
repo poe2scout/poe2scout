@@ -15,7 +15,7 @@ import type {
 } from "~/features/exchange/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import getNumberNonZero from "~/shared/utils/get-number-non-zero";
-import getLeaguesQueryOptions from "../queries/leagues";
+import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: () => ({ label: "Currency Exchange" }),
@@ -111,11 +111,8 @@ export default function Exchange({ params, loaderData }: Route.ComponentProps) {
 
 function getBaseCurrencyApiIds(league: {
   baseCurrencies: { apiId: string }[];
-  defaultCurrency: { apiId: string };
 }) {
-  return league.baseCurrencies.length > 0
-    ? league.baseCurrencies.map((currency) => currency.apiId)
-    : [league.defaultCurrency.apiId];
+  return league.baseCurrencies.map((currency) => currency.apiId);
 }
 
 function getExchangeTableState(

@@ -7,6 +7,7 @@ from ..price_log_repository.get_item_price import get_item_price
 from ..price_log_repository.get_item_price_history import get_item_price_history
 from ..price_log_repository.get_item_price_logs import get_item_price_logs
 from ..price_log_repository.get_item_prices import get_item_prices
+from ..price_log_repository.get_item_prices_by_league import get_item_prices_by_league
 from ..price_log_repository.get_item_prices_before import get_item_prices_before
 from ..price_log_repository.get_item_prices_in_range import get_item_prices_in_range
 from ..price_log_repository.get_prices_checked import get_prices_checked
@@ -20,6 +21,7 @@ __all__ = [
     "get_item_price_history",
     "get_item_price_logs",
     "get_item_prices",
+    "get_item_prices_by_league",
     "get_item_prices_before",
     "get_item_prices_in_range",
     "get_prices_checked",

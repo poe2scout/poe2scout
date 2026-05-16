@@ -603,25 +603,10 @@ function getMetadataSubtitle(
 }
 
 function getReferenceCurrencyOptions(league: League) {
-  if (league.baseCurrencies.length > 0) {
-    return league.baseCurrencies.map((currency) => ({
-      apiId: currency.apiId,
-      label: currency.text,
-    }));
-  }
-
-  const options = [
-    { apiId: league.baseCurrencyApiId, label: league.baseCurrencyText },
-    { apiId: "exalted", label: league.exaltedCurrencyText },
-    { apiId: "divine", label: league.divineCurrencyText },
-    { apiId: "chaos", label: league.chaosCurrencyText },
-  ];
-  const seen = new Set<string>();
-  return options.filter((option) => {
-    if (seen.has(option.apiId)) return false;
-    seen.add(option.apiId);
-    return true;
-  });
+  return league.baseCurrencies.map((currency) => ({
+    apiId: currency.apiId,
+    label: currency.text,
+  }));
 }
 
 function getValidReferenceCurrency(apiId: string, league: League) {
