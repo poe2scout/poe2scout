@@ -7,6 +7,7 @@ class SearchOption(RepositoryModel):
     display_name: str
     category: str
     identifier: str
+    item_kind: str
 
 
 async def get_search_options(game_id: int) -> list[SearchOption]:
@@ -15,7 +16,8 @@ async def get_search_options(game_id: int) -> list[SearchOption]:
             SELECT
                 ui.name AS display_name,
                 ic.api_id AS category,
-                ui.name AS identifier
+                ui.name AS identifier,
+                'unique' AS item_kind
             FROM unique_item ui
             JOIN item i ON ui.item_id = i.item_id
             JOIN base_item bi ON i.base_item_id = bi.base_item_id
@@ -30,7 +32,8 @@ async def get_search_options(game_id: int) -> list[SearchOption]:
             SELECT
                 ci.text AS display_name,
                 cc.api_id AS category,
-                ci.text AS identifier
+                ci.text AS identifier,
+                'currency' AS item_kind
             FROM currency_item ci
             JOIN item i ON ci.item_id = i.item_id
             JOIN item_category cc ON cc.item_category_id = ci.item_category_id
@@ -39,9 +42,7 @@ async def get_search_options(game_id: int) -> list[SearchOption]:
               AND bi.game_id = %(game_id)s;
         """
 
-        params = {
-            "game_id": game_id
-        }
+        params = {"game_id": game_id}
 
         await cursor.execute(query, params)
 

@@ -5,6 +5,15 @@ import getCategoriesQueryOptions from "../queries/categories";
 import type { Route } from "./+types/layout";
 import ItemSearch from "../components/item-search";
 import { formatTitle, getLeagueContextTitle } from "~/shared/meta/page-title";
+import type { Filter } from "../queries/filters";
+
+const routeKindByItemKind: Record<
+  Filter["itemKind"],
+  "currencies" | "uniques"
+> = {
+  currency: "currencies",
+  unique: "uniques",
+};
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: ({ params }) => ({
@@ -32,6 +41,8 @@ export default function EconomyLayout({
   const location = useLocation();
   const navigate = useNavigate();
   const basePath = `/${params.realmId}/${params.leagueId}/economy`;
+  const currentSearchParams = new URLSearchParams(location.search);
+  const activeSearchValue = currentSearchParams.get("search") ?? "";
   const currencyCategoryOptions = loaderData.currencyCategories.map(
     (category) => ({
       ...category,
@@ -68,10 +79,41 @@ export default function EconomyLayout({
     }
   };
 
+  const handleSearchFilterSelect = (filter: Filter) => {
+    const routeKind = routeKindByItemKind[filter.itemKind];
+    const nextSearchParams = new URLSearchParams();
+    const referenceCurrency = currentSearchParams.get("referenceCurrency");
+
+    nextSearchParams.set("search", filter.identifier);
+
+    if (referenceCurrency) {
+      nextSearchParams.set("referenceCurrency", referenceCurrency);
+    }
+
+    navigate(
+      `${basePath}/${routeKind}/${encodeURIComponent(filter.category)}?${nextSearchParams.toString()}`,
+    );
+  };
+
+  const handleSearchFilterRemove = () => {
+    const nextSearchParams = new URLSearchParams(location.search);
+    nextSearchParams.delete("search");
+    nextSearchParams.delete("page");
+    nextSearchParams.delete("perPage");
+
+    const query = nextSearchParams.toString();
+    navigate(`${location.pathname}${query ? `?${query}` : ""}`);
+  };
+
   return (
     <div>
       <div className="mb-3">
-        <ItemSearch realmId={params.realmId}></ItemSearch>
+        <ItemSearch
+          realmId={params.realmId}
+          activeSearchValue={activeSearchValue}
+          onFilterSelect={handleSearchFilterSelect}
+          onSearchFilterRemove={handleSearchFilterRemove}
+        ></ItemSearch>
       </div>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
         <nav className="hidden w-57.5 shrink-0 flex-col overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30 lg:flex">

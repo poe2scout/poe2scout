@@ -1,10 +1,11 @@
 import { queryOptions } from "@tanstack/react-query";
 import fetchRoute from "~/shared/api/fetch-route";
 
-type Filter = {
+export type Filter = {
   displayName: string;
   category: string;
   identifier: string;
+  itemKind: "currency" | "unique";
 };
 
 type GetFiltersResponse = {

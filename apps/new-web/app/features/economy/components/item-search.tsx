@@ -1,15 +1,36 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { useFetcher } from "react-router";
-import getFiltersQueryOptions from "../queries/filters";
+import getFiltersQueryOptions, { type Filter } from "../queries/filters";
 
-export default function ItemSearch({ realmId }: { realmId: string }) {
-  const fetcher = useFetcher();
+export default function ItemSearch({
+  realmId,
+  activeSearchValue,
+  onFilterSelect,
+  onSearchFilterRemove,
+}: {
+  realmId: string;
+  activeSearchValue: string;
+  onFilterSelect: (filter: Filter) => void;
+  onSearchFilterRemove: () => void;
+}) {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 
   const { data, isPending } = useQuery(getFiltersQueryOptions(realmId));
+  const activeSearchFilter = useMemo(() => {
+    if (!activeSearchValue || data == undefined) {
+      return null;
+    }
+
+    return (
+      data.filters.find((filter) => filter.identifier === activeSearchValue) ??
+      null
+    );
+  }, [activeSearchValue, data?.filters]);
+  const activeSearchLabel =
+    activeSearchFilter?.displayName ?? activeSearchValue;
+
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       setDebouncedSearch(search);
@@ -39,8 +60,14 @@ export default function ItemSearch({ realmId }: { realmId: string }) {
       .slice(0, 24);
   }, [data?.filters, debouncedSearch]);
 
+  const selectFilter = (filter: Filter) => {
+    setSearch("");
+    setIsFocused(false);
+    onFilterSelect(filter);
+  };
+
   return (
-    <fetcher.Form className="mx-auto mt-3" role="search">
+    <div className="mx-auto mt-3 space-y-2" role="search">
       <label
         htmlFor="item-filter-search"
         className="mb-1.5 block text-sm text-white/80"
@@ -68,7 +95,10 @@ export default function ItemSearch({ realmId }: { realmId: string }) {
                 key={filter.identifier}
                 type="button"
                 className="flex w-full flex-col px-3 py-2 text-left text-sm hover:bg-secondary/20 focus:bg-secondary/25 focus:outline-none"
-                onClick={() => setSearch(filter.displayName)}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  selectFilter(filter);
+                }}
               >
                 <span>{filter.displayName}</span>
                 <span className="text-xs text-white/50">{filter.category}</span>
@@ -77,6 +107,24 @@ export default function ItemSearch({ realmId }: { realmId: string }) {
           </div>
         )}
       </div>
-    </fetcher.Form>
+      {activeSearchLabel && (
+        <div className="flex flex-wrap gap-2">
+          <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-secondary/35 bg-secondary/15 px-3 py-1 text-sm text-white">
+            <span className="min-w-0 truncate">
+              <span className="text-white/55">search: </span>
+              {activeSearchLabel}
+            </span>
+            <button
+              type="button"
+              className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white focus:bg-white/20 focus:text-white focus:outline-none"
+              onClick={onSearchFilterRemove}
+              aria-label={`Remove search filter ${activeSearchLabel}`}
+            >
+              x
+            </button>
+          </span>
+        </div>
+      )}
+    </div>
   );
 }

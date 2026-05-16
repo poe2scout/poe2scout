@@ -13,6 +13,7 @@ class GetFiltersResponse(ApiModel):
         display_name: str
         category: str
         identifier: str
+        item_kind: str
 
         @classmethod
         def from_model(cls, filter_option: SearchOption) -> Self:
@@ -20,6 +21,7 @@ class GetFiltersResponse(ApiModel):
                 display_name=filter_option.display_name,
                 category=filter_option.category,
                 identifier=filter_option.identifier,
+                item_kind=filter_option.item_kind,
             )
 
     filters: list[_SearchOption]
