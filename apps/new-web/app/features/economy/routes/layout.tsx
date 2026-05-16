@@ -6,6 +6,7 @@ import type { Route } from "./+types/layout";
 import ItemSearch from "../components/item-search";
 import { formatTitle, getLeagueContextTitle } from "~/shared/meta/page-title";
 import type { Filter } from "../queries/filters";
+import ResponsiveAdLayout from "~/shared/components/ads/responsive-ad-layout";
 
 const routeKindByItemKind: Record<
   Filter["itemKind"],
@@ -106,7 +107,7 @@ export default function EconomyLayout({
   };
 
   return (
-    <div>
+    <ResponsiveAdLayout>
       <div className="mb-3">
         <ItemSearch
           realmId={params.realmId}
@@ -179,7 +180,7 @@ export default function EconomyLayout({
           <Outlet />
         </div>
       </div>
-    </div>
+    </ResponsiveAdLayout>
   );
 }
 
