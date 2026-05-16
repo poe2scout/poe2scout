@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
 const ADSENSE_CLIENT_ID = "ca-pub-1450769283178899";
-const ADSENSE_SLOT_ID = "7986001189";
+const DEFAULT_ADSENSE_SLOT_ID = "7986001189";
 
-type AdSenseFormat = "auto" | "horizontal" | "vertical";
+type AdSenseFormat = "auto" | "fluid" | "horizontal" | "vertical";
 
 declare global {
   interface Window {
@@ -14,11 +14,15 @@ declare global {
 export default function AdSenseAd({
   format = "auto",
   className = "",
+  layout,
   onFilledChange,
+  slotId = DEFAULT_ADSENSE_SLOT_ID,
 }: {
   format?: AdSenseFormat;
   className?: string;
+  layout?: string;
   onFilledChange?: (isFilled: boolean) => void;
+  slotId?: string;
 }) {
   const adRef = useRef<HTMLModElement | null>(null);
   const [isUnfilled, setIsUnfilled] = useState(false);
@@ -81,11 +85,12 @@ export default function AdSenseAd({
       <ins
         ref={adRef}
         className="adsbygoogle"
-        style={{ display: "block" }}
+        style={{ display: "block", textAlign: "center" }}
         data-ad-client={ADSENSE_CLIENT_ID}
-        data-ad-slot={ADSENSE_SLOT_ID}
+        data-ad-slot={slotId}
+        data-ad-layout={layout}
         data-ad-format={format}
-        data-full-width-responsive="true"
+        data-full-width-responsive={format === "fluid" ? undefined : "true"}
       />
     </div>
   );
