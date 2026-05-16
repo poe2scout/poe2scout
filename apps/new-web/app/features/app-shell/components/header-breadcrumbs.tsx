@@ -50,26 +50,54 @@ export default function HeaderBreadcrumbs() {
 
   if (crumbs.length === 0) return null;
 
+  const compactCrumbs = crumbs.length > 2 ? crumbs.slice(-2) : crumbs;
+  const hasHiddenCrumbs = compactCrumbs.length !== crumbs.length;
+
+  const renderCrumb = (
+    crumb: BreadcrumbItem,
+    index: number,
+    isLast: boolean,
+    showDivider: boolean,
+  ) => (
+    <li key={index} className="flex min-w-0 items-center gap-2">
+      {showDivider && <span className="shrink-0 text-gray-500">/</span>}
+      {!isLast && crumb.to ? (
+        <NavLink to={crumb.to} className="min-w-0 truncate text-secondary">
+          {crumb.label}
+        </NavLink>
+      ) : (
+        <span
+          className="min-w-0 truncate"
+          aria-current={isLast ? "page" : undefined}
+        >
+          {crumb.label}
+        </span>
+      )}
+    </li>
+  );
+
   return (
-    <nav aria-label="Breadcrumb" className="px-2.5">
-      <ol className="flex items-center gap-2">
+    <nav aria-label="Breadcrumb" className="min-w-0 px-2.5">
+      <ol className="hidden min-w-0 items-center gap-2 lg:flex">
         {crumbs.map((crumb, index) => {
           const isLast = index === crumbs.length - 1;
 
-          return (
-            <li key={index} className="flex items-center gap-2">
-              {index > 0 && <span className="text-gray-500">/</span>}
-              {!isLast && crumb.to ? (
-                <NavLink to={crumb.to} className="text-secondary">
-                  {crumb.label}
-                </NavLink>
-              ) : (
-                <span aria-current={isLast ? "page" : undefined}>
-                  {crumb.label}
-                </span>
-              )}
-            </li>
-          );
+          return renderCrumb(crumb, index, isLast, index > 0);
+        })}
+      </ol>
+      <ol className="flex min-w-0 items-center gap-2 lg:hidden">
+        {hasHiddenCrumbs && (
+          <li className="flex shrink-0 items-center gap-2">
+            <span aria-label="Earlier pages" className="text-gray-500">
+              ...
+            </span>
+            <span className="text-gray-500">/</span>
+          </li>
+        )}
+        {compactCrumbs.map((crumb, index) => {
+          const isLast = index === compactCrumbs.length - 1;
+
+          return renderCrumb(crumb, index, isLast, index > 0);
         })}
       </ol>
     </nav>

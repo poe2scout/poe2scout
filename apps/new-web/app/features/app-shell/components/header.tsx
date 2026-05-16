@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, useMatch } from "react-router";
 import HeaderNavLink from "./header-nav-link";
 import useLeagueParams from "~/features/league/hooks/use-league-params";
@@ -7,12 +8,36 @@ export default function Header() {
   const { isLeagueSelected, realmId, leagueId } = useLeagueParams();
   const leagueHomeMatch = useMatch("/:realmId/:leagueId");
   const isLeagueHome = leagueHomeMatch !== null;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const closeMenu = () => setIsMenuOpen(false);
+
+  const leagueNavigation = isLeagueSelected ? (
+    <>
+      <HeaderNavLink route={`/${realmId}/${leagueId}`} onClick={closeMenu}>
+        Home
+      </HeaderNavLink>
+      <HeaderNavLink
+        route={`/${realmId}/${leagueId}/economy`}
+        end={false}
+        onClick={closeMenu}
+      >
+        Economy
+      </HeaderNavLink>
+      <HeaderNavLink
+        route={`/${realmId}/${leagueId}/exchange`}
+        end={false}
+        onClick={closeMenu}
+      >
+        Currency Exchange
+      </HeaderNavLink>
+    </>
+  ) : null;
 
   return (
     <header className="flex w-full flex-col justify-center bg-black py-1.5">
-      <div className="mx-auto flex w-full max-w-7xl flex-row justify-between py-2.5 text-lg">
-        <div className="ml-5 flex gap-4">
-          <NavLink className="flex" to="/">
+      <div className="relative mx-auto flex w-full max-w-7xl flex-row items-center justify-between gap-3 px-4 py-2.5 text-lg sm:px-5">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <NavLink className="flex shrink-0 items-center whitespace-nowrap" to="/">
             <img
               className="mx-1.5 h-6 w-6"
               src="/favicon.ico"
@@ -21,33 +46,45 @@ export default function Header() {
             POE2 Scout
           </NavLink>
           {isLeagueSelected && isLeagueHome && (
-            <NavLink className="px-2.5" to="/">
+            <NavLink className="min-w-0 truncate px-2.5" to="/">
               &larr; Select different league
             </NavLink>
           )}
           {isLeagueSelected && !isLeagueHome && <HeaderBreadcrumbs />}
         </div>
-        <div className="mr-2.5">
-          {isLeagueSelected && (
-            <>
-              <HeaderNavLink route={`/${realmId}/${leagueId}`}>
-                Home
-              </HeaderNavLink>
-              <HeaderNavLink
-                route={`/${realmId}/${leagueId}/economy`}
-                end={false}
+        {isLeagueSelected && (
+          <nav
+            aria-label="Primary navigation"
+            className="hidden shrink-0 items-center md:flex"
+          >
+            {leagueNavigation}
+          </nav>
+        )}
+        {isLeagueSelected && (
+          <div className="relative shrink-0 md:hidden">
+            <button
+              type="button"
+              className="flex h-9 w-9 items-center justify-center rounded-sm border border-secondary/40 text-white"
+              aria-label="Open primary navigation"
+              aria-expanded={isMenuOpen}
+              onClick={() => setIsMenuOpen((open) => !open)}
+            >
+              <span className="flex w-4 flex-col gap-1" aria-hidden="true">
+                <span className="h-0.5 rounded-full bg-current" />
+                <span className="h-0.5 rounded-full bg-current" />
+                <span className="h-0.5 rounded-full bg-current" />
+              </span>
+            </button>
+            {isMenuOpen && (
+              <nav
+                aria-label="Primary navigation"
+                className="absolute right-0 top-11 z-20 flex min-w-52 flex-col rounded-sm border border-secondary/35 bg-zinc-950 py-2 shadow-lg shadow-black/50"
               >
-                Economy
-              </HeaderNavLink>
-              <HeaderNavLink
-                route={`/${realmId}/${leagueId}/exchange`}
-                end={false}
-              >
-                Currency Exchange
-              </HeaderNavLink>
-            </>
-          )}
-        </div>
+                {leagueNavigation}
+              </nav>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );
