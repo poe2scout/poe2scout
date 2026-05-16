@@ -8,6 +8,7 @@ class BridgeCurrency(RepositoryModel):
     currency_item_id: int
     api_id: str
     text: str
+    icon_url: str | None = None
     bridge_rank: int
 
 
@@ -18,6 +19,7 @@ async def get_bridge_currencies(game_id: int) -> list[BridgeCurrency]:
                    ci.currency_item_id,
                    ci.api_id,
                    ci.text,
+                   ci.icon_url,
                    gcb.bridge_rank
               FROM game_currency_bridge AS gcb
               JOIN currency_item AS ci

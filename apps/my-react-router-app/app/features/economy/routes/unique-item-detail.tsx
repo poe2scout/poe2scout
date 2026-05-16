@@ -7,6 +7,7 @@ import { useLeagueContext } from "~/features/league/context";
 import { queryClient } from "~/shared/api/query-client";
 import type { BreadcrumbHandle } from "~/features/app-shell/components/header-breadcrumbs";
 import ItemDetail from "../components/item-detail";
+import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: () => ({
@@ -22,20 +23,31 @@ export async function clientLoader({
   const url = new URL(request.url);
 
   const chartMode = getChartMode(url.searchParams.get("chart"));
-  const referenceCurrency = url.searchParams.get("referenceCurrency");
+  const referenceCurrencyParam = url.searchParams.get("referenceCurrency");
 
-  const items = await queryClient.fetchQuery(
-    getItemsQueryOptions({
-      realmApiId: params.realmId,
-      leagueName: params.leagueId,
-    }),
-  );
+  const [items, leagues] = await Promise.all([
+    queryClient.fetchQuery(
+      getItemsQueryOptions({
+        realmApiId: params.realmId,
+        leagueName: params.leagueId,
+      }),
+    ),
+    queryClient.fetchQuery(getLeaguesQueryOptions(params.realmId)),
+  ]);
 
   const item = items.find((item) => item.itemId === itemId);
+  const league = leagues.find((league) => league.value === params.leagueId);
 
   if (!item) {
     throw new Response("Invalid item", { status: 404 });
   }
+
+  if (!league) {
+    throw new Response("Invalid league", { status: 404 });
+  }
+
+  const referenceCurrency =
+    referenceCurrencyParam ?? league.defaultCurrency.apiId;
 
   return { item, chartMode, referenceCurrency };
 }
@@ -73,7 +85,7 @@ export default function UniqueItemDetail({
       item={loaderData.item}
       routeKind={routeKind}
       chartMode={loaderData.chartMode}
-      referenceCurrency={loaderData.referenceCurrency ?? "chaos"}
+      referenceCurrency={loaderData.referenceCurrency}
       league={league}
       realm={realm}
       backTo={backTo}

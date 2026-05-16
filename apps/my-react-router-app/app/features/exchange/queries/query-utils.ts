@@ -36,8 +36,6 @@ export type ExchangeSnapshotPairPayload = {
   currencyTwoData: ExchangePairDataPayload;
 };
 
-const BASE_CURRENCY_API_IDS = ["exalted", "divine", "chaos"];
-
 function toNumber(value: NumberLike) {
   if (value === null || value === undefined) {
     return 0;
@@ -94,8 +92,11 @@ function computePairPrices(
   ];
 }
 
-function isBaseCurrency(item: ExchangeCurrencyItem) {
-  return BASE_CURRENCY_API_IDS.includes(item.apiId);
+function isBaseCurrency(
+  item: ExchangeCurrencyItem,
+  baseCurrencyApiIds: Set<string>,
+) {
+  return baseCurrencyApiIds.has(item.apiId);
 }
 
 function buildSnapshotPair(
@@ -120,11 +121,13 @@ function buildSnapshotPair(
 
 export function normalizeSnapshotPair(
   row: ExchangeSnapshotPairPayload,
+  baseCurrencyApiIds: Set<string>,
 ): ExchangeSnapshotPair {
   const currencyOneData = normalizePairData(row.currencyOneData);
   const currencyTwoData = normalizePairData(row.currencyTwoData);
   const areBothCurrencyBases =
-    isBaseCurrency(row.currencyOne) && isBaseCurrency(row.currencyTwo);
+    isBaseCurrency(row.currencyOne, baseCurrencyApiIds) &&
+    isBaseCurrency(row.currencyTwo, baseCurrencyApiIds);
 
   if (areBothCurrencyBases) {
     const isCorrectOrder =
@@ -143,7 +146,7 @@ export function normalizeSnapshotPair(
     );
   }
 
-  if (!isBaseCurrency(row.currencyOne)) {
+  if (!isBaseCurrency(row.currencyOne, baseCurrencyApiIds)) {
     const [firstWithPrice, secondWithPrice] = computePairPrices(
       currencyOneData,
       currencyTwoData,

@@ -1,3 +1,10 @@
+export interface LeagueCurrency {
+  apiId: string;
+  text: string;
+  iconUrl: string | null;
+  relativePrice: number;
+}
+
 export interface League {
   value: string;
   isCurrent: boolean;
@@ -5,13 +12,15 @@ export interface League {
   chaosDivinePrice: number;
   baseCurrencyApiId: string;
   baseCurrencyText: string;
-  baseCurrencyIconUrl: string;
+  baseCurrencyIconUrl: string | null;
   exaltedCurrencyText: string;
-  exaltedCurrencyIconUrl: string;
+  exaltedCurrencyIconUrl: string | null;
   divineCurrencyText: string;
-  divineCurrencyIconUrl: string;
+  divineCurrencyIconUrl: string | null;
   chaosCurrencyText: string;
-  chaosCurrencyIconUrl: string;
+  chaosCurrencyIconUrl: string | null;
+  defaultCurrency: LeagueCurrency;
+  baseCurrencies: LeagueCurrency[];
 }
 
 export interface Realm {
