@@ -1,7 +1,7 @@
 import type { Route } from "./+types/unique-item-detail";
 import { useMemo } from "react";
 import { useLocation, useSearchParams } from "react-router";
-import getItemsQueryOptions from "../queries/items";
+import getItemQueryOptions from "../queries/item";
 import { getChartMode } from "../components/item-history-charts";
 import { useLeagueContext } from "~/features/league/context";
 import { queryClient } from "~/shared/api/query-client";
@@ -26,22 +26,26 @@ export async function clientLoader({
   const chartMode = getChartMode(url.searchParams.get("chart"));
   const referenceCurrencyParam = url.searchParams.get("referenceCurrency");
 
-  const [items, leagues] = await Promise.all([
+  if (!Number.isFinite(itemId)) {
+    throw new Response("Invalid item", { status: 404 });
+  }
+
+  const [item, leagues] = await Promise.all([
     queryClient.fetchQuery(
-      getItemsQueryOptions({
+      getItemQueryOptions({
         realmApiId: params.realmId,
         leagueName: params.leagueId,
+        itemId,
       }),
     ),
     queryClient.fetchQuery(getLeaguesQueryOptions(params.realmId)),
   ]);
 
-  const item = items.find((item) => item.itemId === itemId);
-  const league = leagues.find((league) => league.value === params.leagueId);
-
   if (!item) {
     throw new Response("Invalid item", { status: 404 });
   }
+
+  const league = leagues.find((league) => league.value === params.leagueId);
 
   if (!league) {
     throw new Response("Invalid league", { status: 404 });

@@ -15,6 +15,7 @@ def _register_routes() -> None:
     from .items import get as _items_get  # noqa: F401
     from .items import get_daily_stats_history as _items_get_daily_stats_history  # noqa: F401
     from .items import get_price_histories as _items_get_price_histories  # noqa: F401
+    from .items import get_by_id as _items_get_by_id  # noqa: F401
     from .items import get_price_history as _items_get_price_history  # noqa: F401
     from .uniques import get_by_category as _uniques_get_by_category  # noqa: F401
 

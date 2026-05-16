@@ -1,5 +1,4 @@
 from asyncio import gather
-from datetime import datetime
 from typing import Annotated, Self
 
 from cachetools import TTLCache
@@ -15,7 +14,7 @@ from poe2scout.db.repositories import (
     unique_item_repository,
 )
 from poe2scout.db.repositories.unique_item_repository.get_all_unique_items import UniqueItem
-from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
+from poe2scout.db.repositories.models import CurrencyItem
 
 from .. import router
 
@@ -118,7 +117,10 @@ async def get_items(
         realm.realm_id,
     )
 
-    current_price_dict: dict[int, float] = dict(zip([current_price.item_id for current_price in price_logs_by_item_id], [current_price.price for current_price in price_logs_by_item_id]))
+    current_price_dict = {
+        current_price.item_id: current_price.price
+        for current_price in price_logs_by_item_id
+    }
 
     responses = [
         GetItemsResponse.from_unique_item(

@@ -14,6 +14,7 @@ from .get_currency_item import (
     get_chaos_item,
     get_exalted_item,
 )
+from .get_currency_item_by_item_id import get_currency_item_by_item_id
 from .get_currency_items import get_currency_items
 from .get_currency_items_by_category import get_currency_items_by_category
 from .get_priced_currency_categories import get_priced_currency_categories
@@ -34,6 +35,7 @@ __all__ = [
     "get_divine_item",
     "get_chaos_item",
     "get_exalted_item",
+    "get_currency_item_by_item_id",
     "get_currency_items",
     "get_currency_items_by_category",
     "get_priced_currency_categories",
