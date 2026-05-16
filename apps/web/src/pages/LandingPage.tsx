@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
-import { ArrowForward as ArrowRight } from "@mui/icons-material";
+import ArrowRight from "@mui/icons-material/ArrowForward";
 import { useEffect, useState } from "react";
 import {
   SearchAutocomplete,

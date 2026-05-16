@@ -22,8 +22,8 @@ jobs:
             context: ./apps/web
             dockerfile: ./apps/web/Dockerfile
           - image: poe2scout-beta-web
-            context: ./apps/my-react-router-app
-            dockerfile: ./apps/my-react-router-app/Dockerfile
+            context: ./apps/new-web
+            dockerfile: ./apps/new-web/Dockerfile
           - image: poe2scout-api
             context: .
             dockerfile: ./apps/api/Dockerfile

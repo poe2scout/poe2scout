@@ -4,7 +4,7 @@ import { CircularProgress, Drawer } from "@mui/material";
 import { Typography } from "@mui/material";
 import { useCategories } from '../contexts/CategoryContext';
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
-import { Circle } from "@mui/icons-material";
+import Circle from "@mui/icons-material/Circle";
 
 interface SideNavProps {
   isOpen: boolean;
