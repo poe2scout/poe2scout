@@ -1,10 +1,9 @@
-from typing import Annotated, Self, TypeAlias
+from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path
 from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories import (
     currency_item_repository,
-    game_repository,
     league_repository,
     price_log_repository,
     realm_repository,
@@ -14,32 +13,7 @@ from poe2scout.db.repositories.league_repository.get_leagues import League
 from poe2scout.db.repositories.models import CurrencyItem
 from . import router
 
-class LeagueCurrency(ApiModel):
-    api_id: str
-    text: str
-    icon_url: str | None
-    relative_price: float
 
-    @classmethod
-    def from_model(
-        cls,
-        model: BaseCurrency,
-        relative_price: float,
-    ) -> Self:
-        if isinstance(model, League):
-            return cls(
-                api_id=model.base_currency_api_id,
-                text=model.base_currency_text,
-                icon_url=model.base_currency_icon_url,
-                relative_price=relative_price,
-            )
-
-        return cls(
-            api_id=model.api_id,
-            text=model.text,
-            icon_url=model.icon_url,
-            relative_price=relative_price,
-        )
 
 
 class GetResponse(ApiModel):
@@ -57,7 +31,34 @@ class GetResponse(ApiModel):
     chaos_currency_text: str
     chaos_currency_icon_url: str | None
     default_currency: LeagueCurrency
-    base_currencies: list[LeagueCurrency]
+
+    class LeagueCurrency(ApiModel):
+        api_id: str
+        text: str
+        icon_url: str | None
+        relative_price: float
+
+        @classmethod
+        def from_model(
+            cls,
+            model: BaseCurrency,
+            relative_price: float,
+        ) -> Self:
+            if isinstance(model, League):
+                return cls(
+                    api_id=model.base_currency_api_id,
+                    text=model.base_currency_text,
+                    icon_url=model.base_currency_icon_url,
+                    relative_price=relative_price,
+                )
+
+            return cls(
+                api_id=model.api_id,
+                text=model.text,
+                icon_url=model.icon_url,
+                relative_price=relative_price,
+            )
+
 
     @classmethod
     def from_model(
@@ -66,21 +67,9 @@ class GetResponse(ApiModel):
         exalted_item: CurrencyItem,
         divine_item: CurrencyItem,
         chaos_item: CurrencyItem,
-        base_currencies: list[BaseCurrency],
         price_lookup: dict[tuple[int, int], float],
     ) -> Self:
-        default_currency = LeagueCurrency.from_model(league, relative_price=1)
-        response_base_currencies = [
-            default_currency
-            if currency.item_id == league.base_currency_item_id
-            else LeagueCurrency.from_model(
-                currency,
-                relative_price=price_lookup.get(
-                    (league.league_id, currency.item_id), 0
-                ),
-            )
-            for currency in base_currencies
-        ]
+        default_currency = GetResponse.LeagueCurrency.from_model(league, relative_price=1)
         divine_price = price_lookup.get((league.league_id, divine_item.item_id), 0)
         chaos_price = price_lookup.get((league.league_id, chaos_item.item_id), 0)
 
@@ -99,7 +88,6 @@ class GetResponse(ApiModel):
             chaos_currency_text=chaos_item.text,
             chaos_currency_icon_url=chaos_item.icon_url,
             default_currency=default_currency,
-            base_currencies=response_base_currencies,
         )
 
 
@@ -128,24 +116,11 @@ async def get(request: GetLeaguesRequestDep) -> list[GetResponse]:
     if len(leagues) == 0:
         return []
 
-    bridge_currencies = await game_repository.get_bridge_currencies(realm.game_id)
-    base_currencies_by_league = {
-        league.league_id: get_base_currencies(league, bridge_currencies)
-        for league in leagues
-    }
-
     exalted_item = await currency_item_repository.get_exalted_item(realm.game_id)
     divine_item = await currency_item_repository.get_divine_item(realm.game_id)
     chaos_item = await currency_item_repository.get_chaos_item(realm.game_id)
 
-    price_item_ids = list(
-        {
-            currency.item_id
-            for base_currencies in base_currencies_by_league.values()
-            for currency in base_currencies
-        }
-        | {divine_item.item_id, chaos_item.item_id}
-    )
+    price_item_ids = [divine_item.item_id, chaos_item.item_id]
     price_rows = await price_log_repository.get_item_prices_by_league(
         price_item_ids,
         [league.league_id for league in leagues],
@@ -159,22 +134,14 @@ async def get(request: GetLeaguesRequestDep) -> list[GetResponse]:
             exalted_item=exalted_item,
             divine_item=divine_item,
             chaos_item=chaos_item,
-            base_currencies=base_currencies_by_league[league.league_id],
             price_lookup=price_lookup,
         )
         for league in leagues
     ]
+
 
 class BaseCurrency(ApiModel):
     item_id: int
     api_id: str
     text: str
     icon_url: str | None = None
-
-def get_base_currencies(
-    league: League,
-    bridge_currencies: list[BridgeCurrency],
-) -> list[BaseCurrency]:
-    mapped_bridge_currencies = [BaseCurrency(item_id = currency.item_id, api_id =currency.api_id, text = currency.text, icon_url = currency.icon_url) for currency in bridge_currencies]
-
-    return [BaseCurrency(item_id=league.base_currency_item_id, api_id=league.base_currency_api_id, text=league.base_currency_text, icon_url=league.base_currency_icon_url), *mapped_bridge_currencies]

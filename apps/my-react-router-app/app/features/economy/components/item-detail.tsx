@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
-import type { League, Realm } from "~/features/league/types";
+import type { League, LeagueCurrency, Realm } from "~/features/league/types";
 import { queryClient } from "~/shared/api/query-client";
 import type {
   DailyStatEntry,
@@ -36,6 +36,7 @@ export default function ItemDetail({
   chartMode,
   realm,
   league,
+  referenceCurrencies,
   referenceCurrency,
   backTo,
   setDetailParam,
@@ -45,15 +46,18 @@ export default function ItemDetail({
   chartMode: ChartMode;
   realm: Realm;
   league: League;
+  referenceCurrencies: LeagueCurrency[];
   referenceCurrency: string;
   backTo: string;
   setDetailParam: (key: string, value: string) => void;
 }) {
   const displayItem = getDisplayItem(item, item.itemId);
-  const referenceCurrencyOptions = getReferenceCurrencyOptions(league);
+  const referenceCurrencyOptions =
+    getReferenceCurrencyOptions(referenceCurrencies);
   const selectedReferenceCurrency = getValidReferenceCurrency(
     referenceCurrency,
     league,
+    referenceCurrencies,
   );
 
   const rawHistory = useRawItemHistory({
@@ -164,7 +168,7 @@ export default function ItemDetail({
               data={rawLegendData}
               referenceCurrency={getCurrencyLabel(
                 selectedReferenceCurrency,
-                league,
+                referenceCurrencies,
               )}
             />
             <RawPriceChart
@@ -602,24 +606,32 @@ function getMetadataSubtitle(
   return metadata.baseType ?? metadata.name ?? null;
 }
 
-function getReferenceCurrencyOptions(league: League) {
-  return league.baseCurrencies.map((currency) => ({
+function getReferenceCurrencyOptions(referenceCurrencies: LeagueCurrency[]) {
+  return referenceCurrencies.map((currency) => ({
     apiId: currency.apiId,
     label: currency.text,
   }));
 }
 
-function getValidReferenceCurrency(apiId: string, league: League) {
-  return getReferenceCurrencyOptions(league).some(
+function getValidReferenceCurrency(
+  apiId: string,
+  league: League,
+  referenceCurrencies: LeagueCurrency[],
+) {
+  return getReferenceCurrencyOptions(referenceCurrencies).some(
     (option) => option.apiId === apiId,
   )
     ? apiId
     : league.defaultCurrency.apiId;
 }
 
-function getCurrencyLabel(apiId: string, league: League) {
+function getCurrencyLabel(
+  apiId: string,
+  referenceCurrencies: LeagueCurrency[],
+) {
   return (
-    getReferenceCurrencyOptions(league).find((option) => option.apiId === apiId)
-      ?.label ?? apiId
+    getReferenceCurrencyOptions(referenceCurrencies).find(
+      (option) => option.apiId === apiId,
+    )?.label ?? apiId
   );
 }

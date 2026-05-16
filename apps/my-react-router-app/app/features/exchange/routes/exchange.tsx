@@ -16,6 +16,8 @@ import type {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import getNumberNonZero from "~/shared/utils/get-number-non-zero";
 import getLeaguesQueryOptions from "~/features/league/queries/leagues";
+import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
+import type { LeagueCurrency } from "~/features/league/types";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: () => ({ label: "Currency Exchange" }),
@@ -45,7 +47,10 @@ export async function clientLoader({
     throw new Response("Invalid league", { status: 404 });
   }
 
-  const baseCurrencyApiIds = getBaseCurrencyApiIds(league);
+  const referenceCurrencies = await queryClient.fetchQuery(
+    getReferenceCurrenciesQueryOptions(params.realmId, params.leagueId),
+  );
+  const baseCurrencyApiIds = getBaseCurrencyApiIds(referenceCurrencies);
 
   await Promise.all([
     queryClient.prefetchQuery(
@@ -75,7 +80,10 @@ export async function clientLoader({
 
 export default function Exchange({ params, loaderData }: Route.ComponentProps) {
   const { league } = useLeagueContext();
-  const baseCurrencyApiIds = getBaseCurrencyApiIds(league);
+  const { data: referenceCurrencies } = useSuspenseQuery(
+    getReferenceCurrenciesQueryOptions(params.realmId, params.leagueId),
+  );
+  const baseCurrencyApiIds = getBaseCurrencyApiIds(referenceCurrencies);
   const { data: snapshot } = useSuspenseQuery(
     getExchangeSnapshotQueryOptions({
       realmApiId: params.realmId,
@@ -109,10 +117,8 @@ export default function Exchange({ params, loaderData }: Route.ComponentProps) {
   );
 }
 
-function getBaseCurrencyApiIds(league: {
-  baseCurrencies: { apiId: string }[];
-}) {
-  return league.baseCurrencies.map((currency) => currency.apiId);
+function getBaseCurrencyApiIds(referenceCurrencies: LeagueCurrency[]) {
+  return referenceCurrencies.map((currency) => currency.apiId);
 }
 
 function getExchangeTableState(

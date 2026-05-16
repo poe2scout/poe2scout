@@ -8,6 +8,7 @@ import { queryClient } from "~/shared/api/query-client";
 import type { BreadcrumbHandle } from "~/features/app-shell/components/header-breadcrumbs";
 import ItemDetail from "../components/item-detail";
 import getLeaguesQueryOptions from "~/features/league/queries/leagues";
+import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: () => ({
@@ -22,7 +23,6 @@ export async function clientLoader({
   const url = new URL(request.url);
 
   const itemId = Number(params.itemId);
-  url;
   const chartMode = getChartMode(url.searchParams.get("chart"));
   const referenceCurrencyParam = url.searchParams.get("referenceCurrency");
 
@@ -49,8 +49,11 @@ export async function clientLoader({
 
   const referenceCurrency =
     referenceCurrencyParam ?? league.defaultCurrency.apiId;
+  const referenceCurrencies = await queryClient.fetchQuery(
+    getReferenceCurrenciesQueryOptions(params.realmId, params.leagueId),
+  );
 
-  return { item, chartMode, referenceCurrency };
+  return { item, chartMode, referenceCurrency, referenceCurrencies };
 }
 
 export default function CurrencyItemDetail({
@@ -87,6 +90,7 @@ export default function CurrencyItemDetail({
       routeKind={routeKind}
       chartMode={loaderData.chartMode}
       referenceCurrency={loaderData.referenceCurrency}
+      referenceCurrencies={loaderData.referenceCurrencies}
       league={league}
       realm={realm}
       backTo={backTo}

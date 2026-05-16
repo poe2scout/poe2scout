@@ -20,7 +20,6 @@ export interface League {
   chaosCurrencyText: string;
   chaosCurrencyIconUrl: string | null;
   defaultCurrency: LeagueCurrency;
-  baseCurrencies: LeagueCurrency[];
 }
 
 export interface Realm {
