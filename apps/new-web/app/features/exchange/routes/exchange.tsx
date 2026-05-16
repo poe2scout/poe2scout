@@ -11,9 +11,12 @@ import { getSnapshotPairsQueryOptions } from "~/features/exchange/queries/snapsh
 import type {
   ExchangeOrder,
   ExchangeSort,
+  ExchangeSnapshot,
+  SnapshotHistoryResponse,
   ExchangeTableState,
 } from "~/features/exchange/types";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useState } from "react";
 import getNumberNonZero from "~/shared/utils/get-number-non-zero";
 import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
@@ -90,13 +93,10 @@ export default function Exchange({ params, loaderData }: Route.ComponentProps) {
       leagueName: params.leagueId,
     }),
   );
-  const { data: history } = useSuspenseQuery(
-    getSnapshotHistoryQueryOptions({
-      realmApiId: params.realmId,
-      leagueName: params.leagueId,
-      limit: HISTORY_LIMIT,
-    }),
-  );
+  const snapshotHistory = useSnapshotHistory({
+    realmApiId: params.realmId,
+    leagueName: params.leagueId,
+  });
   const pairsQuery = useQuery(
     getSnapshotPairsQueryOptions({
       realmApiId: params.realmId,
@@ -109,8 +109,15 @@ export default function Exchange({ params, loaderData }: Route.ComponentProps) {
     <div className="flex flex-col gap-4 py-4">
       <ExchangeSummary league={league} snapshot={snapshot} />
       <MarketHistoryChart
-        history={history.data}
-        baseCurrencyText={history.baseCurrencyText || snapshot.baseCurrencyText}
+        history={snapshotHistory.history}
+        baseCurrencyText={
+          snapshotHistory.baseCurrencyText || snapshot.baseCurrencyText
+        }
+        hasMore={snapshotHistory.hasMore}
+        isLoading={snapshotHistory.isInitialLoading}
+        isError={snapshotHistory.isError}
+        isLoadingMore={snapshotHistory.isLoadingMore}
+        onLoadMore={snapshotHistory.loadMore}
       />
       <ExchangePairTable
         pairs={pairsQuery.data ?? []}
@@ -120,6 +127,89 @@ export default function Exchange({ params, loaderData }: Route.ComponentProps) {
       />
     </div>
   );
+}
+
+function useSnapshotHistory({
+  realmApiId,
+  leagueName,
+}: {
+  realmApiId: string;
+  leagueName: string;
+}) {
+  const [history, setHistory] = useState<ExchangeSnapshot[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [oldestEpoch, setOldestEpoch] = useState<number | null>(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [baseCurrencyText, setBaseCurrencyText] = useState("");
+
+  useEffect(() => {
+    setHistory([]);
+    setHasMore(true);
+    setOldestEpoch(null);
+    setBaseCurrencyText("");
+  }, [leagueName, realmApiId]);
+
+  const query = useQuery(
+    getSnapshotHistoryQueryOptions({
+      realmApiId,
+      leagueName,
+      limit: HISTORY_LIMIT,
+    }),
+  );
+
+  useEffect(() => {
+    if (!query.data) return;
+
+    const ordered = [...query.data.data].sort((a, b) => a.epoch - b.epoch);
+    setHistory(ordered);
+    setHasMore(query.data.hasMore);
+    setOldestEpoch(ordered[0]?.epoch ?? null);
+    setBaseCurrencyText(query.data.baseCurrencyText);
+  }, [query.data]);
+
+  const loadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore || !oldestEpoch) return;
+
+    setIsLoadingMore(true);
+    try {
+      const data = (await queryClient.fetchQuery(
+        getSnapshotHistoryQueryOptions({
+          realmApiId,
+          leagueName,
+          limit: HISTORY_LIMIT,
+          endEpoch: oldestEpoch,
+        }),
+      )) as SnapshotHistoryResponse;
+      const ordered = [...data.data].sort((a, b) => a.epoch - b.epoch);
+
+      setHistory((current) => prependUniqueSnapshotHistory(current, ordered));
+      setHasMore(data.hasMore);
+      setOldestEpoch(ordered[0]?.epoch ?? oldestEpoch);
+      setBaseCurrencyText(data.baseCurrencyText);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [hasMore, isLoadingMore, leagueName, oldestEpoch, realmApiId]);
+
+  return {
+    history,
+    hasMore,
+    baseCurrencyText,
+    isInitialLoading: query.isPending,
+    isError: query.isError,
+    isLoadingMore,
+    loadMore,
+  };
+}
+
+function prependUniqueSnapshotHistory(
+  current: ExchangeSnapshot[],
+  next: ExchangeSnapshot[],
+) {
+  const seen = new Set(current.map((entry) => entry.epoch));
+  const uniqueNext = next.filter((entry) => !seen.has(entry.epoch));
+
+  return [...uniqueNext, ...current].sort((a, b) => a.epoch - b.epoch);
 }
 
 function getBaseCurrencyApiIds(referenceCurrencies: LeagueCurrency[]) {

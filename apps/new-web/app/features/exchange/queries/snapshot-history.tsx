@@ -17,19 +17,21 @@ export function getSnapshotHistoryQueryOptions({
   realmApiId,
   leagueName,
   limit,
+  endEpoch,
 }: {
   realmApiId: string;
   leagueName: string;
   limit: number;
+  endEpoch?: number;
 }) {
   return queryOptions({
     queryKey: [
       "exchange",
       "snapshot-history",
-      { realmApiId, leagueName, limit },
+      { realmApiId, leagueName, limit, endEpoch },
     ],
     queryFn: async (): Promise<SnapshotHistoryResponse> => {
-      const query = toQueryString({ Limit: limit });
+      const query = toQueryString({ Limit: limit, EndEpoch: endEpoch });
       const payload = (await fetchRoute(
         `/api/${realmApiId}/Leagues/${leagueName}/SnapshotHistory${query}`,
       )) as SnapshotHistoryPayload;

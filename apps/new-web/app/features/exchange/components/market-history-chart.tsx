@@ -25,14 +25,30 @@ type LegendValues = {
 export default function MarketHistoryChart({
   history,
   baseCurrencyText,
+  hasMore,
+  isLoading,
+  isError,
+  isLoadingMore,
+  onLoadMore,
 }: {
   history: ExchangeSnapshot[];
   baseCurrencyText: string;
+  hasMore: boolean;
+  isLoading: boolean;
+  isError: boolean;
+  isLoadingMore: boolean;
+  onLoadMore: () => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const lineRef = useRef<ISeriesApi<"Line"> | null>(null);
   const histogramRef = useRef<ISeriesApi<"Histogram"> | null>(null);
+  const loadingRef = useRef(false);
+  const hasMoreRef = useRef(hasMore);
+  const latestLegendRef = useRef<LegendValues>({});
+  const onLoadMoreRef = useRef(onLoadMore);
+  const justLoadedRef = useRef(false);
+  const didFitContentRef = useRef(false);
   const [legend, setLegend] = useState<LegendValues>({});
 
   const chartData = useMemo(() => {
@@ -49,9 +65,19 @@ export default function MarketHistoryChart({
 
     return { lineData, histogramData };
   }, [history]);
+  const latestLegend = useMemo(() => getLatestLegend(chartData), [chartData]);
+  const hasChartData = chartData.lineData.length > 0;
+
+  loadingRef.current = isLoadingMore;
+  hasMoreRef.current = hasMore;
+  latestLegendRef.current = latestLegend;
+  onLoadMoreRef.current = onLoadMore;
 
   useEffect(() => {
     if (!containerRef.current) {
+      return;
+    }
+    if (chartRef.current) {
       return;
     }
 
@@ -109,26 +135,28 @@ export default function MarketHistoryChart({
       chartRef.current = null;
       lineRef.current = null;
       histogramRef.current = null;
+      didFitContentRef.current = false;
     };
-  }, []);
+  }, [hasChartData]);
 
   useEffect(() => {
     if (!chartRef.current || !lineRef.current || !histogramRef.current) {
       return;
     }
 
+    justLoadedRef.current = true;
     lineRef.current.setData(chartData.lineData);
     histogramRef.current.setData(chartData.histogramData);
-    chartRef.current.timeScale().fitContent();
 
-    const lastMarketCap = chartData.lineData.at(-1);
-    const lastVolume = chartData.histogramData.at(-1);
-    setLegend({
-      marketCap: lastMarketCap?.value,
-      volume: lastVolume?.value,
-      time: lastVolume?.time as UTCTimestamp | undefined,
-    });
-  }, [chartData]);
+    if (chartData.lineData.length === 0) {
+      didFitContentRef.current = false;
+    } else if (!didFitContentRef.current) {
+      chartRef.current.timeScale().fitContent();
+      didFitContentRef.current = true;
+    }
+
+    setLegend(latestLegend);
+  }, [chartData, latestLegend]);
 
   useEffect(() => {
     const chart = chartRef.current;
@@ -145,6 +173,7 @@ export default function MarketHistoryChart({
         !param.seriesData.has(lineSeries) ||
         !param.seriesData.has(histogramSeries)
       ) {
+        setLegend(latestLegendRef.current);
         return;
       }
 
@@ -160,10 +189,30 @@ export default function MarketHistoryChart({
       });
     };
 
-    chart.subscribeCrosshairMove(handleCrosshairMove);
+    const handleTimeRangeChange = () => {
+      if (justLoadedRef.current) {
+        justLoadedRef.current = false;
+        return;
+      }
 
-    return () => chart.unsubscribeCrosshairMove(handleCrosshairMove);
-  }, [chartData]);
+      if (loadingRef.current || !hasMoreRef.current) return;
+
+      const logicalRange = chart.timeScale().getVisibleLogicalRange();
+      if (logicalRange !== null && logicalRange.from < 10) {
+        loadingRef.current = true;
+        onLoadMoreRef.current();
+      }
+    };
+
+    chart.subscribeCrosshairMove(handleCrosshairMove);
+    chart.timeScale().subscribeVisibleTimeRangeChange(handleTimeRangeChange);
+    return () => {
+      chart.unsubscribeCrosshairMove(handleCrosshairMove);
+      chart
+        .timeScale()
+        .unsubscribeVisibleTimeRangeChange(handleTimeRangeChange);
+    };
+  }, [hasChartData]);
 
   return (
     <section className="rounded-sm border border-secondary/35 bg-zinc-950 p-4 shadow-lg shadow-black/30">
@@ -188,17 +237,56 @@ export default function MarketHistoryChart({
           )}
         </div>
       </div>
-      {chartData.lineData.length > 0 ? (
-        <div className="relative h-80">
-          <div ref={containerRef} className="h-full w-full" />
-        </div>
-      ) : (
-        <div className="flex h-80 items-center justify-center text-sm text-white/60">
-          No historical data available.
-        </div>
-      )}
+      <div className="relative h-80">
+        {hasChartData ? (
+          <>
+            {isLoadingMore && (
+              <div className="absolute top-1/2 left-4 z-20 rounded-sm border border-secondary/30 bg-zinc-950/90 px-3 py-1 text-xs text-white/80">
+                Loading older data...
+              </div>
+            )}
+            <div ref={containerRef} className="h-full w-full" />
+          </>
+        ) : (
+          <div className="flex h-80 items-center justify-center text-sm text-white/60">
+            {getChartMessage({ isLoading, isError })}
+          </div>
+        )}
+      </div>
     </section>
   );
+}
+
+function getChartMessage({
+  isLoading,
+  isError,
+}: {
+  isLoading: boolean;
+  isError: boolean;
+}) {
+  if (isLoading) {
+    return "Loading market history...";
+  }
+
+  if (isError) {
+    return "Failed to load market history.";
+  }
+
+  return "No historical data available.";
+}
+
+function getLatestLegend(chartData: {
+  lineData: LineData<Time>[];
+  histogramData: HistogramData<Time>[];
+}): LegendValues {
+  const latestMarketCap = chartData.lineData.at(-1);
+  const latestVolume = chartData.histogramData.at(-1);
+
+  return {
+    marketCap: latestMarketCap?.value,
+    volume: latestVolume?.value,
+    time: latestMarketCap?.time as UTCTimestamp | undefined,
+  };
 }
 
 function LegendValue({
