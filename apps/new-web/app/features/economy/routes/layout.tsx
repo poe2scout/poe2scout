@@ -1,12 +1,14 @@
 import { NavLink } from "react-router";
 import { Outlet } from "react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useLeagueContext } from "~/features/league/context";
 import { queryClient } from "~/shared/api/query-client";
 import type { BreadcrumbHandle } from "~/features/app-shell/components/header-breadcrumbs";
 import getCategoriesQueryOptions from "../queries/categories";
 import type { Route } from "./+types/layout";
 import ItemSearch from "../components/item-search";
+import {
+  formatTitle,
+  getLeagueContextTitle,
+} from "~/shared/meta/page-title";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: ({ params }) => ({
@@ -15,18 +17,22 @@ export const handle: BreadcrumbHandle = {
   }),
 };
 
+export function meta({ matches }: Route.MetaArgs) {
+  const leagueContext = getLeagueContextTitle(matches);
+
+  return [{ title: formatTitle(["Economy", leagueContext]) }];
+}
+
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-  await queryClient.prefetchQuery(
+  return queryClient.fetchQuery(
     getCategoriesQueryOptions(params.realmId, params.leagueId),
   );
 }
 
-export default function EconomyLayout({ params }: Route.ComponentProps) {
-  const { league } = useLeagueContext();
-  const { data } = useSuspenseQuery(
-    getCategoriesQueryOptions(params.realmId, league.value),
-  );
-
+export default function EconomyLayout({
+  params,
+  loaderData,
+}: Route.ComponentProps) {
   return (
     <div>
       <div className="mb-3">
@@ -36,7 +42,7 @@ export default function EconomyLayout({ params }: Route.ComponentProps) {
         <nav className="flex w-57.5 flex-col overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30">
           <NavHeader>Currency categories</NavHeader>
 
-          {data?.currencyCategories.map((category) => {
+          {loaderData.currencyCategories.map((category) => {
             return (
               <NavItem
                 key={category.apiId}
@@ -47,11 +53,11 @@ export default function EconomyLayout({ params }: Route.ComponentProps) {
               />
             );
           })}
-          {data?.uniqueCategories.length !== 0 && (
+          {loaderData.uniqueCategories.length !== 0 && (
             <NavHeader>Unique categories</NavHeader>
           )}
 
-          {data?.uniqueCategories.map((category) => {
+          {loaderData.uniqueCategories.map((category) => {
             return (
               <NavItem
                 key={category.apiId}

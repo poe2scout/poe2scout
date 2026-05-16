@@ -21,6 +21,11 @@ import type {
 } from "../types";
 import formatEpoch from "../utils/format-epoch";
 import type { Route } from "./+types/pair-history";
+import {
+  formatTitle,
+  getLeagueContextTitle,
+  getPairTitleFallback,
+} from "~/shared/meta/page-title";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: ({ params }) => [
@@ -31,6 +36,17 @@ export const handle: BreadcrumbHandle = {
     { label: "Pair" },
   ],
 };
+
+export function meta({ loaderData, matches, params }: Route.MetaArgs) {
+  const pairTitle =
+    loaderData?.pairTitle ??
+    getPairTitleFallback(params.currencyOneItemId, params.currencyTwoItemId);
+  const leagueContext = getLeagueContextTitle(matches);
+
+  return [
+    { title: formatTitle([`${pairTitle} Exchange History`, leagueContext]) },
+  ];
+}
 
 const HISTORY_LIMIT = 24 * 14;
 const DEFAULT_METRIC_ID = "currencyTwoData.valueTraded";
@@ -68,19 +84,30 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   }
 
   const baseCurrencyApiIds = getBaseCurrencyApiIds(referenceCurrencies);
+  const snapshotPairs = await queryClient.fetchQuery(
+    getSnapshotPairsQueryOptions({
+      realmApiId: params.realmId,
+      leagueName: params.leagueId,
+      baseCurrencyApiIds,
+    }),
+  );
+  const pair = findPairByItems(
+    snapshotPairs,
+    currencyOneItemId,
+    currencyTwoItemId,
+  );
+  const pairTitle = pair
+    ? `${pair.currencyOne.text} / ${pair.currencyTwo.text}`
+    : null;
 
-  await Promise.all([
-    pairHistoryPrefetch,
-    queryClient.prefetchQuery(
-      getSnapshotPairsQueryOptions({
-        realmApiId: params.realmId,
-        leagueName: params.leagueId,
-        baseCurrencyApiIds,
-      }),
-    ),
-  ]);
+  await pairHistoryPrefetch;
 
-  return { currencyOneItemId, currencyTwoItemId, baseCurrencyApiIds };
+  return {
+    currencyOneItemId,
+    currencyTwoItemId,
+    baseCurrencyApiIds,
+    pairTitle,
+  };
 }
 
 export default function PairHistory({

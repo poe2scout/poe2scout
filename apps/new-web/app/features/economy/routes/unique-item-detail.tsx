@@ -9,12 +9,26 @@ import type { BreadcrumbHandle } from "~/features/app-shell/components/header-br
 import ItemDetail from "../components/item-detail";
 import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
+import {
+  formatTitle,
+  getItemTitle,
+  getLeagueContextTitle,
+} from "~/shared/meta/page-title";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: () => ({
     label: "Item",
   }),
 };
+
+export function meta({ loaderData, matches }: Route.MetaArgs) {
+  const itemTitle = getItemTitle(loaderData?.item);
+  const leagueContext = getLeagueContextTitle(matches);
+
+  return [
+    { title: formatTitle([`${itemTitle} Price History`, leagueContext]) },
+  ];
+}
 
 export async function clientLoader({
   request,

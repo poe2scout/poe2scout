@@ -8,12 +8,30 @@ import type { Route } from "./+types/currencies";
 import getCurrencyItemsQueryOptions from "../queries/currency-items";
 import { getEconomyTableColumns } from "../components/economy-table-columns";
 import EconomyTable from "../components/economy-table";
+import {
+  formatTitle,
+  getCategoryLabel,
+  getLeagueContextTitle,
+} from "~/shared/meta/page-title";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: ({ params }) => ({
     label: params.category,
   }),
 };
+
+export function meta({ matches, params }: Route.MetaArgs) {
+  const categoryLabel = getCategoryLabel(
+    matches,
+    "currencies",
+    params.category,
+  );
+  const leagueContext = getLeagueContextTitle(matches);
+
+  return [
+    { title: formatTitle([`${categoryLabel} Currency Prices`, leagueContext]) },
+  ];
+}
 
 export async function clientLoader({
   request,

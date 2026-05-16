@@ -18,10 +18,20 @@ import getNumberNonZero from "~/shared/utils/get-number-non-zero";
 import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 import type { LeagueCurrency } from "~/features/league/types";
+import {
+  formatTitle,
+  getLeagueContextTitle,
+} from "~/shared/meta/page-title";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: () => ({ label: "Currency Exchange" }),
 };
+
+export function meta({ matches }: Route.MetaArgs) {
+  const leagueContext = getLeagueContextTitle(matches);
+
+  return [{ title: formatTitle(["Currency Exchange", leagueContext]) }];
+}
 
 const HISTORY_LIMIT = 24 * 14;
 const DEFAULT_TABLE_STATE: ExchangeTableState = {

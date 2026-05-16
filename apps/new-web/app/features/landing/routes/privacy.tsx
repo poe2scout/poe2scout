@@ -1,8 +1,9 @@
 import type { Route } from "./+types/privacy";
+import { formatTitle } from "~/shared/meta/page-title";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Privacy Policy | POE2 Scout" },
+    { title: formatTitle(["Privacy Policy"]) },
     { name: "description", content: "POE2 Scout privacy policy." },
   ];
 }

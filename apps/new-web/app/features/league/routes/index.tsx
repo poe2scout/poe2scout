@@ -1,9 +1,20 @@
+import type { Route } from "./+types/index";
 import NavLinkButton from "~/features/landing/components/nav-link-button";
 import useCurrentGame from "~/features/league/hooks/use-current-game";
 import Section from "~/shared/components/section/section";
 import SectionContent from "~/shared/components/section/section-content";
 import SectionDivider from "~/shared/components/section/section-divider";
 import SectionTitle from "~/shared/components/section/section-title";
+import {
+  formatTitle,
+  getLeagueContextTitle,
+} from "~/shared/meta/page-title";
+
+export function meta({ matches }: Route.MetaArgs) {
+  const leagueContext = getLeagueContextTitle(matches);
+
+  return [{ title: formatTitle(["Overview", leagueContext]) }];
+}
 
 export default function Index() {
   const gameId = useCurrentGame();
