@@ -21,11 +21,9 @@ export default function ResponsiveAdLayout({
           className={`poe2scout-ad-layout__inline-ad ${isInlineAdFilled ? "mb-3" : ""}`}
         >
           <AdSenseAd
-            format="fluid"
-            layout="in-article"
+            format="horizontal"
             className="w-full"
             onFilledChange={setIsInlineAdFilled}
-            slotId="2377850542"
           />
         </div>
       )}
