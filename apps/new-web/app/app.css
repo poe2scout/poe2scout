@@ -20,10 +20,14 @@ body {
   background: transparent !important;
   color-scheme: dark;
   overflow: hidden;
+  text-align: center;
 }
 
 .poe2scout-ad ins.adsbygoogle {
   background: transparent !important;
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
 }
 
 .poe2scout-ad--unfilled,
