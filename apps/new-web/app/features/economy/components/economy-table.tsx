@@ -2,7 +2,6 @@ import DataTable from "~/shared/components/table/data-table";
 import type { TableColumn } from "~/shared/components/table/types";
 import { getEconomyItemKey } from "./economy-table-columns";
 import type { EconomyItem } from "../types";
-import { useNavigate } from "react-router";
 
 export default function EconomyTable({
   items,
@@ -13,7 +12,6 @@ export default function EconomyTable({
   totalItems,
   onPaginationChange,
   rowsPerPageOptions,
-  getRowTo,
 }: {
   items: EconomyItem[];
   columns: TableColumn<EconomyItem>[];
@@ -23,9 +21,7 @@ export default function EconomyTable({
   totalItems: number;
   onPaginationChange: (page: number, perPage: number) => void;
   rowsPerPageOptions: number[];
-  getRowTo?: (item: EconomyItem) => string;
 }) {
-  const navigate = useNavigate();
   const currentPage = page;
   const totalPages = Math.max(pages, 1);
 
@@ -34,14 +30,6 @@ export default function EconomyTable({
       rows={items}
       columns={columns}
       getRowKey={getEconomyItemKey}
-      onRowClick={
-        getRowTo
-          ? (item) =>
-              navigate(getRowTo(item), {
-                state: { item, fromEconomyTable: true },
-              })
-          : undefined
-      }
       emptyContent="No items found for this category."
       footer={
         <div className="flex flex-col gap-3 px-3 py-2 text-sm text-white/70 sm:flex-row sm:items-center sm:justify-between">

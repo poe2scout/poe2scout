@@ -18,6 +18,7 @@ export default function HeaderNavLink({
       }
       to={route}
       end={end}
+      prefetch="intent"
       onClick={onClick}
     >
       {children}

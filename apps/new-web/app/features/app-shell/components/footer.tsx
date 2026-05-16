@@ -17,7 +17,7 @@ export default function Footer() {
   return (
     <footer className="flex w-full flex-col flex-wrap items-center">
       <section className="gap-x-4 gap-y-2 px-2 py-4">
-        <Link className="mx-5 underline" to="/privacy">
+        <Link className="mx-5 underline" to="/privacy" prefetch="intent">
           Privacy Policy
         </Link>
         <button

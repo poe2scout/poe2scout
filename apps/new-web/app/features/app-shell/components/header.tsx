@@ -37,7 +37,11 @@ export default function Header() {
     <header className="flex w-full flex-col justify-center bg-zinc-900 py-1.5">
       <div className="relative mx-auto flex w-full max-w-7xl flex-row items-center justify-between gap-3 px-4 py-2.5 text-lg sm:px-5">
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <NavLink className="flex shrink-0 items-center whitespace-nowrap" to="/">
+          <NavLink
+            className="flex shrink-0 items-center whitespace-nowrap"
+            to="/"
+            prefetch="intent"
+          >
             <img
               className="mx-1.5 h-6 w-6"
               src="/favicon.ico"
@@ -46,7 +50,11 @@ export default function Header() {
             POE2 Scout
           </NavLink>
           {isLeagueSelected && isLeagueHome && (
-            <NavLink className="min-w-0 truncate px-2.5" to="/">
+            <NavLink
+              className="min-w-0 truncate px-2.5"
+              to="/"
+              prefetch="intent"
+            >
               &larr; Select different league
             </NavLink>
           )}

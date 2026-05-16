@@ -85,6 +85,7 @@ export default function UniqueCategory({
     realm,
     league,
     referenceCurrency,
+    getItemTo: (item) => `${getEconomyItemRouteSegment(item)}${location.search}`,
   });
 
   const updatePagination = (page: number, perPage: number) => {
@@ -105,9 +106,6 @@ export default function UniqueCategory({
       rowsPerPage={loaderData.perPage}
       onPaginationChange={updatePagination}
       rowsPerPageOptions={[10, 25, 50, 100]}
-      getRowTo={(item) =>
-        `${getEconomyItemRouteSegment(item)}${location.search}`
-      }
     />
   );
 }

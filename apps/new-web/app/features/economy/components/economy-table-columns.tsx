@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import type { TableColumn } from "~/shared/components/table/types";
 import type {
   CurrencyEconomyItem,
@@ -26,17 +27,19 @@ export function getEconomyTableColumns({
   realm,
   league,
   referenceCurrency,
+  getItemTo,
 }: {
   realm: Realm;
   league: League;
   referenceCurrency: string;
+  getItemTo?: (item: EconomyItem) => string;
 }): TableColumn<EconomyItem>[] {
   return [
     {
       id: "item",
       header: "Item",
       className: "min-w-72",
-      cell: (item) => <ItemCell item={item} />,
+      cell: (item) => <ItemCell item={item} to={getItemTo?.(item)} />,
     },
     {
       id: "price",
@@ -82,30 +85,42 @@ export function getEconomyTableColumns({
   ];
 }
 
-function ItemCell({ item }: { item: EconomyItem }) {
+function ItemCell({ item, to }: { item: EconomyItem; to?: string }) {
   const isUnique = isUniqueItem(item);
   const name = getItemDisplayName(item);
   const detail = isUnique ? getUniqueDetail(item.itemMetadata) : null;
+  const nameClassName = `truncate ${isUnique ? "text-amber-500" : "text-white"}`;
 
-  return (
-    <div className="flex min-w-0 items-center gap-2">
+  const content = (
+    <>
       <img
         src={item.iconUrl ?? undefined}
         alt=""
         className="h-8 w-8 shrink-0 object-contain"
       />
       <div className="min-w-0">
-        <div
-          className={`truncate ${isUnique ? "text-amber-500" : "text-white"}`}
-        >
-          {name}
-        </div>
+        <div className={nameClassName}>{name}</div>
         {detail && (
           <div className="truncate text-xs text-white/45">{detail}</div>
         )}
       </div>
-    </div>
+    </>
   );
+
+  if (to) {
+    return (
+      <Link
+        to={to}
+        state={{ item, fromEconomyTable: true }}
+        prefetch="intent"
+        className="flex min-w-0 items-center gap-2 transition hover:text-secondary focus:text-secondary focus:outline-none"
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className="flex min-w-0 items-center gap-2">{content}</div>;
 }
 
 function PriceCell({

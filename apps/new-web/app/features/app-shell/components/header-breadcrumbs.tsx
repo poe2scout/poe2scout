@@ -62,7 +62,11 @@ export default function HeaderBreadcrumbs() {
     <li key={index} className="flex min-w-0 items-center gap-2">
       {showDivider && <span className="shrink-0 text-gray-500">/</span>}
       {!isLast && crumb.to ? (
-        <NavLink to={crumb.to} className="min-w-0 truncate text-secondary">
+        <NavLink
+          to={crumb.to}
+          className="min-w-0 truncate text-secondary"
+          prefetch="intent"
+        >
           {crumb.label}
         </NavLink>
       ) : (
