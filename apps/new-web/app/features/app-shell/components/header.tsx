@@ -61,11 +61,22 @@ export default function Header() {
           </nav>
         )}
         {isLeagueSelected && (
-          <div className="relative shrink-0 md:hidden">
+          <div
+            className="relative shrink-0 md:hidden"
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) {
+                closeMenu();
+              }
+            }}
+          >
             <button
               type="button"
               className="flex h-9 w-9 items-center justify-center rounded-sm border border-secondary/40 text-white"
-              aria-label="Open primary navigation"
+              aria-label={
+                isMenuOpen
+                  ? "Close primary navigation"
+                  : "Open primary navigation"
+              }
               aria-expanded={isMenuOpen}
               onClick={() => setIsMenuOpen((open) => !open)}
             >
