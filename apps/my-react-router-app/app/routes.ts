@@ -17,6 +17,10 @@ export default [
   league.route(":realmId/:leagueId", "./layout.tsx", [
     league.index("./index.tsx"),
     exchange.route("exchange", "./exchange.tsx"),
+    exchange.route(
+      "exchange/pair/:currencyOneItemId/:currencyTwoItemId",
+      "./pair-history.tsx",
+    ),
     economy.route("economy", "./layout.tsx", [
       economy.index("./index.tsx"),
       economy.route("currencies/:category", "./currencies.tsx"),

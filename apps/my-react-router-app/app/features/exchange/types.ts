@@ -48,6 +48,25 @@ export type ExchangeSnapshotPair = {
   currencyTwoData: ExchangePairData;
 };
 
+export type ExchangePairHistoryData = ExchangePairData & {
+  currencyItemId: number;
+};
+
+export type ExchangePairHistoryEntry = {
+  epoch: number;
+  data: {
+    currencyOneData: ExchangePairHistoryData;
+    currencyTwoData: ExchangePairHistoryData;
+  };
+};
+
+export type ExchangePairHistoryResponse = {
+  history: ExchangePairHistoryEntry[];
+  hasMore: boolean;
+  baseCurrencyApiId: string;
+  baseCurrencyText: string;
+};
+
 export type SnapshotHistoryResponse = {
   data: ExchangeSnapshot[];
   hasMore: boolean;
@@ -64,4 +83,22 @@ export type ExchangeTableState = {
   order: ExchangeOrder;
   page: number;
   perPage: number;
+};
+
+export type ExchangePairHistoryDataKey = "currencyOneData" | "currencyTwoData";
+
+export type ExchangePairHistoryMetricKey =
+  | "pairPrice"
+  | "valueTraded"
+  | "volumeTraded"
+  | "stockValue"
+  | "highestStock";
+
+export type ExchangePairHistoryMetricOption = {
+  id: string;
+  dataKey: ExchangePairHistoryDataKey;
+  metricKey: ExchangePairHistoryMetricKey;
+  label: string;
+  itemName: string;
+  counterpartName: string;
 };

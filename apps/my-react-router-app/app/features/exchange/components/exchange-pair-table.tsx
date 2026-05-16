@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { ReactNode } from "react";
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import type {
   ExchangeOrder,
   ExchangeSnapshotPair,
@@ -17,6 +17,7 @@ export default function ExchangePairTable({
   pairs: ExchangeSnapshotPair[];
   tableState: ExchangeTableState;
 }) {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const filteredPairs = useMemo(() => {
@@ -68,6 +69,14 @@ export default function ExchangePairTable({
       tableState.sort === sort && tableState.order === "asc" ? "desc" : "asc";
 
     updateTableState({ sort, order, page: 1 });
+  };
+
+  const openPair = (pair: ExchangeSnapshotPair) => {
+    const query = searchParams.toString();
+    navigate(
+      `pair/${pair.currencyOne.itemId}/${pair.currencyTwo.itemId}${query ? `?${query}` : ""}`,
+      { state: { pair } },
+    );
   };
 
   return (
@@ -133,7 +142,15 @@ export default function ExchangePairTable({
               visiblePairs.map((pair) => (
                 <tr
                   key={pair.currencyExchangeSnapshotPairId}
-                  className="transition hover:bg-secondary/10"
+                  tabIndex={0}
+                  onClick={() => openPair(pair)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      openPair(pair);
+                    }
+                  }}
+                  className="cursor-pointer transition hover:bg-secondary/10 focus:bg-secondary/15 focus:outline-none"
                 >
                   <td className="px-3 py-2 align-middle">
                     <PairName pair={pair} />

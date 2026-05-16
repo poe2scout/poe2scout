@@ -1,5 +1,7 @@
 import type {
   ExchangeCurrencyItem,
+  ExchangePairHistoryData,
+  ExchangePairHistoryEntry,
   ExchangePairData,
   ExchangeSnapshot,
   ExchangeSnapshotPair,
@@ -36,6 +38,18 @@ export type ExchangeSnapshotPairPayload = {
   currencyTwoData: ExchangePairDataPayload;
 };
 
+export type ExchangePairHistoryDataPayload = ExchangePairDataPayload & {
+  currencyItemId: number;
+};
+
+export type ExchangePairHistoryEntryPayload = {
+  epoch: number;
+  data: {
+    currencyOneData: ExchangePairHistoryDataPayload;
+    currencyTwoData: ExchangePairHistoryDataPayload;
+  };
+};
+
 function toNumber(value: NumberLike) {
   if (value === null || value === undefined) {
     return 0;
@@ -57,7 +71,9 @@ export function normalizeSnapshot(
   };
 }
 
-function normalizePairData(data: ExchangePairDataPayload): ExchangePairData {
+export function normalizePairData(
+  data: ExchangePairDataPayload,
+): ExchangePairData {
   const volumeTraded = toNumber(data.volumeTraded);
   const relativePrice = toNumber(data.relativePrice);
   const explicitValue = toNumber(data.valueTraded ?? data.valuetraded);
@@ -73,7 +89,7 @@ function normalizePairData(data: ExchangePairDataPayload): ExchangePairData {
   };
 }
 
-function computePairPrices(
+export function computePairPrices(
   first: ExchangePairData,
   second: ExchangePairData,
 ): [ExchangePairData, ExchangePairData] {
@@ -173,4 +189,28 @@ export function normalizeSnapshotPair(
     firstWithPrice,
     secondWithPrice,
   );
+}
+
+export function normalizePairHistoryEntry(
+  entry: ExchangePairHistoryEntryPayload,
+): ExchangePairHistoryEntry {
+  const normalizeHistoryData = (
+    data: ExchangePairHistoryDataPayload,
+  ): ExchangePairHistoryData => ({
+    currencyItemId: data.currencyItemId,
+    ...normalizePairData(data),
+  });
+
+  const [currencyOneData, currencyTwoData] = computePairPrices(
+    normalizeHistoryData(entry.data.currencyOneData),
+    normalizeHistoryData(entry.data.currencyTwoData),
+  ) as [ExchangePairHistoryData, ExchangePairHistoryData];
+
+  return {
+    epoch: entry.epoch,
+    data: {
+      currencyOneData,
+      currencyTwoData,
+    },
+  };
 }
