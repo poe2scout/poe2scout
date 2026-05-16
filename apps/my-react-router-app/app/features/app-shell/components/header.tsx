@@ -39,7 +39,10 @@ export default function Header() {
               >
                 Economy
               </HeaderNavLink>
-              <HeaderNavLink route={`/${realmId}/${leagueId}/exchange`}>
+              <HeaderNavLink
+                route={`/${realmId}/${leagueId}/exchange`}
+                end={false}
+              >
                 Currency Exchange
               </HeaderNavLink>
             </>

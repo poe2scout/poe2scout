@@ -75,7 +75,7 @@ export default function ExchangePairTable({
     const query = searchParams.toString();
     navigate(
       `pair/${pair.currencyOne.itemId}/${pair.currencyTwo.itemId}${query ? `?${query}` : ""}`,
-      { state: { pair } },
+      { state: { pair, fromExchangeTable: true } },
     );
   };
 

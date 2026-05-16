@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
@@ -51,6 +51,8 @@ export default function ItemDetail({
   backTo: string;
   setDetailParam: (key: string, value: string) => void;
 }) {
+  const location = useLocation();
+  const navigate = useNavigate();
   const displayItem = getDisplayItem(item, item.itemId);
   const referenceCurrencyOptions =
     getReferenceCurrencyOptions(referenceCurrencies);
@@ -86,17 +88,26 @@ export default function ItemDetail({
 
   const [rawLegendData, setRawLegendData] = useState<RawLegendData>({});
   const [dailyLegendData, setDailyLegendData] = useState<DailyLegendData>({});
+  const goBack = () => {
+    if (isFromEconomyTable(location.state)) {
+      navigate(-1);
+      return;
+    }
+
+    navigate(backTo);
+  };
 
   return (
     <section className="overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30">
       <header className="flex flex-col gap-4 border-b border-secondary/25 px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 items-center gap-3">
-          <Link
-            to={backTo}
+          <button
+            type="button"
+            onClick={goBack}
             className="shrink-0 rounded-sm border border-secondary/35 px-3 py-2 text-sm text-white/80 transition hover:bg-secondary/20 hover:text-white focus:bg-secondary/25 focus:outline-none"
           >
             Back
-          </Link>
+          </button>
           <img
             src={displayItem.iconUrl ?? undefined}
             alt=""
@@ -558,6 +569,15 @@ function getStateItem(state: unknown): EconomyItem | null {
   }
 
   return item as EconomyItem;
+}
+
+function isFromEconomyTable(state: unknown) {
+  return (
+    state !== null &&
+    typeof state === "object" &&
+    "fromEconomyTable" in state &&
+    (state as { fromEconomyTable?: unknown }).fromEconomyTable === true
+  );
 }
 
 function getDisplayItem(

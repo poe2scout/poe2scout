@@ -36,7 +36,10 @@ export default function EconomyTable({
       getRowKey={getEconomyItemKey}
       onRowClick={
         getRowTo
-          ? (item) => navigate(getRowTo(item), { state: { item } })
+          ? (item) =>
+              navigate(getRowTo(item), {
+                state: { item, fromEconomyTable: true },
+              })
           : undefined
       }
       emptyContent="No items found for this category."

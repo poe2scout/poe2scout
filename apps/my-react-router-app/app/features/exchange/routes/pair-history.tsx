@@ -1,5 +1,5 @@
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { Link, useLocation, useSearchParams } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { BreadcrumbHandle } from "~/features/app-shell/components/header-breadcrumbs";
 import { useLeagueContext } from "~/features/league/context";
@@ -7,16 +7,11 @@ import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 import type { LeagueCurrency } from "~/features/league/types";
 import { queryClient } from "~/shared/api/query-client";
-import formatNumber from "~/shared/utils/format-number";
 import PairHistoryChart from "../components/pair-history-chart";
-import {
-  formatPairHistoryMetric,
-  PAIR_HISTORY_METRIC_LABELS,
-} from "../components/pair-history-metrics";
+import { PAIR_HISTORY_METRIC_LABELS } from "../components/pair-history-metrics";
 import { getPairHistoryQueryOptions } from "../queries/pair-history";
 import { getSnapshotPairsQueryOptions } from "../queries/snapshot-pairs";
 import type {
-  ExchangePairHistoryData,
   ExchangePairHistoryDataKey,
   ExchangePairHistoryEntry,
   ExchangePairHistoryMetricKey,
@@ -93,6 +88,7 @@ export default function PairHistory({
 }: Route.ComponentProps) {
   const { league, realm } = useLeagueContext();
   const location = useLocation();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const locationPair = getStatePair(location.state);
   const { data: snapshotPairs } = useSuspenseQuery(
@@ -157,19 +153,32 @@ export default function PairHistory({
   const setMetric = (metricId: string) => {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set("metric", metricId);
-    setSearchParams(nextParams, { preventScrollReset: true });
+    setSearchParams(nextParams, {
+      preventScrollReset: true,
+      replace: true,
+      state: location.state,
+    });
+  };
+  const goBack = () => {
+    if (isFromExchangeTable(location.state)) {
+      navigate(-1);
+      return;
+    }
+
+    navigate(backTo);
   };
 
   return (
-    <section className="overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30">
+    <section className="mt-4 overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30">
       <header className="flex flex-col gap-4 border-b border-secondary/25 px-4 py-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex min-w-0 items-center gap-3">
-          <Link
-            to={backTo}
+          <button
+            type="button"
+            onClick={goBack}
             className="shrink-0 rounded-sm border border-secondary/35 px-3 py-2 text-sm text-white/80 transition hover:bg-secondary/20 hover:text-white focus:bg-secondary/25 focus:outline-none"
           >
             Back
-          </Link>
+          </button>
           <PairTitle
             pair={pair}
             currencyOneItemId={loaderData.currencyOneItemId}
@@ -190,16 +199,6 @@ export default function PairHistory({
       )}
 
       <div className="flex flex-col gap-4 px-2 py-4 sm:px-4">
-        {latestEntry && (
-          <LatestMetrics
-            pair={pair}
-            entry={latestEntry}
-            currencyOneItemId={loaderData.currencyOneItemId}
-            currencyTwoItemId={loaderData.currencyTwoItemId}
-            baseCurrencyText={baseCurrencyText}
-          />
-        )}
-
         <section className="rounded-sm border border-secondary/35 bg-black/20">
           <div className="flex flex-col gap-3 border-b border-secondary/25 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -412,77 +411,6 @@ function CurrencyName({ item }: { item: ExchangeSnapshotPair["currencyOne"] }) {
   );
 }
 
-function LatestMetrics({
-  pair,
-  entry,
-  currencyOneItemId,
-  currencyTwoItemId,
-  baseCurrencyText,
-}: {
-  pair: ExchangeSnapshotPair | null;
-  entry: ExchangePairHistoryEntry;
-  currencyOneItemId: number;
-  currencyTwoItemId: number;
-  baseCurrencyText: string;
-}) {
-  const currencyOneLabel =
-    pair?.currencyOne.text ?? `Item ${currencyOneItemId}`;
-  const currencyTwoLabel =
-    pair?.currencyTwo.text ?? `Item ${currencyTwoItemId}`;
-
-  return (
-    <div className="grid gap-3 lg:grid-cols-2">
-      <MetricSummary
-        label={currencyTwoLabel}
-        data={entry.data.currencyTwoData}
-        baseCurrencyText={baseCurrencyText}
-      />
-      <MetricSummary
-        label={currencyOneLabel}
-        data={entry.data.currencyOneData}
-        baseCurrencyText={baseCurrencyText}
-      />
-    </div>
-  );
-}
-
-function MetricSummary({
-  label,
-  data,
-  baseCurrencyText,
-}: {
-  label: string;
-  data: ExchangePairHistoryData;
-  baseCurrencyText: string;
-}) {
-  return (
-    <section className="rounded-sm border border-secondary/25 bg-black/20 p-3">
-      <h2 className="truncate text-sm font-semibold text-white">{label}</h2>
-      <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-        <MetricValue
-          label="Price"
-          value={formatPairHistoryMetric("pairPrice", data.pairPrice)}
-        />
-        <MetricValue label="Volume" value={formatNumber(data.volumeTraded)} />
-        <MetricValue
-          label="Value"
-          value={`${formatNumber(data.valueTraded)} ${baseCurrencyText}`}
-        />
-        <MetricValue label="Stock" value={formatNumber(data.highestStock)} />
-      </dl>
-    </section>
-  );
-}
-
-function MetricValue({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-white/45">{label}</dt>
-      <dd className="truncate text-white">{value}</dd>
-    </div>
-  );
-}
-
 function getMetricOptions({
   pair,
   currencyOneItemId,
@@ -591,4 +519,13 @@ function getStatePair(state: unknown) {
   }
 
   return pair as ExchangeSnapshotPair;
+}
+
+function isFromExchangeTable(state: unknown) {
+  return (
+    state !== null &&
+    typeof state === "object" &&
+    "fromExchangeTable" in state &&
+    (state as { fromExchangeTable?: unknown }).fromExchangeTable === true
+  );
 }

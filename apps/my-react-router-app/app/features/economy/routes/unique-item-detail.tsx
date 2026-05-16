@@ -1,6 +1,6 @@
 import type { Route } from "./+types/unique-item-detail";
 import { useMemo } from "react";
-import { useSearchParams } from "react-router";
+import { useLocation, useSearchParams } from "react-router";
 import getItemsQueryOptions from "../queries/items";
 import { getChartMode } from "../components/item-history-charts";
 import { useLeagueContext } from "~/features/league/context";
@@ -61,6 +61,7 @@ export default function UniqueItemDetail({
   loaderData,
 }: Route.ComponentProps) {
   const routeKind = "uniques";
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { league, realm } = useLeagueContext();
 
@@ -81,7 +82,11 @@ export default function UniqueItemDetail({
   const setDetailParam = (key: string, value: string) => {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set(key, value);
-    setSearchParams(nextParams);
+    setSearchParams(nextParams, {
+      preventScrollReset: true,
+      replace: true,
+      state: location.state,
+    });
   };
 
   return (
