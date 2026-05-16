@@ -25,10 +25,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className="flex flex-col">
+      <body>
         <GlobalNavigationProgress />
         <Header />
-        <main className="mx-auto w-full max-w-7xl flex-1 px-5">{children}</main>
+        <main className="mx-auto min-h-dvh w-full max-w-7xl flex-1 px-5">
+          {children}
+        </main>
         <Footer />
         <ScrollRestoration />
         <Scripts />
