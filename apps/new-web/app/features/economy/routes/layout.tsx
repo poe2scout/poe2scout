@@ -117,7 +117,7 @@ export default function EconomyLayout({
         ></ItemSearch>
       </div>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
-        <nav className="hidden w-57.5 shrink-0 flex-col overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30 lg:flex">
+        <nav className="hidden w-57.5 shrink-0 flex-col overflow-hidden rounded-sm border border-secondary/35 bg-zinc-900 shadow-lg shadow-black/30 lg:flex">
           <NavHeader>Currency categories</NavHeader>
 
           {currencyCategoryOptions.map((category) => {
@@ -155,7 +155,7 @@ export default function EconomyLayout({
             id="economy-category-select"
             value={currentCategoryValue}
             onChange={handleCategoryChange}
-            className="h-10 w-full rounded-sm border border-secondary/35 bg-zinc-950 px-3 text-sm text-white shadow-lg shadow-black/30 outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
+            className="h-10 w-full rounded-sm border border-secondary/35 bg-zinc-900 px-3 text-sm text-white shadow-lg shadow-black/30 outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
           >
             <option value="">Select category</option>
             <optgroup label="Currency categories">

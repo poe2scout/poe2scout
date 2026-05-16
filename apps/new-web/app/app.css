@@ -12,6 +12,7 @@
 html,
 body {
   color-scheme: dark;
+  @apply bg-zinc-950 text-white;
   @apply min-h-screen;
   @apply w-full;
 }

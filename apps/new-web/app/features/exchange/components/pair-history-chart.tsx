@@ -219,7 +219,7 @@ export default function PairHistoryChart({
   return (
     <div className="relative h-125 w-full">
       {isLoadingMore && (
-        <div className="absolute top-1/2 left-4 z-20 rounded-sm border border-secondary/30 bg-zinc-950/90 px-3 py-1 text-xs text-white/80">
+        <div className="absolute top-1/2 left-4 z-20 rounded-sm border border-secondary/30 bg-zinc-900/95 px-3 py-1 text-xs text-white/80">
           Loading older data...
         </div>
       )}

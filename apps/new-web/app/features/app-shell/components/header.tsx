@@ -34,7 +34,7 @@ export default function Header() {
   ) : null;
 
   return (
-    <header className="flex w-full flex-col justify-center bg-black py-1.5">
+    <header className="flex w-full flex-col justify-center bg-zinc-900 py-1.5">
       <div className="relative mx-auto flex w-full max-w-7xl flex-row items-center justify-between gap-3 px-4 py-2.5 text-lg sm:px-5">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <NavLink className="flex shrink-0 items-center whitespace-nowrap" to="/">
@@ -89,7 +89,7 @@ export default function Header() {
             {isMenuOpen && (
               <nav
                 aria-label="Primary navigation"
-                className="absolute right-0 top-11 z-20 flex min-w-52 flex-col rounded-sm border border-secondary/35 bg-zinc-950 py-2 shadow-lg shadow-black/50"
+                className="absolute right-0 top-11 z-20 flex min-w-52 flex-col rounded-sm border border-secondary/35 bg-zinc-900 py-2 shadow-lg shadow-black/50"
               >
                 {leagueNavigation}
               </nav>

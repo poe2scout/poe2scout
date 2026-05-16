@@ -1,8 +1,16 @@
 import type { ReactNode } from "react";
 
-export default function Section({ children }: { children: ReactNode }) {
+export default function Section({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <section className="mt-3 flex w-full flex-col items-center rounded-lg bg-gray-900 py-6">
+    <section
+      className={`w-full rounded-sm border border-secondary/35 bg-zinc-900 p-4 shadow-lg shadow-black/30 ${className}`}
+    >
       {children}
     </section>
   );

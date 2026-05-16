@@ -98,7 +98,7 @@ export default function ItemDetail({
   };
 
   return (
-    <section className="overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30">
+    <section className="overflow-hidden rounded-sm border border-secondary/35 bg-zinc-900 shadow-lg shadow-black/30">
       <header className="flex flex-col gap-4 border-b border-secondary/25 px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 items-center gap-3">
           <button
@@ -155,7 +155,7 @@ export default function ItemDetail({
                 onChange={(event) =>
                   setDetailParam("referenceCurrency", event.currentTarget.value)
                 }
-                className="h-9 rounded-sm border border-secondary/35 bg-black/30 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
+                className="h-9 rounded-sm border border-secondary/35 bg-zinc-950/60 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
               >
                 {referenceCurrencyOptions.map((option) => (
                   <option key={option.apiId} value={option.apiId}>

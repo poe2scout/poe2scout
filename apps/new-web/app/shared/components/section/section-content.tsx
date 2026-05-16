@@ -3,5 +3,5 @@ export default function SectionContent({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="my-3 p-1.5">{children}</div>;
+  return <div className="mt-3 text-sm text-white/70">{children}</div>;
 }

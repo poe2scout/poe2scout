@@ -215,7 +215,7 @@ export default function MarketHistoryChart({
   }, [hasChartData]);
 
   return (
-    <section className="rounded-sm border border-secondary/35 bg-zinc-950 p-4 shadow-lg shadow-black/30">
+    <section className="rounded-sm border border-secondary/35 bg-zinc-900 p-4 shadow-lg shadow-black/30">
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold text-white">Market History</h2>
@@ -241,7 +241,7 @@ export default function MarketHistoryChart({
         {hasChartData ? (
           <>
             {isLoadingMore && (
-              <div className="absolute top-1/2 left-4 z-20 rounded-sm border border-secondary/30 bg-zinc-950/90 px-3 py-1 text-xs text-white/80">
+              <div className="absolute top-1/2 left-4 z-20 rounded-sm border border-secondary/30 bg-zinc-900/95 px-3 py-1 text-xs text-white/80">
                 Loading older data...
               </div>
             )}

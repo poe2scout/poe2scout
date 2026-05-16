@@ -24,7 +24,7 @@ export default function DataTable<T>({
   const message = loadingContent ?? errorContent ?? emptyContent;
 
   return (
-    <div className="overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30">
+    <div className="overflow-hidden rounded-sm border border-secondary/35 bg-zinc-900 shadow-lg shadow-black/30">
       <div className="overflow-x-auto">
         <table className="min-w-full table-fixed text-left text-sm text-white">
           <thead className="sticky top-0 z-10 bg-zinc-900 text-xs tracking-wide text-white/60 uppercase">

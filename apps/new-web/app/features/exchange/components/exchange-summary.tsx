@@ -11,7 +11,7 @@ export default function ExchangeSummary({
   snapshot: ExchangeSnapshot;
 }) {
   return (
-    <section className="rounded-sm border border-secondary/35 bg-zinc-950 p-4 shadow-lg shadow-black/30">
+    <section className="rounded-sm border border-secondary/35 bg-zinc-900 p-4 shadow-lg shadow-black/30">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-white">

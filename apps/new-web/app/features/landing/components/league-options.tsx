@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 import type { Realm } from "~/features/league/types";
 import Loading from "~/shared/components/loading";
-import SectionContent from "~/shared/components/section/section-content";
 import SectionDivider from "~/shared/components/section/section-divider";
 import SectionTitle from "~/shared/components/section/section-title";
 import NavLinkButton from "./nav-link-button";
@@ -12,7 +11,13 @@ export default function LeagueOptions({ realm }: { realm: Realm }) {
     getLeaguesQueryOptions(realm.realmApiId),
   );
 
-  if (isPending) return <Loading />;
+  if (isPending) {
+    return (
+      <div className="flex min-h-28 items-center justify-center border-t border-secondary/25 pt-5">
+        <Loading />
+      </div>
+    );
+  }
 
   const currentLeagues = data?.filter((l) => {
     return l.isCurrent;
@@ -23,42 +28,56 @@ export default function LeagueOptions({ realm }: { realm: Realm }) {
   });
 
   return (
-    <>
-      <SectionTitle>Select a League</SectionTitle>
+    <div className="space-y-4">
       <SectionDivider />
-      <SectionContent>
-        <div className="flex flex-col items-center">
-          <span className="mb-3">Active</span>
-          <div className="grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {currentLeagues &&
-              currentLeagues.map((league) => {
-                return (
-                  <NavLinkButton
-                    route={`${realm.realmApiId}/${league.value}`}
-                    key={league.value}
-                  >
-                    {league.value}
-                  </NavLinkButton>
-                );
-              })}
-          </div>
-          <span className="mt-6 mb-3">Past</span>
-          <div className="grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {inactiveLeagues &&
-              inactiveLeagues.map((league) => {
-                return (
-                  <NavLinkButton
-                    route={`${realm.realmApiId}/${league.value}`}
-                    key={league.value}
-                    filled={false}
-                  >
-                    {league.value}
-                  </NavLinkButton>
-                );
-              })}
-          </div>
-        </div>
-      </SectionContent>
-    </>
+      <div>
+        <SectionTitle>Leagues</SectionTitle>
+        <p className="mt-1 text-sm text-white/55">
+          Open a league to browse its current economy.
+        </p>
+      </div>
+      <LeagueGroup title="Active">
+        {currentLeagues?.map((league) => (
+          <NavLinkButton
+            route={`${realm.realmApiId}/${league.value}`}
+            key={league.value}
+          >
+            {league.value}
+          </NavLinkButton>
+        ))}
+      </LeagueGroup>
+      {inactiveLeagues && inactiveLeagues.length > 0 && (
+        <LeagueGroup title="Past">
+          {inactiveLeagues.map((league) => (
+            <NavLinkButton
+              route={`${realm.realmApiId}/${league.value}`}
+              key={league.value}
+              filled={false}
+            >
+              {league.value}
+            </NavLinkButton>
+          ))}
+        </LeagueGroup>
+      )}
+    </div>
+  );
+}
+
+function LeagueGroup({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      <h3 className="text-xs font-medium tracking-wide text-white/50 uppercase">
+        {title}
+      </h3>
+      <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        {children}
+      </div>
+    </div>
   );
 }

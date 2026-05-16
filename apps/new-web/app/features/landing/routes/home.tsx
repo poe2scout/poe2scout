@@ -21,18 +21,25 @@ export default function Home() {
   const [realm, setRealm] = useState<Realm | null>(null);
 
   return (
-    <div className="mt-3 flex w-full flex-col items-center">
-      <span className="mb-2.5 text-center text-7xl font-bold">POE2 Scout</span>
-      <span className="mb-7 text-center text-2xl">
-        Your Ultimate Path of Exile Companion
-      </span>
-      <span className="text-center text-base">
-        Track market prices of items, currency, and more with up-to-date Path of
-        Exile data
-      </span>
+    <div className="flex w-full flex-col gap-4 py-4">
       <Section>
+        <h1 className="text-2xl font-semibold tracking-tight text-white">
+          POE2 Scout
+        </h1>
+        <p className="mt-1 max-w-2xl text-sm text-white/60">
+          Select a realm and league to open market prices, item history, and
+          currency exchange data.
+        </p>
+      </Section>
+      <Section className="space-y-5">
         <RealmOptions selectedRealm={realm} setSelectedRealm={setRealm} />
-        {realm && <LeagueOptions realm={realm} />}
+        {realm ? (
+          <LeagueOptions realm={realm} />
+        ) : (
+          <div className="rounded-sm border border-white/10 bg-white/3 px-3 py-4 text-sm text-white/55">
+            Choose a realm to see available leagues.
+          </div>
+        )}
       </Section>
     </div>
   );

@@ -197,7 +197,7 @@ export default function PairHistory({
   };
 
   return (
-    <section className="mt-4 overflow-hidden rounded-sm border border-secondary/35 bg-zinc-950 shadow-lg shadow-black/30">
+    <section className="mt-4 overflow-hidden rounded-sm border border-secondary/35 bg-zinc-900 shadow-lg shadow-black/30">
       <header className="flex flex-col gap-4 border-b border-secondary/25 px-4 py-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex min-w-0 items-center gap-3">
           <button
@@ -227,7 +227,7 @@ export default function PairHistory({
       )}
 
       <div className="flex flex-col gap-4 px-2 py-4 sm:px-4">
-        <section className="rounded-sm border border-secondary/35 bg-black/20">
+        <section className="rounded-sm border border-secondary/35 bg-zinc-950/40">
           <div className="flex flex-col gap-3 border-b border-secondary/25 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-lg font-semibold text-white">Pair History</h1>
@@ -240,7 +240,7 @@ export default function PairHistory({
               <select
                 value={selectedOption.id}
                 onChange={(event) => setMetric(event.currentTarget.value)}
-                className="h-9 max-w-full rounded-sm border border-secondary/35 bg-black/30 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
+                className="h-9 max-w-full rounded-sm border border-secondary/35 bg-zinc-950/60 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
               >
                 {metricOptions.map((option) => (
                   <option key={option.id} value={option.id}>

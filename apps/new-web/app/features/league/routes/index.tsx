@@ -1,10 +1,8 @@
 import type { Route } from "./+types/index";
 import NavLinkButton from "~/features/landing/components/nav-link-button";
+import { useLeagueContext } from "~/features/league/context";
 import useCurrentGame from "~/features/league/hooks/use-current-game";
 import Section from "~/shared/components/section/section";
-import SectionContent from "~/shared/components/section/section-content";
-import SectionDivider from "~/shared/components/section/section-divider";
-import SectionTitle from "~/shared/components/section/section-title";
 import {
   formatTitle,
   getLeagueContextTitle,
@@ -18,55 +16,82 @@ export function meta({ matches }: Route.MetaArgs) {
 
 export default function Index() {
   const gameId = useCurrentGame();
+  const { league, realm } = useLeagueContext();
 
   return (
-    <div className="flex w-full flex-col items-center">
+    <div className="flex w-full flex-col gap-4 py-4">
       <Section>
-        <SectionTitle>Currency Item Overview</SectionTitle>
-        <SectionDivider />
-        <img
-          className="w-2/5"
-          src="/ItemOverview.png"
-          alt="Image of currency item overview page"
-        />
-        <SectionContent>
-          <div className="flex flex-col items-center gap-3">
-            {"See hourly price snapshots of currency item prices.\n" +
-              "Analyse historical data with different chart types."}
-            <NavLinkButton route="./economy">Economy</NavLinkButton>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-white">
+              {league.value} Overview
+            </h1>
+            <p className="mt-1 text-sm text-white/60">
+              {realm.gameApiId}/{realm.realmApiId} market tools and price data.
+            </p>
           </div>
-        </SectionContent>
-      </Section>
-      {gameId === 2 && (
-        <Section>
-          <SectionTitle>Unique Item Overview</SectionTitle>
-          <img
-            className="w-2/5"
-            src="/ItemOverview.png"
-            alt="Image of currency item overview page"
-          />
-        </Section>
-      )}
-      <Section>
-        <SectionTitle>Currency Exchange Explorer</SectionTitle>
-        <SectionDivider />
-        <img
-          className="w-2/5"
-          src="/ItemOverview.png"
-          alt="Image of currency item overview page"
-        />
-        <SectionContent>
-          <div className="flex flex-col items-center gap-3">
-            <span>
-              {"See hourly price snapshots of currency item prices.\n" +
-                "Analyse historical data with different chart types."}
-            </span>
-            <NavLinkButton route="./exchange">
-              Currency exchange explorer
+          <div className="flex flex-wrap gap-2">
+            <NavLinkButton route="./economy">Economy</NavLinkButton>
+            <NavLinkButton route="./exchange" filled={false}>
+              Currency Exchange
             </NavLinkButton>
           </div>
-        </SectionContent>
+        </div>
       </Section>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <FeaturePanel
+          title="Economy"
+          description="Browse item categories, search by item type, and inspect current prices with historical context."
+          route="./economy"
+          action="Open economy"
+        />
+        <FeaturePanel
+          title="Currency Exchange"
+          description="Review market volume, exchange rates, pair history, and recent market movement."
+          route="./exchange"
+          action="Open exchange"
+          filled={false}
+        />
+        {gameId === 2 && (
+          <FeaturePanel
+            title="Unique Items"
+            description="Find priced unique item categories from the economy search and category navigation."
+            route="./economy/uniques/accessory"
+            action="Browse uniques"
+            filled={false}
+          />
+        )}
+      </div>
     </div>
+  );
+}
+
+function FeaturePanel({
+  title,
+  description,
+  route,
+  action,
+  filled = true,
+}: {
+  title: string;
+  description: string;
+  route: string;
+  action: string;
+  filled?: boolean;
+}) {
+  return (
+    <Section className="flex h-full flex-col">
+      <div className="flex flex-1 flex-col">
+        <h2 className="text-lg font-semibold text-white">{title}</h2>
+        <p className="mt-2 flex-1 text-sm leading-6 text-white/60">
+          {description}
+        </p>
+        <div className="mt-4">
+          <NavLinkButton route={route} filled={filled}>
+            {action}
+          </NavLinkButton>
+        </div>
+      </div>
+    </Section>
   );
 }

@@ -4,7 +4,7 @@ export default function SectionTitle({
   children: React.ReactNode;
 }) {
   return (
-    <h2 className="mb-1.5 text-center text-3xl font-semibold tracking-tight text-white">
+    <h2 className="text-lg font-semibold tracking-tight text-white">
       {children}
     </h2>
   );
