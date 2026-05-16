@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import AsyncMock, patch
 
-from fastapi import HTTPException
 from poe2scout.api.routes.leagues.get import (
     GetLeaguesRequest,
     GetResponse,
@@ -137,7 +136,7 @@ class GetLeaguesRouteTests(unittest.IsolatedAsyncioTestCase):
             exalted_item=make_currency_item(30, "exalted", "Exalted Orb"),
             divine_item=make_currency_item(20, "divine", "Divine Orb"),
             chaos_item=make_currency_item(10, "chaos", "Chaos Orb"),
-            bridge_currencies=[
+            base_currencies=[
                 make_bridge_currency(10, "chaos", "Chaos Orb", 1),
                 make_bridge_currency(20, "divine", "Divine Orb", 2),
             ],
@@ -157,7 +156,7 @@ class GetLeaguesRouteTests(unittest.IsolatedAsyncioTestCase):
             exalted_item=make_currency_item(30, "exalted", "Exalted Orb"),
             divine_item=make_currency_item(20, "divine", "Divine Orb"),
             chaos_item=make_currency_item(10, "chaos", "Chaos Orb"),
-            bridge_currencies=[
+            base_currencies=[
                 make_bridge_currency(10, "chaos", "Chaos Orb", 1),
                 make_bridge_currency(20, "divine", "Divine Orb", 2),
             ],
@@ -167,22 +166,60 @@ class GetLeaguesRouteTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.base_currencies[1].api_id, "divine")
         self.assertEqual(response.base_currencies[1].relative_price, 0)
 
-    async def test_response_raises_500_when_default_currency_is_not_bridged(self):
+    async def test_route_inserts_default_currency_when_default_is_not_bridged(self):
         league = make_league()
+        divine_item = make_currency_item(20, "divine", "Divine Orb")
+        chaos_item = make_currency_item(10, "chaos", "Chaos Orb")
 
-        with self.assertRaises(HTTPException) as context:
-            GetResponse.from_model(
-                league=league,
-                exalted_item=make_currency_item(30, "exalted", "Exalted Orb"),
-                divine_item=make_currency_item(20, "divine", "Divine Orb"),
-                chaos_item=make_currency_item(10, "chaos", "Chaos Orb"),
-                bridge_currencies=[
-                    make_bridge_currency(20, "divine", "Divine Orb", 1),
-                ],
-                price_lookup={(7, 20): 1000},
-            )
+        with (
+            patch(
+                "poe2scout.api.routes.leagues.get.realm_repository.get_realm",
+                AsyncMock(return_value=Realm(realm_id=2, game_id=1)),
+            ),
+            patch(
+                "poe2scout.api.routes.leagues.get.league_repository.get_leagues",
+                AsyncMock(return_value=[league]),
+            ),
+            patch(
+                "poe2scout.api.routes.leagues.get.game_repository.get_bridge_currencies",
+                AsyncMock(
+                    return_value=[
+                        make_bridge_currency(20, "divine", "Divine Orb", 1),
+                    ]
+                ),
+            ),
+            patch(
+                "poe2scout.api.routes.leagues.get.currency_item_repository.get_exalted_item",
+                AsyncMock(return_value=make_currency_item(30, "exalted", "Exalted Orb")),
+            ),
+            patch(
+                "poe2scout.api.routes.leagues.get.currency_item_repository.get_divine_item",
+                AsyncMock(return_value=divine_item),
+            ),
+            patch(
+                "poe2scout.api.routes.leagues.get.currency_item_repository.get_chaos_item",
+                AsyncMock(return_value=chaos_item),
+            ),
+            patch(
+                "poe2scout.api.routes.leagues.get.price_log_repository.get_item_prices_by_league",
+                AsyncMock(
+                    return_value=[
+                        GetItemPricesByLeagueModel(
+                            league_id=7,
+                            item_id=20,
+                            price=1000.0,
+                        ),
+                    ]
+                ),
+            ),
+        ):
+            response = await get(GetLeaguesRequest(realm="poe"))
 
-        self.assertEqual(context.exception.status_code, 500)
+        self.assertEqual(
+            [currency.api_id for currency in response[0].base_currencies],
+            ["chaos", "divine"],
+        )
+        self.assertEqual(response[0].base_currencies[0].relative_price, 1)
 
 
 if __name__ == "__main__":
