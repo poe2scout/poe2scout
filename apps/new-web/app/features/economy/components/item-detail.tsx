@@ -65,7 +65,7 @@ export default function ItemDetail({
   const rawHistory = useRawItemHistory({
     enabled: chartMode === "raw" && Number.isFinite(item.itemId),
     realmApiId: realm.realmApiId,
-    leagueName: league.value,
+    leagueName: league.shortName,
     itemId: item.itemId,
     referenceCurrency: selectedReferenceCurrency,
   });
@@ -73,7 +73,7 @@ export default function ItemDetail({
   const dailyHistory = useDailyItemHistory({
     enabled: chartMode === "daily" && Number.isFinite(item.itemId),
     realmApiId: realm.realmApiId,
-    leagueName: league.value,
+    leagueName: league.shortName,
     itemId: item.itemId,
   });
 
@@ -155,7 +155,7 @@ export default function ItemDetail({
                 onChange={(event) =>
                   setDetailParam("referenceCurrency", event.currentTarget.value)
                 }
-                className="h-9 rounded-sm border border-secondary/35 bg-zinc-950/60 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
+                className="h-9 rounded-sm border border-secondary/35 bg-zinc-900/60 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
               >
                 {referenceCurrencyOptions.map((option) => (
                   <option key={option.apiId} value={option.apiId}>

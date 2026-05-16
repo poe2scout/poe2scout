@@ -92,28 +92,26 @@ async def get_items(
     if realm is None:
         raise HTTPException(400, "Invalid realm")
 
+    league = await league_repository.get_league_by_value(
+        request.league_name,
+        realm.game_id,
+    )
 
-    unique_items, currency_items, leagues = await gather(
+    if league is None:
+        raise HTTPException(status_code=400, detail="League not found")
+
+    unique_items, currency_items = await gather(
         unique_item_repository.get_all_unique_items(realm.game_id),
         currency_item_repository.get_all_currency_items(realm.game_id),
-        league_repository.get_leagues(realm.game_id),
     )
 
     item_ids = [item.item_id for item in unique_items] + [
         item.item_id for item in currency_items
     ]
 
-    league_id = next(
-        (league.league_id for league in leagues if league.value == request.league_name),
-        None,
-    )
-
-    if league_id is None:
-        raise HTTPException(status_code=400, detail="League not found")
-
     price_logs_by_item_id = await price_log_repository.get_item_prices(
         item_ids,
-        league_id,
+        league.league_id,
         realm.realm_id,
     )
 

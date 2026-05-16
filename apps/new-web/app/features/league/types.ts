@@ -7,6 +7,7 @@ export interface LeagueCurrency {
 
 export interface League {
   value: string;
+  shortName: string;
   isCurrent: boolean;
   divinePrice: number;
   chaosDivinePrice: number;

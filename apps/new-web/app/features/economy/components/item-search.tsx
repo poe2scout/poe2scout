@@ -85,7 +85,7 @@ export default function ItemSearch({
           onChange={(event) => setSearch(event.currentTarget.value)}
           placeholder={isPending ? "Loading filters..." : "Search by item type"}
           disabled={isPending}
-          className="h-10 w-full rounded-sm border border-secondary/35 bg-zinc-950/40 px-3 text-sm text-white transition outline-none placeholder:text-white/45 focus:border-secondary focus:bg-zinc-950/60 focus:ring-2 focus:ring-secondary/25 disabled:cursor-wait disabled:opacity-60"
+          className="h-10 w-full rounded-sm border border-secondary/35 bg-zinc-900/40 px-3 text-sm text-white transition outline-none placeholder:text-white/45 focus:border-secondary focus:bg-zinc-950/60 focus:ring-2 focus:ring-secondary/25 disabled:cursor-wait disabled:opacity-60"
           autoComplete="off"
         />
         {isFocused && suggestions.length > 0 && (

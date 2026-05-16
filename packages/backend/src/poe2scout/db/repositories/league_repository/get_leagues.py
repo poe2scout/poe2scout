@@ -6,6 +6,7 @@ from ..base_repository import BaseRepository, RepositoryModel
 class League(RepositoryModel):
     league_id: int
     value: str
+    short_name: str
     base_currency_item_id: int
     base_currency_api_id: str
     base_currency_text: str
@@ -18,6 +19,7 @@ async def get_current_leagues(game_id: int) -> list[League]:
         query = """
             SELECT l.league_id,
                    l.value,
+                   l.short_name,
                    l.base_currency_item_id,
                    ci.api_id AS base_currency_api_id,
                    ci.text AS base_currency_text,
@@ -44,6 +46,7 @@ async def get_leagues(game_id: int) -> list[League]:
         query = """
             SELECT l.league_id,
                    l.value,
+                   l.short_name,
                    l.base_currency_item_id,
                    ci.api_id AS base_currency_api_id,
                    ci.text AS base_currency_text,
@@ -67,6 +70,7 @@ async def get_league(league_id: int) -> League:
         query = """
             SELECT l.league_id,
                    l.value,
+                   l.short_name,
                    l.base_currency_item_id,
                    ci.api_id AS base_currency_api_id,
                    ci.text AS base_currency_text,

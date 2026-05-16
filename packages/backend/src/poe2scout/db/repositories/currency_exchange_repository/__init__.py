@@ -7,7 +7,7 @@ from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot
 from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_history import (
     get_currency_exchange_history,
 )
-from poe2scout.db.repositories.currency_exchange_repository.get_existing_snapshot_league_ids import (
+from poe2scout.db.repositories.currency_exchange_repository.get_existing_snapshot_league_ids import (  # noqa: E501
     get_existing_snapshot_league_ids,
 )
 from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_pairs import (

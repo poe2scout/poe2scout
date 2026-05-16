@@ -8,6 +8,7 @@ import { queryClient } from "~/shared/api/query-client";
 import type { BreadcrumbHandle } from "~/features/app-shell/components/header-breadcrumbs";
 import ItemDetail from "../components/item-detail";
 import getLeaguesQueryOptions from "~/features/league/queries/leagues";
+import { findLeagueByRouteId } from "~/features/league/route-id";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 import {
   formatTitle,
@@ -62,7 +63,7 @@ export async function clientLoader({
     throw new Response("Invalid item", { status: 404 });
   }
 
-  const league = leagues.find((league) => league.value === params.leagueId);
+  const league = findLeagueByRouteId(leagues, params.leagueId);
 
   if (!league) {
     throw new Response("Invalid league", { status: 404 });

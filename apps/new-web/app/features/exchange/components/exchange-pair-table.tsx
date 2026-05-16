@@ -102,7 +102,7 @@ export default function ExchangePairTable({
               updateTableState({ search: event.currentTarget.value, page: 1 })
             }
             placeholder="Search trading pairs"
-            className="h-9 w-full rounded-sm border border-secondary/35 bg-zinc-950/60 px-3 pr-9 text-sm text-white transition outline-none placeholder:text-white/35 focus:border-secondary focus:ring-2 focus:ring-secondary/25"
+            className="h-9 w-full rounded-sm border border-secondary/35 bg-zinc-900/60 px-3 pr-9 text-sm text-white transition outline-none placeholder:text-white/35 focus:border-secondary focus:ring-2 focus:ring-secondary/25"
           />
           {tableState.search && (
             <button
@@ -219,7 +219,7 @@ export default function ExchangePairTable({
                   perPage: Number(event.currentTarget.value),
                 })
               }
-              className="h-8 rounded-sm border border-secondary/35 bg-zinc-950/60 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
+              className="h-8 rounded-sm border border-secondary/35 bg-zinc-900/60 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
             >
               {ROWS_PER_PAGE_OPTIONS.map((option) => (
                 <option key={option} value={option}>

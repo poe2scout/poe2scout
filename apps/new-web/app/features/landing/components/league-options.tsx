@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import getLeaguesQueryOptions from "~/features/league/queries/leagues";
+import { getLeagueRouteId } from "~/features/league/route-id";
 import type { Realm } from "~/features/league/types";
 import Loading from "~/shared/components/loading";
 import SectionDivider from "~/shared/components/section/section-divider";
@@ -39,7 +40,7 @@ export default function LeagueOptions({ realm }: { realm: Realm }) {
       <LeagueGroup title="Active">
         {currentLeagues?.map((league) => (
           <NavLinkButton
-            route={`${realm.realmApiId}/${league.value}`}
+            route={`${realm.realmApiId}/${getLeagueRouteId(league)}`}
             key={league.value}
           >
             {league.value}
@@ -50,7 +51,7 @@ export default function LeagueOptions({ realm }: { realm: Realm }) {
         <LeagueGroup title="Past">
           {inactiveLeagues.map((league) => (
             <NavLinkButton
-              route={`${realm.realmApiId}/${league.value}`}
+              route={`${realm.realmApiId}/${getLeagueRouteId(league)}`}
               key={league.value}
               filled={false}
             >

@@ -57,7 +57,7 @@ export default function EconomyTable({
                 onChange={(e) =>
                   onPaginationChange(1, Number(e.currentTarget.value))
                 }
-                className="h-8 rounded-sm border border-secondary/35 bg-zinc-950/60 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
+                className="h-8 rounded-sm border border-secondary/35 bg-zinc-900/60 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
               >
                 {rowsPerPageOptions.map((option) => (
                   <option key={option} value={option}>

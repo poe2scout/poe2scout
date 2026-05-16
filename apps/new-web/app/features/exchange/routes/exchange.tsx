@@ -19,6 +19,7 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import getNumberNonZero from "~/shared/utils/get-number-non-zero";
 import getLeaguesQueryOptions from "~/features/league/queries/leagues";
+import { findLeagueByRouteId } from "~/features/league/route-id";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 import type { LeagueCurrency } from "~/features/league/types";
 import {
@@ -71,7 +72,7 @@ export async function clientLoader({
       getReferenceCurrenciesQueryOptions(params.realmId, params.leagueId),
     ),
   ]);
-  const league = leagues.find((league) => league.value === params.leagueId);
+  const league = findLeagueByRouteId(leagues, params.leagueId);
 
   if (!league) {
     throw new Response("Invalid league", { status: 404 });

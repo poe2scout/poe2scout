@@ -8,7 +8,6 @@ from poe2scout.db.repositories import (
     price_log_repository,
     realm_repository,
 )
-from poe2scout.db.repositories.game_repository import BridgeCurrency
 from poe2scout.db.repositories.league_repository.get_leagues import League
 from poe2scout.db.repositories.models import CurrencyItem
 from . import router
@@ -18,6 +17,7 @@ from . import router
 
 class GetResponse(ApiModel):
     value: str
+    short_name: str
     is_current: bool
     divine_price: float
     chaos_divine_price: float
@@ -75,6 +75,7 @@ class GetResponse(ApiModel):
 
         return cls(
             value=league.value,
+            short_name=league.short_name,
             is_current=league.current_league,
             divine_price=divine_price,
             chaos_divine_price=divine_price / chaos_price if chaos_price != 0 else 50,

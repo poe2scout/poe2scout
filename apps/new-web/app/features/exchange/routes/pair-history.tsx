@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { BreadcrumbHandle } from "~/features/app-shell/components/header-breadcrumbs";
 import { useLeagueContext } from "~/features/league/context";
 import getLeaguesQueryOptions from "~/features/league/queries/leagues";
+import { findLeagueByRouteId } from "~/features/league/route-id";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 import type { LeagueCurrency } from "~/features/league/types";
 import { queryClient } from "~/shared/api/query-client";
@@ -77,7 +78,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
       getReferenceCurrenciesQueryOptions(params.realmId, params.leagueId),
     ),
   ]);
-  const league = leagues.find((league) => league.value === params.leagueId);
+  const league = findLeagueByRouteId(leagues, params.leagueId);
 
   if (!league) {
     throw new Response("Invalid league", { status: 404 });
@@ -143,7 +144,7 @@ export default function PairHistory({
   );
   const pairHistory = usePairHistory({
     realmApiId: realm.realmApiId,
-    leagueName: league.value,
+    leagueName: league.shortName,
     currencyOneItemId: loaderData.currencyOneItemId,
     currencyTwoItemId: loaderData.currencyTwoItemId,
   });
@@ -227,7 +228,7 @@ export default function PairHistory({
       )}
 
       <div className="flex flex-col gap-4 px-2 py-4 sm:px-4">
-        <section className="rounded-sm border border-secondary/35 bg-zinc-950/40">
+        <section className="rounded-sm border border-secondary/35 bg-zinc-900/40">
           <div className="flex flex-col gap-3 border-b border-secondary/25 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-lg font-semibold text-white">Pair History</h1>
@@ -240,7 +241,7 @@ export default function PairHistory({
               <select
                 value={selectedOption.id}
                 onChange={(event) => setMetric(event.currentTarget.value)}
-                className="h-9 max-w-full rounded-sm border border-secondary/35 bg-zinc-950/60 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
+                className="h-9 max-w-full rounded-sm border border-secondary/35 bg-zinc-900/40 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
               >
                 {metricOptions.map((option) => (
                   <option key={option.id} value={option.id}>

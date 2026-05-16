@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path
 

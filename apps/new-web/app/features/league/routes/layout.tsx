@@ -5,6 +5,7 @@ import type { BreadcrumbHandle } from "~/features/app-shell/components/header-br
 import getLeaguesQueryOptions from "../queries/leagues";
 import type { Route } from "./+types/layout";
 import getRealmsQueryOptions from "../queries/realms";
+import { findLeagueByRouteId } from "../route-id";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: ({ params }) => ({
@@ -19,7 +20,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     queryClient.fetchQuery(getRealmsQueryOptions()),
   ]);
 
-  const league = leagues.find((l) => l.value === params.leagueId);
+  const league = findLeagueByRouteId(leagues, params.leagueId);
   const realm = realms.find((r) => r.realmApiId === params.realmId);
 
   if (!league) {
