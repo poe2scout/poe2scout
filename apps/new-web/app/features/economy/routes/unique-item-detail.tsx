@@ -17,8 +17,8 @@ import {
 } from "~/shared/meta/page-title";
 
 export const handle: BreadcrumbHandle = {
-  breadcrumb: () => ({
-    label: "Item",
+  breadcrumb: ({ data, params }) => ({
+    label: getItemBreadcrumbLabel(data, params.itemName),
   }),
 };
 
@@ -121,4 +121,26 @@ export default function UniqueItemDetail({
       setDetailParam={setDetailParam}
     />
   );
+}
+
+function getItemBreadcrumbLabel(data: unknown, itemName: string | undefined) {
+  const itemTitle = getItemTitle(
+    data && typeof data === "object" && "item" in data
+      ? (data as { item?: Parameters<typeof getItemTitle>[0] }).item
+      : undefined,
+  );
+
+  if (itemTitle !== "Item") {
+    return itemTitle;
+  }
+
+  return itemName ? decodeItemSlug(itemName) : "Item";
+}
+
+function decodeItemSlug(itemName: string) {
+  try {
+    return decodeURIComponent(itemName).replaceAll("-", " ");
+  } catch {
+    return itemName.replaceAll("-", " ");
+  }
 }

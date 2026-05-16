@@ -1,6 +1,20 @@
 import type { UTCTimestamp } from "lightweight-charts";
+import type { EconomyItem } from "./types";
 
 export { default as formatInteger } from "~/shared/utils/format-number";
+
+export function getEconomyItemRouteSegment(item: EconomyItem) {
+  const name = getEconomyItemDisplayName(item);
+  const slug = name.trim().replace(/\s+/g, "-");
+
+  return slug
+    ? `${item.itemId}/${encodeURIComponent(slug)}`
+    : String(item.itemId);
+}
+
+function getEconomyItemDisplayName(item: EconomyItem) {
+  return "uniqueItemId" in item ? item.name : item.text;
+}
 
 export function toEpoch(time: string): UTCTimestamp {
   const date = time.endsWith("Z") ? time : `${time}Z`;

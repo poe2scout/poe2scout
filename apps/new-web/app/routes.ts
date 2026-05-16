@@ -25,11 +25,14 @@ export default [
       economy.index("./index.tsx"),
       economy.route("currencies/:category", "./currencies.tsx"),
       economy.route(
-        "currencies/:category/:itemId",
+        "currencies/:category/:itemId/:itemName?",
         "./currency-item-detail.tsx",
       ),
       economy.route("uniques/:category", "./uniques.tsx"),
-      economy.route("uniques/:category/:itemId", "./unique-item-detail.tsx"),
+      economy.route(
+        "uniques/:category/:itemId/:itemName?",
+        "./unique-item-detail.tsx",
+      ),
     ]),
   ]),
 ] satisfies RouteConfig;

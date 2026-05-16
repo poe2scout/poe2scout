@@ -13,6 +13,7 @@ import {
   getCategoryLabel,
   getLeagueContextTitle,
 } from "~/shared/meta/page-title";
+import { getEconomyItemRouteSegment } from "../utils";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: ({ params }) => ({
@@ -110,7 +111,9 @@ export default function CurrencyCategory({
       rowsPerPage={loaderData.perPage}
       onPaginationChange={updatePagination}
       rowsPerPageOptions={[10, 25, 50, 100]}
-      getRowTo={(item) => `${item.itemId}${location.search}`}
+      getRowTo={(item) =>
+        `${getEconomyItemRouteSegment(item)}${location.search}`
+      }
     />
   );
 }

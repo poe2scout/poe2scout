@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import getFiltersQueryOptions, { type Filter } from "../queries/filters";
 
 export default function ItemSearch({
@@ -13,6 +13,7 @@ export default function ItemSearch({
   onFilterSelect: (filter: Filter) => void;
   onSearchFilterRemove: () => void;
 }) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -63,6 +64,7 @@ export default function ItemSearch({
   const selectFilter = (filter: Filter) => {
     setSearch("");
     setIsFocused(false);
+    inputRef.current?.blur();
     onFilterSelect(filter);
   };
 
@@ -76,6 +78,7 @@ export default function ItemSearch({
       </label>
       <div className="relative">
         <input
+          ref={inputRef}
           id="item-filter-search"
           name="filter"
           type="search"
