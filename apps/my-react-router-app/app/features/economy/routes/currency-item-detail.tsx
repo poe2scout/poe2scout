@@ -30,7 +30,7 @@ export async function clientLoader({
     throw new Response("Invalid item", { status: 404 });
   }
 
-  const [item, leagues] = await Promise.all([
+  const [item, leagues, referenceCurrencies] = await Promise.all([
     queryClient.fetchQuery(
       getItemQueryOptions({
         realmApiId: params.realmId,
@@ -39,6 +39,9 @@ export async function clientLoader({
       }),
     ),
     queryClient.fetchQuery(getLeaguesQueryOptions(params.realmId)),
+    queryClient.fetchQuery(
+      getReferenceCurrenciesQueryOptions(params.realmId, params.leagueId),
+    ),
   ]);
 
   if (!item) {
@@ -53,9 +56,6 @@ export async function clientLoader({
 
   const referenceCurrency =
     referenceCurrencyParam ?? league.defaultCurrency.apiId;
-  const referenceCurrencies = await queryClient.fetchQuery(
-    getReferenceCurrenciesQueryOptions(params.realmId, params.leagueId),
-  );
 
   return { item, chartMode, referenceCurrency, referenceCurrencies };
 }

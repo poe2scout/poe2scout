@@ -46,35 +46,36 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     throw new Response("Invalid pair", { status: 404 });
   }
 
-  const leagues = await queryClient.fetchQuery(
-    getLeaguesQueryOptions(params.realmId),
+  const pairHistoryPrefetch = queryClient.prefetchQuery(
+    getPairHistoryQueryOptions({
+      realmApiId: params.realmId,
+      leagueName: params.leagueId,
+      currencyOneItemId,
+      currencyTwoItemId,
+      limit: HISTORY_LIMIT,
+    }),
   );
+  const [leagues, referenceCurrencies] = await Promise.all([
+    queryClient.fetchQuery(getLeaguesQueryOptions(params.realmId)),
+    queryClient.fetchQuery(
+      getReferenceCurrenciesQueryOptions(params.realmId, params.leagueId),
+    ),
+  ]);
   const league = leagues.find((league) => league.value === params.leagueId);
 
   if (!league) {
     throw new Response("Invalid league", { status: 404 });
   }
 
-  const referenceCurrencies = await queryClient.fetchQuery(
-    getReferenceCurrenciesQueryOptions(params.realmId, params.leagueId),
-  );
   const baseCurrencyApiIds = getBaseCurrencyApiIds(referenceCurrencies);
 
   await Promise.all([
+    pairHistoryPrefetch,
     queryClient.prefetchQuery(
       getSnapshotPairsQueryOptions({
         realmApiId: params.realmId,
         leagueName: params.leagueId,
         baseCurrencyApiIds,
-      }),
-    ),
-    queryClient.prefetchQuery(
-      getPairHistoryQueryOptions({
-        realmApiId: params.realmId,
-        leagueName: params.leagueId,
-        currencyOneItemId,
-        currencyTwoItemId,
-        limit: HISTORY_LIMIT,
       }),
     ),
   ]);

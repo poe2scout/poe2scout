@@ -13,9 +13,13 @@ const ROWS_PER_PAGE_OPTIONS = [10, 25, 50, 100];
 export default function ExchangePairTable({
   pairs,
   tableState,
+  isLoading = false,
+  isError = false,
 }: {
   pairs: ExchangeSnapshotPair[];
   tableState: ExchangeTableState;
+  isLoading?: boolean;
+  isError?: boolean;
 }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -85,7 +89,9 @@ export default function ExchangePairTable({
         <div>
           <h2 className="text-lg font-semibold text-white">Trading Pairs</h2>
           <p className="text-sm text-white/55">
-            {filteredPairs.length.toLocaleString()} current pairs
+            {isLoading
+              ? "Loading current pairs..."
+              : `${filteredPairs.length.toLocaleString()} current pairs`}
           </p>
         </div>
         <label className="relative block w-full sm:w-80">
@@ -138,7 +144,25 @@ export default function ExchangePairTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-white/10">
-            {visiblePairs.length > 0 ? (
+            {isLoading ? (
+              <tr>
+                <td
+                  colSpan={3}
+                  className="px-3 py-12 text-center text-white/60"
+                >
+                  Loading trading pairs...
+                </td>
+              </tr>
+            ) : isError ? (
+              <tr>
+                <td
+                  colSpan={3}
+                  className="px-3 py-12 text-center text-white/60"
+                >
+                  Failed to load trading pairs.
+                </td>
+              </tr>
+            ) : visiblePairs.length > 0 ? (
               visiblePairs.map((pair) => (
                 <tr
                   key={pair.currencyExchangeSnapshotPairId}
@@ -180,8 +204,9 @@ export default function ExchangePairTable({
       </div>
       <div className="flex flex-col gap-3 border-t border-secondary/25 px-3 py-2 text-sm text-white/70 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          Page {currentPage.toLocaleString()} of {totalPages.toLocaleString()} |{" "}
-          {filteredPairs.length.toLocaleString()} pairs
+          {isLoading
+            ? "Loading pairs"
+            : `Page ${currentPage.toLocaleString()} of ${totalPages.toLocaleString()} | ${filteredPairs.length.toLocaleString()} pairs`}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <label className="flex items-center gap-2">
@@ -206,7 +231,7 @@ export default function ExchangePairTable({
           <button
             type="button"
             onClick={() => updateTableState({ page: currentPage - 1 })}
-            disabled={currentPage <= 1}
+            disabled={isLoading || isError || currentPage <= 1}
             className="h-8 rounded-sm border border-secondary/35 px-3 text-white transition hover:bg-secondary/20 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
           >
             Previous
@@ -214,7 +239,7 @@ export default function ExchangePairTable({
           <button
             type="button"
             onClick={() => updateTableState({ page: currentPage + 1 })}
-            disabled={currentPage >= totalPages}
+            disabled={isLoading || isError || currentPage >= totalPages}
             className="h-8 rounded-sm border border-secondary/35 px-3 text-white transition hover:bg-secondary/20 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
           >
             Next

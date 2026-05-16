@@ -13,7 +13,7 @@ import type {
   ExchangeSort,
   ExchangeTableState,
 } from "~/features/exchange/types";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import getNumberNonZero from "~/shared/utils/get-number-non-zero";
 import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
@@ -38,42 +38,32 @@ export async function clientLoader({
 }: Route.ClientLoaderArgs) {
   const url = new URL(request.url);
   const tableState = getExchangeTableState(url.searchParams);
-  const leagues = await queryClient.fetchQuery(
-    getLeaguesQueryOptions(params.realmId),
+  const snapshotPrefetch = queryClient.prefetchQuery(
+    getExchangeSnapshotQueryOptions({
+      realmApiId: params.realmId,
+      leagueName: params.leagueId,
+    }),
   );
+  const snapshotHistoryPrefetch = queryClient.prefetchQuery(
+    getSnapshotHistoryQueryOptions({
+      realmApiId: params.realmId,
+      leagueName: params.leagueId,
+      limit: HISTORY_LIMIT,
+    }),
+  );
+  const [leagues] = await Promise.all([
+    queryClient.fetchQuery(getLeaguesQueryOptions(params.realmId)),
+    queryClient.fetchQuery(
+      getReferenceCurrenciesQueryOptions(params.realmId, params.leagueId),
+    ),
+  ]);
   const league = leagues.find((league) => league.value === params.leagueId);
 
   if (!league) {
     throw new Response("Invalid league", { status: 404 });
   }
 
-  const referenceCurrencies = await queryClient.fetchQuery(
-    getReferenceCurrenciesQueryOptions(params.realmId, params.leagueId),
-  );
-  const baseCurrencyApiIds = getBaseCurrencyApiIds(referenceCurrencies);
-
-  await Promise.all([
-    queryClient.prefetchQuery(
-      getExchangeSnapshotQueryOptions({
-        realmApiId: params.realmId,
-        leagueName: params.leagueId,
-      }),
-    ),
-    queryClient.prefetchQuery(
-      getSnapshotHistoryQueryOptions({
-        realmApiId: params.realmId,
-        leagueName: params.leagueId,
-        limit: HISTORY_LIMIT,
-      }),
-    ),
-    queryClient.prefetchQuery(
-      getSnapshotPairsQueryOptions({
-        realmApiId: params.realmId,
-        leagueName: params.leagueId,
-        baseCurrencyApiIds,
-      }),
-    ),
-  ]);
+  await Promise.all([snapshotPrefetch, snapshotHistoryPrefetch]);
 
   return tableState;
 }
@@ -97,7 +87,7 @@ export default function Exchange({ params, loaderData }: Route.ComponentProps) {
       limit: HISTORY_LIMIT,
     }),
   );
-  const { data: pairs } = useSuspenseQuery(
+  const pairsQuery = useQuery(
     getSnapshotPairsQueryOptions({
       realmApiId: params.realmId,
       leagueName: params.leagueId,
@@ -112,7 +102,12 @@ export default function Exchange({ params, loaderData }: Route.ComponentProps) {
         history={history.data}
         baseCurrencyText={history.baseCurrencyText || snapshot.baseCurrencyText}
       />
-      <ExchangePairTable pairs={pairs} tableState={loaderData} />
+      <ExchangePairTable
+        pairs={pairsQuery.data ?? []}
+        tableState={loaderData}
+        isLoading={pairsQuery.isPending}
+        isError={pairsQuery.isError}
+      />
     </div>
   );
 }
