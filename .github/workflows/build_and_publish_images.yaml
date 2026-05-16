@@ -21,6 +21,9 @@ jobs:
           - image: poe2scout-web
             context: ./apps/web
             dockerfile: ./apps/web/Dockerfile
+          - image: poe2scout-beta-web
+            context: ./apps/my-react-router-app
+            dockerfile: ./apps/my-react-router-app/Dockerfile
           - image: poe2scout-api
             context: .
             dockerfile: ./apps/api/Dockerfile
@@ -68,4 +71,3 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/poe2scout/${{ matrix.image }}:${{ steps.image-tag.outputs.alias_tag }}
             ${{ env.REGISTRY }}/poe2scout/${{ matrix.image }}:${{ github.sha }}
-

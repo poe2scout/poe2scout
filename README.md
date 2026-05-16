@@ -77,12 +77,13 @@ Run item sync first so the database has base data, then apply any required SQL m
 
 ## Deployment
 
-- Pushes to `main` build and publish container images to GHCR.
-- Pushes to `release` also build and publish container images to GHCR.
+- Pushes to `main` build and publish container images to GHCR, including the beta web image.
+- Pushes to `release` also build and publish container images to GHCR, including the beta web image.
 - After the `release` image workflow succeeds, a separate deploy workflow copies `infra/` and `.env` to the server and runs:
-  `docker compose -f infra/compose/prod.yml --env-file .env pull`
+  `docker compose -f infra/compose/prod.yml -f infra/compose/observability.yml --env-file .env pull`
   followed by
-  `docker compose -f infra/compose/prod.yml --env-file .env up -d --remove-orphans`
+  `docker compose -f infra/compose/prod.yml -f infra/compose/observability.yml --env-file .env up -d --remove-orphans`
+- `poe2scout.com` serves the production web app, while `beta.poe2scout.com` serves the React Router beta web app and proxies `/api` to the same API service.
 
 The production server no longer needs a checked-out copy of this repository.
 

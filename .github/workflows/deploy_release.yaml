@@ -40,7 +40,8 @@ jobs:
           DBSTRING=${{ secrets.DBSTRING }}
           SECRET_KEY=${{ secrets.SECRET_KEY }}
           MONITORING_DOMAIN=monitoring.${{ secrets.DOMAINS }}
-          DOMAINS=${{ secrets.DOMAINS }},${{ secrets.GRAFANA_BASIC_AUTH_USER }}:${{ secrets.GRAFANA_BASIC_AUTH_PASSWORD }}@monitoring.${{ secrets.DOMAINS }}
+          BETA_DOMAIN=beta.${{ secrets.DOMAINS }}
+          DOMAINS=${{ secrets.DOMAINS }},beta.${{ secrets.DOMAINS }},${{ secrets.GRAFANA_BASIC_AUTH_USER }}:${{ secrets.GRAFANA_BASIC_AUTH_PASSWORD }}@monitoring.${{ secrets.DOMAINS }}
           STAGE=${{ secrets.STAGE }}
           POEAPI_CLIENT_ID=${{ secrets.POEAPI_CLIENT_ID }}
           POEAPI_CLIENT_SECRET=${{ secrets.POEAPI_CLIENT_SECRET }}

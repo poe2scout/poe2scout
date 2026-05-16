@@ -7,6 +7,7 @@ services:
       - "443:443"
     environment:
       DOMAINS: ${DOMAINS}
+      BETA_DOMAIN: ${BETA_DOMAIN}
       MONITORING_DOMAIN: ${MONITORING_DOMAIN}
       STAGE: ${STAGE}
     volumes:
@@ -15,9 +16,18 @@ services:
       - https-portal-data:/var/lib/https-portal
     depends_on:
       - web
+      - beta-web
 
   web:
     image: ghcr.io/poe2scout/poe2scout-web:${IMAGE_TAG:-release}
+    restart: always
+    expose:
+      - "3000"
+    depends_on:
+      - api
+
+  beta-web:
+    image: ghcr.io/poe2scout/poe2scout-beta-web:${IMAGE_TAG:-release}
     restart: always
     expose:
       - "3000"
