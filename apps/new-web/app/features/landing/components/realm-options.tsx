@@ -38,7 +38,7 @@ export default function RealmSelector({
             onClick={() => setSelectedRealm(realm)}
             className="min-h-10 rounded-sm border border-secondary/35 bg-transparent px-3 py-2 text-sm text-white/80 transition outline-none hover:bg-secondary/10 hover:text-white focus:border-secondary focus:ring-2 focus:ring-secondary/25 aria-pressed:bg-secondary/90 aria-pressed:text-gray-950"
           >
-            {realm.gameApiId}/{realm.realmApiId}
+            {realm.realmApiId}
           </button>
         ))}
       </div>
