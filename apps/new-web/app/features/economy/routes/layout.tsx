@@ -7,6 +7,10 @@ import ItemSearch from "../components/item-search";
 import { formatTitle, getLeagueContextTitle } from "~/shared/meta/page-title";
 import type { Filter } from "../queries/filters";
 import ResponsiveAdLayout from "~/shared/components/ads/responsive-ad-layout";
+import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
+import { useLeagueContext } from "~/features/league/context";
+import ReferenceCurrencySelect from "../components/reference-currency-select";
+import SelectField from "~/shared/components/select";
 
 const routeKindByItemKind: Record<
   Filter["itemKind"],
@@ -30,9 +34,16 @@ export function meta({ matches }: Route.MetaArgs) {
 }
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-  return queryClient.fetchQuery(
-    getCategoriesQueryOptions(params.realmId, params.leagueId),
-  );
+  const [categories, referenceCurrencies] = await Promise.all([
+    queryClient.fetchQuery(
+      getCategoriesQueryOptions(params.realmId, params.leagueId),
+    ),
+    queryClient.fetchQuery(
+      getReferenceCurrenciesQueryOptions(params.realmId, params.leagueId),
+    ),
+  ]);
+
+  return { ...categories, referenceCurrencies };
 }
 
 export default function EconomyLayout({
@@ -41,9 +52,19 @@ export default function EconomyLayout({
 }: Route.ComponentProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { league } = useLeagueContext();
   const basePath = `/${params.realmId}/${params.leagueId}/economy`;
   const currentSearchParams = new URLSearchParams(location.search);
   const activeSearchValue = currentSearchParams.get("search") ?? "";
+  const referenceCurrencyParam = currentSearchParams.get("referenceCurrency");
+  const selectedReferenceCurrency =
+    referenceCurrencyParam ?? league.defaultCurrency.apiId;
+  const categoryQuery = getCategoryQuery(location.search);
+  const validReferenceCurrency = loaderData.referenceCurrencies.some(
+    (currency) => currency.apiId === selectedReferenceCurrency,
+  )
+    ? selectedReferenceCurrency
+    : league.defaultCurrency.apiId;
   const currencyCategoryOptions = loaderData.currencyCategories.map(
     (category) => ({
       ...category,
@@ -76,8 +97,17 @@ export default function EconomyLayout({
     const nextCategory = event.currentTarget.value;
 
     if (nextCategory) {
-      navigate(`${basePath}/${nextCategory}`);
+      navigate(`${basePath}/${nextCategory}${categoryQuery}`);
     }
+  };
+
+  const handleReferenceCurrencyChange = (referenceCurrency: string) => {
+    const nextSearchParams = new URLSearchParams(location.search);
+    nextSearchParams.set("referenceCurrency", referenceCurrency);
+    nextSearchParams.delete("page");
+
+    const query = nextSearchParams.toString();
+    navigate(`${location.pathname}${query ? `?${query}` : ""}`);
   };
 
   const handleSearchFilterSelect = (filter: Filter) => {
@@ -114,6 +144,13 @@ export default function EconomyLayout({
           activeSearchValue={activeSearchValue}
           onFilterSelect={handleSearchFilterSelect}
           onSearchFilterRemove={handleSearchFilterRemove}
+          endContent={
+            <ReferenceCurrencySelect
+              value={validReferenceCurrency}
+              options={loaderData.referenceCurrencies}
+              onChange={handleReferenceCurrencyChange}
+            />
+          }
         ></ItemSearch>
       </div>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start">
@@ -128,6 +165,7 @@ export default function EconomyLayout({
                 label={category.label}
                 icon={category.icon}
                 type="currencies"
+                query={categoryQuery}
               />
             );
           })}
@@ -143,19 +181,19 @@ export default function EconomyLayout({
                 label={category.label}
                 icon={category.icon}
                 type="uniques"
+                query={categoryQuery}
               />
             );
           })}
         </nav>
         <div className="lg:hidden">
-          <label className="sr-only" htmlFor="economy-category-select">
-            Economy category
-          </label>
-          <select
+          <SelectField
+            label="Category"
+            className="block text-sm text-white/80"
             id="economy-category-select"
             value={currentCategoryValue}
             onChange={handleCategoryChange}
-            className="h-10 w-full rounded-sm border border-secondary/35 bg-zinc-900 px-3 text-sm text-white shadow-lg shadow-black/30 outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
+            wrapperClassName="h-10 bg-zinc-900/40 px-3 shadow-lg shadow-black/30"
           >
             <option value="">Select category</option>
             <optgroup label="Currency categories">
@@ -174,7 +212,7 @@ export default function EconomyLayout({
                 ))}
               </optgroup>
             )}
-          </select>
+          </SelectField>
         </div>
         <div className="min-w-0 flex-1">
           <Outlet />
@@ -197,18 +235,20 @@ function NavItem({
   label,
   type,
   icon,
+  query,
 }: {
   apiId: string;
   label: string;
   type: string;
   icon: string;
+  query: string;
 }) {
   return (
     <NavLink
       className={({ isActive }) =>
         `flex w-full justify-between px-3 py-2 text-sm transition outline-none hover:bg-secondary/20 focus:bg-secondary/25 ${isActive ? "bg-secondary/30 text-white" : "text-white/80"}`
       }
-      to={`${type}/${apiId}`}
+      to={`${type}/${apiId}${query}`}
       end
       key={label}
       prefetch="intent"
@@ -217,4 +257,15 @@ function NavItem({
       <span className="w-35.25">{label}</span>
     </NavLink>
   );
+}
+
+function getCategoryQuery(search: string) {
+  const searchParams = new URLSearchParams(search);
+  const referenceCurrency = searchParams.get("referenceCurrency");
+
+  if (!referenceCurrency) {
+    return "";
+  }
+
+  return `?${new URLSearchParams({ referenceCurrency }).toString()}`;
 }

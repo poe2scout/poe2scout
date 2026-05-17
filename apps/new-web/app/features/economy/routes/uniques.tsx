@@ -25,9 +25,7 @@ export function meta({ matches, params }: Route.MetaArgs) {
   const categoryLabel = getCategoryLabel(matches, "uniques", params.category);
   const leagueContext = getLeagueContextTitle(matches);
 
-  return [
-    { title: formatTitle([`${categoryLabel} Unique Prices`, leagueContext]) },
-  ];
+  return [{ title: formatTitle([`${categoryLabel} Prices`, leagueContext]) }];
 }
 
 export async function clientLoader({

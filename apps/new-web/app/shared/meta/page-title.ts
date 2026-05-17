@@ -54,7 +54,7 @@ export function getLeagueContextTitle(matches: RouteMetaMatches) {
     return null;
   }
 
-  return `${data.realm.label} ${data.league.value}`.trim();
+  return `${data.league.value} ${data.realm.realmApiId}`.trim();
 }
 
 export function getCategoryLabel(
@@ -118,7 +118,7 @@ function isLeagueRouteData(value: unknown): value is LeagueRouteData {
   }
 
   return typeof value.league.value === "string" &&
-    typeof value.realm.label === "string";
+    typeof value.realm.realmApiId === "string";
 }
 
 function isCategoryRouteData(value: unknown): value is CategoryRouteData {

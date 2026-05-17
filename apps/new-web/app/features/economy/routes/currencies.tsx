@@ -29,9 +29,7 @@ export function meta({ matches, params }: Route.MetaArgs) {
   );
   const leagueContext = getLeagueContextTitle(matches);
 
-  return [
-    { title: formatTitle([`${categoryLabel} Currency Prices`, leagueContext]) },
-  ];
+  return [{ title: formatTitle([`${categoryLabel} Prices`, leagueContext]) }];
 }
 
 export async function clientLoader({

@@ -1,4 +1,5 @@
 import DataTable from "~/shared/components/table/data-table";
+import SelectField from "~/shared/components/select";
 import type { TableColumn } from "~/shared/components/table/types";
 import { getEconomyItemKey } from "./economy-table-columns";
 import type { EconomyItem } from "../types";
@@ -38,22 +39,23 @@ export default function EconomyTable({
             · {totalItems.toLocaleString()} items
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <label className="flex items-center gap-2">
-              <span>Rows</span>
-              <select
-                value={rowsPerPage}
-                onChange={(e) =>
-                  onPaginationChange(1, Number(e.currentTarget.value))
-                }
-                className="h-8 rounded-sm border border-secondary/35 bg-zinc-900/60 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
-              >
-                {rowsPerPageOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <SelectField
+              label="Rows"
+              value={rowsPerPage}
+              onChange={(e) =>
+                onPaginationChange(1, Number(e.currentTarget.value))
+              }
+              className="flex items-center gap-2"
+              labelClassName=""
+              wrapperClassName="h-8 bg-zinc-900/60 px-2"
+              selectClassName="text-sm"
+            >
+              {rowsPerPageOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </SelectField>
             <button
               type="button"
               onClick={() => onPaginationChange(currentPage - 1, rowsPerPage)}

@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 
 import type { League, LeagueCurrency, Realm } from "~/features/league/types";
 import { queryClient } from "~/shared/api/query-client";
+import SelectField from "~/shared/components/select";
 import type {
   DailyStatEntry,
   EconomyItem,
@@ -148,22 +149,22 @@ export default function ItemDetail({
           </div>
 
           {chartMode === "raw" && (
-            <label className="flex items-center gap-2 text-sm text-white/70">
-              <span>Currency</span>
-              <select
-                value={selectedReferenceCurrency}
-                onChange={(event) =>
-                  setDetailParam("referenceCurrency", event.currentTarget.value)
-                }
-                className="h-9 rounded-sm border border-secondary/35 bg-zinc-900/60 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
-              >
-                {referenceCurrencyOptions.map((option) => (
-                  <option key={option.apiId} value={option.apiId}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <SelectField
+              label="Currency"
+              value={selectedReferenceCurrency}
+              onChange={(event) =>
+                setDetailParam("referenceCurrency", event.currentTarget.value)
+              }
+              className="flex items-center gap-2 text-sm text-white/70"
+              labelClassName=""
+              wrapperClassName="h-9 bg-zinc-900/60 px-2"
+            >
+              {referenceCurrencyOptions.map((option) => (
+                <option key={option.apiId} value={option.apiId}>
+                  {option.label}
+                </option>
+              ))}
+            </SelectField>
           )}
         </div>
       </header>

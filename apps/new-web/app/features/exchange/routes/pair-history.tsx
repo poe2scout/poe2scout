@@ -8,6 +8,7 @@ import { findLeagueByRouteId } from "~/features/league/route-id";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 import type { LeagueCurrency } from "~/features/league/types";
 import { queryClient } from "~/shared/api/query-client";
+import SelectField from "~/shared/components/select";
 import PairHistoryChart from "../components/pair-history-chart";
 import { PAIR_HISTORY_METRIC_LABELS } from "../components/pair-history-metrics";
 import { getPairHistoryQueryOptions } from "../queries/pair-history";
@@ -236,20 +237,20 @@ export default function PairHistory({
                 Compare price, value, volume, and stock metrics over time.
               </p>
             </div>
-            <label className="flex items-center gap-2 text-sm text-white/70">
-              <span>Metric</span>
-              <select
-                value={selectedOption.id}
-                onChange={(event) => setMetric(event.currentTarget.value)}
-                className="h-9 max-w-full rounded-sm border border-secondary/35 bg-zinc-900/40 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
-              >
-                {metricOptions.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <SelectField
+              label="Metric"
+              value={selectedOption.id}
+              onChange={(event) => setMetric(event.currentTarget.value)}
+              className="flex items-center gap-2 text-sm text-white/70"
+              labelClassName=""
+              wrapperClassName="h-9 max-w-full bg-zinc-900/40 px-2"
+            >
+              {metricOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </SelectField>
           </div>
 
           <div className="relative min-h-130 px-2 py-4 sm:px-4">

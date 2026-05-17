@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import type { ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router";
+import SelectField from "~/shared/components/select";
 import type {
   ExchangeOrder,
   ExchangeSnapshotPair,
@@ -209,25 +210,25 @@ export default function ExchangePairTable({
             : `Page ${currentPage.toLocaleString()} of ${totalPages.toLocaleString()} | ${filteredPairs.length.toLocaleString()} pairs`}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <label className="flex items-center gap-2">
-            <span>Rows</span>
-            <select
-              value={tableState.perPage}
-              onChange={(event) =>
-                updateTableState({
-                  page: 1,
-                  perPage: Number(event.currentTarget.value),
-                })
-              }
-              className="h-8 rounded-sm border border-secondary/35 bg-zinc-900/60 px-2 text-white outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/25"
-            >
-              {ROWS_PER_PAGE_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SelectField
+            label="Rows"
+            value={tableState.perPage}
+            onChange={(event) =>
+              updateTableState({
+                page: 1,
+                perPage: Number(event.currentTarget.value),
+              })
+            }
+            className="flex items-center gap-2"
+            labelClassName=""
+            wrapperClassName="h-8 bg-zinc-900/60 px-2"
+          >
+            {ROWS_PER_PAGE_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </SelectField>
           <button
             type="button"
             onClick={() => updateTableState({ page: currentPage - 1 })}
