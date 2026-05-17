@@ -3,10 +3,7 @@ import NavLinkButton from "~/features/landing/components/nav-link-button";
 import { useLeagueContext } from "~/features/league/context";
 import useCurrentGame from "~/features/league/hooks/use-current-game";
 import Section from "~/shared/components/section/section";
-import {
-  formatTitle,
-  getLeagueContextTitle,
-} from "~/shared/meta/page-title";
+import { formatTitle, getLeagueContextTitle } from "~/shared/meta/page-title";
 
 export function meta({ matches }: Route.MetaArgs) {
   const leagueContext = getLeagueContextTitle(matches);
@@ -27,7 +24,7 @@ export default function Index() {
               {league.value} Overview
             </h1>
             <p className="mt-1 text-sm text-white/60">
-              {realm.gameApiId}/{realm.realmApiId} market tools and price data.
+              {realm.realmApiId} market tools and price data.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
