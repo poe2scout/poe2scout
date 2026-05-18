@@ -84,7 +84,7 @@ GetLandingSplashInfoRequestDep = Annotated[
 ]
 
 
-@router.get("/LandingSplashInfo")
+@router.get("/{Realm}/LandingSplashInfo")
 async def get_landing_splash_info(
     request: GetLandingSplashInfoRequestDep,
 ) -> GetLandingSplashInfoResponse:

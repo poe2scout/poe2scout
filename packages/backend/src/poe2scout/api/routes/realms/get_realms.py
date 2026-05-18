@@ -3,9 +3,7 @@ from pydantic import BaseModel
 
 from poe2scout.db.repositories import game_repository, league_repository, realm_repository
 
-
-router = root_static_router = APIRouter(prefix="/Static", tags=["Static"])
-
+from . import router
 
 class RealmOptionResponse(BaseModel):
     value: str
@@ -16,7 +14,7 @@ class RealmOptionResponse(BaseModel):
     default_league_value: str
 
 
-@router.get("/Realms")
+@router.get("")
 async def get_realms() -> list[RealmOptionResponse]:
     games = await game_repository.get_games()
     realms = await realm_repository.get_realms()

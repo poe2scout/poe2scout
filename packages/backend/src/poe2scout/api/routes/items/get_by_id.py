@@ -13,7 +13,7 @@ from poe2scout.db.repositories import (
 )
 
 from .get import GetItemsResponse
-from .. import router
+from . import router
 
 
 class GetItemRequest(ApiModel):
@@ -37,7 +37,7 @@ def get_item_request(
 GetItemRequestDep = Annotated[GetItemRequest, Depends(get_item_request)]
 
 
-@router.get("/{LeagueName}/Items/{ItemId}")
+@router.get("/{ItemId}")
 async def get_item(
     request: GetItemRequestDep,
 ) -> GetItemsResponse:

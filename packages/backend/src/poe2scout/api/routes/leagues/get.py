@@ -41,7 +41,7 @@ class GetResponse(ApiModel):
         @classmethod
         def from_model(
             cls,
-            model: BaseCurrency,
+            model: BaseCurrency | League,
             relative_price: float,
         ) -> Self:
             if isinstance(model, League):

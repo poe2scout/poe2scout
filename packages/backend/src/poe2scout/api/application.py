@@ -26,8 +26,9 @@ from poe2scout.api.dependancies import cache_response, close_redis_client, redis
 from poe2scout.api.routes import (
     items_router,
     leagues_router,
-    root_static_router,
-    static_router,
+    realms_router,
+    currencies_router,
+    uniques_router,
 )
 from poe2scout.db.repositories.base_repository import BaseRepository
 from poe2scout.observability.context import request_context
@@ -208,8 +209,9 @@ def create_app(
 
     app.include_router(items_router)
     app.include_router(leagues_router)
-    app.include_router(root_static_router)
-    app.include_router(static_router)
+    app.include_router(realms_router)
+    app.include_router(uniques_router)
+    app.include_router(currencies_router)
 
     @app.middleware("http")
     async def observe_requests(request: Request, call_next):

@@ -17,7 +17,7 @@ export default function getFiltersQueryOptions(realmApiId: string) {
     queryKey: ["filters", realmApiId],
     queryFn: () =>
       fetchRoute(
-        `/api/${realmApiId}/Static/Filters`,
+        `/api/Realms/${realmApiId}/Filters`,
       ) as Promise<GetFiltersResponse>,
   });
 }

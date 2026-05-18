@@ -9,7 +9,7 @@ from poe2scout.db.repositories.price_log_repository.get_item_daily_stats_history
     DailyStatsHistoryEntry,
 )
 
-from .. import router
+from . import router
 
 
 class GetDailyStatsHistoryRequest(ApiModel):
@@ -88,7 +88,7 @@ class GetDailyStatsHistoryResponse(ApiModel):
         )
 
 
-@router.get("/{LeagueName}/Items/{ItemId}/DailyStatsHistory")
+@router.get("/{ItemId}/DailyStatsHistory")
 async def get_daily_stats_history(
     request: GetDailyStatsHistoryRequestDep,
 ) -> GetDailyStatsHistoryResponse:

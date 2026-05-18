@@ -95,7 +95,7 @@ class GetCategoriesRequest(ApiModel):
 
 def get_categories_request(
     realm: Annotated[str, Path(alias="Realm")],
-    league_name: Annotated[str, Query(alias="LeagueName")],
+    league_name: Annotated[str, Path(alias="LeagueName")],
 ) -> GetCategoriesRequest:
     return GetCategoriesRequest(
         realm=realm,

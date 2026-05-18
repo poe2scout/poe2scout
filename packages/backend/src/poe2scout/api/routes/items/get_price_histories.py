@@ -11,7 +11,7 @@ from poe2scout.db.repositories.price_log_repository.get_all_item_histories impor
     ItemHistoryLog,
 )
 
-from .. import router
+from . import router
 
 
 class GetItemPriceHistoriesResponse(ApiModel):
@@ -71,7 +71,7 @@ GetItemPriceHistoryRequestDep = Annotated[
 ]
 
 
-@router.get("/{LeagueName}/Items/PriceHistory")
+@router.get("/PriceHistory")
 async def get_item_price_histories(
     request: GetItemPriceHistoryRequestDep,
 ) -> GetItemPriceHistoriesResponse:

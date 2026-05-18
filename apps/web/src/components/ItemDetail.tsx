@@ -167,7 +167,7 @@ export function ItemDetail({
     logCountRef.current = 14 * 24; 
 
     fetchPriceHistory(true, initialCursor);
-  }, [item.id, selectedReference, fetchPriceHistory, chartMode]);
+  }, [item.itemId, selectedReference, fetchPriceHistory, chartMode]);
 
   useEffect(() => {
     if (chartMode !== "daily") return;
@@ -176,7 +176,7 @@ export function ItemDetail({
     setDailyHasMore(true);
     setOldestDailyDate(undefined);
     fetchDailyStats(true);
-  }, [item.id, fetchDailyStats, chartMode]);
+  }, [item.itemId, fetchDailyStats, chartMode]);
 
   const handleLoadMore = useCallback(() => {
     if (!isLoadingMore && hasMore) {

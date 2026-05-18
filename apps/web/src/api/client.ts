@@ -11,6 +11,8 @@ export const setActiveRealmPath = (realmPath: string): void => {
   activeRealmPath = realmPath;
 };
 
+export const getActiveRealmPath = (): string => activeRealmPath;
+
 export const getApiBaseUrl = (): string => API_BASE_URL;
 
 const getScopedBaseUrl = (scope: ApiScope): string => {

@@ -7,12 +7,13 @@ from fastapi import Depends, HTTPException, Path, Query
 from poe2scout.api.dependancies import EconomyCacheDep, PaginationParamDep
 from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories import currency_item_repository, league_repository, realm_repository
-from poe2scout.db.repositories.models import PriceLogEntry, UniqueItemExtended
+from poe2scout.db.repositories.models import CurrencyItemExtended, PriceLogEntry
 from poe2scout.services.pricing import resolve_reference_currency_api_id
 
-from .. import router
+from . import router
 
-class GetUniqueItemsResponse(ApiModel):
+
+class GetByCategoryResponse(ApiModel):
     class _Item(ApiModel):
         class _PriceLogEntry(ApiModel):
             price: float
@@ -27,34 +28,34 @@ class GetUniqueItemsResponse(ApiModel):
                     quantity=model.quantity,
                 )
 
-        unique_item_id: int
+        currency_item_id: int
         item_id: int
-        icon_url: str | None = None
+        currency_category_id: int
+        api_id: str
         text: str
-        name: str
         category_api_id: str
+        icon_url: str | None = None
         item_metadata: dict | None = None
-        type: str
-        is_chanceable: bool | None = False
         price_logs: list[_PriceLogEntry | None]
         current_price: float | None = None
         current_quantity: int | None = None
 
         @classmethod
-        def from_model(cls, model: UniqueItemExtended) -> Self:
+        def from_model(cls, model: CurrencyItemExtended) -> Self:
             return cls(
-                unique_item_id=model.unique_item_id,
+                currency_item_id=model.currency_item_id,
                 item_id=model.item_id,
-                icon_url=model.icon_url,
+                currency_category_id=model.currency_category_id,
+                api_id=model.api_id,
                 text=model.text,
-                name=model.name,
                 category_api_id=model.category_api_id,
+                icon_url=model.icon_url,
                 item_metadata=model.item_metadata,
-                type=model.type,
-                is_chanceable=model.is_chanceable,
                 price_logs=[
-                    cls._PriceLogEntry.from_model(log) if log is not None else None
-                    for log in model.price_logs
+                    cls._PriceLogEntry.from_model(price_log)
+                    if price_log is not None
+                    else None
+                    for price_log in model.price_logs
                 ],
                 current_price=model.current_price,
                 current_quantity=model.current_quantity,
@@ -71,7 +72,7 @@ class GetUniqueItemsResponse(ApiModel):
         current_page: int,
         pages: int,
         total: int,
-        items: list[UniqueItemExtended],
+        items: list[CurrencyItemExtended],
     ) -> Self:
         return cls(
             current_page=current_page,
@@ -81,7 +82,7 @@ class GetUniqueItemsResponse(ApiModel):
         )
 
 
-class GetUniqueCategoryItemsRequest(ApiModel):
+class GetByCategoryRequest(ApiModel):
     realm: str
     league_name: str
     category: str
@@ -89,7 +90,7 @@ class GetUniqueCategoryItemsRequest(ApiModel):
     search: str
 
 
-def get_unique_category_items_request(
+def get_by_category_request(
     realm: Annotated[str, Path(alias="Realm")],
     league_name: Annotated[str, Path(alias="LeagueName")],
     category: Annotated[str, Query(alias="Category")],
@@ -98,8 +99,8 @@ def get_unique_category_items_request(
         Query(alias="ReferenceCurrency"),
     ] = None,
     search: Annotated[str, Query(alias="Search")] = "",
-) -> GetUniqueCategoryItemsRequest:
-    return GetUniqueCategoryItemsRequest(
+) -> GetByCategoryRequest:
+    return GetByCategoryRequest(
         realm=realm,
         league_name=league_name,
         category=category,
@@ -108,24 +109,25 @@ def get_unique_category_items_request(
     )
 
 
-GetUniqueCategoryItemsRequestDep = Annotated[
-    GetUniqueCategoryItemsRequest,
-    Depends(get_unique_category_items_request),
+GetByCategoryRequestDep = Annotated[
+    GetByCategoryRequest,
+    Depends(get_by_category_request),
 ]
 
 
-@router.get("/{LeagueName}/Uniques/ByCategory")
-async def get_unique_category_items(
-    request: GetUniqueCategoryItemsRequestDep,
-    pagination: PaginationParamDep,
+@router.get("/ByCategory")
+async def get_by_category(
+    request: GetByCategoryRequestDep,
     economy_cache: EconomyCacheDep,
-) -> GetUniqueItemsResponse:
+    pagination: PaginationParamDep,
+) -> GetByCategoryResponse:
     realm = await realm_repository.get_realm(request.realm)
 
     if realm is None:
-        raise HTTPException(400, "Invalid realm name")
+        raise HTTPException(400, "Invalid realm")
 
     league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
+
     if league is None:
         raise HTTPException(400, "Invalid league name")
 
@@ -140,13 +142,13 @@ async def get_unique_category_items(
     if reference_currency_item is None:
         raise HTTPException(400, "Reference currency does not exist")
 
-    items = await economy_cache.get_unique_page(
+    items = await economy_cache.get_currency_page(
         league.league_id,
         realm.realm_id,
         realm.game_id,
         request.category,
         reference_currency_api_id,
-        request.search,
+        search=request.search,
     )
     item_count = len(items)
 
@@ -155,7 +157,7 @@ async def get_unique_category_items(
 
     items = items[starting_index:ending_index]
 
-    return GetUniqueItemsResponse.from_model(
+    return GetByCategoryResponse.from_model(
         current_page=pagination.page,
         pages=math.ceil(item_count / pagination.per_page),
         total=item_count,

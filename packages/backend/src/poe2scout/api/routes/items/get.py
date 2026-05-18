@@ -16,7 +16,7 @@ from poe2scout.db.repositories import (
 from poe2scout.db.repositories.unique_item_repository.get_all_unique_items import UniqueItem
 from poe2scout.db.repositories.models import CurrencyItem
 
-from .. import router
+from . import router
 
 items_cache = TTLCache(maxsize=1, ttl=60 * 15)
 
@@ -78,7 +78,7 @@ class GetItemsResponse(ApiModel):
 
 
 
-@router.get("/{LeagueName}/Items")
+@router.get("")
 async def get_items(
     request: GetItemsRequestDep,
 ) -> list[GetItemsResponse]:

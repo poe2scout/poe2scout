@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path, Query
+
 from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories import (
     currency_item_repository,
@@ -18,7 +19,7 @@ from poe2scout.services.pricing import (
     resolve_reference_currency_api_id,
 )
 
-from ..leagues import router
+from . import router
 
 
 class GetPriceHistoryRequest(ApiModel):
@@ -82,14 +83,17 @@ class GetPriceHistoryResponse(ApiModel):
         )
 
 
-@router.get("/{LeagueName}/Items/{ItemId}/History")
+@router.get("/{ItemId}/History")
 async def get_price_history(
-    request: GetPriceHistoryRequestDep
+    request: GetPriceHistoryRequestDep,
 ) -> GetPriceHistoryResponse:
-    realm = await realm_repository.get_realm(request.realm)
-
     if request.log_count % 4 != 0:
         raise HTTPException(400, "LogCount must be a multiple of 4")
+    
+    realm = await realm_repository.get_realm(request.realm)
+
+    if realm is None:
+        raise HTTPException(400, "Invalid realm")
 
     league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
 

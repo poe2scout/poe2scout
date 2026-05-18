@@ -1,4 +1,4 @@
-import { fetchNormalizedJson } from "./client";
+import { fetchNormalizedJson, getActiveRealmPath } from "./client";
 import type {
   ApiItem,
   CategoryResponse,
@@ -61,6 +61,20 @@ interface FetchItemDailyStatsHistoryParams {
   endDate?: string;
 }
 
+const getApiItemId = (item: ApiItem): number => {
+  const itemWithNewIds = item as ApiItem & {
+    uniqueItemId?: number;
+    currencyItemId?: number;
+  };
+
+  return itemWithNewIds.uniqueItemId ?? itemWithNewIds.currencyItemId ?? item.id;
+};
+
+const withLegacyItemId = <T extends ApiItem>(item: T): T => ({
+  ...item,
+  id: getApiItemId(item),
+});
+
 export const fetchLeagues = async (): Promise<LeaguePayload[]> => {
   const data = await fetchNormalizedJson<LeaguePayload[] | LeagueResponse>(
     "Leagues",
@@ -70,20 +84,22 @@ export const fetchLeagues = async (): Promise<LeaguePayload[]> => {
 };
 
 export const fetchRealmOptions = async (): Promise<RealmOption[]> =>
-  fetchNormalizedJson<RealmOption[]>("Static/Realms", undefined, "root");
+  fetchNormalizedJson<RealmOption[]>("Realms", undefined, "root");
 
 export const fetchCategories = async (
   leagueName: string,
 ): Promise<CategoryResponse> =>
-  fetchNormalizedJson<CategoryResponse>("Items/Categories", {
-    LeagueName: leagueName,
-  });
+  fetchNormalizedJson<CategoryResponse>(
+    `Leagues/${encodeURIComponent(leagueName)}/Items/Categories`,
+  );
 
 export const fetchSearchableItems = async (): Promise<SearchableItem[]> => {
   const data = await fetchNormalizedJson<
     SearchableItemsResponse | SearchableItem[]
   >(
-    "Static/Filters",
+    `Realms/${encodeURIComponent(getActiveRealmPath())}/Filters`,
+    undefined,
+    "root",
   );
 
   return Array.isArray(data) ? data : data.filters ?? [];
@@ -107,7 +123,10 @@ export const fetchItemsByCategory = async ({
       Search: search ?? "",
       ReferenceCurrency: referenceCurrency,
     },
-  );
+  ).then((data) => ({
+    ...data,
+    items: data.items.map(withLegacyItemId),
+  }));
 
 export const fetchItemHistory = async ({
   itemId,
@@ -138,8 +157,10 @@ export const fetchItemDailyStatsHistory = async ({
 
 export const fetchLandingSplashItems = async (): Promise<ApiItem[]> => {
   const data = await fetchNormalizedJson<LandingSplashResponse>(
-    "Static/LandingSplashInfo",
+    `Realms/${encodeURIComponent(getActiveRealmPath())}/LandingSplashInfo`,
+    undefined,
+    "root",
   );
 
-  return data.items ?? [];
+  return (data.items ?? []).map(withLegacyItemId);
 };

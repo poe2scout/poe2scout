@@ -13,7 +13,7 @@ from poe2scout.db.repositories import (
 )
 from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
 
-from .. import router
+from . import router
 
 
 class GetResponse(ApiModel):
@@ -93,7 +93,7 @@ GetRequestDep = Annotated[
 ]
 
 
-@router.get("/{LeagueName}/Currencies/{ApiId}")
+@router.get("/{ApiId}")
 @cache_response(
     key=lambda params: (
         f"get_currency_item:{params['request'].api_id}:{params['request'].league_name}"

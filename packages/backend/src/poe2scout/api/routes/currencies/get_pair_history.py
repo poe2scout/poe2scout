@@ -17,7 +17,7 @@ from poe2scout.db.repositories.currency_exchange_repository.get_pair_history imp
     PairDataDetails,
 )
 
-from .. import router
+from . import router
 
 class GetPairHistoryRequest(ApiModel):
     realm: str
@@ -122,7 +122,7 @@ class GetPairHistoryResponse(ApiModel):
 
 
 @router.get(
-    "/{LeagueName}/Currencies/Pairs/{CurrencyOneItemId}/{CurrencyTwoItemId}/History"
+    "/Pairs/{CurrencyOneItemId}/{CurrencyTwoItemId}/History"
 )
 async def get_pair_history(
     request: GetPairHistoryRequestDep

@@ -49,7 +49,7 @@ GetFiltersRequestDep = Annotated[
 ]
 
 
-@router.get("/Filters")
+@router.get("/{Realm}/Filters")
 async def get_filters(
     request: GetFiltersRequestDep,
 ) -> GetFiltersResponse:

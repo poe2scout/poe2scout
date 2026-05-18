@@ -28,7 +28,7 @@ export default function getCategoriesQueryOptions(
     queryKey: ["categories", { realmApiId, leagueName }],
     queryFn: async () =>
       (await fetchRoute(
-        `/api/${realmApiId}/Items/Categories?LeagueName=${leagueName}`,
+        `/api/${realmApiId}/Leagues/${leagueName}/Items/Categories`,
       )) as Promise<GetCategoriesResponse>,
   });
 }
