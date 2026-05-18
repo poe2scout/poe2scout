@@ -237,9 +237,15 @@ function useRawItemHistory({
   const [oldestTimestamp, setOldestTimestamp] = useState<string | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [cursor, setCursor] = useState(() => new Date().toISOString());
+  const didMountRef = useRef(false);
   const nextLogCountRef = useRef(INITIAL_RAW_LOG_COUNT * 2);
 
   useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+
     setHistory([]);
     setHasMore(true);
     setOldestTimestamp(null);
