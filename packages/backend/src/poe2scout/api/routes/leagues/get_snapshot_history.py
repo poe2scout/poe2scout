@@ -5,10 +5,9 @@ from typing import Annotated, Self
 from fastapi import Depends, HTTPException, Path, Query
 
 from poe2scout.api.api_model import ApiModel
+from poe2scout.api.dependancies import LeagueContextDep
 from poe2scout.db.repositories import (
-    currency_exchange_repository, 
-    league_repository, 
-    realm_repository
+    currency_exchange_repository,
 )
 from poe2scout.db.repositories.currency_exchange_repository.get_current_snapshot_history import (
     GetCurrencyExchangeHistoryData,
@@ -89,16 +88,10 @@ class GetSnapshotHistoryResponse(ApiModel):
 @router.get("/{LeagueName}/SnapshotHistory")
 async def get_snapshot_history(
     request: GetSnapshotHistoryRequestDep,
+    context: LeagueContextDep,
 ) -> GetSnapshotHistoryResponse:
-    realm = await realm_repository.get_realm(request.realm)
-
-    if realm is None:
-        raise HTTPException(400, "Invalid realm")
-
-    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
-
-    if league is None:
-        raise HTTPException(400, "Invalid league name")
+    realm = context.realm
+    league = context.league
 
     snapshot_history = await currency_exchange_repository.get_currency_exchange_history(
         league.league_id,

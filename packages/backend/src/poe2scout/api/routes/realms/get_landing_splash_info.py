@@ -1,13 +1,13 @@
 from datetime import datetime
 from typing import Annotated, Self
 
-from fastapi import Depends, HTTPException, Path
+from fastapi import Depends, Path
 from poe2scout.api.api_model import ApiModel
+from poe2scout.api.dependancies import RealmDep
 from poe2scout.db.repositories import (
     currency_item_repository, 
     game_repository, 
     price_log_repository, 
-    realm_repository
 )
 from poe2scout.db.repositories.models import CurrencyItemExtended, PriceLogEntry
 
@@ -87,12 +87,8 @@ GetLandingSplashInfoRequestDep = Annotated[
 @router.get("/{Realm}/LandingSplashInfo")
 async def get_landing_splash_info(
     request: GetLandingSplashInfoRequestDep,
+    realm: RealmDep,
 ) -> GetLandingSplashInfoResponse:
-    realm = await realm_repository.get_realm(request.realm)
-
-    if realm is None:
-        raise HTTPException(400, "Invalid realm")
-
     items = await currency_item_repository.get_currency_items(IMPORTANT_API_IDS, realm.game_id)
 
     item_ids = [item.item_id for item in items]

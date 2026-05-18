@@ -4,12 +4,10 @@ from typing import Annotated, Self
 from fastapi import Depends, HTTPException, Path
 
 from poe2scout.api.api_model import ApiModel
-from poe2scout.api.dependancies import cache_response
+from poe2scout.api.dependancies import LeagueContextDep, cache_response
 from poe2scout.db.repositories import (
     currency_item_repository,
-    league_repository,
     price_log_repository,
-    realm_repository,
 )
 from poe2scout.db.repositories.models import CurrencyItem, PriceLogEntry
 
@@ -101,19 +99,14 @@ GetRequestDep = Annotated[
 )
 async def get(
     request: GetRequestDep,
+    context: LeagueContextDep,
 ) -> GetResponse:
-    realm = await realm_repository.get_realm(request.realm)
-
-    if realm is None:
-        raise HTTPException(400, "Invalid realm")
+    realm = context.realm
+    league = context.league
 
     currency_item = await currency_item_repository.get_currency_item(request.api_id, realm.game_id)
     if currency_item is None:
         raise HTTPException(400, "Invalid currency item api ID")
-
-    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
-    if league is None:
-        raise HTTPException(400, "Invalid league name")
 
     price_logs_by_item_id = await price_log_repository.get_item_price_logs(
         item_ids=[currency_item.item_id],

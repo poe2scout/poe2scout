@@ -1,12 +1,12 @@
 from typing import Annotated, Self
 
-from fastapi import Depends, HTTPException, Path
+from fastapi import Depends, Path
 from poe2scout.api.api_model import ApiModel
+from poe2scout.api.dependancies import RealmDep
 from poe2scout.db.repositories import (
     currency_item_repository,
     league_repository,
     price_log_repository,
-    realm_repository,
 )
 from poe2scout.db.repositories.league_repository.get_leagues import League
 from poe2scout.db.repositories.models import CurrencyItem
@@ -107,12 +107,10 @@ GetLeaguesRequestDep = Annotated[
 
 
 @router.get("")
-async def get(request: GetLeaguesRequestDep) -> list[GetResponse]:
-    realm = await realm_repository.get_realm(request.realm)
-
-    if realm is None:
-        raise HTTPException(400, "Invalid realm")
-
+async def get(
+    request: GetLeaguesRequestDep,
+    realm: RealmDep,
+) -> list[GetResponse]:
     leagues = await league_repository.get_leagues(realm.game_id)
     if len(leagues) == 0:
         return []

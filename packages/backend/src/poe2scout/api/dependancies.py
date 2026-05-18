@@ -2,14 +2,18 @@ import asyncio
 import logging
 import os
 from collections.abc import Callable
+from dataclasses import dataclass
 from functools import wraps
 from inspect import signature
 from typing import Annotated, Any, get_type_hints
 
-from fastapi import Depends, Query
+from fastapi import Depends, HTTPException, Path, Query
 from pydantic import TypeAdapter
 from redis import asyncio as aioredis
 
+from poe2scout.db.repositories import league_repository, realm_repository
+from poe2scout.db.repositories.league_repository.get_leagues import League
+from poe2scout.db.repositories.realm_repository.get_realm import Realm
 from poe2scout.observability.context import get_current_request_context
 from poe2scout.shared.pagination import PaginationParams
 
@@ -19,6 +23,44 @@ logger = logging.getLogger(__name__)
 
 _redis_client = None
 _redis_url = None
+
+
+@dataclass(frozen=True)
+class LeagueContext:
+    realm: Realm
+    league: League
+
+
+async def get_realm_dependency(
+    realm: Annotated[str, Path(alias="Realm")],
+) -> Realm:
+    resolved_realm = await realm_repository.get_realm(realm)
+
+    if resolved_realm is None:
+        raise HTTPException(400, "Invalid realm")
+
+    return resolved_realm
+
+
+RealmDep = Annotated[Realm, Depends(get_realm_dependency)]
+
+
+async def get_league_context(
+    league_name: Annotated[str, Path(alias="LeagueName")],
+    realm: RealmDep,
+) -> LeagueContext:
+    league = await league_repository.get_league_by_value(
+        league_name,
+        realm.game_id,
+    )
+
+    if league is None:
+        raise HTTPException(400, "Invalid league name")
+
+    return LeagueContext(realm=realm, league=league)
+
+
+LeagueContextDep = Annotated[LeagueContext, Depends(get_league_context)]
 
 
 def get_redis_client():

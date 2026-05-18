@@ -4,9 +4,9 @@ from typing import Annotated, Self
 
 from fastapi import Depends, HTTPException, Path, Query
 
-from poe2scout.api.dependancies import EconomyCacheDep, PaginationParamDep
+from poe2scout.api.dependancies import EconomyCacheDep, LeagueContextDep, PaginationParamDep
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories import currency_item_repository, league_repository, realm_repository
+from poe2scout.db.repositories import currency_item_repository
 from poe2scout.db.repositories.models import PriceLogEntry, UniqueItemExtended
 from poe2scout.services.pricing import resolve_reference_currency_api_id
 
@@ -117,17 +117,12 @@ GetUniqueCategoryItemsRequestDep = Annotated[
 @router.get("/ByCategory")
 async def get_unique_category_items(
     request: GetUniqueCategoryItemsRequestDep,
+    context: LeagueContextDep,
     pagination: PaginationParamDep,
     economy_cache: EconomyCacheDep,
 ) -> GetUniqueItemsResponse:
-    realm = await realm_repository.get_realm(request.realm)
-
-    if realm is None:
-        raise HTTPException(400, "Invalid realm name")
-
-    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
-    if league is None:
-        raise HTTPException(400, "Invalid league name")
+    realm = context.realm
+    league = context.league
 
     reference_currency_api_id = resolve_reference_currency_api_id(
         request.reference_currency,

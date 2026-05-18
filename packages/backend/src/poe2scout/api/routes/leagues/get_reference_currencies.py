@@ -1,16 +1,15 @@
 from typing import Annotated, Self
 
-from fastapi import Depends, HTTPException, Path
+from fastapi import Depends, Path
 
+from poe2scout.api.dependancies import LeagueContextDep
 from poe2scout.api.routes.leagues.get import BaseCurrency
 from poe2scout.db.repositories.game_repository.get_bridge_currencies import BridgeCurrency
 from poe2scout.db.repositories.league_repository.get_leagues import League
 from poe2scout.api.api_model import ApiModel
 from poe2scout.db.repositories import (
     game_repository,
-    league_repository,
     price_log_repository,
-    realm_repository,
 )
 
 from . import router
@@ -65,19 +64,10 @@ class ReferenceCurrency(ApiModel):
 @router.get("/{LeagueName}/ReferenceCurrencies")
 async def get_reference_currencies(
     request: GetReferenceCurrenciesRequestDep,
+    context: LeagueContextDep,
 ) -> list[ReferenceCurrency]:
-    realm = await realm_repository.get_realm(request.realm)
-
-    if realm is None:
-        raise HTTPException(400, "Invalid realm")
-
-    league = await league_repository.get_league_by_value(
-        request.league_name,
-        realm.game_id,
-    )
-
-    if league is None:
-        raise HTTPException(400, "Invalid league name")
+    realm = context.realm
+    league = context.league
 
     bridge_currencies = await game_repository.get_bridge_currencies(realm.game_id)
     base_currencies = get_base_currencies(league, bridge_currencies)

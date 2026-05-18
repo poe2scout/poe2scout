@@ -4,11 +4,10 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, Path
 
 from poe2scout.api.api_model import ApiModel
+from poe2scout.api.dependancies import LeagueContextDep
 from poe2scout.db.repositories import (
     currency_item_repository,
-    league_repository,
     price_log_repository,
-    realm_repository,
     unique_item_repository,
 )
 
@@ -40,20 +39,15 @@ GetItemRequestDep = Annotated[GetItemRequest, Depends(get_item_request)]
 @router.get("/{ItemId}")
 async def get_item(
     request: GetItemRequestDep,
+    context: LeagueContextDep,
 ) -> GetItemsResponse:
-    realm = await realm_repository.get_realm(request.realm)
+    realm = context.realm
+    league = context.league
 
-    if realm is None:
-        raise HTTPException(400, "Invalid realm")
-
-    league, unique_item, currency_item = await gather(
-        league_repository.get_league_by_value(request.league_name, realm.game_id),
+    unique_item, currency_item = await gather(
         unique_item_repository.get_unique_item_by_item_id(request.item_id, realm.game_id),
         currency_item_repository.get_currency_item_by_item_id(request.item_id, realm.game_id),
     )
-
-    if league is None:
-        raise HTTPException(status_code=400, detail="League not found")
 
     item = unique_item or currency_item
     if item is None:

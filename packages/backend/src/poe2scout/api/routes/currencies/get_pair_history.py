@@ -5,10 +5,9 @@ from typing import Annotated, Self
 from fastapi import Depends, HTTPException, Path, Query
 
 from poe2scout.api.api_model import ApiModel
+from poe2scout.api.dependancies import LeagueContextDep
 from poe2scout.db.repositories import (
-    currency_exchange_repository, 
-    league_repository, 
-    realm_repository
+    currency_exchange_repository,
 )
 from poe2scout.db.repositories.currency_exchange_repository.get_pair_history import (
     GetCurrentSnapshotPairModel,
@@ -125,17 +124,11 @@ class GetPairHistoryResponse(ApiModel):
     "/Pairs/{CurrencyOneItemId}/{CurrencyTwoItemId}/History"
 )
 async def get_pair_history(
-    request: GetPairHistoryRequestDep
+    request: GetPairHistoryRequestDep,
+    context: LeagueContextDep,
 ) -> GetPairHistoryResponse:
-    realm = await realm_repository.get_realm(request.realm)
-
-    if realm is None:
-        raise HTTPException(400, "Invalid realm")
-
-    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
-
-    if league is None:
-        raise HTTPException(400, "Invalid league name")
+    realm = context.realm
+    league = context.league
 
     pair_history = await currency_exchange_repository.get_pair_history(
         request.currency_one_item_id,

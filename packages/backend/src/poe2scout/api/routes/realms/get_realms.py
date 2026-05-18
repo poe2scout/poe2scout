@@ -1,4 +1,3 @@
-from fastapi import APIRouter
 from pydantic import BaseModel
 
 from poe2scout.db.repositories import game_repository, league_repository, realm_repository

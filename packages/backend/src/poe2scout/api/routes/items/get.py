@@ -3,14 +3,13 @@ from typing import Annotated, Self
 
 from cachetools import TTLCache
 from cachetools.keys import hashkey
-from fastapi import Depends, HTTPException, Path
+from fastapi import Depends, Path
 
 from poe2scout.api.api_model import ApiModel
+from poe2scout.api.dependancies import LeagueContextDep
 from poe2scout.db.repositories import (
     currency_item_repository,
-    league_repository,
     price_log_repository,
-    realm_repository,
     unique_item_repository,
 )
 from poe2scout.db.repositories.unique_item_repository.get_all_unique_items import UniqueItem
@@ -81,24 +80,15 @@ class GetItemsResponse(ApiModel):
 @router.get("")
 async def get_items(
     request: GetItemsRequestDep,
+    context: LeagueContextDep,
 ) -> list[GetItemsResponse]:
     cache_key = hashkey(request.league_name, request.realm)
 
     if cache_key in items_cache:
         return items_cache[cache_key]
-    
-    realm = await realm_repository.get_realm(request.realm)
 
-    if realm is None:
-        raise HTTPException(400, "Invalid realm")
-
-    league = await league_repository.get_league_by_value(
-        request.league_name,
-        realm.game_id,
-    )
-
-    if league is None:
-        raise HTTPException(status_code=400, detail="League not found")
+    realm = context.realm
+    league = context.league
 
     unique_items, currency_items = await gather(
         unique_item_repository.get_all_unique_items(realm.game_id),

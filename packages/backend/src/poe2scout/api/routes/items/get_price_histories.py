@@ -2,10 +2,11 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Annotated, Self
 
-from fastapi import Depends, HTTPException, Path
+from fastapi import Depends, Path
 
 from poe2scout.api.api_model import ApiModel
-from poe2scout.db.repositories import league_repository, price_log_repository, realm_repository
+from poe2scout.api.dependancies import LeagueContextDep
+from poe2scout.db.repositories import price_log_repository
 from poe2scout.db.repositories.price_log_repository.get_all_item_histories import (
     ItemHistory,
     ItemHistoryLog,
@@ -74,16 +75,10 @@ GetItemPriceHistoryRequestDep = Annotated[
 @router.get("/PriceHistory")
 async def get_item_price_histories(
     request: GetItemPriceHistoryRequestDep,
+    context: LeagueContextDep,
 ) -> GetItemPriceHistoriesResponse:
-    realm = await realm_repository.get_realm(request.realm)
-
-    if realm is None:
-        raise HTTPException(400, "Invalid realm")
-
-    league = await league_repository.get_league_by_value(request.league_name, realm.game_id)
-
-    if league is None:
-        raise HTTPException(400, "Invalid league name")
+    realm = context.realm
+    league = context.league
 
     item_histories = await price_log_repository.get_all_item_histories(
         league.league_id, 
