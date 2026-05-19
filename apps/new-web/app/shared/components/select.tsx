@@ -28,7 +28,7 @@ export default function SelectField({
       >
         <select
           {...selectProps}
-          className={`h-full w-full bg-transparent text-white outline-none ${selectClassName}`}
+          className={`h-full w-full bg-transparent outline-none ${selectClassName}`}
         >
           {children}
         </select>
