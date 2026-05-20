@@ -9,10 +9,20 @@ const landing = relative("app/features/landing/routes");
 const league = relative("app/features/league/routes");
 const economy = relative("app/features/economy/routes");
 const exchange = relative("app/features/exchange/routes");
+const legacy = relative("app/features/legacy/routes");
 
 export default [
   landing.index("./home.tsx"),
   landing.route("privacy", "./privacy.tsx"),
+
+  legacy.route(
+    "exchange/pair/:currencyOneItemId/:currencyTwoItemId",
+    "./exchange-pair-redirect.tsx",
+  ),
+  legacy.route("exchange", "./exchange-index-redirect.tsx"),
+  legacy.route("exchange/*", "./exchange-redirect.tsx"),
+  legacy.route("economy", "./economy-index-redirect.tsx"),
+  legacy.route("economy/*", "./economy-redirect.tsx"),
 
   league.route(":realmId/:leagueId", "./layout.tsx", [
     league.index("./index.tsx"),
