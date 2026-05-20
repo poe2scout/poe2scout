@@ -7,6 +7,7 @@ services:
       - "443:443"
     environment:
       DOMAINS: ${DOMAINS}
+      WEB_DOMAIN: ${WEB_DOMAIN:-poe2scout.com}
       BETA_DOMAIN: ${BETA_DOMAIN}
       MONITORING_DOMAIN: ${MONITORING_DOMAIN}
       STAGE: ${STAGE}
