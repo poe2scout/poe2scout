@@ -17,6 +17,10 @@ body {
   @apply w-full;
 }
 
+select option {
+  @apply dark:bg-gray-900;
+}
+
 .poe2scout-ad {
   background: transparent !important;
   color-scheme: dark;
