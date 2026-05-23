@@ -24,8 +24,15 @@ select option {
 .poe2scout-ad {
   background: transparent !important;
   color-scheme: dark;
+  margin-right: auto;
+  margin-left: auto;
   overflow: hidden;
   text-align: center;
+}
+
+.poe2scout-ad--horizontal {
+  width: min(100%, 728px) !important;
+  min-height: 90px;
 }
 
 .poe2scout-ad ins.adsbygoogle {
