@@ -87,8 +87,6 @@ Run item sync first so the database has base data, then apply any required SQL m
 - `poe2scout.com` serves the React Router web app, `old.poe2scout.com` serves the legacy web app, and both proxy `/api` to the same API service.
 - `beta.poe2scout.com` is kept in TLS routing and redirects to `poe2scout.com`.
 
-The production server no longer needs a checked-out copy of this repository.
-
 ## API
 
 The public API is available at [poe2scout.com/api/swagger](https://poe2scout.com/api/swagger).
