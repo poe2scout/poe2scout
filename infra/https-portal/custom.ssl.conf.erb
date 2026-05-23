@@ -1,6 +1,7 @@
 <% monitoring_domain = ENV["MONITORING_DOMAIN"] %>
 <% beta_domain = ENV["BETA_DOMAIN"] %>
 <% web_domain = ENV["WEB_DOMAIN"] || "poe2scout.com" %>
+<% old_web_domain = ENV["OLD_WEB_DOMAIN"] || "old.poe2scout.com" %>
 
 server {
     listen <%= domain.port %> ssl;
@@ -55,7 +56,11 @@ server {
     }
     <% elsif domain.name == beta_domain %>
     location / {
-        proxy_pass http://beta-web:3000;
+        return 301 https://<%= web_domain %>$request_uri;
+    }
+    <% elsif domain.name == web_domain %>
+    location / {
+        proxy_pass http://new-web:3000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -69,9 +74,9 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
-    <% elsif domain.name == web_domain %>
+    <% elsif domain.name == old_web_domain %>
     location / {
-        proxy_pass http://web:3000;
+        proxy_pass http://old-web:3000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

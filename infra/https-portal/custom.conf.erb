@@ -1,4 +1,6 @@
 <% web_domain = ENV["WEB_DOMAIN"] || "poe2scout.com" %>
+<% old_web_domain = ENV["OLD_WEB_DOMAIN"] || "old.poe2scout.com" %>
+<% beta_domain = ENV["BETA_DOMAIN"] %>
 
 server {
     listen       80;
@@ -10,6 +12,10 @@ server {
     location / {
       <% if domain.name == web_domain %>
       return    301 https://$server_name$request_uri;
+      <% elsif domain.name == old_web_domain %>
+      return    301 https://$server_name$request_uri;
+      <% elsif domain.name == beta_domain %>
+      return    301 https://<%= web_domain %>$request_uri;
       <% else %>
       return    301 https://<%= web_domain %>$request_uri;
       <% end %>

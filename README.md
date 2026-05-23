@@ -6,7 +6,8 @@ POE2 Scout is a market tool for Path of Exile 2 focused on real-time item and cu
 
 ## Repo Layout
 
-- `apps/web`: React frontend.
+- `apps/new-web`: React Router frontend served at `poe2scout.com`.
+- `apps/web`: Legacy React frontend served at `old.poe2scout.com`.
 - `apps/api`: API container definition.
 - `apps/workers/item-sync`: Item sync worker container definition.
 - `apps/workers/price-fetch`: Price fetch worker container definition.
@@ -77,13 +78,14 @@ Run item sync first so the database has base data, then apply any required SQL m
 
 ## Deployment
 
-- Pushes to `main` build and publish container images to GHCR, including the beta web image.
-- Pushes to `release` also build and publish container images to GHCR, including the beta web image.
+- Pushes to `main` build and publish container images to GHCR, including the new and legacy web images.
+- Pushes to `release` also build and publish container images to GHCR, including the new and legacy web images.
 - After the `release` image workflow succeeds, a separate deploy workflow copies `infra/` and `.env` to the server and runs:
   `docker compose -f infra/compose/prod.yml -f infra/compose/observability.yml --env-file .env pull`
   followed by
   `docker compose -f infra/compose/prod.yml -f infra/compose/observability.yml --env-file .env up -d --remove-orphans`
-- `poe2scout.com` serves the production web app, while `beta.poe2scout.com` serves the React Router beta web app and proxies `/api` to the same API service.
+- `poe2scout.com` serves the React Router web app, `old.poe2scout.com` serves the legacy web app, and both proxy `/api` to the same API service.
+- `beta.poe2scout.com` is kept in TLS routing and redirects to `poe2scout.com`.
 
 The production server no longer needs a checked-out copy of this repository.
 

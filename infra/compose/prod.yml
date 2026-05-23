@@ -8,6 +8,7 @@ services:
     environment:
       DOMAINS: ${DOMAINS}
       WEB_DOMAIN: ${WEB_DOMAIN:-poe2scout.com}
+      OLD_WEB_DOMAIN: ${OLD_WEB_DOMAIN:-old.poe2scout.com}
       BETA_DOMAIN: ${BETA_DOMAIN}
       MONITORING_DOMAIN: ${MONITORING_DOMAIN}
       STAGE: ${STAGE}
@@ -16,19 +17,19 @@ services:
       - ../https-portal/custom.ssl.conf.erb:/var/lib/nginx-conf/default.ssl.conf.erb:ro
       - https-portal-data:/var/lib/https-portal
     depends_on:
-      - web
-      - beta-web
+      - new-web
+      - old-web
 
-  web:
-    image: ghcr.io/poe2scout/poe2scout-web:${IMAGE_TAG:-release}
+  new-web:
+    image: ghcr.io/poe2scout/poe2scout-new-web:${IMAGE_TAG:-release}
     restart: always
     expose:
       - "3000"
     depends_on:
       - api
 
-  beta-web:
-    image: ghcr.io/poe2scout/poe2scout-beta-web:${IMAGE_TAG:-release}
+  old-web:
+    image: ghcr.io/poe2scout/poe2scout-old-web:${IMAGE_TAG:-release}
     restart: always
     expose:
       - "3000"

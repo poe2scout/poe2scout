@@ -18,12 +18,14 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: poe2scout-web
-            context: ./apps/web
-            dockerfile: ./apps/web/Dockerfile
-          - image: poe2scout-beta-web
+          - image: poe2scout-new-web
             context: ./apps/new-web
             dockerfile: ./apps/new-web/Dockerfile
+          - image: poe2scout-old-web
+            context: ./apps/web
+            dockerfile: ./apps/web/Dockerfile
+            build_args: |
+              VITE_API_URL=https://old.poe2scout.com/api/
           - image: poe2scout-api
             context: .
             dockerfile: ./apps/api/Dockerfile
@@ -67,6 +69,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
+          build-args: ${{ matrix.build_args || '' }}
           push: true
           tags: |
             ${{ env.REGISTRY }}/poe2scout/${{ matrix.image }}:${{ steps.image-tag.outputs.alias_tag }}
