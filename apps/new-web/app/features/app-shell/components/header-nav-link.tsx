@@ -14,7 +14,12 @@ export default function HeaderNavLink({
   return (
     <NavLink
       className={({ isActive }) =>
-        `block whitespace-nowrap px-2.5 py-1 md:py-0 ${isActive ? "text-primary" : ""}`
+        [
+          "block rounded-sm px-2.5 py-1 whitespace-nowrap transition-colors",
+          "hover:bg-white/8 hover:text-secondary",
+          "focus-visible:ring-2 focus-visible:ring-secondary/30 focus-visible:outline-none",
+          isActive ? "bg-white/12 text-secondary" : "text-white/90",
+        ].join(" ")
       }
       to={route}
       end={end}

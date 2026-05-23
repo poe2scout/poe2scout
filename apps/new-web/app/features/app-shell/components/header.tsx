@@ -63,7 +63,7 @@ export default function Header() {
         {isLeagueSelected && (
           <nav
             aria-label="Primary navigation"
-            className="hidden shrink-0 items-center md:flex"
+            className="hidden shrink-0 items-center gap-2 md:flex"
           >
             {leagueNavigation}
           </nav>
@@ -97,7 +97,7 @@ export default function Header() {
             {isMenuOpen && (
               <nav
                 aria-label="Primary navigation"
-                className="absolute right-0 top-11 z-20 flex min-w-52 flex-col rounded-sm border border-secondary/35 bg-zinc-900 py-2 shadow-lg shadow-black/50"
+                className="absolute top-11 right-0 z-20 flex min-w-52 flex-col rounded-sm border border-secondary/35 bg-zinc-900 py-2 shadow-lg shadow-black/50"
               >
                 {leagueNavigation}
               </nav>

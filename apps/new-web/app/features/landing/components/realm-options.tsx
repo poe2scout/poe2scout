@@ -21,6 +21,9 @@ export default function RealmSelector({
     );
   }
 
+  const poeRealms = data?.filter((realm) => realm.gameApiId == "poe");
+  const poe2Realms = data?.filter((realm) => realm.gameApiId == "poe2");
+
   return (
     <div className="space-y-3">
       <div>
@@ -29,8 +32,27 @@ export default function RealmSelector({
           Choose the trade realm you want to inspect.
         </p>
       </div>
+      <div className="flex gap-2">
+        {poeRealms &&
+          RealmSelect("PoE1", poeRealms, selectedRealm, setSelectedRealm)}
+        {poe2Realms &&
+          RealmSelect("PoE2", poe2Realms, selectedRealm, setSelectedRealm)}
+      </div>
+    </div>
+  );
+}
+
+function RealmSelect(
+  gameTitle: string,
+  poeRealms: Realm[] | undefined,
+  selectedRealm: Realm | null,
+  setSelectedRealm: (realm: Realm) => void,
+) {
+  return (
+    <div className="rounded-sm border border-secondary/35 p-2">
+      <span className="mb-2 block text-center text-white/80">{gameTitle}</span>{" "}
       <div className="flex flex-wrap gap-2">
-        {data?.map((realm) => (
+        {poeRealms?.map((realm) => (
           <button
             type="button"
             key={`${realm.gameApiId}-${realm.realmApiId}`}

@@ -73,7 +73,7 @@ function LeagueGroup({
 }) {
   return (
     <div className="space-y-2">
-      <h3 className="text-xs font-medium tracking-wide text-white/50 uppercase">
+      <h3 className="text-xs font-medium tracking-wide text-white/80 uppercase">
         {title}
       </h3>
       <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
