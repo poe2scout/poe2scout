@@ -1,4 +1,4 @@
-from typing import get_type_hints, Type, TypeVar
+from typing import get_origin, get_type_hints, Type, TypeVar
 import os
 from pydantic import BaseModel
 
@@ -35,10 +35,14 @@ class BaseConfig(BaseModel):
 
             # Convert the string value to the correct type
             try:
+                field_origin = get_origin(field_type)
+
                 if field_type is bool:
                     config_data[field_name] = env_value.lower() in ("true", "1", "yes")
-                elif field_type is list:
-                    config_data[field_name] = env_value.split(",")
+                elif field_type is list or field_origin is list:
+                    config_data[field_name] = [
+                        value.strip() for value in env_value.split(",") if value.strip()
+                    ]
                 else:
                     config_data[field_name] = field_type(env_value)
             except ValueError as e:

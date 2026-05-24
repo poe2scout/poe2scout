@@ -80,16 +80,21 @@ Run item sync first so the database has base data, then apply any required SQL m
 
 - Pushes to `main` build and publish container images to GHCR, including the new and legacy web images.
 - Pushes to `release` also build and publish container images to GHCR, including the new and legacy web images.
+- The new React Router frontend is also ready for Cloudflare Pages with root directory `apps/new-web`, build command `npm run build`, and output directory `build/client`.
+- For Cloudflare Pages production, set `VITE_API_BASE_URL=https://api.poe2scout.com` and `API_ORIGIN=https://api.poe2scout.com`. `API_ORIGIN` is used only by the temporary `/api/*` compatibility proxy.
 - After the `release` image workflow succeeds, a separate deploy workflow copies `infra/` and `.env` to the server and runs:
   `docker compose -f infra/compose/prod.yml -f infra/compose/observability.yml --env-file .env pull`
   followed by
   `docker compose -f infra/compose/prod.yml -f infra/compose/observability.yml --env-file .env up -d --remove-orphans`
-- `poe2scout.com` serves the React Router web app, `old.poe2scout.com` serves the legacy web app, and both proxy `/api` to the same API service.
+- `poe2scout.com` serves the React Router web app, `old.poe2scout.com` serves the legacy web app, and `api.poe2scout.com` serves the canonical API.
+- `poe2scout.com/api/*` is kept as a temporary compatibility route by the Cloudflare Pages Function in `apps/new-web/functions/api/[[path]].ts`; it strips `/api` and proxies to `api.poe2scout.com/*`.
 - `beta.poe2scout.com` is kept in TLS routing and redirects to `poe2scout.com`.
 
 ## API
 
-The public API is available at [poe2scout.com/api/swagger](https://poe2scout.com/api/swagger).
+The public API is available at [api.poe2scout.com/swagger](https://api.poe2scout.com/swagger).
+
+During the Cloudflare Pages migration, legacy `poe2scout.com/api/*` URLs continue to work through a temporary compatibility proxy. New clients should use `api.poe2scout.com/*`.
 
 Please include a `User-Agent` with contact information if you are making sustained use of the API.
 

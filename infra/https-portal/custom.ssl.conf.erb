@@ -2,6 +2,7 @@
 <% beta_domain = ENV["BETA_DOMAIN"] %>
 <% web_domain = ENV["WEB_DOMAIN"] || "poe2scout.com" %>
 <% old_web_domain = ENV["OLD_WEB_DOMAIN"] || "old.poe2scout.com" %>
+<% api_domain = ENV["API_DOMAIN"] || "api.poe2scout.com" %>
 
 server {
     listen <%= domain.port %> ssl;
@@ -49,6 +50,14 @@ server {
     <% if domain.name == monitoring_domain %>
     location / {
         proxy_pass http://grafana:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    <% elsif domain.name == api_domain %>
+    location / {
+        proxy_pass http://api:5000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

@@ -42,8 +42,10 @@ jobs:
           MONITORING_DOMAIN=monitoring.${{ secrets.DOMAINS }}
           BETA_DOMAIN=beta.${{ secrets.DOMAINS }}
           OLD_WEB_DOMAIN=old.${{ secrets.DOMAINS }}
-          DOMAINS=${{ secrets.DOMAINS }},old.${{ secrets.DOMAINS }},beta.${{ secrets.DOMAINS }},${{ secrets.GRAFANA_BASIC_AUTH_USER }}:${{ secrets.GRAFANA_BASIC_AUTH_PASSWORD }}@monitoring.${{ secrets.DOMAINS }}
+          API_DOMAIN=api.${{ secrets.DOMAINS }}
+          DOMAINS=${{ secrets.DOMAINS }},old.${{ secrets.DOMAINS }},api.${{ secrets.DOMAINS }},beta.${{ secrets.DOMAINS }},${{ secrets.GRAFANA_BASIC_AUTH_USER }}:${{ secrets.GRAFANA_BASIC_AUTH_PASSWORD }}@monitoring.${{ secrets.DOMAINS }}
           STAGE=${{ secrets.STAGE }}
+          CORS_ALLOWED_ORIGINS=https://${{ secrets.DOMAINS }}
           POEAPI_CLIENT_ID=${{ secrets.POEAPI_CLIENT_ID }}
           POEAPI_CLIENT_SECRET=${{ secrets.POEAPI_CLIENT_SECRET }}
           UNIQUE_ITEM_URL=https://www.pathofexile.com/api/trade2/data/items

@@ -65,6 +65,15 @@ def hash_client_ip(raw_ip: str, secret_key: str) -> str:
     return digest[:16]
 
 
+def get_cors_allowed_origins(config: ApiServiceConfig) -> list[str]:
+    allowed_origins = list(config.cors_allowed_origins)
+
+    if config.local:
+        allowed_origins.append("http://localhost:5173")
+
+    return list(dict.fromkeys(allowed_origins))
+
+
 def get_route_template(request: Request) -> str:
     route = request.scope.get("route")
     route_path = getattr(route, "path", None)
@@ -198,12 +207,12 @@ def create_app(
     )
     app.add_middleware(SlowAPIMiddleware)
 
-    if config.local:
+    cors_allowed_origins = get_cors_allowed_origins(config)
+    if cors_allowed_origins:
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=["http://localhost:5173"],
-            allow_credentials=True,
-            allow_methods=["*"],
+            allow_origins=cors_allowed_origins,
+            allow_methods=["GET", "HEAD", "OPTIONS"],
             allow_headers=["*"],
         )
 

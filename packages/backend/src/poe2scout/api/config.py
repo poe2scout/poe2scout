@@ -5,6 +5,7 @@ class ApiServiceConfig(BaseConfig):
     dbstring: str
     redis_url: str = "redis://localhost:6379"
     local: bool = False
+    cors_allowed_origins: list[str] = []
     metrics_port: int = 9105
     secret_key: str = "poe2scout"
     service_name: str = "api"
