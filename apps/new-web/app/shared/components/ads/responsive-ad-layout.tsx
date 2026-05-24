@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import AdSenseAd from "./ad-sense-ad";
+import HorizontalAd from "./horizontal-ad";
+import VerticalAd from "./veritcal-ad";
 
 const SIDE_AD_MEDIA_QUERY = "(min-width: 1648px)";
 
@@ -12,30 +13,24 @@ export default function ResponsiveAdLayout({
   className?: string;
 }) {
   const showSideAds = useShowSideAds();
-  const [isInlineAdFilled, setIsInlineAdFilled] = useState(false);
 
   return (
     <div className={`poe2scout-ad-layout ${className}`}>
       {!showSideAds && (
-        <div
-          className={`poe2scout-ad-layout__inline-ad ${isInlineAdFilled ? "mb-3" : ""}`}
-        >
-          <AdSenseAd
-            format="horizontal"
-            className="w-full"
-            onFilledChange={setIsInlineAdFilled}
-          />
+        <div className={`poe2scout-ad-layout__inline-ad`}>
+          <HorizontalAd className="w-full" />
         </div>
       )}
 
       {children}
+
       {showSideAds && (
         <>
           <aside className="poe2scout-ad-layout__side-ad poe2scout-ad-layout__side-ad--left">
-            <AdSenseAd format="vertical" className="min-h-150 w-40" />
+            <VerticalAd className="min-h-150 w-40" />
           </aside>
           <aside className="poe2scout-ad-layout__side-ad poe2scout-ad-layout__side-ad--right">
-            <AdSenseAd format="vertical" className="min-h-150 w-40" />
+            <VerticalAd className="min-h-150 w-40" />
           </aside>
         </>
       )}
