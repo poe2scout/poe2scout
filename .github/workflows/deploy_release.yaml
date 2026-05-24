@@ -8,6 +8,8 @@ on:
       - completed
     branches:
       - release
+  workflow_dispatch:
+  
 
 env:
   DEPLOY_ROOT: /opt/poe2scout
