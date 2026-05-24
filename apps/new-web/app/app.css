@@ -43,6 +43,7 @@ select option {
 }
 
 .poe2scout-ad--unfilled,
+.poe2scout-ad--unavailable,
 .poe2scout-ad:has(ins.adsbygoogle[data-ad-status="unfilled"]),
 ins.adsbygoogle[data-ad-status="unfilled"] {
   display: none !important;

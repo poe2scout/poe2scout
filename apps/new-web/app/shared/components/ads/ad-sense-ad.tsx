@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 const ADSENSE_CLIENT_ID = "ca-pub-1450769283178899";
 const ADSENSE_SLOT_ID = "7986001189";
+const AD_REQUEST_TIMEOUT_MS = 4_000;
 
 type AdSenseFormat = "auto" | "horizontal" | "vertical";
 
@@ -22,6 +23,7 @@ export default function AdSenseAd({
 }) {
   const adRef = useRef<HTMLModElement | null>(null);
   const [isUnfilled, setIsUnfilled] = useState(false);
+  const [isUnavailable, setIsUnavailable] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
 
   useEffect(() => {
@@ -48,6 +50,10 @@ export default function AdSenseAd({
 
     if (!adElement) return;
 
+    const hasAdResponse = () =>
+      adElement.dataset.adStatus !== undefined ||
+      adElement.querySelector("iframe") !== null;
+
     const updateStatus = () => {
       const isAdUnfilled = adElement.dataset.adStatus === "unfilled";
       const isAdFilled =
@@ -56,11 +62,25 @@ export default function AdSenseAd({
           (adElement.dataset.adsbygoogleStatus === "done" &&
             adElement.querySelector("iframe") !== null));
 
+      if (hasAdResponse()) {
+        window.clearTimeout(timeoutId);
+        setIsUnavailable(false);
+      }
+
       setIsUnfilled(isAdUnfilled);
       setIsFilled(isAdFilled);
       onFilledChange?.(isAdFilled);
     };
     const observer = new MutationObserver(updateStatus);
+    const timeoutId = window.setTimeout(() => {
+      if (hasAdResponse()) {
+        return;
+      }
+
+      setIsUnavailable(true);
+      setIsFilled(false);
+      onFilledChange?.(false);
+    }, AD_REQUEST_TIMEOUT_MS);
 
     updateStatus();
     observer.observe(adElement, {
@@ -70,12 +90,15 @@ export default function AdSenseAd({
       subtree: true,
     });
 
-    return () => observer.disconnect();
+    return () => {
+      window.clearTimeout(timeoutId);
+      observer.disconnect();
+    };
   }, [onFilledChange]);
 
   return (
     <div
-      className={`poe2scout-ad poe2scout-ad--${format} ${isFilled ? "poe2scout-ad--filled" : "poe2scout-ad--pending"} ${isUnfilled ? "poe2scout-ad--unfilled" : ""} ${className}`}
+      className={`poe2scout-ad poe2scout-ad--${format} ${isFilled ? "poe2scout-ad--filled" : "poe2scout-ad--pending"} ${isUnfilled ? "poe2scout-ad--unfilled" : ""} ${isUnavailable ? "poe2scout-ad--unavailable" : ""} ${className}`}
       aria-hidden="true"
     >
       <ins
