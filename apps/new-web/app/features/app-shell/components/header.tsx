@@ -35,7 +35,7 @@ export default function Header() {
 
   return (
     <header className="flex w-full flex-col justify-center bg-zinc-900 py-1.5">
-      <div className="relative mx-auto flex w-full max-w-7xl flex-row items-center justify-between gap-3 px-4 py-2.5 text-lg sm:px-5">
+      <div className="relative mx-auto flex h-12 w-full max-w-7xl flex-row items-center justify-between gap-3 px-4 text-lg sm:px-5">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <NavLink
             className="flex shrink-0 items-center whitespace-nowrap"
@@ -51,7 +51,7 @@ export default function Header() {
           </NavLink>
           {isLeagueSelected && isLeagueHome && (
             <NavLink
-              className="min-w-0 truncate px-2.5"
+              className="min-w-0 truncate px-2.5 leading-7"
               to="/"
               prefetch="intent"
             >

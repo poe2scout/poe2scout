@@ -59,7 +59,7 @@ export default function HeaderBreadcrumbs() {
     isLast: boolean,
     showDivider: boolean,
   ) => (
-    <li key={index} className="flex min-w-0 items-center gap-2">
+    <li key={index} className="flex min-w-0 items-center gap-2 leading-7">
       {showDivider && <span className="shrink-0 text-gray-500">/</span>}
       {!isLast && crumb.to ? (
         <NavLink
@@ -81,7 +81,7 @@ export default function HeaderBreadcrumbs() {
   );
 
   return (
-    <nav aria-label="Breadcrumb" className="min-w-0 px-2.5">
+    <nav aria-label="Breadcrumb" className="min-w-0 px-2.5 text-base">
       <ol className="hidden min-w-0 items-center gap-2 lg:flex">
         {crumbs.map((crumb, index) => {
           const isLast = index === crumbs.length - 1;

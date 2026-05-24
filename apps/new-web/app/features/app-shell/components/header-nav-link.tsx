@@ -15,7 +15,7 @@ export default function HeaderNavLink({
     <NavLink
       className={({ isActive }) =>
         [
-          "block rounded-sm px-2.5 py-1 whitespace-nowrap transition-colors",
+          "flex h-7 items-center rounded-sm px-2.5 text-base leading-none whitespace-nowrap transition-colors",
           "hover:bg-white/8 hover:text-secondary",
           "focus-visible:ring-2 focus-visible:ring-secondary/30 focus-visible:outline-none",
           isActive ? "bg-white/12 text-secondary" : "text-white/90",
