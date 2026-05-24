@@ -50,8 +50,12 @@ export const chartColors = {
 
 export type ChartMode = "raw" | "daily";
 
-export function getChartMode(value: string | null): ChartMode {
-  return value === "daily" ? "daily" : "raw";
+export function getChartMode(
+  value: string | null,
+  defaultMode: ChartMode = "raw",
+): ChartMode {
+  if (value === "daily" || value === "raw") return value;
+  return defaultMode;
 }
 
 export function ChartCanvas({
