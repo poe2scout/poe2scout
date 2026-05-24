@@ -18,6 +18,7 @@ import type {
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import getNumberNonZero from "~/shared/utils/get-number-non-zero";
+import { getNextHourEndEpoch } from "~/shared/utils/chart-cursor";
 import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 import { findLeagueByRouteId } from "~/features/league/route-id";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
@@ -53,6 +54,7 @@ export async function clientLoader({
 }: Route.ClientLoaderArgs) {
   const url = new URL(request.url);
   const tableState = getExchangeTableState(url.searchParams);
+  const initialEndEpoch = getNextHourEndEpoch();
   const snapshotPrefetch = queryClient.prefetchQuery(
     getExchangeSnapshotQueryOptions({
       realmApiId: params.realmId,
@@ -64,6 +66,7 @@ export async function clientLoader({
       realmApiId: params.realmId,
       leagueName: params.leagueId,
       limit: HISTORY_LIMIT,
+      endEpoch: initialEndEpoch,
     }),
   );
   const [leagues] = await Promise.all([
@@ -145,12 +148,16 @@ function useSnapshotHistory({
   const [oldestEpoch, setOldestEpoch] = useState<number | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [baseCurrencyText, setBaseCurrencyText] = useState("");
+  const [initialEndEpoch, setInitialEndEpoch] = useState(() =>
+    getNextHourEndEpoch(),
+  );
 
   useEffect(() => {
     setHistory([]);
     setHasMore(true);
     setOldestEpoch(null);
     setBaseCurrencyText("");
+    setInitialEndEpoch(getNextHourEndEpoch());
   }, [leagueName, realmApiId]);
 
   const query = useQuery(
@@ -158,6 +165,7 @@ function useSnapshotHistory({
       realmApiId,
       leagueName,
       limit: HISTORY_LIMIT,
+      endEpoch: initialEndEpoch,
     }),
   );
 

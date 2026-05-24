@@ -9,6 +9,7 @@ import getReferenceCurrenciesQueryOptions from "~/features/league/queries/refere
 import type { LeagueCurrency } from "~/features/league/types";
 import { queryClient } from "~/shared/api/query-client";
 import SelectField from "~/shared/components/select";
+import { getNextHourEndEpoch } from "~/shared/utils/chart-cursor";
 import PairHistoryChart from "../components/pair-history-chart";
 import { PAIR_HISTORY_METRIC_LABELS } from "../components/pair-history-metrics";
 import { getPairHistoryQueryOptions } from "../queries/pair-history";
@@ -56,6 +57,7 @@ const DEFAULT_METRIC_ID = "currencyTwoData.valueTraded";
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
   const currencyOneItemId = Number(params.currencyOneItemId);
   const currencyTwoItemId = Number(params.currencyTwoItemId);
+  const initialEndEpoch = getNextHourEndEpoch();
 
   if (
     !Number.isInteger(currencyOneItemId) ||
@@ -71,6 +73,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
       currencyOneItemId,
       currencyTwoItemId,
       limit: HISTORY_LIMIT,
+      endEpoch: initialEndEpoch,
     }),
   );
   const [leagues, referenceCurrencies] = await Promise.all([
@@ -292,12 +295,16 @@ function usePairHistory({
   const [oldestEpoch, setOldestEpoch] = useState<number | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [baseCurrencyText, setBaseCurrencyText] = useState("");
+  const [initialEndEpoch, setInitialEndEpoch] = useState(() =>
+    getNextHourEndEpoch(),
+  );
 
   useEffect(() => {
     setHistory([]);
     setHasMore(true);
     setOldestEpoch(null);
     setBaseCurrencyText("");
+    setInitialEndEpoch(getNextHourEndEpoch());
   }, [currencyOneItemId, currencyTwoItemId, leagueName, realmApiId]);
 
   const query = useQuery(
@@ -307,6 +314,7 @@ function usePairHistory({
       currencyOneItemId,
       currencyTwoItemId,
       limit: HISTORY_LIMIT,
+      endEpoch: initialEndEpoch,
     }),
   );
 

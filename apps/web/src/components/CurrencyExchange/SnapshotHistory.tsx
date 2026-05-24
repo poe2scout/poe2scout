@@ -8,6 +8,7 @@ import { Chart, ChartData } from "../Chart";
 import { LegendData } from "../ItemHistoryChartLegend";
 import { fetchSnapshotHistory as fetchSnapshotHistoryFromApi } from "./api";
 import { SnapshotHistoryChartLegend } from "./SnapshotHistoryChartLegend";
+import { getNextHourEndEpoch } from "../../utils/chartCursor";
 
 export function SnapshotHistory({
   snapshot,
@@ -34,6 +35,7 @@ export function SnapshotHistory({
         const historyDto = await fetchSnapshotHistoryFromApi(
           league.value,
           24 * 14,
+          getNextHourEndEpoch(),
         );
 
         setHasMore(historyDto.hasMore);

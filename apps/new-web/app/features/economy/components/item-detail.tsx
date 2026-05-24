@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import type { League, LeagueCurrency, Realm } from "~/features/league/types";
 import { queryClient } from "~/shared/api/query-client";
 import SelectField from "~/shared/components/select";
+import { getNextHourEndTime } from "~/shared/utils/chart-cursor";
 import type {
   DailyStatEntry,
   EconomyItem,
@@ -236,7 +237,7 @@ function useRawItemHistory({
   const [hasMore, setHasMore] = useState(true);
   const [oldestTimestamp, setOldestTimestamp] = useState<string | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [cursor, setCursor] = useState(() => new Date().toISOString());
+  const [cursor, setCursor] = useState(() => getNextHourEndTime());
   const didMountRef = useRef(false);
   const nextLogCountRef = useRef(INITIAL_RAW_LOG_COUNT * 2);
 
@@ -249,7 +250,7 @@ function useRawItemHistory({
     setHistory([]);
     setHasMore(true);
     setOldestTimestamp(null);
-    setCursor(new Date().toISOString());
+    setCursor(getNextHourEndTime());
     nextLogCountRef.current = INITIAL_RAW_LOG_COUNT * 2;
   }, [itemId, leagueName, realmApiId, referenceCurrency]);
 

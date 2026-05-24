@@ -20,6 +20,7 @@ import type {
 } from "../components/CurrencyExchange/PairHistory/metricTypes";
 import { useLeague } from "../contexts/LeagueContext";
 import type { PairHistoryEntry, SnapshotPair } from "../types";
+import { getNextHourEndEpoch } from "../utils/chartCursor";
 
 const HISTORY_LIMIT = 24 * 14;
 const DEFAULT_METRIC_ID = "currencyTwoData.valueTraded";
@@ -168,6 +169,7 @@ export function PairHistoryPage() {
           currencyOneItemId,
           currencyTwoItemId,
           limit: HISTORY_LIMIT,
+          endEpoch: getNextHourEndEpoch(),
         });
 
         if (!isMounted) {

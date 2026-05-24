@@ -32,6 +32,7 @@ import {
   DailyStatsChartLegend,
 } from "./DailyStatsChartLegend";
 import type { DailyStatsLegendData } from "./DailyStatsChartLegend";
+import { getNextHourEndTime } from "../utils/chartCursor";
 
 const DetailContainer = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -67,7 +68,9 @@ export function ItemDetail({
 
   const [hasMore, setHasMore] = useState(true);
   const [dailyHasMore, setDailyHasMore] = useState(true);
-  const [oldestTimestamp, setOldestTimestamp] = useState<string>(() => new Date().toISOString());
+  const [oldestTimestamp, setOldestTimestamp] = useState<string>(() =>
+    getNextHourEndTime(),
+  );
   const [oldestDailyDate, setOldestDailyDate] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false); 
@@ -162,7 +165,7 @@ export function ItemDetail({
 
     setHistory([]); 
     setHasMore(true);
-    const initialCursor = new Date().toISOString();
+    const initialCursor = getNextHourEndTime();
     setOldestTimestamp(initialCursor);
     logCountRef.current = 14 * 24; 
 
