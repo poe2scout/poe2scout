@@ -30,11 +30,6 @@ select option {
   text-align: center;
 }
 
-.poe2scout-ad--horizontal {
-  width: min(100%, 728px) !important;
-  min-height: 90px;
-}
-
 .poe2scout-ad ins.adsbygoogle {
   background: transparent !important;
   margin-right: auto;
