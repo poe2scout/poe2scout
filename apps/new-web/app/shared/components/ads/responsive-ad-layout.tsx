@@ -29,7 +29,6 @@ export default function ResponsiveAdLayout({
       )}
 
       {children}
-
       {showSideAds && (
         <>
           <aside className="poe2scout-ad-layout__side-ad poe2scout-ad-layout__side-ad--left">
