@@ -13,9 +13,11 @@ POE2 Scout is a market tool for Path of Exile 2 focused on real-time item and cu
 - `apps/workers/price-fetch`: Price fetch worker container definition.
 - `apps/workers/currency-exchange`: Currency exchange worker container definition.
 - `packages/backend`: Shared Python backend package used by the API and workers.
-- `infra/compose`: Docker Compose files for local support services and production deployment.
+- `infra/core.yml`: Docker Compose file for long-lived PostgreSQL and Redis services.
+- `infra/services.yml`: Docker Compose file for the legacy web app and worker services.
+- `infra/observability.yml`: Docker Compose file for Grafana, Prometheus, Loki, Alloy, and cAdvisor.
+- `infra/caddy`: Host Caddy configuration.
 - `infra/db`: PostgreSQL config and migrations.
-- `infra/https-portal`: Production reverse-proxy templates.
 
 ## Local Development
 
@@ -39,7 +41,8 @@ cp .env.example .env
 This starts only PostgreSQL and Redis:
 
 ```bash
-docker compose -f infra/compose/local.yml --env-file .env up -d
+docker network inspect poe2scout >/dev/null 2>&1 || docker network create poe2scout
+docker compose -f infra/core.yml --env-file .env up -d
 ```
 
 ### Backend setup
@@ -82,11 +85,9 @@ Run item sync first so the database has base data, then apply any required SQL m
 - Pushes to `release` also build and publish container images to GHCR, including the new and legacy web images.
 - The new React Router frontend is also ready for Cloudflare Pages with root directory `apps/new-web`, build command `npm run build`, and output directory `build/client`.
 - For Cloudflare Pages production, set `VITE_API_BASE_URL=https://api.poe2scout.com` and `API_ORIGIN=https://api.poe2scout.com`. `API_ORIGIN` is used only by the temporary `/api/*` compatibility proxy.
-- After the `release` image workflow succeeds, a separate deploy workflow copies `infra/` and `.env` to the server and runs:
-  `docker compose -f infra/compose/prod.yml -f infra/compose/observability.yml --env-file .env pull`
-  followed by
-  `docker compose -f infra/compose/prod.yml -f infra/compose/observability.yml --env-file .env up -d --remove-orphans`
-- `poe2scout.com` serves the React Router web app, `old.poe2scout.com` serves the legacy web app, and `api.poe2scout.com` serves the canonical API.
+- Production infrastructure is split into `infra/core.yml`, `infra/services.yml`, and `infra/observability.yml`.
+- Host Caddy owns public routing. The API is deployed outside Compose with blue/green containers and Caddy imports `/etc/caddy/api-upstream.caddy` for the active upstream.
+- `poe2scout.com` serves the React Router web app through Cloudflare Pages, `old.poe2scout.com` serves the legacy web app, and `api.poe2scout.com` serves the canonical API.
 - `poe2scout.com/api/*` is kept as a temporary compatibility route by the Cloudflare Pages Function in `apps/new-web/functions/api/[[path]].ts`; it strips `/api` and proxies to `api.poe2scout.com/*`.
 - `beta.poe2scout.com` is kept in TLS routing and redirects to `poe2scout.com`.
 
