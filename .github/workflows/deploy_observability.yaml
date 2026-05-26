@@ -1,0 +1,51 @@
+name: Deploy Observability
+
+on:
+  workflow_dispatch:
+
+env:
+  DEPLOY_ROOT: /opt/poe2scout/observability
+
+concurrency:
+  group: deploy-observability
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Write production env file
+        run: |
+          cat > .deploy.env <<'EOF'
+          DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
+          GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          EOF
+
+      - name: Prepare deploy directory
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p ${{ env.DEPLOY_ROOT }}/infra"
+
+      - name: Sync infrastructure files
+        run: |
+          rsync -az --delete --exclude '.DS_Store' infra/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/infra/
+          scp .deploy.env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/.env
+
+      - name: Deploy observability
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+          set -euo pipefail
+          cd ${{ env.DEPLOY_ROOT }}
+          docker compose -p poe2scout-observability -f infra/observability.yml --env-file .env pull
+          docker compose -p poe2scout-observability -f infra/observability.yml --env-file .env up -d
+          "

@@ -10,8 +10,6 @@ services:
     restart: always
     environment:
       DBSTRING: ${DBSTRING}
-      UNIQUE_ITEM_URL: ${UNIQUE_ITEM_URL}
-      CURRENCY_ITEM_URL: ${CURRENCY_ITEM_URL}
       LOG_JSON: ${LOG_JSON:-true}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       METRICS_PORT: 9101

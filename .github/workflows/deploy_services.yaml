@@ -1,0 +1,83 @@
+name: Deploy Services
+
+on:
+  workflow_run:
+    workflows:
+      - Build and Publish Images
+    types:
+      - completed
+    branches:
+      - release
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Image tag to deploy
+        required: false
+        default: release
+
+env:
+  DEPLOY_ROOT: /opt/poe2scout/services
+
+concurrency:
+  group: deploy-services
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Set deploy image tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            echo "IMAGE_TAG=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_ENV"
+          elif [ -n "${{ inputs.image_tag }}" ]; then
+            echo "IMAGE_TAG=${{ inputs.image_tag }}" >> "$GITHUB_ENV"
+          else
+            echo "IMAGE_TAG=release" >> "$GITHUB_ENV"
+          fi
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Write production env file
+        run: |
+          cat > .deploy.env <<'EOF'
+          DBSTRING=${{ secrets.DBSTRING }}
+          POEAPI_CLIENT_ID=${{ secrets.POEAPI_CLIENT_ID }}
+          POEAPI_CLIENT_SECRET=${{ secrets.POEAPI_CLIENT_SECRET }}
+          EOF
+          printf 'IMAGE_TAG=%s\n' "${IMAGE_TAG}" >> .deploy.env
+
+      - name: Prepare deploy directory
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p ${{ env.DEPLOY_ROOT }}/infra"
+
+      - name: Sync infrastructure files
+        run: |
+          rsync -az --delete --exclude '.DS_Store' infra/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/infra/
+          scp .deploy.env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/.env
+
+      - name: Deploy services
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+          set -euo pipefail
+          export GHCR_USERNAME='${{ vars.GHCR_USERNAME || secrets.GHCR_USERNAME }}'
+          export GHCR_TOKEN='${{ secrets.GHCR_READ_PACKAGES_TOKEN }}'
+          export DOCKER_CONFIG=\$(mktemp -d)
+          trap 'docker logout ghcr.io >/dev/null 2>&1 || true; rm -rf \"\$DOCKER_CONFIG\"' EXIT
+          echo \"\$GHCR_TOKEN\" | docker login ghcr.io -u \"\$GHCR_USERNAME\" --password-stdin
+          cd ${{ env.DEPLOY_ROOT }}
+          docker compose -p poe2scout-services -f infra/services.yml --env-file .env pull
+          docker compose -p poe2scout-services -f infra/services.yml --env-file .env up -d
+          "
