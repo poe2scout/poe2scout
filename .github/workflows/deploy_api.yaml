@@ -146,7 +146,7 @@ jobs:
             \"\$IMAGE\"
 
           docker run --rm --network poe2scout curlimages/curl:latest \
-            --fail --retry 20 --retry-delay 3 \
+            --fail --retry 20 --retry-delay 3 --retry-connrefused \
             \"http://poe2scout-api-\$NEXT:5000/health/ready\"
 
           printf 'reverse_proxy 127.0.0.1:%s\n' \"\$NEXT_PORT\" | sudo tee /etc/caddy/api-upstream.caddy >/dev/null
@@ -156,7 +156,7 @@ jobs:
 
           sleep 30
           docker run --rm --network poe2scout curlimages/curl:latest \
-            --fail \
+            --fail --retry 10 --retry-delay 3 --retry-connrefused \
             \"http://poe2scout-api-\$NEXT:5000/health/ready\"
 
           printf '%s\n' \"\$NEXT\" > \"\$ACTIVE_FILE\"
