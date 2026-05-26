@@ -73,9 +73,17 @@ services:
 
 volumes:
   grafana-data:
+    name: compose_grafana-data
+    external: true
   prometheus-data:
+    name: compose_prometheus-data
+    external: true
   loki-data:
+    name: compose_loki-data
+    external: true
   alloy-data:
+    name: compose_alloy-data
+    external: true
 
 networks:
   default:
