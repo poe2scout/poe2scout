@@ -1,0 +1,22 @@
+api.poe2scout.com {
+	import /etc/caddy/api-upstream.caddy
+}
+
+old.poe2scout.com {
+	@api path /api /api/*
+	handle @api {
+		import /etc/caddy/api-upstream.caddy
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:3001
+	}
+}
+
+monitoring.poe2scout.com {
+	reverse_proxy 127.0.0.1:3002
+}
+
+beta.poe2scout.com {
+	redir https://poe2scout.com{uri} permanent
+}

@@ -1,0 +1,46 @@
+name: Deploy Caddy
+
+on:
+  workflow_dispatch:
+
+env:
+  DEPLOY_ROOT: /opt/poe2scout/caddy
+
+concurrency:
+  group: deploy-caddy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Prepare deploy directory
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p ${{ env.DEPLOY_ROOT }}"
+
+      - name: Sync Caddyfile
+        run: |
+          rsync -az infra/caddy/Caddyfile ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/Caddyfile
+
+      - name: Deploy Caddy config
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+          set -euo pipefail
+          sudo cp ${{ env.DEPLOY_ROOT }}/Caddyfile /etc/caddy/Caddyfile
+          if [ ! -f /etc/caddy/api-upstream.caddy ]; then
+            printf 'respond \"API not deployed\" 503\n' | sudo tee /etc/caddy/api-upstream.caddy >/dev/null
+          fi
+          sudo caddy validate --config /etc/caddy/Caddyfile
+          sudo systemctl reload caddy
+          "

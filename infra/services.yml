@@ -1,0 +1,63 @@
+services:
+  old-web:
+    image: ghcr.io/poe2scout/poe2scout-old-web:${IMAGE_TAG:-release}
+    restart: always
+    ports:
+      - "127.0.0.1:3001:3000"
+
+  item-sync-service:
+    image: ghcr.io/poe2scout/poe2scout-item-sync:${IMAGE_TAG:-release}
+    restart: always
+    environment:
+      DBSTRING: ${DBSTRING}
+      LOG_JSON: ${LOG_JSON:-true}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      METRICS_PORT: 9101
+      SERVICE_NAME: item-sync
+    expose:
+      - "9101"
+
+  currency-price-log-service:
+    image: ghcr.io/poe2scout/poe2scout-currency-price-log:${IMAGE_TAG:-release}
+    restart: "no"
+    environment:
+      DBSTRING: ${DBSTRING}
+      POEAPI_CLIENT_ID: ${POEAPI_CLIENT_ID}
+      POEAPI_CLIENT_SECRET: ${POEAPI_CLIENT_SECRET}
+      LOG_JSON: ${LOG_JSON:-true}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      METRICS_PORT: 9102
+      SERVICE_NAME: currency-price-log
+    expose:
+      - "9102"
+
+  unique-price-log-service:
+    image: ghcr.io/poe2scout/poe2scout-unique-price-log:${IMAGE_TAG:-release}
+    restart: "no"
+    environment:
+      DBSTRING: ${DBSTRING}
+      LOG_JSON: ${LOG_JSON:-true}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      METRICS_PORT: 9103
+      SERVICE_NAME: unique-price-log
+    expose:
+      - "9103"
+
+  currency-exchange-service:
+    image: ghcr.io/poe2scout/poe2scout-currency-exchange:${IMAGE_TAG:-release}
+    restart: "no"
+    environment:
+      DBSTRING: ${DBSTRING}
+      POEAPI_CLIENT_ID: ${POEAPI_CLIENT_ID}
+      POEAPI_CLIENT_SECRET: ${POEAPI_CLIENT_SECRET}
+      LOG_JSON: ${LOG_JSON:-true}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      METRICS_PORT: 9104
+      SERVICE_NAME: currency-exchange
+    expose:
+      - "9104"
+
+networks:
+  default:
+    name: poe2scout
+    external: true

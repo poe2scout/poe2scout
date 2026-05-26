@@ -1,0 +1,167 @@
+name: Deploy API
+
+on:
+  workflow_run:
+    workflows:
+      - Build and Publish Images
+    types:
+      - completed
+    branches:
+      - release
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Image tag to deploy
+        required: false
+        default: release
+
+env:
+  DEPLOY_ROOT: /opt/poe2scout/api
+
+concurrency:
+  group: deploy-api-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Set deploy image tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            echo "IMAGE_TAG=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_ENV"
+          elif [ -n "${{ inputs.image_tag }}" ]; then
+            echo "IMAGE_TAG=${{ inputs.image_tag }}" >> "$GITHUB_ENV"
+          else
+            echo "IMAGE_TAG=release" >> "$GITHUB_ENV"
+          fi
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Write production env file
+        run: |
+          cat > .deploy.env <<'EOF'
+          DBSTRING=${{ secrets.DBSTRING }}
+          REDIS_URL=redis://redis:6379
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
+          EOF
+
+      - name: Prepare deploy directory
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p ${{ env.DEPLOY_ROOT }}/infra"
+
+      - name: Sync infrastructure files
+        run: |
+          rsync -az --delete --exclude '.DS_Store' infra/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/infra/
+          scp .deploy.env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOY_ROOT }}/.env
+
+      - name: Deploy API slot
+        run: |
+          # shellcheck disable=SC2029
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+          set -euo pipefail
+          export GHCR_USERNAME='${{ vars.GHCR_USERNAME || secrets.GHCR_USERNAME }}'
+          export GHCR_TOKEN='${{ secrets.GHCR_READ_PACKAGES_TOKEN }}'
+          export DOCKER_CONFIG=\$(mktemp -d)
+          cleanup() {
+            docker logout ghcr.io >/dev/null 2>&1 || true
+            rm -rf \"\$DOCKER_CONFIG\"
+          }
+          trap cleanup EXIT
+
+          echo \"\$GHCR_TOKEN\" | docker login ghcr.io -u \"\$GHCR_USERNAME\" --password-stdin
+          docker network inspect poe2scout >/dev/null 2>&1 || docker network create poe2scout
+
+          cd ${{ env.DEPLOY_ROOT }}
+          ACTIVE_FILE=${{ env.DEPLOY_ROOT }}/api-active-slot
+          ACTIVE=\"\"
+          if [ -f \"\$ACTIVE_FILE\" ]; then
+            ACTIVE=\"\$(cat \"\$ACTIVE_FILE\")\"
+          fi
+
+          case \"\$ACTIVE\" in
+            blue)
+              NEXT=green
+              NEXT_PORT=5002
+              OLD=blue
+              OLD_PORT=5001
+              ;;
+            green)
+              NEXT=blue
+              NEXT_PORT=5001
+              OLD=green
+              OLD_PORT=5002
+              ;;
+            *)
+              NEXT=blue
+              NEXT_PORT=5001
+              OLD=\"\"
+              OLD_PORT=\"\"
+              ;;
+          esac
+
+          NEW_CONTAINER=poe2scout-api-\$NEXT
+          IMAGE=ghcr.io/poe2scout/poe2scout-api:${IMAGE_TAG}
+          SWITCHED=0
+          rollback() {
+            status=\$?
+            set +e
+            if [ \"\$SWITCHED\" = \"1\" ]; then
+              if [ -n \"\$OLD\" ]; then
+                printf 'reverse_proxy 127.0.0.1:%s\n' \"\$OLD_PORT\" | sudo tee /etc/caddy/api-upstream.caddy >/dev/null
+              else
+                printf 'respond \"API not deployed\" 503\n' | sudo tee /etc/caddy/api-upstream.caddy >/dev/null
+              fi
+              sudo caddy validate --config /etc/caddy/Caddyfile
+              sudo systemctl reload caddy
+            fi
+            docker rm -f \"\$NEW_CONTAINER\" >/dev/null 2>&1 || true
+            exit \"\$status\"
+          }
+          trap rollback ERR
+
+          docker rm -f \"\$NEW_CONTAINER\" >/dev/null 2>&1 || true
+          docker pull \"\$IMAGE\"
+          docker run -d \
+            --name \"\$NEW_CONTAINER\" \
+            --restart always \
+            --network poe2scout \
+            -p \"127.0.0.1:\${NEXT_PORT}:5000\" \
+            --env-file ${{ env.DEPLOY_ROOT }}/.env \
+            -e METRICS_PORT=9105 \
+            -e SERVICE_NAME=api \
+            \"\$IMAGE\"
+
+          docker run --rm --network poe2scout curlimages/curl:latest \
+            --fail --retry 20 --retry-delay 3 \
+            \"http://poe2scout-api-\$NEXT:5000/health/ready\"
+
+          printf 'reverse_proxy 127.0.0.1:%s\n' \"\$NEXT_PORT\" | sudo tee /etc/caddy/api-upstream.caddy >/dev/null
+          SWITCHED=1
+          sudo caddy validate --config /etc/caddy/Caddyfile
+          sudo systemctl reload caddy
+
+          sleep 30
+          docker run --rm --network poe2scout curlimages/curl:latest \
+            --fail \
+            \"http://poe2scout-api-\$NEXT:5000/health/ready\"
+
+          printf '%s\n' \"\$NEXT\" > \"\$ACTIVE_FILE\"
+          trap - ERR
+          if [ -n \"\$OLD\" ]; then
+            docker rm -f \"poe2scout-api-\$OLD\" >/dev/null 2>&1 || true
+          fi
+          "
