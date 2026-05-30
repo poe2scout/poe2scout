@@ -1,5 +1,5 @@
-/exchange/pair/:currencyOneItemId/:currencyTwoItemId /poe2/vaal/exchange/pair/:currencyOneItemId/:currencyTwoItemId 301
-/exchange /poe2/vaal/exchange 301
-/exchange/* /poe2/vaal/exchange 301
-/economy /poe2/vaal/economy 301
-/economy/* /poe2/vaal/economy 301
+/exchange/pair/:currencyOneItemId/:currencyTwoItemId /poe2/runes/exchange/pair/:currencyOneItemId/:currencyTwoItemId 301
+/exchange /poe2/runes/exchange 301
+/exchange/* /poe2/runes/exchange 301
+/economy /poe2/runes/economy 301
+/economy/* /poe2/runes/economy 301
