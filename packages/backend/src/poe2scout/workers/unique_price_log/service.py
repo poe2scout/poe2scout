@@ -30,7 +30,7 @@ REALM = "poe2"
 async def fetch_prices(client: PoeTradeClient) -> None:
     # Get all unique items
     game_id = 2
-    league = await league_repository.get_league(7)
+    league = await league_repository.get_league(23)
     realm_id = 4
     base_unique_items = await unique_item_repository.get_current_unique_items(game_id)
     base_currency_items = await currency_item_repository.get_all_currency_items(game_id)
