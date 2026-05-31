@@ -38,7 +38,7 @@ export async function clientLoader({
   const url = new URL(request.url);
 
   const itemId = Number(params.itemId);
-  const chartMode = getChartMode(url.searchParams.get("chart"), "daily");
+  const chartMode = getChartMode(url.searchParams.get("chart"), "raw");
   const referenceCurrencyParam = url.searchParams.get("referenceCurrency");
 
   if (!Number.isFinite(itemId)) {
