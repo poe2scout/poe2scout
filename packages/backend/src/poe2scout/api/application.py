@@ -196,7 +196,7 @@ def create_app(
         application_limits=application_limits or ["100/minute"],
         headers_enabled=True,
     )
-    app.state.limiter = limiter
+    #app.state.limiter = limiter
     app.state.api_metrics = api_metrics
     app.state.api_config = config
     app.state.metrics_registry = metrics_registry
@@ -205,7 +205,7 @@ def create_app(
         RateLimitExceeded,
         cast(ExceptionHandler, rate_limit_exceeded_handler),
     )
-    app.add_middleware(SlowAPIMiddleware)
+    #app.add_middleware(SlowAPIMiddleware)
 
     cors_allowed_origins = get_cors_allowed_origins(config)
     if cors_allowed_origins:
