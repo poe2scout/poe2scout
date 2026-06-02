@@ -45,6 +45,7 @@ function buildProxyHeaders(request: Request, targetUrl: URL) {
 
   if (clientIp) {
     headers.set("x-real-ip", clientIp);
+    headers.set("cf-connecting-ip", clientIp);
     headers.set("x-forwarded-for", forwardedFor ? `${forwardedFor}, ${clientIp}` : clientIp);
   }
 
