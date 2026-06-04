@@ -6,7 +6,6 @@ import type { Route } from "./+types/layout";
 import ItemSearch from "../components/item-search";
 import { formatTitle, getLeagueContextTitle } from "~/shared/meta/page-title";
 import type { Filter } from "../queries/filters";
-import ResponsiveAdLayout from "~/shared/components/ads/responsive-ad-layout";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 import { useLeagueContext } from "~/features/league/context";
 import ReferenceCurrencySelect from "../components/reference-currency-select";
@@ -137,7 +136,7 @@ export default function EconomyLayout({
   };
 
   return (
-    <ResponsiveAdLayout>
+    <>
       <div className="mb-3">
         <ItemSearch
           realmId={params.realmId}
@@ -218,7 +217,7 @@ export default function EconomyLayout({
           <Outlet />
         </div>
       </div>
-    </ResponsiveAdLayout>
+    </>
   );
 }
 

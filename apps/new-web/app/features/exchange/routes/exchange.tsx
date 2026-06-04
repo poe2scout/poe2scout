@@ -23,11 +23,7 @@ import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 import { findLeagueByRouteId } from "~/features/league/route-id";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 import type { LeagueCurrency } from "~/features/league/types";
-import {
-  formatTitle,
-  getLeagueContextTitle,
-} from "~/shared/meta/page-title";
-import ResponsiveAdLayout from "~/shared/components/ads/responsive-ad-layout";
+import { formatTitle, getLeagueContextTitle } from "~/shared/meta/page-title";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: () => ({ label: "Currency Exchange" }),
@@ -111,28 +107,26 @@ export default function Exchange({ params, loaderData }: Route.ComponentProps) {
   );
 
   return (
-    <ResponsiveAdLayout>
-      <div className="flex flex-col gap-4 py-4">
-        <ExchangeSummary league={league} snapshot={snapshot} />
-        <MarketHistoryChart
-          history={snapshotHistory.history}
-          baseCurrencyText={
-            snapshotHistory.baseCurrencyText || snapshot.baseCurrencyText
-          }
-          hasMore={snapshotHistory.hasMore}
-          isLoading={snapshotHistory.isInitialLoading}
-          isError={snapshotHistory.isError}
-          isLoadingMore={snapshotHistory.isLoadingMore}
-          onLoadMore={snapshotHistory.loadMore}
-        />
-        <ExchangePairTable
-          pairs={pairsQuery.data ?? []}
-          tableState={loaderData}
-          isLoading={pairsQuery.isPending}
-          isError={pairsQuery.isError}
-        />
-      </div>
-    </ResponsiveAdLayout>
+    <div className="flex flex-col gap-4 py-4">
+      <ExchangeSummary league={league} snapshot={snapshot} />
+      <MarketHistoryChart
+        history={snapshotHistory.history}
+        baseCurrencyText={
+          snapshotHistory.baseCurrencyText || snapshot.baseCurrencyText
+        }
+        hasMore={snapshotHistory.hasMore}
+        isLoading={snapshotHistory.isInitialLoading}
+        isError={snapshotHistory.isError}
+        isLoadingMore={snapshotHistory.isLoadingMore}
+        onLoadMore={snapshotHistory.loadMore}
+      />
+      <ExchangePairTable
+        pairs={pairsQuery.data ?? []}
+        tableState={loaderData}
+        isLoading={pairsQuery.isPending}
+        isError={pairsQuery.isError}
+      />
+    </div>
   );
 }
 
