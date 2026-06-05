@@ -1,11 +1,11 @@
 import type { Route } from "./+types/privacy";
-import { formatTitle } from "~/shared/meta/page-title";
+import { createPageMeta, formatTitle } from "~/shared/meta/page-title";
 
 export function meta({}: Route.MetaArgs) {
-  return [
-    { title: formatTitle(["Privacy Policy"]) },
-    { name: "description", content: "POE2 Scout privacy policy." },
-  ];
+  return createPageMeta({
+    title: formatTitle(["Privacy Policy"]),
+    description: "POE2 Scout privacy policy.",
+  });
 }
 
 export default function Privacy() {

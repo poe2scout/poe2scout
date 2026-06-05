@@ -23,7 +23,11 @@ import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 import { findLeagueByRouteId } from "~/features/league/route-id";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 import type { LeagueCurrency } from "~/features/league/types";
-import { formatTitle, getLeagueContextTitle } from "~/shared/meta/page-title";
+import {
+  createPageMeta,
+  formatTitle,
+  getLeagueContextTitle,
+} from "~/shared/meta/page-title";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: () => ({ label: "Currency Exchange" }),
@@ -31,8 +35,13 @@ export const handle: BreadcrumbHandle = {
 
 export function meta({ matches }: Route.MetaArgs) {
   const leagueContext = getLeagueContextTitle(matches);
+  const title = formatTitle(["Currency Exchange", leagueContext]);
+  const context = leagueContext ?? "the selected league";
 
-  return [{ title: formatTitle(["Currency Exchange", leagueContext]) }];
+  return createPageMeta({
+    title,
+    description: `Track Path of Exile 2 currency exchange rates, market volume, and recent currency movement for ${context}.`,
+  });
 }
 
 const HISTORY_LIMIT = 24 * 14;

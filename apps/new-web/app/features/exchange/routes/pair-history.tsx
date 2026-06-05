@@ -25,6 +25,7 @@ import type {
 import formatEpoch from "../utils/format-epoch";
 import type { Route } from "./+types/pair-history";
 import {
+  createPageMeta,
   formatTitle,
   getLeagueContextTitle,
   getPairTitleFallback,
@@ -45,10 +46,13 @@ export function meta({ loaderData, matches, params }: Route.MetaArgs) {
     loaderData?.pairTitle ??
     getPairTitleFallback(params.currencyOneItemId, params.currencyTwoItemId);
   const leagueContext = getLeagueContextTitle(matches);
+  const title = formatTitle([`${pairTitle} Exchange History`, leagueContext]);
+  const context = leagueContext ?? "the selected league";
 
-  return [
-    { title: formatTitle([`${pairTitle} Exchange History`, leagueContext]) },
-  ];
+  return createPageMeta({
+    title,
+    description: `Review ${pairTitle} exchange history, traded value, and Path of Exile 2 currency market movement for ${context}.`,
+  });
 }
 
 const HISTORY_LIMIT = 24 * 14;

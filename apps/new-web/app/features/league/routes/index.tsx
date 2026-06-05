@@ -3,12 +3,21 @@ import NavLinkButton from "~/features/landing/components/nav-link-button";
 import { useLeagueContext } from "~/features/league/context";
 import useCurrentGame from "~/features/league/hooks/use-current-game";
 import Section from "~/shared/components/section/section";
-import { formatTitle, getLeagueContextTitle } from "~/shared/meta/page-title";
+import {
+  createPageMeta,
+  formatTitle,
+  getLeagueContextTitle,
+} from "~/shared/meta/page-title";
 
 export function meta({ matches }: Route.MetaArgs) {
   const leagueContext = getLeagueContextTitle(matches);
+  const title = formatTitle(["Overview", leagueContext]);
+  const context = leagueContext ?? "the selected league";
 
-  return [{ title: formatTitle(["Overview", leagueContext]) }];
+  return createPageMeta({
+    title,
+    description: `Browse Path of Exile 2 economy prices, currency exchange rates, and item price history for ${context}.`,
+  });
 }
 
 export default function Index() {

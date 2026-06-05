@@ -4,7 +4,11 @@ import type { BreadcrumbHandle } from "~/features/app-shell/components/header-br
 import getCategoriesQueryOptions from "../queries/categories";
 import type { Route } from "./+types/layout";
 import ItemSearch from "../components/item-search";
-import { formatTitle, getLeagueContextTitle } from "~/shared/meta/page-title";
+import {
+  createPageMeta,
+  formatTitle,
+  getLeagueContextTitle,
+} from "~/shared/meta/page-title";
 import type { Filter } from "../queries/filters";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 import { useLeagueContext } from "~/features/league/context";
@@ -28,8 +32,13 @@ export const handle: BreadcrumbHandle = {
 
 export function meta({ matches }: Route.MetaArgs) {
   const leagueContext = getLeagueContextTitle(matches);
+  const title = formatTitle(["Economy", leagueContext]);
+  const context = leagueContext ?? "the selected league";
 
-  return [{ title: formatTitle(["Economy", leagueContext]) }];
+  return createPageMeta({
+    title,
+    description: `Search Path of Exile 2 item prices, currency values, and economy history for ${context}.`,
+  });
 }
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {

@@ -11,6 +11,7 @@ import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 import { findLeagueByRouteId } from "~/features/league/route-id";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 import {
+  createPageMeta,
   formatTitle,
   getItemTitle,
   getLeagueContextTitle,
@@ -25,10 +26,13 @@ export const handle: BreadcrumbHandle = {
 export function meta({ loaderData, matches }: Route.MetaArgs) {
   const itemTitle = getItemTitle(loaderData?.item);
   const leagueContext = getLeagueContextTitle(matches);
+  const title = formatTitle([`${itemTitle} Price History`, leagueContext]);
+  const context = leagueContext ?? "the selected league";
 
-  return [
-    { title: formatTitle([`${itemTitle} Price History`, leagueContext]) },
-  ];
+  return createPageMeta({
+    title,
+    description: `View ${itemTitle} price history, unique item value trends, and Path of Exile 2 market data for ${context}.`,
+  });
 }
 
 export async function clientLoader({

@@ -9,6 +9,7 @@ import getUniqueItemsQueryOptions from "../queries/unique-items";
 import { getEconomyTableColumns } from "../components/economy-table-columns";
 import EconomyTable from "../components/economy-table";
 import {
+  createPageMeta,
   formatTitle,
   getCategoryLabel,
   getLeagueContextTitle,
@@ -24,8 +25,13 @@ export const handle: BreadcrumbHandle = {
 export function meta({ matches, params }: Route.MetaArgs) {
   const categoryLabel = getCategoryLabel(matches, "uniques", params.category);
   const leagueContext = getLeagueContextTitle(matches);
+  const title = formatTitle([`${categoryLabel} Prices`, leagueContext]);
+  const context = leagueContext ?? "the selected league";
 
-  return [{ title: formatTitle([`${categoryLabel} Prices`, leagueContext]) }];
+  return createPageMeta({
+    title,
+    description: `Check current ${categoryLabel} unique item prices, trade values, and Path of Exile 2 market data for ${context}.`,
+  });
 }
 
 export async function clientLoader({

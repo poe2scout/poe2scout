@@ -4,17 +4,14 @@ import type { Realm } from "~/features/league/types";
 import Section from "~/shared/components/section/section";
 import RealmOptions from "../components/realm-options";
 import LeagueOptions from "../components/league-options";
-import { SITE_NAME } from "~/shared/meta/page-title";
+import { createPageMeta, SITE_NAME } from "~/shared/meta/page-title";
 
 export function meta({}: Route.MetaArgs) {
-  return [
-    { title: SITE_NAME },
-    {
-      name: "description",
-      content:
-        "Track Path of Exile 2 market prices, currency exchange rates, and item price history.",
-    },
-  ];
+  return createPageMeta({
+    title: SITE_NAME,
+    description:
+      "Track Path of Exile 2 market prices, currency exchange rates, and item price history.",
+  });
 }
 
 export default function Home() {

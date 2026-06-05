@@ -1,6 +1,14 @@
 import type { League, Realm } from "~/features/league/types";
 
 export const SITE_NAME = "POE2 Scout";
+const DEFAULT_META_KEYWORDS = [
+  "Path of Exile 2",
+  "POE2",
+  "price checking",
+  "trading",
+  "items",
+  "economy",
+];
 
 type RouteMetaMatch = {
   id: string;
@@ -45,6 +53,35 @@ export function formatTitle(parts: Array<string | null | undefined>) {
   }
 
   return `${titleParts.join(" - ")} | ${SITE_NAME}`;
+}
+
+export function createPageMeta({
+  title,
+  description,
+  keywords = [],
+  type = "website",
+}: {
+  title: string;
+  description: string;
+  keywords?: string[];
+  type?: string;
+}) {
+  const keywordContent = [...DEFAULT_META_KEYWORDS, ...keywords]
+    .map((keyword) => keyword.trim())
+    .filter(Boolean)
+    .filter(
+      (keyword, index, allKeywords) => allKeywords.indexOf(keyword) === index,
+    )
+    .join(", ");
+
+  return [
+    { title },
+    { name: "description", content: description },
+    { name: "keywords", content: keywordContent },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:type", content: type },
+  ];
 }
 
 export function getLeagueContextTitle(matches: RouteMetaMatches) {
