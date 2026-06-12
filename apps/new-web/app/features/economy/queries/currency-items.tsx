@@ -5,6 +5,7 @@ import type {
   CurrencyEconomyItem,
   PaginatedEconomyResponse as PaginatedResponse,
 } from "../types";
+import type { CategoryPriceHistoryConfig } from "../history-config";
 
 export type GetCurrencyItemsResponse = PaginatedResponse<CurrencyEconomyItem>;
 
@@ -16,6 +17,7 @@ export default function getCurrencyItemsQueryOptions({
   search,
   page,
   perPage,
+  historyConfig,
 }: {
   realmApiId: string;
   leagueName: string;
@@ -24,6 +26,7 @@ export default function getCurrencyItemsQueryOptions({
   search: string | null;
   page: Number | null;
   perPage: Number | null;
+  historyConfig: CategoryPriceHistoryConfig;
 }) {
   return queryOptions({
     queryKey: [
@@ -37,6 +40,8 @@ export default function getCurrencyItemsQueryOptions({
         search,
         page,
         perPage,
+        dataPoints: historyConfig.dataPoints,
+        frequencyHours: historyConfig.frequencyHours,
       },
     ],
     queryFn: () => {
@@ -47,6 +52,8 @@ export default function getCurrencyItemsQueryOptions({
         Search: search,
         Page: page,
         PerPage: perPage,
+        DataPoints: historyConfig.dataPoints,
+        FrequencyHours: historyConfig.frequencyHours,
       });
 
       return fetchRoute(

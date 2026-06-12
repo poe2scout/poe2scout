@@ -6,11 +6,13 @@ from fastapi import Depends, HTTPException, Path, Query
 
 from poe2scout.api.dependancies import EconomyCacheDep, LeagueContextDep, PaginationParamDep
 from poe2scout.api.api_model import ApiModel
+from poe2scout.api.history_config import CategoryPriceHistoryConfigDep
 from poe2scout.db.repositories import currency_item_repository
 from poe2scout.db.repositories.models import PriceLogEntry, UniqueItemExtended
 from poe2scout.services.pricing import resolve_reference_currency_api_id
 
 from . import router
+
 
 class GetUniqueItemsResponse(ApiModel):
     class _Item(ApiModel):
@@ -120,6 +122,7 @@ async def get_unique_category_items(
     context: LeagueContextDep,
     pagination: PaginationParamDep,
     economy_cache: EconomyCacheDep,
+    history_config: CategoryPriceHistoryConfigDep,
 ) -> GetUniqueItemsResponse:
     realm = context.realm
     league = context.league
@@ -141,6 +144,8 @@ async def get_unique_category_items(
         realm.game_id,
         request.category,
         reference_currency_api_id,
+        history_config.data_points,
+        history_config.frequency_hours,
         request.search,
     )
     item_count = len(items)

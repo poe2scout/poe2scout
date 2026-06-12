@@ -16,15 +16,11 @@ class GetItemPriceLogsDto(RepositoryModel):
 
 
 async def get_item_price_logs(
-    item_ids: list[int], 
-    league_id: int,
-    realm_id: int
+    item_ids: list[int], league_id: int, realm_id: int
 ) -> dict[int, list[PriceLogEntry | None]]:
     async with BaseRepository.get_db_cursor(row_factory=class_row(GetItemPriceLogsDto)) as cursor:
         now = datetime.now()
-        current_block = now.replace(
-            hour=(now.hour // 6) * 6, minute=0, second=0, microsecond=0
-        )
+        current_block = now.replace(hour=(now.hour // 6) * 6, minute=0, second=0, microsecond=0)
 
         time_blocks = [current_block - timedelta(hours=i * 6) for i in range(7)]
 
@@ -86,7 +82,7 @@ async def get_item_price_logs(
             "block_indices": block_indices,
             "item_ids": item_ids,
             "league_id": league_id,
-            "realm_id": realm_id
+            "realm_id": realm_id,
         }
 
         await cursor.execute(query, params)
@@ -99,11 +95,10 @@ async def get_item_price_logs(
 
         for log in price_logs:
             if log.price is not None and log.quantity is not None:
-                results[log.item_id][log.block_index] = PriceLogEntry(
+                results[log.item_id][log.block_index] = PriceLogEntry.model_construct(
                     price=log.price,
                     time=log.time,
                     quantity=log.quantity,
                 )
 
         return results
-

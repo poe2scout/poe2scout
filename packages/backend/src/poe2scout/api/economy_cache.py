@@ -30,9 +30,30 @@ T = TypeVar("T")
 logger = logging.getLogger(__name__)
 
 
-def get_daily_stat_dates():
-    current_date = datetime.now(tz=timezone.utc).date()
-    return [current_date - timedelta(days=i) for i in range(7)]
+def get_daily_stat_dates(
+    data_points: int,
+    time_utc: datetime,
+) -> list[date]:
+    current_date = time_utc.date()
+    return [current_date - timedelta(days=i) for i in range(data_points)]
+
+
+def get_price_history_bucket_starts(
+    data_points: int,
+    frequency_hours: int,
+    time_utc: datetime,
+) -> list[datetime]:
+    current_block = time_utc.replace(
+        hour=(time_utc.hour // frequency_hours) * frequency_hours,
+        minute=0,
+        second=0,
+        microsecond=0,
+    )
+
+    return [
+        (current_block - timedelta(hours=index * frequency_hours)).replace(tzinfo=None)
+        for index in range(data_points)
+    ]
 
 
 def build_daily_stat_price_logs(
@@ -52,7 +73,7 @@ def build_daily_stat_price_logs(
             continue
 
         for date_index in date_indices.get(stat.day, []):
-            results[stat.item_id][date_index] = PriceLogEntry(
+            results[stat.item_id][date_index] = PriceLogEntry.model_construct(
                 price=stat.avg_price,
                 time=datetime.combine(stat.day, time.min),
                 quantity=stat.volume,
@@ -72,6 +93,8 @@ class CacheKey(BaseModel):
     realm_id: int
     game_id: int
     reference_currency: str
+    data_points: int
+    frequency_hours: int
 
     class Config:
         frozen = True
@@ -95,15 +118,19 @@ class EconomyCache:
         game_id: int,
         category: str,
         reference_currency: str,
+        data_points: int,
+        frequency_hours: int,
         search: str,
     ) -> List[CurrencyItemExtended]:
         items: List[CurrencyItemExtended]
         cache_key = CacheKey(
-            category=category, 
-            league_id=league_id, 
+            category=category,
+            league_id=league_id,
             realm_id=realm_id,
             game_id=game_id,
-            reference_currency=reference_currency
+            reference_currency=reference_currency,
+            data_points=data_points,
+            frequency_hours=frequency_hours,
         )
 
         cache_entry = self.CurrencyCache.get(cache_key)
@@ -134,16 +161,20 @@ class EconomyCache:
         game_id: int,
         category: str,
         reference_currency: str,
+        data_points: int,
+        frequency_hours: int,
         search: str,
     ) -> List[UniqueItemExtended]:
         items: List[UniqueItemExtended]
 
         cache_key = CacheKey(
-            category=category, 
-            league_id=league_id, 
+            category=category,
+            league_id=league_id,
             realm_id=realm_id,
             game_id=game_id,
-            reference_currency=reference_currency
+            reference_currency=reference_currency,
+            data_points=data_points,
+            frequency_hours=frequency_hours,
         )
         if (
             self.UniqueCache.get(cache_key) is not None
@@ -183,16 +214,14 @@ class EconomyCache:
         if not item_ids:
             return []
 
-        daily_stat_dates = get_daily_stat_dates()
-        price_logs = build_daily_stat_price_logs(
+        time_utc = datetime.now(tz=timezone.utc)
+        price_logs = await self.get_category_price_logs(
             item_ids,
-            daily_stat_dates,
-            await price_log_repository.get_item_daily_stats(
-                item_ids,
-                cache_key.league_id,
-                cache_key.realm_id,
-                daily_stat_dates,
-            ),
+            cache_key.league_id,
+            cache_key.realm_id,
+            cache_key.data_points,
+            cache_key.frequency_hours,
+            time_utc,
         )
 
         reference_currency_price = 1.0
@@ -210,15 +239,15 @@ class EconomyCache:
                 cache_key.realm_id,
                 None,
             )
-            reference_currency_logs = build_daily_stat_price_logs(
-                [reference_currency_item.item_id],
-                daily_stat_dates,
-                await price_log_repository.get_item_daily_stats(
+            reference_currency_logs = (
+                await self.get_category_price_logs(
                     [reference_currency_item.item_id],
                     cache_key.league_id,
                     cache_key.realm_id,
-                    daily_stat_dates,
-                ),
+                    cache_key.data_points,
+                    cache_key.frequency_hours,
+                    time_utc,
+                )
             )[reference_currency_item.item_id]
             price_logs = convert_price_log_matrix_from_base(
                 price_logs,
@@ -228,17 +257,12 @@ class EconomyCache:
         last_price = dict.fromkeys(item_ids, 0.0)
 
         prices = await price_log_repository.get_item_prices(
-            item_ids, 
-            cache_key.league_id,
-            cache_key.realm_id
+            item_ids, cache_key.league_id, cache_key.realm_id
         )
 
         prices_lookup = {price.item_id: price for price in prices}
         converted_current_prices = convert_prices_from_base(
-            {
-                price.item_id: float(price.price)
-                for price in prices_lookup.values()
-            },
+            {price.item_id: float(price.price) for price in prices_lookup.values()},
             reference_currency_price,
         )
 
@@ -251,9 +275,7 @@ class EconomyCache:
             last_price[item.item_id] = converted_current_prices[item.item_id]
 
         items.sort(
-            key=lambda item: (
-                last_price[item.item_id] if item.item_id in last_price else 0
-            ),
+            key=lambda item: (last_price[item.item_id] if item.item_id in last_price else 0),
             reverse=True,
         )
 
@@ -299,16 +321,14 @@ class EconomyCache:
             )
             return []
 
-        daily_stat_dates = get_daily_stat_dates()
-        price_logs = build_daily_stat_price_logs(
+        time_utc = datetime.now(tz=timezone.utc)
+        price_logs = await self.get_category_price_logs(
             item_ids,
-            daily_stat_dates,
-            await price_log_repository.get_item_daily_stats(
-                item_ids,
-                cache_key.league_id,
-                cache_key.realm_id,
-                daily_stat_dates,
-            ),
+            cache_key.league_id,
+            cache_key.realm_id,
+            cache_key.data_points,
+            cache_key.frequency_hours,
+            time_utc,
         )
 
         reference_currency_price = 1.0
@@ -327,15 +347,15 @@ class EconomyCache:
                 cache_key.realm_id,
                 None,
             )
-            reference_currency_logs = build_daily_stat_price_logs(
-                [reference_currency_item.item_id],
-                daily_stat_dates,
-                await price_log_repository.get_item_daily_stats(
+            reference_currency_logs = (
+                await self.get_category_price_logs(
                     [reference_currency_item.item_id],
                     cache_key.league_id,
                     cache_key.realm_id,
-                    daily_stat_dates,
-                ),
+                    cache_key.data_points,
+                    cache_key.frequency_hours,
+                    time_utc,
+                )
             )[reference_currency_item.item_id]
             price_logs = convert_price_log_matrix_from_base(
                 price_logs,
@@ -345,16 +365,12 @@ class EconomyCache:
         last_price = dict.fromkeys(item_ids, 0.0)
 
         prices = await price_log_repository.get_item_prices(
-            item_ids, 
-            cache_key.league_id,
-            cache_key.realm_id)
+            item_ids, cache_key.league_id, cache_key.realm_id
+        )
 
         prices_lookup = {price.item_id: price for price in prices}
         converted_current_prices = convert_prices_from_base(
-            {
-                price.item_id: float(price.price)
-                for price in prices_lookup.values()
-            },
+            {price.item_id: float(price.price) for price in prices_lookup.values()},
             reference_currency_price,
         )
 
@@ -367,9 +383,7 @@ class EconomyCache:
             last_price[item.item_id] = converted_current_prices[item.item_id]
 
         items.sort(
-            key=lambda item: (
-                last_price[item.item_id] if item.item_id in last_price else 0
-            ),
+            key=lambda item: (last_price[item.item_id] if item.item_id in last_price else 0),
             reverse=True,
         )
 
@@ -396,3 +410,38 @@ class EconomyCache:
         )
 
         return items
+
+    async def get_category_price_logs(
+        self,
+        item_ids: list[int],
+        league_id: int,
+        realm_id: int,
+        data_points: int,
+        frequency_hours: int,
+        time_utc: datetime,
+    ) -> dict[int, list[PriceLogEntry | None]]:
+        if frequency_hours == 24:
+            daily_stat_dates = get_daily_stat_dates(data_points, time_utc)
+            return build_daily_stat_price_logs(
+                item_ids,
+                daily_stat_dates,
+                await price_log_repository.get_item_daily_stats(
+                    item_ids,
+                    league_id,
+                    realm_id,
+                    daily_stat_dates,
+                ),
+            )
+
+        bucket_starts = get_price_history_bucket_starts(
+            data_points,
+            frequency_hours,
+            time_utc,
+        )
+        return await price_log_repository.get_item_price_bucket_stats(
+            item_ids,
+            league_id,
+            realm_id,
+            bucket_starts,
+            frequency_hours,
+        )

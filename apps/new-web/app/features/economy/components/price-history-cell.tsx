@@ -1,4 +1,8 @@
 import type { PriceLogEntry } from "../types";
+import {
+  formatPriceHistoryLabel,
+  type CategoryPriceHistoryConfig,
+} from "../history-config";
 
 const CHART_WIDTH = 120;
 const CHART_HEIGHT = 36;
@@ -12,9 +16,11 @@ type PriceChange = {
 export default function PriceHistoryCell({
   priceLogs,
   referenceCurrencyLabel,
+  historyConfig,
 }: {
   priceLogs: (PriceLogEntry | null)[];
   referenceCurrencyLabel: string;
+  historyConfig: CategoryPriceHistoryConfig;
 }) {
   const priceChange = calculatePriceChange(priceLogs);
   const chartData = normalizeChartData(priceLogs);
@@ -33,7 +39,7 @@ export default function PriceHistoryCell({
   const colorClass = priceChange.isPositive
     ? "text-emerald-400"
     : "text-red-400";
-  const title = `7 day history: ${changeLabel} in ${referenceCurrencyLabel}`;
+  const title = `${formatPriceHistoryLabel(historyConfig)}: ${changeLabel} in ${referenceCurrencyLabel}`;
 
   return (
     <div

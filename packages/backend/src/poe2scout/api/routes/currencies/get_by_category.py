@@ -6,6 +6,7 @@ from fastapi import Depends, HTTPException, Path, Query
 
 from poe2scout.api.dependancies import EconomyCacheDep, LeagueContextDep, PaginationParamDep
 from poe2scout.api.api_model import ApiModel
+from poe2scout.api.history_config import CategoryPriceHistoryConfigDep
 from poe2scout.db.repositories import currency_item_repository
 from poe2scout.db.repositories.models import CurrencyItemExtended, PriceLogEntry
 from poe2scout.services.pricing import resolve_reference_currency_api_id
@@ -52,9 +53,7 @@ class GetByCategoryResponse(ApiModel):
                 icon_url=model.icon_url,
                 item_metadata=model.item_metadata,
                 price_logs=[
-                    cls._PriceLogEntry.from_model(price_log)
-                    if price_log is not None
-                    else None
+                    cls._PriceLogEntry.from_model(price_log) if price_log is not None else None
                     for price_log in model.price_logs
                 ],
                 current_price=model.current_price,
@@ -121,6 +120,7 @@ async def get_by_category(
     context: LeagueContextDep,
     economy_cache: EconomyCacheDep,
     pagination: PaginationParamDep,
+    history_config: CategoryPriceHistoryConfigDep,
 ) -> GetByCategoryResponse:
     realm = context.realm
     league = context.league
@@ -142,6 +142,8 @@ async def get_by_category(
         realm.game_id,
         request.category,
         reference_currency_api_id,
+        history_config.data_points,
+        history_config.frequency_hours,
         search=request.search,
     )
     item_count = len(items)

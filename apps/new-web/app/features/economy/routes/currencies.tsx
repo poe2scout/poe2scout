@@ -8,6 +8,7 @@ import type { Route } from "./+types/currencies";
 import getCurrencyItemsQueryOptions from "../queries/currency-items";
 import { getEconomyTableColumns } from "../components/economy-table-columns";
 import EconomyTable from "../components/economy-table";
+import { CURRENCY_PRICE_HISTORY_CONFIG } from "../history-config";
 import {
   createPageMeta,
   formatTitle,
@@ -58,6 +59,7 @@ export async function clientLoader({
       search,
       page,
       perPage,
+      historyConfig: CURRENCY_PRICE_HISTORY_CONFIG,
     }),
   );
 
@@ -66,6 +68,7 @@ export async function clientLoader({
     search,
     page,
     perPage,
+    historyConfig: CURRENCY_PRICE_HISTORY_CONFIG,
   };
 }
 
@@ -85,6 +88,7 @@ export default function CurrencyCategory({
       search: loaderData.search,
       page: loaderData.page,
       perPage: loaderData.perPage,
+      historyConfig: loaderData.historyConfig,
     }),
   );
 
@@ -95,6 +99,7 @@ export default function CurrencyCategory({
     realm,
     league,
     referenceCurrency,
+    priceHistoryConfig: loaderData.historyConfig,
     getItemTo: (item) => `${getEconomyItemRouteSegment(item)}${location.search}`,
   });
 

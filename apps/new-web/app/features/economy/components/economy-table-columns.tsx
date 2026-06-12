@@ -9,6 +9,7 @@ import type {
 } from "../types";
 import type { League, Realm } from "~/features/league/types";
 import PriceHistoryCell from "./price-history-cell";
+import type { CategoryPriceHistoryConfig } from "../history-config";
 
 const DIVINE_THRESHOLD = 1.2;
 
@@ -27,11 +28,13 @@ export function getEconomyTableColumns({
   realm,
   league,
   referenceCurrency,
+  priceHistoryConfig,
   getItemTo,
 }: {
   realm: Realm;
   league: League;
   referenceCurrency: string;
+  priceHistoryConfig: CategoryPriceHistoryConfig;
   getItemTo?: (item: EconomyItem) => string;
 }): TableColumn<EconomyItem>[] {
   return [
@@ -72,6 +75,7 @@ export function getEconomyTableColumns({
           referenceCurrencyLabel={
             getCurrencyDisplay(referenceCurrency, league).label
           }
+          historyConfig={priceHistoryConfig}
         />
       ),
     },

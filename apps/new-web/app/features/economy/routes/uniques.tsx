@@ -8,6 +8,7 @@ import type { Route } from "./+types/uniques";
 import getUniqueItemsQueryOptions from "../queries/unique-items";
 import { getEconomyTableColumns } from "../components/economy-table-columns";
 import EconomyTable from "../components/economy-table";
+import { UNIQUE_PRICE_HISTORY_CONFIG } from "../history-config";
 import {
   createPageMeta,
   formatTitle,
@@ -54,6 +55,7 @@ export async function clientLoader({
       search,
       page,
       perPage,
+      historyConfig: UNIQUE_PRICE_HISTORY_CONFIG,
     }),
   );
 
@@ -62,6 +64,7 @@ export async function clientLoader({
     search,
     page,
     perPage,
+    historyConfig: UNIQUE_PRICE_HISTORY_CONFIG,
   };
 }
 
@@ -81,6 +84,7 @@ export default function UniqueCategory({
       search: loaderData.search,
       page: loaderData.page,
       perPage: loaderData.perPage,
+      historyConfig: loaderData.historyConfig,
     }),
   );
   const referenceCurrency =
@@ -89,6 +93,7 @@ export default function UniqueCategory({
     realm,
     league,
     referenceCurrency,
+    priceHistoryConfig: loaderData.historyConfig,
     getItemTo: (item) => `${getEconomyItemRouteSegment(item)}${location.search}`,
   });
 
