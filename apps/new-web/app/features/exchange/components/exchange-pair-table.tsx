@@ -104,7 +104,7 @@ export default function ExchangePairTable({
             }
             type="search"
             placeholder="Search trading pairs"
-            className="h-9 w-full rounded-sm border border-secondary/35 bg-zinc-900/60 px-3 pr-9 text-sm text-white transition outline-none placeholder:text-white/35 focus:border-secondary focus:ring-2 focus:ring-secondary/25"
+            className="h-9 w-full rounded-sm border border-secondary/35 bg-zinc-900/60 px-3 text-sm text-white transition outline-none placeholder:text-white/35 focus:border-secondary focus:ring-2 focus:ring-secondary/25"
           />
         </label>
       </div>
