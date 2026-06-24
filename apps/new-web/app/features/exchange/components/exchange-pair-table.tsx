@@ -102,19 +102,10 @@ export default function ExchangePairTable({
             onChange={(event) =>
               updateTableState({ search: event.currentTarget.value, page: 1 })
             }
+            type="search"
             placeholder="Search trading pairs"
             className="h-9 w-full rounded-sm border border-secondary/35 bg-zinc-900/60 px-3 pr-9 text-sm text-white transition outline-none placeholder:text-white/35 focus:border-secondary focus:ring-2 focus:ring-secondary/25"
           />
-          {tableState.search && (
-            <button
-              type="button"
-              aria-label="Clear trading pair search"
-              onClick={() => updateTableState({ search: "", page: 1 })}
-              className="absolute top-1 right-1 h-7 w-7 rounded-sm text-white/55 transition hover:bg-white/10 hover:text-white"
-            >
-              x
-            </button>
-          )}
         </label>
       </div>
       <div className="overflow-x-auto">
