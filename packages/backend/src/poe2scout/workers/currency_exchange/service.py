@@ -73,6 +73,7 @@ async def run(
         "CurrencyExchange",
         data_next_change_id - 60 * 60,
     )
+    await currency_exchange_repository.update_pair_histories()
 
 
 async def process_realm_snapshots(
@@ -99,7 +100,7 @@ async def process_realm_snapshots(
     target_epoch = data.next_change_id - 60 * 60
 
     fetch_status = await service_repository.get_currency_fetch_status(
-        start_time=datetime.fromtimestamp(data.next_change_id)
+        start_time=datetime.fromtimestamp(target_epoch)
     )
 
     if not fetch_status:

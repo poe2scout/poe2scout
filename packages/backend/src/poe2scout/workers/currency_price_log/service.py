@@ -73,7 +73,6 @@ async def fetch_currency_exchange_prices(
 
     logger.info(f"Saving cache value. {current_epoch}")
     await service_repository.set_service_cache_value("PriceFetch_Currency", current_epoch)
-    await currency_exchange_repository.update_pair_histories()
 
 
 async def process_realm_prices(
