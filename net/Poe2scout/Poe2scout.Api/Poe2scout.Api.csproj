@@ -18,11 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Handlers\Currencies\" />
-    <Folder Include="Handlers\Items\" />
-    <Folder Include="Handlers\Leagues\" />
-    <Folder Include="Handlers\Realms\" />
-    <Folder Include="Handlers\Uniques\" />
+    <ProjectReference Include="..\Poe2scout\Poe2scout.csproj" />
   </ItemGroup>
 
 </Project>
