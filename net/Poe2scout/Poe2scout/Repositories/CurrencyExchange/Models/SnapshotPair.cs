@@ -6,7 +6,7 @@ public record SnapshotPair(
   int CurrencyExchangeSnapshotPairId,
   int CurrencyExchangeSnapshotId,
   double Volume,
-  CurrencyItem CurrencyOne,
-  CurrencyItem CurrencyTwo,
+  Poe2scout.Models.CurrencyItem CurrencyOne,
+  Poe2scout.Models.CurrencyItem CurrencyTwo,
   PairData CurrencyOneData,
   PairData CurrencyTwoData);
