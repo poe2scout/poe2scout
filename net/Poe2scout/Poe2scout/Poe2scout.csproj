@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Repositories\CurrencyItem\Models\" />
+    <Folder Include="Repositories\Game\" />
+    <Folder Include="Repositories\Item\" />
+    <Folder Include="Repositories\League\" />
+    <Folder Include="Repositories\PriceLog\" />
+    <Folder Include="Repositories\Realm\" />
+    <Folder Include="Repositories\UniqueItem\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.79" />
+    <PackageReference Include="Npgsql" Version="10.0.3" />
+  </ItemGroup>
+
+</Project>
