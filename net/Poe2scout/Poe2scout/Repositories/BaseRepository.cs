@@ -1,18 +1,26 @@
 using System.Data;
 using System.Data.Common;
+using System.Text.Json;
+using Dapper;
 
 namespace Poe2scout.Repositories;
 
 public class BaseRepository(DbDataSource dbDataSource)
 {
-  public async Task<T> WithConnection<T>(Func<IDbConnection, Task<T>> action)
+  static BaseRepository()
+  {
+    DefaultTypeMap.MatchNamesWithUnderscores = true;
+    SqlMapper.AddTypeHandler(new DictionaryJsonTypeHandler());
+  }
+
+  protected async Task<T> WithConnection<T>(Func<IDbConnection, Task<T>> action)
   {
     await using var connection = await dbDataSource.OpenConnectionAsync();
     
     return await action(connection);
   }
 
-  public async Task<T> WithTransaction<T>(Func<IDbTransaction, Task<T>> action)
+  protected async Task<T> WithTransaction<T>(Func<IDbTransaction, Task<T>> action)
   {
     await using var connection = await dbDataSource.OpenConnectionAsync();
     
@@ -32,4 +40,7 @@ public class BaseRepository(DbDataSource dbDataSource)
       throw;
     }
   }
+
+  protected static string? ToJson(Dictionary<string, object>? value)
+    => value is null ? null : JsonSerializer.Serialize(value);
 }

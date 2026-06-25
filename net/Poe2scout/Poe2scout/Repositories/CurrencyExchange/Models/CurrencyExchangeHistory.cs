@@ -2,4 +2,9 @@ namespace Poe2scout.Repositories.CurrencyExchange.Models;
 
 public record CurrencyExchangeHistory(
   Dictionary<string, bool> Meta,
-  List<(int Epoch, float MarketCap, float Volume)> Data);
+  List<CurrencyExchangeHistoryEntry> Data);
+
+public record CurrencyExchangeHistoryEntry(
+  int Epoch,
+  float MarketCap,
+  float Volume);
