@@ -25,7 +25,7 @@ class BaseRepository:
     _pool = None
 
     @classmethod
-    async def init_pool(cls, connection_string: str, min_conn=5, max_conn=100):
+    async def init_pool(cls, connection_string: str, min_conn=5, max_conn=45):
         """Initialize the connection pool if it doesn't exist"""
         try:
             if cls._pool is None:
