@@ -9,6 +9,8 @@ builder.Services.AddSingleton(apiConfig);
 builder.Services.AddOpenApi();
 builder.Services.AddDataSource(apiConfig.DbConnectionString);
 builder.Services.AddPoe2scoutRepositories();
+builder.Services.AddSingleton<EconomyCache>();
+builder.Services.AddSingleton<ItemsCache>();
 
 var app = builder.Build();
 
