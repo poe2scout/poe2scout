@@ -9,7 +9,12 @@ namespace Poe2scout.Api.Handlers.Leagues;
 
 public static class GetSnapshotHistoryHandler
 {
-  public static async Task<Results<Ok<GetSnapshotHistoryResponse>, BadRequest<string>>> GetSnapshotHistory(
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/{realm}/Leagues/{leagueName}/SnapshotHistory", GetSnapshotHistory);
+  }
+
+  private static async Task<Results<Ok<GetSnapshotHistoryResponse>, BadRequest<string>>> GetSnapshotHistory(
     [FromServices] IRealmRepository realmRepository,
     [FromServices] ILeagueRepository leagueRepository,
     [FromServices] ICurrencyExchangeRepository currencyExchangeRepository,

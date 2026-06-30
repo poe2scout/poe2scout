@@ -9,7 +9,7 @@ namespace Poe2scout.Api.Handlers.Currencies;
 
 public static class GetByCategoryHandler
 {
-  public static void MapGet(this IEndpointRouteBuilder app)
+  public static void MapGet(IEndpointRouteBuilder app)
   {
     app.MapGet("/{realm}/Leagues/{leagueName}/Currencies/ByCategory", GetByCategory);
   }

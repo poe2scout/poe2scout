@@ -11,7 +11,12 @@ namespace Poe2scout.Api.Handlers.Leagues;
 
 public static class GetHandler
 {
-  public static async Task<Results<Ok<IEnumerable<GetResponse>>, BadRequest<string>>> Get(
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/{realm}/Leagues", Get);
+  }
+
+  private static async Task<Results<Ok<IEnumerable<GetResponse>>, BadRequest<string>>> Get(
     [FromServices] ILeagueRepository leagueRepository,
     [FromServices] IRealmRepository realmRepository,
     [FromServices] ICurrencyItemRepository currencyItemRepository,

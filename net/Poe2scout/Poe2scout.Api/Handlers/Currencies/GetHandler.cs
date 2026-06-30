@@ -8,9 +8,14 @@ using Poe2scout.Repositories.Realm;
 
 namespace Poe2scout.Api.Handlers.Currencies;
 
-public class GetHandler
+public static class GetHandler
 {
-  public static async Task<Results<Ok<GetResponse>, BadRequest<string>>> Get(
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/{realm}/Leagues/{leagueName}/Currencies/{apiId}", Get);
+  }
+
+  private static async Task<Results<Ok<GetResponse>, BadRequest<string>>> Get(
     [FromServices] IRealmRepository realmRepository,
     [FromServices] ILeagueRepository leagueRepository,
     [FromServices] ICurrencyItemRepository currencyItemRepository,

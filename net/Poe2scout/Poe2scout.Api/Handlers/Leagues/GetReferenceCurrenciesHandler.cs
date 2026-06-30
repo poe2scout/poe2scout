@@ -10,7 +10,12 @@ namespace Poe2scout.Api.Handlers.Leagues;
 
 public static class GetReferenceCurrenciesHandler
 {
-  public static async Task<Results<Ok<List<ReferenceCurrency>>, BadRequest<string>>> GetReferenceCurrencies(
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/{realm}/Leagues/{leagueName}/ReferenceCurrencies", GetReferenceCurrencies);
+  }
+
+  private static async Task<Results<Ok<List<ReferenceCurrency>>, BadRequest<string>>> GetReferenceCurrencies(
     [FromServices] IRealmRepository realmRepository,
     [FromServices] ILeagueRepository leagueRepository,
     [FromServices] IGameRepository gameRepository,

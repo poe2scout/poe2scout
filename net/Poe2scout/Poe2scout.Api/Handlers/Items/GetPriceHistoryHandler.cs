@@ -10,9 +10,14 @@ using Poe2scout.ValidationAttributes;
 
 namespace Poe2scout.Api.Handlers.Items;
 
-public class GetPriceHistoryHandler
+public static class GetPriceHistoryHandler
 {
-  public static async Task<IResult> GetPriceHistory(
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/{realm}/Leagues/{leagueName}/Items/{itemId:int}/History", GetPriceHistory);
+  }
+
+  private static async Task<IResult> GetPriceHistory(
     [FromServices] IRealmRepository realmRepository,
     [FromServices] ILeagueRepository leagueRepository,
     [FromServices] ICurrencyItemRepository currencyItemRepository,

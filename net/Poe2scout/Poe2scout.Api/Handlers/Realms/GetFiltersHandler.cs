@@ -7,7 +7,12 @@ namespace Poe2scout.Api.Handlers.Realms;
 
 public static class GetFiltersHandler
 {
-  public static async Task<Results<Ok<GetFiltersResponse>, BadRequest<string>>> GetFilters(
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/Realms/{realm}/Filters", GetFilters);
+  }
+
+  private static async Task<Results<Ok<GetFiltersResponse>, BadRequest<string>>> GetFilters(
     [FromServices] IRealmRepository realmRepository,
     [FromServices] IItemRepository itemRepository,
     [FromRoute] string realm)

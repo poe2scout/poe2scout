@@ -7,8 +7,13 @@ using Poe2scout.Repositories.Realm;
 
 namespace Poe2scout.Api.Handlers.Items;
 
-public class GetCategoriesHandler
+public static class GetCategoriesHandler
 {
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/{realm}/Leagues/{leagueName}/Items/Categories", GetCategories);
+  }
+
   private static readonly HashSet<string> ignoredCurrencyCategories = ["gem", "relics", "waystones"];
   
   public static async Task<Results<Ok<GetCategoriesResponse>, BadRequest<string>>> GetCategories(

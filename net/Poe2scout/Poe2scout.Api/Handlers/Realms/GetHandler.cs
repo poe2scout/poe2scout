@@ -8,7 +8,12 @@ namespace Poe2scout.Api.Handlers.Realms;
 
 public static class GetHandler
 {
-  public static async Task<Ok<List<GetResponse>>> Get(
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/Realms", Get);
+  }
+
+  private static async Task<Ok<List<GetResponse>>> Get(
     [FromServices] IGameRepository gameRepository,
     [FromServices] IRealmRepository realmRepository,
     [FromServices] ILeagueRepository leagueRepository)

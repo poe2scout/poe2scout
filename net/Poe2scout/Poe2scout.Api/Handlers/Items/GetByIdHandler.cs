@@ -9,9 +9,14 @@ using Poe2scout.Repositories.UniqueItem;
 
 namespace Poe2scout.Api.Handlers.Items;
 
-public class GetByIdHandler
+public static class GetByIdHandler
 {
-  public static async Task<Results<Ok<GetHandler.GetItemResponse>, BadRequest<string>, NotFound<string>>> GetById(
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/{realm}/Leagues/{leagueName}/Items/{itemId:int}", GetById);
+  }
+  
+  private static async Task<Results<Ok<GetHandler.GetItemResponse>, BadRequest<string>, NotFound<string>>> GetById(
     [FromServices] IRealmRepository realmRepository,
     [FromServices] ILeagueRepository leagueRepository,
     [FromServices] IUniqueItemRepository uniqueItemRepository,

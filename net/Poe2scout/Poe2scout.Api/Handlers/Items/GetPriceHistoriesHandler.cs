@@ -5,9 +5,14 @@ using Poe2scout.Repositories.Realm;
 
 namespace Poe2scout.Api.Handlers.Items;
 
-public class GetPriceHistoriesHandler
+public static class GetPriceHistoriesHandler
 {
-  public static async Task<IResult> GetPriceHistories(
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/{realm}/Leagues/{leagueName}/Items/PriceHistory", GetPriceHistories);
+  }
+
+  private static async Task<IResult> GetPriceHistories(
     [FromServices] IRealmRepository realmRepository,
     [FromServices] ILeagueRepository leagueRepository,
     [FromServices] IPriceLogRepository priceLogRepository,

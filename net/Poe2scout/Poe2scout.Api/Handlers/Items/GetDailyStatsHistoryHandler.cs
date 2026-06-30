@@ -10,9 +10,14 @@ using Poe2scout.Repositories.UniqueItem;
 
 namespace Poe2scout.Api.Handlers.Items;
 
-public class GetDailyStatsHistoryHandler
+public static class GetDailyStatsHistoryHandler
 {
-  public static async Task<Results<Ok<GetDailyStatsHistoryResponse>, BadRequest<string>, NotFound<string>>> GetDailyStatsHistory(
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/{realm}/Leagues/{leagueName}/Items/{itemId:int}/DailyStatsHistory", GetDailyStatsHistory);
+  }
+  
+  private static async Task<Results<Ok<GetDailyStatsHistoryResponse>, BadRequest<string>, NotFound<string>>> GetDailyStatsHistory(
     [FromServices] IRealmRepository realmRepository,
     [FromServices] ILeagueRepository leagueRepository,
     [FromServices] IPriceLogRepository priceLogRepository,

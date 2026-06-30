@@ -10,9 +10,14 @@ namespace Poe2scout.Api.Handlers.Realms;
 
 public static class GetLandingSplashInfoHandler
 {
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/Realms/{realm}/LandingSplashInfo", GetLandingSplashInfo);
+  }
+  
   private static readonly List<string> importantApiIds = ["mirror", "divine", "exalted", "annul"];
 
-  public static async Task<Results<Ok<GetLandingSplashInfoResponse>, BadRequest<string>>> GetLandingSplashInfo(
+  private static async Task<Results<Ok<GetLandingSplashInfoResponse>, BadRequest<string>>> GetLandingSplashInfo(
     [FromServices] IRealmRepository realmRepository,
     [FromServices] ICurrencyItemRepository currencyItemRepository,
     [FromServices] IGameRepository gameRepository,

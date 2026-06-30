@@ -9,7 +9,12 @@ namespace Poe2scout.Api.Handlers.Leagues;
 
 public static class GetExchangeSnapshotHandler
 {
-  public static async Task<Results<Ok<GetExchangeSnapshotResponse>, BadRequest<string>, NotFound<string>>> GetExchangeSnapshot(
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/{realm}/Leagues/{leagueName}/ExchangeSnapshot", GetExchangeSnapshot);
+  }
+
+  private static async Task<Results<Ok<GetExchangeSnapshotResponse>, BadRequest<string>, NotFound<string>>> GetExchangeSnapshot(
     [FromServices] IRealmRepository realmRepository,
     [FromServices] ILeagueRepository leagueRepository,
     [FromServices] ICurrencyExchangeRepository currencyExchangeRepository,

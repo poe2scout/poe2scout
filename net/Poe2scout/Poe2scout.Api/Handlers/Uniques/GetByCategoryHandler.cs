@@ -9,7 +9,12 @@ namespace Poe2scout.Api.Handlers.Uniques;
 
 public static class GetByCategoryHandler
 {
-  public static async Task<Results<Ok<GetByCategoryResponse>, BadRequest<string>>> GetByCategory(
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/{realm}/Leagues/{leagueName}/Uniques/ByCategory", GetByCategory);
+  }
+
+  private static async Task<Results<Ok<GetByCategoryResponse>, BadRequest<string>>> GetByCategory(
     [FromServices] IRealmRepository realmRepository,
     [FromServices] ILeagueRepository leagueRepository,
     [FromServices] ICurrencyItemRepository currencyItemRepository,

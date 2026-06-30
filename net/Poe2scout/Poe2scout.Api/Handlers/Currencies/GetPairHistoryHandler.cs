@@ -9,7 +9,12 @@ namespace Poe2scout.Api.Handlers.Currencies;
 
 public static class GetPairHistoryHandler
 {
-  public static async Task<Results<Ok<GetPairHistoryResponse>, BadRequest<string>>> GetPairHistory(
+  public static void MapGet(IEndpointRouteBuilder app)
+  {
+    app.MapGet("/{realm}/Leagues/{leagueName}/Currencies/Pairs/{currencyOneItemId:int}/{currencyTwoItemId:int}/History", GetPairHistory);
+  }
+
+  private static async Task<Results<Ok<GetPairHistoryResponse>, BadRequest<string>>> GetPairHistory(
     [FromServices] IRealmRepository realmRepository,
     [FromServices] ILeagueRepository leagueRepository,
     [FromServices] ICurrencyExchangeRepository currencyExchangeRepository,
