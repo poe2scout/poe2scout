@@ -160,7 +160,7 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
         new { ItemId = itemId, GameId = gameId });
     });
 
-  public async Task<IReadOnlyList<Poe2scout.Models.CurrencyItem>> GetCurrencyItems(IReadOnlyList<string> apiIds, int gameId)
+  public async Task<IReadOnlyList<Poe2scout.Models.CurrencyItem>> GetCurrencyItems(List<string> apiIds, int gameId)
     => await WithConnection(async connection =>
     {
       const string query = """

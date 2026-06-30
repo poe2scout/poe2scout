@@ -73,10 +73,10 @@ ORDER BY p.item_id, p.created_at DESC;
     });
 
   public async Task<IReadOnlyList<ItemDailyStats>> GetItemDailyStats(
-    IReadOnlyList<int> itemIds,
+    List<int> itemIds,
     int leagueId,
     int realmId,
-    IReadOnlyList<DateOnly> dates)
+    List<DateOnly> dates)
     => await WithConnection(async connection =>
     {
       if (itemIds.Count == 0 || dates.Count == 0)
@@ -140,10 +140,10 @@ LIMIT @Limit;
     });
 
   public async Task<Dictionary<int, IReadOnlyList<PriceLogEntry?>>> GetItemPriceBucketStats(
-    IReadOnlyList<int> itemIds,
+    List<int> itemIds,
     int leagueId,
     int realmId,
-    IReadOnlyList<DateTime> bucketStarts,
+    List<DateTime> bucketStarts,
     int frequencyHours)
     => await WithConnection(async connection =>
     {
@@ -299,7 +299,7 @@ LIMIT @Limit;
     });
 
   public async Task<Dictionary<int, IReadOnlyList<PriceLogEntry?>>> GetItemPriceLogs(
-    IReadOnlyList<int> itemIds,
+    List<int> itemIds,
     int leagueId,
     int realmId)
     => await WithConnection(async connection =>
@@ -387,7 +387,7 @@ LIMIT @Limit;
       return results;
     });
 
-  public async Task<IReadOnlyList<ItemPrice>> GetItemPrices(IReadOnlyList<int> itemIds, int leagueId, int realmId)
+  public async Task<IReadOnlyList<ItemPrice>> GetItemPrices(List<int> itemIds, int leagueId, int realmId)
     => await WithConnection(async connection =>
     {
       const string query = """
@@ -413,8 +413,8 @@ LIMIT @Limit;
     });
 
   public async Task<IReadOnlyList<ItemPriceByLeague>> GetItemPricesByLeague(
-    IReadOnlyList<int> itemIds,
-    IReadOnlyList<int> leagueIds,
+    List<int> itemIds,
+    List<int> leagueIds,
     int realmId)
     => await WithConnection(async connection =>
     {
@@ -446,7 +446,7 @@ LIMIT @Limit;
     });
 
   public async Task<IReadOnlyList<ItemPriceBefore>> GetItemPricesBefore(
-    IReadOnlyList<int> itemIds,
+    List<int> itemIds,
     int leagueId,
     int realmId,
     int epoch)
@@ -475,7 +475,7 @@ LIMIT @Limit;
     });
 
   public async Task<IReadOnlyList<ItemPriceInRange>> GetItemPricesInRange(
-    IReadOnlyList<int> itemIds,
+    List<int> itemIds,
     int leagueId,
     int realmId,
     DateTime startTime,
@@ -604,7 +604,7 @@ ON CONFLICT (realm_id, item_id, league_id, day) DO UPDATE SET
       return true;
     });
 
-  public async Task RecordPriceBulk(IReadOnlyList<RecordPriceModel> prices, int epoch)
+  public async Task RecordPriceBulk(List<RecordPriceModel> prices, int epoch)
     => await WithConnection(async connection =>
     {
       if (prices.Count == 0)
