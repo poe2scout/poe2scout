@@ -68,9 +68,9 @@ public class ItemRepository(DbDataSource dbDataSource) : BaseRepository(dbDataSo
       const string query = """
             SELECT bi.base_item_id
                  , bi.item_type_id
+                 , bi.game_id
                  , bi.icon_url
                  , bi.item_metadata
-                 , bi.game_id
               FROM base_item as bi
              WHERE bi.game_id = @GameId
 """;

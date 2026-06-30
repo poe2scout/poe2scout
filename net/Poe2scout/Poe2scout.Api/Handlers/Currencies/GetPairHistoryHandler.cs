@@ -78,11 +78,11 @@ public static class GetPairHistoryHandler
         
         public record Details(
           int CurrencyItemId,
-          double ValueTraded,
-          double RelativePrice,
-          double StockValue,
-          int VolumeTraded,
-          int HighestStock)
+          decimal ValueTraded,
+          decimal RelativePrice,
+          decimal StockValue,
+          long VolumeTraded,
+          long HighestStock)
         {
           public Details(PairHistoryEntryDataDetails m) : this(
             m.CurrencyItemId,

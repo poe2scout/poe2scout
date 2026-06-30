@@ -101,7 +101,7 @@ ORDER BY p.item_id, p.created_at DESC;
         query,
         new
         {
-          Dates = dates.ToArray(),
+          Dates = dates.Select(date => date.ToDateTime(TimeOnly.MinValue)).ToArray(),
           ItemIds = itemIds.ToArray(),
           LeagueId = leagueId,
           RealmId = realmId
@@ -136,7 +136,14 @@ LIMIT @Limit;
 
       return (await connection.QueryAsync<DailyStatsHistoryEntry>(
         query,
-        new { ItemId = itemId, LeagueId = leagueId, RealmId = realmId, EndDate = endDate, Limit = limit })).AsList();
+        new
+        {
+          ItemId = itemId,
+          LeagueId = leagueId,
+          RealmId = realmId,
+          EndDate = endDate?.ToDateTime(TimeOnly.MinValue),
+          Limit = limit
+        })).AsList();
     });
 
   public async Task<Dictionary<int, IReadOnlyList<PriceLogEntry?>>> GetItemPriceBucketStats(
@@ -262,12 +269,12 @@ LIMIT @Limit;
       const string query = """
 SELECT DISTINCT ON (time)
     price,
-    quantity,
     date_bin(
         (@LogFrequency || ' hours')::interval,
         created_at,
         @EndTime::timestamp
-    ) AS time
+    ) AS time,
+    quantity
 FROM price_log
 WHERE item_id = @ItemId
 AND league_id = @LeagueId

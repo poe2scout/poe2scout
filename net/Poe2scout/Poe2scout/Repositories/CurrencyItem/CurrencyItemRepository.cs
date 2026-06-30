@@ -70,8 +70,9 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
             SELECT ci.currency_item_id
                  , ci.item_id
                  , ci.item_category_id AS currency_category_id
+                 , ci.api_id
+                 , ci.text
                  , cc.api_id as category_api_id
-                 , ci.api_id, ci.text
                  , ci.icon_url
                  , ci.item_metadata
               FROM currency_item as ci
@@ -108,11 +109,12 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
       const string query = """
             SELECT ci.currency_item_id,
                 ci.item_id,
+                ci.item_category_id AS currency_category_id,
                 ci.api_id,
                 ci.text,
+                cc.api_id as category_api_id,
                 ci.icon_url,
-                ci.item_category_id AS currency_category_id,
-                cc.api_id as category_api_id
+                ci.item_metadata
             FROM currency_item as ci
             JOIN item_category as cc on ci.item_category_id = cc.item_category_id
             JOIN item AS i ON i.item_id = ci.item_id
@@ -141,12 +143,12 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
       const string query = """
             SELECT ci.currency_item_id,
                 ci.item_id,
+                ci.item_category_id AS currency_category_id,
                 ci.api_id,
                 ci.text,
+                cc.api_id AS category_api_id,
                 ci.icon_url,
-                ci.item_metadata,
-                ci.item_category_id AS currency_category_id,
-                cc.api_id AS category_api_id
+                ci.item_metadata
             FROM currency_item AS ci
             JOIN item_category AS cc ON ci.item_category_id = cc.item_category_id
             JOIN item AS i ON i.item_id = ci.item_id
@@ -166,11 +168,12 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
       const string query = """
 SELECT ci.currency_item_id
     , ci.item_id
+    , ci.item_category_id AS currency_category_id
     , ci.api_id
     , ci.text
-    , ci.icon_url
-    , ci.item_category_id AS currency_category_id
     , cc.api_id AS category_api_id
+    , ci.icon_url
+    , ci.item_metadata
 FROM currency_item AS ci
 JOIN item_category AS cc ON ci.item_category_id = cc.item_category_id
 JOIN item AS i ON ci.item_id = i.item_id
@@ -190,10 +193,11 @@ WHERE ci.api_id = ANY(@ApiIds)
       const string query = """
             SELECT ci.currency_item_id
                 , ci.item_id
-                , cc.api_id as category_api_id
-                , ci.api_id, ci.text
-                , ci.icon_url
                 , ci.item_category_id AS currency_category_id
+                , ci.api_id
+                , ci.text
+                , cc.api_id as category_api_id
+                , ci.icon_url
                 , ci.item_metadata
             FROM currency_item AS ci
             JOIN item_category AS cc ON ci.item_category_id = cc.item_category_id

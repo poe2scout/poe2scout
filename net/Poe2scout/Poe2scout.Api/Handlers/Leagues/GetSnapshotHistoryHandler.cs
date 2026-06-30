@@ -59,7 +59,7 @@ public static class GetSnapshotHistoryHandler
       baseCurrencyApiId,
       baseCurrencyText) {}
 
-    public record DataModel(int Epoch, float MarketCap, float Volume)
+    public record DataModel(int Epoch, decimal MarketCap, decimal Volume)
     {
       public DataModel(CurrencyExchangeHistoryEntry model) : this(
         model.Epoch,

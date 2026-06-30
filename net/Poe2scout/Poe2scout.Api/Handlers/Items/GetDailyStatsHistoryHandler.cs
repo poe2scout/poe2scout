@@ -57,9 +57,12 @@ public static class GetDailyStatsHistoryHandler
       endDate.HasValue ? DateOnly.FromDateTime(endDate.Value) : null);
     
     var hasMore = dailyStatsHistory.Count > dayCount;
+    var dailyStats = dailyStatsHistory
+      .Take(dayCount)
+      .Reverse();
 
     return TypedResults.Ok(new GetDailyStatsHistoryResponse(
-      dailyStats: dailyStatsHistory.Take(dayCount),
+      dailyStats: dailyStats,
       hasMore: hasMore,
       baseCurrencyApiId: league.BaseCurrencyApiId,
       baseCurrencyText: league.BaseCurrencyText));

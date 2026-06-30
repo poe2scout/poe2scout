@@ -11,6 +11,7 @@ public class RealmRepository(DbDataSource dbDataSource) : BaseRepository(dbDataS
       const string query = """
 SELECT realm_id
      , game_id
+     , api_id
   FROM realm
  WHERE api_id = @ApiId;
 """;

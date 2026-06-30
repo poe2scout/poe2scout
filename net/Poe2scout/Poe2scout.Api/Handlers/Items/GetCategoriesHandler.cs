@@ -71,7 +71,7 @@ public static class GetCategoriesHandler
         ItemCategoryId: m.ItemCategoryId,
         ApiId: m.ApiId,
         Label: m.Label,
-        Icon: il[m.ApiId]) {}
+        Icon: il.GetValueOrDefault(m.ApiId, "")) {}
     }
 
     public record CurrencyCategory(int CurrencyCategoryId, string ApiId, string Label, string Icon)
@@ -80,7 +80,7 @@ public static class GetCategoriesHandler
         CurrencyCategoryId: cc.CurrencyCategoryId,
         ApiId: cc.ApiId,
         Label: cc.Label,
-        Icon: cl[cc.ApiId]) {}
+        Icon: cl.GetValueOrDefault(cc.ApiId, "")) {}
     }
   }
 }

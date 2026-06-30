@@ -47,8 +47,8 @@ public static class GetExchangeSnapshotHandler
 
   public record GetExchangeSnapshotResponse(
     int Epoch,
-    double Volume,
-    double MarketCap,
+    decimal Volume,
+    decimal MarketCap,
     string BaseCurrencyApiId,
     string BaseCurrencyText)
   {

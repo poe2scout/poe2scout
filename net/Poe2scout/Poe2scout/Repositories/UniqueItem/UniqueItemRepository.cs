@@ -27,10 +27,11 @@ public class UniqueItemRepository(DbDataSource dbDataSource) : BaseRepository(db
                 ui.icon_url,
                 ui.text,
                 ui.name,
+                ic.api_id as category_api_id,
                 ui.item_metadata,
-                ui.is_current,
                 it.value as type,
-                ic.api_id as category_api_id
+                ui.is_chanceable,
+                ui.is_current
             FROM unique_item as ui
             JOIN item AS i ON ui.item_id = i.item_id
             JOIN base_item AS bi ON i.base_item_id = bi.base_item_id
@@ -52,10 +53,11 @@ public class UniqueItemRepository(DbDataSource dbDataSource) : BaseRepository(db
                 ui.icon_url,
                 ui.text,
                 ui.name,
+                ic.api_id as category_api_id,
                 ui.item_metadata,
-                ui.is_current,
                 it.value as type,
-                ic.api_id as category_api_id
+                ui.is_chanceable,
+                ui.is_current
             FROM unique_item as ui
             JOIN item AS i ON ui.item_id = i.item_id
             JOIN base_item AS bi ON i.base_item_id = bi.base_item_id
@@ -77,10 +79,11 @@ public class UniqueItemRepository(DbDataSource dbDataSource) : BaseRepository(db
                 ui.icon_url,
                 ui.text,
                 ui.name,
+                ic.api_id AS category_api_id,
                 ui.item_metadata,
-                ui.is_current,
                 it.value AS type,
-                ic.api_id AS category_api_id
+                ui.is_chanceable,
+                ui.is_current
             FROM unique_item AS ui
             JOIN item AS i ON ui.item_id = i.item_id
             JOIN base_item AS bi ON i.base_item_id = bi.base_item_id
@@ -112,13 +115,13 @@ public class UniqueItemRepository(DbDataSource dbDataSource) : BaseRepository(db
       const string query = """
             SELECT ui.unique_item_id
                 , ui.item_id
-                , ic."label"
-                , ic.api_id as category_api_id
-                , ui."name"
-                , ui."text"
                 , ui.icon_url
-                , it."value" as type
+                , ui."text"
+                , ui."name"
+                , ic.api_id as category_api_id
                 , ui.item_metadata
+                , it."value" as type
+                , ui.is_chanceable
                 , ui.is_current
             FROM unique_item AS ui
             JOIN item AS i ON ui.item_id = i.item_id

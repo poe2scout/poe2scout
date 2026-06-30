@@ -47,7 +47,7 @@ public static class GetSnapshotPairsHandler
   public record GetSnapshotPairsResponse(
     int CurrencyExchangeSnapshotPairId,
     int CurrencyExchangeSnapshotId,
-    double Volume,
+    decimal Volume,
     string BaseCurrencyApiId,
     string BaseCurrencyText,
     GetSnapshotPairsResponse.CurrencyItemModel CurrencyOne,
@@ -88,11 +88,11 @@ public static class GetSnapshotPairsHandler
     }
 
     public record PairDataModel(
-      double ValueTraded,
-      double RelativePrice,
-      double StockValue,
-      int VolumeTraded,
-      int HighestStock)
+      decimal ValueTraded,
+      decimal RelativePrice,
+      decimal StockValue,
+      long VolumeTraded,
+      long HighestStock)
     {
       public PairDataModel(PairData model) : this(
         model.ValueTraded,

@@ -5,5 +5,5 @@ public record CurrencyExchangeSnapshot(
   int LeagueId,
   int RealmId,
   List<CurrencyExchangeSnapshotPair> Pairs,
-  double Volume,
-  double MarketCap);
+  decimal Volume,
+  decimal MarketCap);

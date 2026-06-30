@@ -6,5 +6,5 @@ public record CurrencyExchangeHistory(
 
 public record CurrencyExchangeHistoryEntry(
   int Epoch,
-  float MarketCap,
-  float Volume);
+  decimal MarketCap,
+  decimal Volume);
