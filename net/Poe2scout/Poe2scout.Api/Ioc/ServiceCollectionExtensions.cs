@@ -1,7 +1,9 @@
+using System.Text;
 using System.Threading.RateLimiting;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace Poe2scout.Api.Ioc;
 
@@ -13,23 +15,19 @@ public static class ServiceCollectionExtensions
     {
       services.AddOpenTelemetry()
         .ConfigureResource(resource => resource
-          .AddService(serviceName: config.ServiceName))
+          .AddService("poe2scout.api", serviceNamespace: "Poe2scout.Api")
+          .AddAttributes([
+            new KeyValuePair<string, object>("deployment.environment", config.DeploymentEnvironment)]))
+        .WithTracing(tracing => tracing
+          .AddAspNetCoreInstrumentation()
+          .AddHttpClientInstrumentation()
+          .AddOtlpExporter(options => options.ApplyGrafanaOptions(config, "traces")))
         .WithMetrics(metrics =>
         {
           metrics.AddAspNetCoreInstrumentation();
-          if (config.IsPrometheusEnabled)
-          {
-            metrics.AddOtlpExporter((exporterOptions, readerOptions) =>
-            {
-              exporterOptions.Endpoint = new Uri(config.PrometheusEndpointUrl);
-              exporterOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
-              readerOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 1000;
-            });
-          }
-          else
-          {
-            metrics.AddConsoleExporter();
-          }
+          metrics.AddRuntimeInstrumentation();
+          metrics.AddHttpClientInstrumentation();
+          metrics.AddOtlpExporter(options => options.ApplyGrafanaOptions(config, "metrics"));
         });
     }
 
@@ -55,10 +53,23 @@ public static class ServiceCollectionExtensions
               AutoReplenishment = true,
               PermitLimit = 60,
               QueueLimit = 0,
+              SegmentsPerWindow = 1,
               Window = TimeSpan.FromMinutes(1)
             });
         });
       });
     }
+  }
+
+  public static OtlpExporterOptions ApplyGrafanaOptions(this OtlpExporterOptions options, ApiConfig config, string type)
+  {
+    var auth = Convert.ToBase64String(
+      Encoding.UTF8.GetBytes($"{config.GrafanaInstanceId}:{config.GrafanaApiToken}")
+    );
+    options.Endpoint = new Uri(new Uri(config.GrafanaEndpoint), "v1/" + type);
+    options.Protocol = OtlpExportProtocol.HttpProtobuf;
+    options.Headers = $"Authorization=Basic {auth}";
+    
+    return options;
   }
 }

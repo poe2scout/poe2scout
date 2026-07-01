@@ -1,3 +1,4 @@
+using OpenTelemetry.Logs;
 using Poe2scout;
 using Poe2scout.Api;
 using Poe2scout.Api.Ioc;
@@ -13,8 +14,11 @@ builder.Services.AddPoe2scoutRepositories();
 builder.Services.AddSingleton<EconomyCache>();
 builder.Services.AddSingleton<ItemsCache>();
 builder.Services.AddScoutMetrics(apiConfig);
+builder.Logging.AddOpenTelemetry(logging =>
+{
+  logging.AddOtlpExporter(options => options.ApplyGrafanaOptions(apiConfig, "logs"));
+});
 builder.Services.AddScoutRateLimiting();
-
 var app = builder.Build();
 
 app.MapOpenApi();
