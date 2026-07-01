@@ -7,36 +7,58 @@ namespace Poe2scout.Api.Ioc;
 
 public static class ServiceCollectionExtensions
 {
-  public static void AddScoutMetrics(this IServiceCollection services, ApiConfig config)
+  extension(IServiceCollection services)
   {
-    services.AddOpenTelemetry()
-      .ConfigureResource(resource => resource
-        .AddService(serviceName: config.ServiceName))
-      .WithMetrics(metrics => 
-        metrics
-          .AddAspNetCoreInstrumentation()
-          .AddOtlpExporter((exporterOptions, readerOptions) =>
-          {
-            exporterOptions.Endpoint = new Uri(config.PrometheusEndpointUrl);
-            exporterOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
-            readerOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 1000;
-          }));
-  }
-
-  public static void AddScoutRateLimiting(this IServiceCollection services)
-  {
-    services.AddRateLimiter(options =>
+    public void AddScoutMetrics(ApiConfig config)
     {
-      options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context => 
-        RateLimitPartition.GetSlidingWindowLimiter(
-          partitionKey: context.Request.Headers["CF-Connecting-IP"].ToString(),
-          factory: partition => new SlidingWindowRateLimiterOptions
+      services.AddOpenTelemetry()
+        .ConfigureResource(resource => resource
+          .AddService(serviceName: config.ServiceName))
+        .WithMetrics(metrics =>
+        {
+          metrics.AddAspNetCoreInstrumentation();
+          if (config.IsPrometheusEnabled)
           {
-            AutoReplenishment = true,
-            PermitLimit = 60,
-            QueueLimit = 0,
-            Window = TimeSpan.FromMinutes(1)
-          }));
-    });
+            metrics.AddOtlpExporter((exporterOptions, readerOptions) =>
+            {
+              exporterOptions.Endpoint = new Uri(config.PrometheusEndpointUrl);
+              exporterOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
+              readerOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds = 1000;
+            });
+          }
+          else
+          {
+            metrics.AddConsoleExporter();
+          }
+        });
+    }
+
+    public void AddScoutRateLimiting()
+    {
+      services.AddRateLimiter(options =>
+      {
+        options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        {
+          var userIp = context.Request.Headers["CF-Connecting-IP"].ToString();
+
+          if (string.IsNullOrEmpty(userIp))
+          {
+            //TODO: Log this
+            
+            userIp = context.Connection.RemoteIpAddress?.ToString() ?? throw new InvalidOperationException();
+          }
+          
+          return RateLimitPartition.GetSlidingWindowLimiter(
+            partitionKey: userIp,
+            factory: partition => new SlidingWindowRateLimiterOptions
+            {
+              AutoReplenishment = true,
+              PermitLimit = 60,
+              QueueLimit = 0,
+              Window = TimeSpan.FromMinutes(1)
+            });
+        });
+      });
+    }
   }
 }
