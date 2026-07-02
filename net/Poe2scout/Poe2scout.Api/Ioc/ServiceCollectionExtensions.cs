@@ -24,7 +24,7 @@ public static class ServiceCollectionExtensions
           .AddOtlpExporter(options => options.ApplyGrafanaOptions(config, "traces")))
         .WithMetrics(metrics =>
         {
-          metrics.AddAspNetCoreInstrumentation();
+          metrics.AddMeter(ApiDiagnostics.MeterName);
           metrics.AddRuntimeInstrumentation();
           metrics.AddHttpClientInstrumentation();
           metrics.AddOtlpExporter(options => options.ApplyGrafanaOptions(config, "metrics"));
