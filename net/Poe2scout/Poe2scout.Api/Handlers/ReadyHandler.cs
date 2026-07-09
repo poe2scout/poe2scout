@@ -22,12 +22,12 @@ public static class ReadyHandler
       command.CommandText = "SELECT 1";
       await command.ExecuteScalarAsync(timeout.Token);
 
-      return Results.Ok(new { status = "ok", service = "api", database = "ok" });
+      return Results.Ok(new { Status = "ok", Service = "api", Database = "ok" });
     }
     catch (Exception)
     {
       return Results.Json(
-        new { status = "degraded", service = "api", database = "error" },
+        new { Status = "degraded", Service = "api", Database = "error" },
         statusCode: StatusCodes.Status503ServiceUnavailable
       );
     }

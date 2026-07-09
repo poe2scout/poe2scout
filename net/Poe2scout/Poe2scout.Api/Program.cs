@@ -9,6 +9,10 @@ var apiConfig = BaseConfig.FromConfig<ApiConfig>(builder.Configuration);
 
 builder.Services.AddSingleton(apiConfig);
 builder.Services.AddOpenApi();
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+  options.SerializerOptions.PropertyNamingPolicy = null;
+});
 builder.Services.AddCors(options =>
 {
   options.AddDefaultPolicy(policy =>

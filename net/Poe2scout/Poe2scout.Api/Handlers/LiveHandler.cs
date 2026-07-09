@@ -4,7 +4,7 @@ public static class LiveHandler
 {
   public static void MapGet(IEndpointRouteBuilder app)
   {
-    app.MapGet("/health/live", () => Results.Ok(new { status = "ok", service = "api" }))
+    app.MapGet("/health/live", () => Results.Ok(new { Status = "ok", Service = "api" }))
       .DisableRateLimiting();
   }
 }
