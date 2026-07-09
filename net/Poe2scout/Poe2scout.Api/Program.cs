@@ -32,7 +32,6 @@ builder.Logging.AddOpenTelemetry(logging =>
 {
   logging.AddOtlpExporter(options => options.ApplyGrafanaOptions(apiConfig, "logs"));
 });
-builder.Services.AddScoutRateLimiting();
 var app = builder.Build();
 
 app.UseCors();
