@@ -13,8 +13,6 @@ from poe2scout.db.repositories.models import CurrencyItem
 from . import router
 
 
-
-
 class GetResponse(ApiModel):
     value: str
     short_name: str
@@ -58,7 +56,6 @@ class GetResponse(ApiModel):
                 icon_url=model.icon_url,
                 relative_price=relative_price,
             )
-
 
     @classmethod
     def from_model(

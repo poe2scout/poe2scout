@@ -3,13 +3,6 @@ global:
   evaluation_interval: 30s
 
 scrape_configs:
-  - job_name: api
-    metrics_path: /metrics
-    static_configs:
-      - targets:
-          - poe2scout-api-blue:9105
-          - poe2scout-api-green:9105
-
   - job_name: item-sync
     metrics_path: /metrics
     static_configs:

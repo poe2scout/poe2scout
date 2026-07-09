@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poe2scout.Api", "Poe2scout.Api\Poe2scout.Api.csproj", "{252B7BFE-93B4-4A5C-944A-A1DC4A327D8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poe2scout", "Poe2scout\Poe2scout.csproj", "{30AABAFF-1700-44EB-8AC8-048DBE485670}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{252B7BFE-93B4-4A5C-944A-A1DC4A327D8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{252B7BFE-93B4-4A5C-944A-A1DC4A327D8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{252B7BFE-93B4-4A5C-944A-A1DC4A327D8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{252B7BFE-93B4-4A5C-944A-A1DC4A327D8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30AABAFF-1700-44EB-8AC8-048DBE485670}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30AABAFF-1700-44EB-8AC8-048DBE485670}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30AABAFF-1700-44EB-8AC8-048DBE485670}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30AABAFF-1700-44EB-8AC8-048DBE485670}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
