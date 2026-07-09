@@ -167,6 +167,3 @@ dump.rdb
 *.ruff_cache/
 .scripts
 scripts
-obj/
-bin/
-*.user
