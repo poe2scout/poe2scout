@@ -4,6 +4,8 @@ public static class Routes
 {
   public static void MapUniquesRoutes(this IEndpointRouteBuilder builder)
   {
-    GetByCategoryHandler.MapGet(builder);
+    var mapGroup = builder.MapGroup("").WithTags("Uniques");
+
+    GetByCategoryHandler.MapGet(mapGroup);
   }
 }

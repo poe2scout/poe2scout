@@ -22,6 +22,10 @@ builder.Services.AddScoutRateLimiting();
 var app = builder.Build();
 
 app.MapOpenApi();
+app.UseSwaggerUI(options =>
+{
+  options.SwaggerEndpoint("/openapi/v1.json", "My API v1");
+});
 app.MapHandlers();
 app.UseRateLimiter();
 app.Run();

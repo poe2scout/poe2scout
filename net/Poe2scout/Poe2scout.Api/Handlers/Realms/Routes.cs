@@ -4,8 +4,10 @@ public static class Routes
 {
   public static void MapRealmsHandlers(this IEndpointRouteBuilder builder)
   {
-    GetFiltersHandler.MapGet(builder);
-    GetHandler.MapGet(builder);
-    GetLandingSplashInfoHandler.MapGet(builder);
+    var mapGroup = builder.MapGroup("").WithTags("Realms");
+
+    GetFiltersHandler.MapGet(mapGroup);
+    GetHandler.MapGet(mapGroup);
+    GetLandingSplashInfoHandler.MapGet(mapGroup);
   }
 }
