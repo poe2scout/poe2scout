@@ -13,7 +13,9 @@ builder.Services.AddCors(options =>
 {
   options.AddDefaultPolicy(policy =>
     policy
-      .WithOrigins("https://poe2scout.com")
+      .WithOrigins(
+        "https://poe2scout.com",
+        "https://api.poe2scout.com")
       .AllowAnyHeader()
       .AllowAnyMethod());
 });
