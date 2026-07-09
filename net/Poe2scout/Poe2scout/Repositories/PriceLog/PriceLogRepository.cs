@@ -66,7 +66,7 @@ ORDER BY p.item_id, p.created_at DESC;
         .Select(group => new ItemHistory(
           group.Key,
           group.Select(row => new ItemHistoryLog(
-            decimal.Round(row.Price, 3, MidpointRounding.AwayFromZero),
+            decimal.Round((decimal)row.Price, 3, MidpointRounding.AwayFromZero),
             row.Time,
             row.Quantity)).ToList()))
         .ToList();
@@ -727,7 +727,7 @@ ON CONFLICT (realm_id, item_id, league_id, day) DO UPDATE SET
       return true;
     });
 
-  private sealed record AllItemHistoriesRow(int ItemId, DateTime Time, decimal Price, int Quantity);
+  private sealed record AllItemHistoriesRow(int ItemId, DateTime Time, double Price, int Quantity);
 
   private sealed record BucketStatsRow(
     int ItemId,
