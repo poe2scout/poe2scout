@@ -1,3 +1,4 @@
+using Poe2scout.Api.Handlers;
 using Poe2scout.Api.Handlers.Currencies;
 using Poe2scout.Api.Handlers.Items;
 using Poe2scout.Api.Handlers.Leagues;
@@ -15,5 +16,8 @@ public static class Routes
     builder.MapLeaguesHandlers();
     builder.MapRealmsHandlers();
     builder.MapUniquesRoutes();
+
+    ReadyHandler.MapGet(builder);
+    LiveHandler.MapGet(builder);
   }
 }

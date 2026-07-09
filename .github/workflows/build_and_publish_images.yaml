@@ -27,8 +27,8 @@ jobs:
             build_args: |
               VITE_API_URL=https://old.poe2scout.com/api/
           - image: poe2scout-api
-            context: .
-            dockerfile: ./apps/api/Dockerfile
+            context: ./net/Poe2scout
+            dockerfile: ./net/Poe2scout/Poe2scout.Api/Dockerfile
           - image: poe2scout-item-sync
             context: .
             dockerfile: ./apps/workers/item-sync/Dockerfile

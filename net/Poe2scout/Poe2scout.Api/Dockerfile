@@ -7,6 +7,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["Poe2scout/Poe2scout.csproj", "Poe2scout/"]
 COPY ["Poe2scout.Api/Poe2scout.Api.csproj", "Poe2scout.Api/"]
 RUN dotnet restore "Poe2scout.Api/Poe2scout.Api.csproj"
 COPY . .
