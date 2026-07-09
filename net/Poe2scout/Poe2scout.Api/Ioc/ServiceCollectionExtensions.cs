@@ -13,6 +13,8 @@ public static class ServiceCollectionExtensions
   {
     public void AddScoutMetrics(ApiConfig config)
     {
+      services.AddSingleton<ApiDiagnostics>();
+
       services.AddOpenTelemetry()
         .ConfigureResource(resource => resource
           .AddService("poe2scout.api", serviceNamespace: "Poe2scout.Api")
@@ -66,7 +68,7 @@ public static class ServiceCollectionExtensions
     var auth = Convert.ToBase64String(
       Encoding.UTF8.GetBytes($"{config.GrafanaInstanceId}:{config.GrafanaApiToken}")
     );
-    options.Endpoint = new Uri(new Uri(config.GrafanaEndpoint), "v1/" + type);
+    options.Endpoint = new Uri($"{config.GrafanaEndpoint.TrimEnd('/')}/v1/{type}");
     options.Protocol = OtlpExportProtocol.HttpProtobuf;
     options.Headers = $"Authorization=Basic {auth}";
     

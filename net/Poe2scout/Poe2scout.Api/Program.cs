@@ -21,6 +21,7 @@ builder.Logging.AddOpenTelemetry(logging =>
 builder.Services.AddScoutRateLimiting();
 var app = builder.Build();
 
+app.UseMiddleware<ApiDiagnosticsMiddleware>();
 app.MapOpenApi();
 app.UseSwaggerUI(options =>
 {
@@ -29,4 +30,3 @@ app.UseSwaggerUI(options =>
 app.MapHandlers();
 app.UseRateLimiter();
 app.Run();
-
