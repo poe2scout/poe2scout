@@ -12,7 +12,9 @@ builder.Services.AddOpenApi();
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
   options.SerializerOptions.PropertyNamingPolicy = null;
+  options.SerializerOptions.Converters.Add(new UtcDateTimeJsonConverter());
 });
+
 builder.Services.AddCors(options =>
 {
   options.AddDefaultPolicy(policy =>

@@ -11,6 +11,9 @@ public class BaseRepository(DbDataSource dbDataSource)
   {
     DefaultTypeMap.MatchNamesWithUnderscores = true;
     SqlMapper.AddTypeHandler(new DictionaryJsonTypeHandler());
+    SqlMapper.RemoveTypeMap(typeof(DateTime));
+    SqlMapper.RemoveTypeMap(typeof(DateTime?));
+    SqlMapper.AddTypeHandler(new UtcDateTimeTypeHandler());
   }
 
   protected async Task<T> WithConnection<T>(Func<IDbConnection, Task<T>> action)
