@@ -53,10 +53,13 @@ jobs:
       - name: Write production env file
         run: |
           cat > .deploy.env <<'EOF'
-          DBSTRING=${{ secrets.DBSTRING }}
-          REDIS_URL=redis://redis:6379
-          SECRET_KEY=${{ secrets.SECRET_KEY }}
-          CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
+          DbConnectionString=${{ secrets.DB_CONNECTION_STRING }}
+          GrafanaEndpoint=${{ secrets.GRAFANA_ENDPOINT }}
+          GrafanaApiToken=${{ secrets.GRAFANA_API_TOKEN }}
+          GrafanaInstanceId=${{ secrets.GRAFANA_INSTANCE_ID }}
+          DeploymentEnvironment=production
+          ASPNETCORE_ENVIRONMENT=Production
+          ASPNETCORE_URLS=http://+:8080
           EOF
 
       - name: Prepare deploy directory
@@ -139,15 +142,13 @@ jobs:
             --name \"\$NEW_CONTAINER\" \
             --restart always \
             --network poe2scout \
-            -p \"127.0.0.1:\${NEXT_PORT}:5000\" \
+            -p \"127.0.0.1:\${NEXT_PORT}:8080\" \
             --env-file ${{ env.DEPLOY_ROOT }}/.env \
-            -e METRICS_PORT=9105 \
-            -e SERVICE_NAME=api \
             \"\$IMAGE\"
 
           docker run --rm --network poe2scout curlimages/curl:latest \
             --fail --retry 20 --retry-delay 3 --retry-connrefused \
-            \"http://poe2scout-api-\$NEXT:5000/health/ready\"
+            \"http://poe2scout-api-\$NEXT:8080/health/ready\"
 
           printf 'reverse_proxy 127.0.0.1:%s\n' \"\$NEXT_PORT\" | sudo tee /etc/caddy/api-upstream.caddy >/dev/null
           SWITCHED=1
@@ -157,7 +158,7 @@ jobs:
           sleep 30
           docker run --rm --network poe2scout curlimages/curl:latest \
             --fail --retry 10 --retry-delay 3 --retry-connrefused \
-            \"http://poe2scout-api-\$NEXT:5000/health/ready\"
+            \"http://poe2scout-api-\$NEXT:8080/health/ready\"
 
           printf '%s\n' \"\$NEXT\" > \"\$ACTIVE_FILE\"
           trap - ERR
