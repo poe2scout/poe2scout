@@ -7,7 +7,8 @@ public static class ReadyHandler
   public static void MapGet(IEndpointRouteBuilder app)
   {
     app.MapGet("/health/ready", CheckReadiness)
-      .DisableRateLimiting();
+      .DisableRateLimiting()
+      .ExcludeFromApiDiagnostics();
   }
 
   private static async Task<IResult> CheckReadiness(DbDataSource dbDataSource, CancellationToken cancellationToken)

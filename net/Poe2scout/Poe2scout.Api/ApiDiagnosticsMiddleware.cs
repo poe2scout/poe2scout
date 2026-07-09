@@ -6,32 +6,51 @@ public sealed class ApiDiagnosticsMiddleware(RequestDelegate next, ApiDiagnostic
 {
   public async Task InvokeAsync(HttpContext context)
   {
+    var endpoint = context.GetEndpoint();
+    var route = GetInstrumentedRoute(endpoint, context.Request.Method);
+    if (route is null)
+    {
+      await next(context);
+      return;
+    }
+
     var startedAt = Stopwatch.GetTimestamp();
 
     try
     {
       await next(context);
     }
-    catch
+    catch (Exception exception)
     {
-      diagnostics.RequestFailed(
+      diagnostics.RecordRequest(
+        route,
+        context.Request.Method,
         StatusCodes.Status500InternalServerError,
-        GetElapsedMilliseconds(startedAt));
+        ApiRequestOutcome.ServerError,
+        Stopwatch.GetElapsedTime(startedAt),
+        context.Request.Path.Value ?? string.Empty,
+        exception);
       throw;
     }
 
-    var durationMs = GetElapsedMilliseconds(startedAt);
-    if (context.Response.StatusCode >= StatusCodes.Status400BadRequest)
-    {
-      diagnostics.RequestFailed(context.Response.StatusCode, durationMs);
-      return;
-    }
-
-    diagnostics.RequestCompleted(context.Response.StatusCode, durationMs);
+    diagnostics.RecordRequest(
+      route,
+      context.Request.Method,
+      context.Response.StatusCode,
+      ApiDiagnostics.ClassifyOutcome(context.Response.StatusCode),
+      Stopwatch.GetElapsedTime(startedAt),
+      context.Request.Path.Value ?? string.Empty);
   }
 
-  private static int GetElapsedMilliseconds(long startedAt)
+  private static string? GetInstrumentedRoute(Endpoint? endpoint, string method)
   {
-    return (int)Math.Min(Stopwatch.GetElapsedTime(startedAt).TotalMilliseconds, int.MaxValue);
+    if (HttpMethods.IsOptions(method) ||
+        endpoint is not RouteEndpoint routeEndpoint ||
+        endpoint.Metadata.GetMetadata<ExcludeFromApiDiagnosticsMetadata>() is not null)
+    {
+      return null;
+    }
+
+    return routeEndpoint.RoutePattern.RawText;
   }
 }

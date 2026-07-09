@@ -27,8 +27,12 @@ public static class ServiceCollectionExtensions
         .WithMetrics(metrics =>
         {
           metrics.AddMeter(ApiDiagnostics.MeterName);
-          metrics.AddRuntimeInstrumentation();
-          metrics.AddHttpClientInstrumentation();
+          metrics.AddView(
+            ApiDiagnostics.RequestDurationInstrumentName,
+            new ExplicitBucketHistogramConfiguration
+            {
+              Boundaries = [0.005, 0.010, 0.025, 0.050, 0.100, 0.250, 0.500, 0.750, 1, 2.5, 5, 10]
+            });
           metrics.AddOtlpExporter(options => options.ApplyGrafanaOptions(config, "metrics"));
         });
     }

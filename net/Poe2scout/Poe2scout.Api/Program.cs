@@ -32,13 +32,15 @@ builder.Services.AddSingleton<ItemsCache>();
 builder.Services.AddScoutMetrics(apiConfig);
 builder.Logging.AddOpenTelemetry(logging =>
 {
+  logging.IncludeFormattedMessage = true;
+  logging.IncludeScopes = true;
   logging.AddOtlpExporter(options => options.ApplyGrafanaOptions(apiConfig, "logs"));
 });
 var app = builder.Build();
 
 app.UseCors();
 app.UseMiddleware<ApiDiagnosticsMiddleware>();
-app.MapOpenApi();
+app.MapOpenApi().ExcludeFromApiDiagnostics();
 app.UseSwaggerUI(options =>
 {
   options.SwaggerEndpoint("/openapi/v1.json", "My API v1");

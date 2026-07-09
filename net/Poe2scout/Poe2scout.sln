@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poe2scout.Api", "Poe2scout.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poe2scout", "Poe2scout\Poe2scout.csproj", "{30AABAFF-1700-44EB-8AC8-048DBE485670}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poe2scout.Api.Tests", "Poe2scout.Api.Tests\Poe2scout.Api.Tests.csproj", "{A907D0AA-A648-4492-B723-2643760672AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{30AABAFF-1700-44EB-8AC8-048DBE485670}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{30AABAFF-1700-44EB-8AC8-048DBE485670}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{30AABAFF-1700-44EB-8AC8-048DBE485670}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A907D0AA-A648-4492-B723-2643760672AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A907D0AA-A648-4492-B723-2643760672AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A907D0AA-A648-4492-B723-2643760672AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A907D0AA-A648-4492-B723-2643760672AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
