@@ -9,6 +9,14 @@ var apiConfig = BaseConfig.FromConfig<ApiConfig>(builder.Configuration);
 
 builder.Services.AddSingleton(apiConfig);
 builder.Services.AddOpenApi();
+builder.Services.AddCors(options =>
+{
+  options.AddDefaultPolicy(policy =>
+    policy
+      .WithOrigins("https://poe2scout.com")
+      .AllowAnyHeader()
+      .AllowAnyMethod());
+});
 builder.Services.AddDataSource(apiConfig.DbConnectionString);
 builder.Services.AddPoe2scoutRepositories();
 builder.Services.AddSingleton<EconomyCache>();
@@ -21,6 +29,7 @@ builder.Logging.AddOpenTelemetry(logging =>
 builder.Services.AddScoutRateLimiting();
 var app = builder.Build();
 
+app.UseCors();
 app.UseMiddleware<ApiDiagnosticsMiddleware>();
 app.MapOpenApi();
 app.UseSwaggerUI(options =>
