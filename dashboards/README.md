@@ -41,3 +41,27 @@ failure log record.
 
 The slow-request threshold defaults to 750 ms. Override it with the .NET
 configuration key `SlowRequestThresholdMs`.
+
+## Alert rules
+
+`poe2scout-api-alerts.json` defines Grafana-managed alert rules for production:
+
+| Alert | Threshold |
+| --- | --- |
+| API request failure volume high | More than 50 `API request failed` logs in 5 minutes |
+| API 5xx error detected | At least one server error in 5 minutes |
+| API p95 latency high | P95 above 1.5 seconds for 10 minutes |
+| API 4xx ratio high | More than 25% client errors for 10 minutes, with at least 20 requests |
+
+Before applying the file, replace
+`REPLACE_WITH_GRAFANA_CLOUD_PROMETHEUS_UID` and
+`REPLACE_WITH_GRAFANA_CLOUD_LOKI_UID` with the UIDs shown under **Connections →
+Data sources** in the Grafana Cloud stack. The rules use the labels
+`service=poe2scout-api`, `environment=production`, and `severity`; route those
+labels to the desired contact point with a notification policy.
+
+This is Grafana's alerting provisioning/export JSON format. Unlike dashboard
+JSON, Grafana Cloud does not support uploading an alert provisioning file
+directly. Apply the rules with the Grafana Alerting Provisioning HTTP API or
+Terraform. The same file can be mounted under `provisioning/alerting` only on a
+self-hosted Grafana instance.
