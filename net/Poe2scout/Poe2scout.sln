@@ -6,6 +6,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poe2scout", "Poe2scout\Poe2
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poe2scout.Api.Tests", "Poe2scout.Api.Tests\Poe2scout.Api.Tests.csproj", "{A907D0AA-A648-4492-B723-2643760672AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poe2scout.CurrencyPriceLog.Worker", "Poe2scout.CurrencyPriceLog.Worker\Poe2scout.CurrencyPriceLog.Worker.csproj", "{04D66291-4A9D-478E-B08D-0EE3767E1F71}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poe2scout.CurrencyPriceLog.Worker.Tests", "Poe2scout.CurrencyPriceLog.Worker.Tests\Poe2scout.CurrencyPriceLog.Worker.Tests.csproj", "{571C6732-E8B9-44D8-B13F-ED895C05EC08}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +28,13 @@ Global
 		{A907D0AA-A648-4492-B723-2643760672AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A907D0AA-A648-4492-B723-2643760672AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A907D0AA-A648-4492-B723-2643760672AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04D66291-4A9D-478E-B08D-0EE3767E1F71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04D66291-4A9D-478E-B08D-0EE3767E1F71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04D66291-4A9D-478E-B08D-0EE3767E1F71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04D66291-4A9D-478E-B08D-0EE3767E1F71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{571C6732-E8B9-44D8-B13F-ED895C05EC08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{571C6732-E8B9-44D8-B13F-ED895C05EC08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{571C6732-E8B9-44D8-B13F-ED895C05EC08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{571C6732-E8B9-44D8-B13F-ED895C05EC08}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

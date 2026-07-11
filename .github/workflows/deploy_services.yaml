@@ -54,6 +54,7 @@ jobs:
         run: |
           cat > .deploy.env <<'EOF'
           DBSTRING=${{ secrets.DBSTRING }}
+          DB_CONNECTION_STRING=${{ secrets.DB_CONNECTION_STRING }}
           POEAPI_CLIENT_ID=${{ secrets.POEAPI_CLIENT_ID }}
           POEAPI_CLIENT_SECRET=${{ secrets.POEAPI_CLIENT_SECRET }}
           EOF

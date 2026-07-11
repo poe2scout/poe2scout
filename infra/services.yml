@@ -21,15 +21,9 @@ services:
     image: ghcr.io/poe2scout/poe2scout-currency-price-log:${IMAGE_TAG:-release}
     restart: "no"
     environment:
-      DBSTRING: ${DBSTRING}
-      POEAPI_CLIENT_ID: ${POEAPI_CLIENT_ID}
-      POEAPI_CLIENT_SECRET: ${POEAPI_CLIENT_SECRET}
-      LOG_JSON: ${LOG_JSON:-true}
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
-      METRICS_PORT: 9102
-      SERVICE_NAME: currency-price-log
-    expose:
-      - "9102"
+      DbConnectionString: ${DB_CONNECTION_STRING}
+      PoeApiClientId: ${POEAPI_CLIENT_ID}
+      PoeApiClientSecret: ${POEAPI_CLIENT_SECRET}
 
   unique-price-log-service:
     image: ghcr.io/poe2scout/poe2scout-unique-price-log:${IMAGE_TAG:-release}
