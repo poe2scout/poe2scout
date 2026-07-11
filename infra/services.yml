@@ -29,13 +29,7 @@ services:
     image: ghcr.io/poe2scout/poe2scout-unique-price-log:${IMAGE_TAG:-release}
     restart: "no"
     environment:
-      DBSTRING: ${DBSTRING}
-      LOG_JSON: ${LOG_JSON:-true}
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
-      METRICS_PORT: 9103
-      SERVICE_NAME: unique-price-log
-    expose:
-      - "9103"
+      DbConnectionString: ${DB_CONNECTION_STRING}
 
   currency-exchange-service:
     image: ghcr.io/poe2scout/poe2scout-currency-exchange:${IMAGE_TAG:-release}
