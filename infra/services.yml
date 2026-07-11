@@ -9,13 +9,7 @@ services:
     image: ghcr.io/poe2scout/poe2scout-item-sync:${IMAGE_TAG:-release}
     restart: always
     environment:
-      DBSTRING: ${DBSTRING}
-      LOG_JSON: ${LOG_JSON:-true}
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
-      METRICS_PORT: 9101
-      SERVICE_NAME: item-sync
-    expose:
-      - "9101"
+      DbConnectionString: ${DB_CONNECTION_STRING}
 
   currency-price-log-service:
     image: ghcr.io/poe2scout/poe2scout-currency-price-log:${IMAGE_TAG:-release}

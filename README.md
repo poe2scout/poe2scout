@@ -9,7 +9,7 @@ POE2 Scout is a market tool for Path of Exile 2 focused on real-time item and cu
 - `apps/new-web`: React Router frontend served at `poe2scout.com`.
 - `apps/web`: Legacy React frontend served at `old.poe2scout.com`.
 - `net/Poe2scout/Poe2scout.Api`: .NET API and production container definition.
-- `apps/workers/item-sync`: Item sync worker container definition.
+- `apps/workers/item-sync`: .NET item sync worker container definition.
 - `apps/workers/price-fetch`: Price fetch worker container definition.
 - `apps/workers/currency-exchange`: Currency exchange worker container definition.
 - `packages/backend`: Shared Python backend package used by worker services.
@@ -46,20 +46,25 @@ docker network inspect poe2scout >/dev/null 2>&1 || docker network create poe2sc
 docker compose -f infra/core.yml --env-file .env up -d
 ```
 
-### Python backend and workers
+### Python backend and remaining Python workers
 
 ```bash
 cd packages/backend
 uv sync
 ```
 
-The Python package is retained for worker services:
+The Python package is retained for the remaining Python worker services and as a fallback/reference for the migrated item sync:
 
 ```bash
 cd packages/backend
-uv run python -m poe2scout.workers.item_sync
 uv run python -m poe2scout.workers.price_fetch
 uv run python -m poe2scout.workers.currency_exchange
+```
+
+Run the .NET item sync worker with:
+
+```bash
+dotnet run --project net/Poe2scout/Poe2scout.ItemSync.Worker
 ```
 
 ### .NET API

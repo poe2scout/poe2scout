@@ -3,12 +3,6 @@ global:
   evaluation_interval: 30s
 
 scrape_configs:
-  - job_name: item-sync
-    metrics_path: /metrics
-    static_configs:
-      - targets:
-          - item-sync-service:9101
-
   - job_name: currency-exchange
     metrics_path: /metrics
     static_configs:
