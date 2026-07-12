@@ -258,7 +258,7 @@ WHERE ci.api_id = ANY(@ApiIds)
     {
       const string query = """
             UPDATE currency_item
-            SET item_metadata = @ItemMetadata
+            SET item_metadata = @ItemMetadata::json
             WHERE currency_item_id = @CurrencyItemId
 """;
 

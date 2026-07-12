@@ -11,7 +11,7 @@ public class ItemRepository(DbDataSource dbDataSource) : BaseRepository(dbDataSo
     {
       const string query = """
             INSERT INTO base_item (item_type_id, icon_url, item_metadata, game_id)
-            VALUES (@ItemTypeId, @IconUrl, @ItemMetadata, @GameId)
+            VALUES (@ItemTypeId, @IconUrl, @ItemMetadata::json, @GameId)
             RETURNING base_item_id
 """;
 

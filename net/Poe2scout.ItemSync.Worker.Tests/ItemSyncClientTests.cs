@@ -18,7 +18,7 @@ public class ItemSyncClientTests
     var response = await client.GetItemsAsync("poe2", CancellationToken.None);
 
     Assert.Equal("body_armour", Assert.Single(response.Result!).Id);
-    Assert.Equal("Test", Assert.Single(response.Result[0].Entries!).Name);
+    Assert.Equal("Test", Assert.Single(response.Result?[0].Entries!).Name);
     Assert.Equal("https://www.pathofexile.com/api/poe2/data/items", handler.Requests[0].Url);
     Assert.Equal("POE2SCOUT (contact: b@girardet.co.nz)", handler.Requests[0].UserAgent);
   }

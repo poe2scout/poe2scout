@@ -20,31 +20,9 @@ public sealed class ItemSyncWorker(
 {
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
-    var backoffSeconds = config.BackoffInitialSeconds;
     while (!stoppingToken.IsCancellationRequested)
     {
-      try
-      {
-        await RunIteration(stoppingToken);
-        backoffSeconds = config.BackoffInitialSeconds;
-      }
-      catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-      {
-        return;
-      }
-      catch (Exception)
-      {
-        try
-        {
-          await Delay(TimeSpan.FromSeconds(backoffSeconds), stoppingToken);
-        }
-        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-        {
-          return;
-        }
-
-        backoffSeconds = Math.Min(backoffSeconds * 2, config.BackoffMaxSeconds);
-      }
+      await RunIteration(stoppingToken);
     }
   }
 

@@ -152,7 +152,7 @@ public class UniqueItemRepository(DbDataSource dbDataSource) : BaseRepository(db
     {
       const string query = """
             UPDATE unique_item
-            SET item_metadata = @ItemMetadata
+            SET item_metadata = @ItemMetadata::json
             WHERE unique_item_id = @UniqueItemId
 """;
 
