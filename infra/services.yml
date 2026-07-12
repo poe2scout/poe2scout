@@ -1,10 +1,4 @@
 services:
-  old-web:
-    image: ghcr.io/poe2scout/poe2scout-old-web:${IMAGE_TAG:-release}
-    restart: always
-    ports:
-      - "127.0.0.1:3001:3000"
-
   item-sync-service:
     image: ghcr.io/poe2scout/poe2scout-item-sync:${IMAGE_TAG:-release}
     restart: always
