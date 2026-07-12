@@ -1,1 +1,0 @@
-"""Path of Exile integrations."""

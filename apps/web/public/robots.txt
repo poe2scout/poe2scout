@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://poe2scout.com/sitemap.xml 
