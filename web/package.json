@@ -11,25 +11,25 @@
   "dependencies": {
     "@react-router/node": "^7.18.1",
     "@react-router/serve": "^7.18.1",
-    "@tanstack/react-query": "^5.100.5",
+    "@tanstack/react-query": "^5.101.2",
     "@tanstack/react-table": "^8.21.3",
     "change-case": "^5.4.4",
-    "isbot": "^5.1.36",
+    "isbot": "^5.2.0",
     "lightweight-charts": "^5.2.0",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "react-router": "^7.18.1"
   },
   "devDependencies": {
     "@react-router/dev": "^7.18.1",
-    "@tailwindcss/vite": "^4.2.2",
-    "@types/node": "^22",
-    "@types/react": "^19.2.14",
+    "@tailwindcss/vite": "^4.3.2",
+    "@types/node": "^22.20.1",
+    "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "prettier": "^3.8.3",
-    "prettier-plugin-tailwindcss": "^0.7.3",
+    "prettier": "^3.9.5",
+    "prettier-plugin-tailwindcss": "^0.7.4",
     "tailwindcss": "^4.2.2",
-    "typescript": "^5.9.3",
-    "vite": "^8.0.3"
+    "typescript": "^6.0.3",
+    "vite": "^8.1.4"
   }
 }
