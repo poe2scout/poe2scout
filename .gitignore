@@ -172,3 +172,6 @@ obj/
 *.user
 global.json
 bin/
+.react-router/
+node_modules
+.vscode/

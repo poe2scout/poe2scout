@@ -18,9 +18,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: poe2scout-web
-            context: ./web
-            dockerfile: ./web/Dockerfile
           - image: poe2scout-api
             context: ./net
             dockerfile: ./net/Poe2scout.Api/Dockerfile
