@@ -10,6 +10,7 @@ using Poe2scout.Repositories.Game.Models;
 using Poe2scout.Repositories.Item;
 using Poe2scout.Repositories.Item.Models;
 using Poe2scout.Repositories.UniqueItem;
+using Poe2scout.Repositories.UniqueItem.Models;
 
 namespace Poe2scout.ItemSync.Worker.Tests;
 

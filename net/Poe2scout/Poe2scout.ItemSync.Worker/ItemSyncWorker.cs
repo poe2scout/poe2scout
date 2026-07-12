@@ -5,6 +5,7 @@ using Poe2scout.Repositories.Game.Models;
 using Poe2scout.Repositories.Item;
 using Poe2scout.Repositories.Item.Models;
 using Poe2scout.Repositories.UniqueItem;
+using Poe2scout.Repositories.UniqueItem.Models;
 
 namespace Poe2scout.ItemSync.Worker;
 
@@ -181,6 +182,11 @@ public sealed class ItemSyncWorker(
       cancellationToken.ThrowIfCancellationRequested();
 
       if (category.Label is null)
+      {
+        continue;
+      }
+
+      if (category.Entries is null || !category.Entries.Any(currency => currency.Text != string.Empty))
       {
         continue;
       }

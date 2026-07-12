@@ -3,12 +3,6 @@ global:
   evaluation_interval: 30s
 
 scrape_configs:
-  - job_name: currency-exchange
-    metrics_path: /metrics
-    static_configs:
-      - targets:
-          - currency-exchange-service:9104
-
   - job_name: cadvisor
     static_configs:
       - targets:

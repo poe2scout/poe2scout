@@ -3,6 +3,7 @@ using Poe2scout.ItemSync.Worker;
 using Poe2scout.Models;
 using Poe2scout.Repositories.CurrencyItem.Models;
 using Poe2scout.Repositories.Item.Models;
+using Poe2scout.Repositories.UniqueItem.Models;
 
 namespace Poe2scout.ItemSync.Worker.Tests;
 

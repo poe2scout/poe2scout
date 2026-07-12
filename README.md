@@ -53,7 +53,7 @@ cd packages/backend
 uv sync
 ```
 
-The Python package is retained for the remaining Python worker services and as a fallback/reference for the migrated item sync:
+The Python package is retained for the remaining Python worker services and as a fallback/reference for migrated workers:
 
 ```bash
 cd packages/backend
@@ -61,10 +61,13 @@ uv run python -m poe2scout.workers.price_fetch
 uv run python -m poe2scout.workers.currency_exchange
 ```
 
-Run the .NET item sync worker with:
+Run the migrated .NET workers with:
 
 ```bash
 dotnet run --project net/Poe2scout/Poe2scout.ItemSync.Worker
+dotnet run --project net/Poe2scout/Poe2scout.CurrencyPriceLog.Worker
+dotnet run --project net/Poe2scout/Poe2scout.UniquePriceLog.Worker
+dotnet run --project net/Poe2scout/Poe2scout.CurrencyExchange.Worker
 ```
 
 ### .NET API

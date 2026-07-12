@@ -18,6 +18,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poe2scout.ItemSync.Worker",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poe2scout.ItemSync.Worker.Tests", "Poe2scout.ItemSync.Worker.Tests\Poe2scout.ItemSync.Worker.Tests.csproj", "{D5B3F9C2-8B6E-4A52-9B2D-1F3E7C0A6D84}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poe2scout.CurrencyExchange.Worker", "Poe2scout.CurrencyExchange.Worker\Poe2scout.CurrencyExchange.Worker.csproj", "{F7E94B0A-0D1B-4D4E-B4F6-5C2A94AEB4AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poe2scout.CurrencyExchange.Worker.Tests", "Poe2scout.CurrencyExchange.Worker.Tests\Poe2scout.CurrencyExchange.Worker.Tests.csproj", "{EE3D2F47-BE94-4F93-9DA1-EB1C1E6C5B76}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,5 +64,13 @@ Global
 		{D5B3F9C2-8B6E-4A52-9B2D-1F3E7C0A6D84}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5B3F9C2-8B6E-4A52-9B2D-1F3E7C0A6D84}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5B3F9C2-8B6E-4A52-9B2D-1F3E7C0A6D84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7E94B0A-0D1B-4D4E-B4F6-5C2A94AEB4AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7E94B0A-0D1B-4D4E-B4F6-5C2A94AEB4AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7E94B0A-0D1B-4D4E-B4F6-5C2A94AEB4AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7E94B0A-0D1B-4D4E-B4F6-5C2A94AEB4AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE3D2F47-BE94-4F93-9DA1-EB1C1E6C5B76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE3D2F47-BE94-4F93-9DA1-EB1C1E6C5B76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE3D2F47-BE94-4F93-9DA1-EB1C1E6C5B76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE3D2F47-BE94-4F93-9DA1-EB1C1E6C5B76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
