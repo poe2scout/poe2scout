@@ -18,29 +18,24 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: poe2scout-new-web
-            context: ./apps/new-web
-            dockerfile: ./apps/new-web/Dockerfile
-          - image: poe2scout-old-web
-            context: ./apps/web
-            dockerfile: ./apps/web/Dockerfile
-            build_args: |
-              VITE_API_URL=https://old.poe2scout.com/api/
+          - image: poe2scout-web
+            context: ./web
+            dockerfile: ./web/Dockerfile
           - image: poe2scout-api
-            context: ./net/Poe2scout
-            dockerfile: ./net/Poe2scout/Poe2scout.Api/Dockerfile
+            context: ./net
+            dockerfile: ./net/Poe2scout.Api/Dockerfile
           - image: poe2scout-item-sync
-            context: .
-            dockerfile: ./apps/workers/item-sync/Dockerfile
+            context: ./net
+            dockerfile: ./net/Poe2scout.ItemSync.Worker/Dockerfile
           - image: poe2scout-currency-price-log
-            context: .
-            dockerfile: ./apps/workers/currency-price-log/Dockerfile
+            context: ./net
+            dockerfile: ./net/Poe2scout.CurrencyPriceLog.Worker/Dockerfile
           - image: poe2scout-unique-price-log
-            context: .
-            dockerfile: ./apps/workers/unique-price-log/Dockerfile
+            context: ./net
+            dockerfile: ./net/Poe2scout.UniquePriceLog.Worker/Dockerfile
           - image: poe2scout-currency-exchange
-            context: .
-            dockerfile: ./apps/workers/currency-exchange/Dockerfile
+            context: ./net
+            dockerfile: ./net/Poe2scout.CurrencyExchange.Worker/Dockerfile
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -74,3 +69,5 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/poe2scout/${{ matrix.image }}:${{ steps.image-tag.outputs.alias_tag }}
             ${{ env.REGISTRY }}/poe2scout/${{ matrix.image }}:${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}

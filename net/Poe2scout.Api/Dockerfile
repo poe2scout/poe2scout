@@ -1,24 +1,15 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
-USER $APP_UID
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+﻿FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /App
 
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["Poe2scout/Poe2scout.csproj", "Poe2scout/"]
-COPY ["Poe2scout.Api/Poe2scout.Api.csproj", "Poe2scout.Api/"]
-RUN dotnet restore "Poe2scout.Api/Poe2scout.Api.csproj"
 COPY . .
-WORKDIR "/src/Poe2scout.Api"
-RUN dotnet build "./Poe2scout.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet restore "Poe2scout.Api/Poe2scout.Api.csproj"
+RUN dotnet publish "Poe2scout.Api/Poe2scout.Api.csproj" \
+    -c Release \
+    -o out \
+    --no-restore \
+    /p:UseAppHost=false
 
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Poe2scout.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /App
+COPY --from=build /App/out .
 ENTRYPOINT ["dotnet", "Poe2scout.Api.dll"]
