@@ -236,7 +236,7 @@ LIMIT @Limit;
     => await WithConnection(async connection =>
     {
       epoch ??= (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-      var createdBefore = DateTimeOffset.FromUnixTimeSeconds(epoch.Value).LocalDateTime;
+      var createdBefore = DateTimeOffset.FromUnixTimeSeconds(epoch.Value).UtcDateTime;
 
       const string query = """
             SELECT price FROM price_log
@@ -470,7 +470,7 @@ LIMIT @Limit;
                    WHERE item_id = req_item.item_id
                      AND league_id = @LeagueId
                      AND realm_id = @RealmId
-                     AND created_at < to_timestamp(@CreatedAt)
+                     AND created_at < (to_timestamp(@CreatedAt) AT TIME ZONE 'UTC')
                    ORDER BY created_at DESC
                    LIMIT 1
               ) AS latest_price ON TRUE;
@@ -531,7 +531,7 @@ LIMIT @Limit;
                 CASE
                     WHEN EXISTS(
                         SELECT 1 FROM price_log
-                        WHERE created_at = to_timestamp(@Epoch)
+                        WHERE created_at = (to_timestamp(@Epoch) AT TIME ZONE 'UTC')
                         AND league_id = @LeagueId
                         AND realm_id = @RealmId
                     )
@@ -639,7 +639,7 @@ WITH input_prices AS (
         realm_id,
         price,
         quantity,
-        to_timestamp(@CreatedAt)::timestamp AS created_at
+        to_timestamp(@CreatedAt) AT TIME ZONE 'UTC' AS created_at
     FROM unnest(
         @ItemIds::int[],
         @LeagueIds::int[],

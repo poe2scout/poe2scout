@@ -8,47 +8,39 @@ using Poe2scout.Repositories.PriceLog.Models;
 using Poe2scout.Repositories.Realm;
 using Poe2scout.Repositories.Realm.Models;
 using Poe2scout.Repositories.Service;
+using Poe2scout.UniquePriceLog.Worker;
 
 namespace Poe2scout.CurrencyPriceLog.Worker;
 
 public sealed class CurrencyPriceLogWorker(
-  CurrencyPriceLogConfig config,
   IPoeCurrencyExchangeClient client,
   IServiceRepository serviceRepository,
   IRealmRepository realmRepository,
   ILeagueRepository leagueRepository,
   ICurrencyItemRepository currencyItemRepository,
   IGameRepository gameRepository,
-  IPriceLogRepository priceLogRepository) : BackgroundService
+  IPriceLogRepository priceLogRepository,
+  CurrencyPriceLogDiagnostics diagnostics) : BackgroundService
 {
   private const string CacheKey = "PriceFetch_Currency";
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
-    var backoffSeconds = config.BackoffInitialSeconds;
     while (!stoppingToken.IsCancellationRequested)
     {
       try
       {
         await RunIteration(stoppingToken);
-        backoffSeconds = config.BackoffInitialSeconds;
       }
       catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
       {
         return;
       }
-      catch (Exception)
+      catch (Exception ex)
       {
-        try
-        {
-          await Task.Delay(TimeSpan.FromSeconds(backoffSeconds), stoppingToken);
-        }
-        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-        {
-          return;
-        }
+        diagnostics.RecordException(ex);
 
-        backoffSeconds = Math.Min(backoffSeconds * 2, config.BackoffMaxSeconds);
+        throw;
       }
     }
   }
@@ -75,13 +67,13 @@ public sealed class CurrencyPriceLogWorker(
     var data = await client.GetSnapshot(realm.ApiId, currentEpoch, cancellationToken);
     if (data.NextChangeId == currentEpoch)
     {
-      //TODO: Log fetched too early.
+      diagnostics.RecordFetchedTooEarly(currentEpoch, DateTime.UtcNow);
       return;
     }
 
     if (data.Markets.Count == 0)
-    {
-      //TODO: Log no markets warning
+    { 
+      diagnostics.RecordNoMarkets(currentEpoch, realm.RealmId);
       return;
     }
 
@@ -98,7 +90,7 @@ public sealed class CurrencyPriceLogWorker(
     {
       if (await priceLogRepository.GetPricesChecked(currentEpoch, league.LeagueId, realm.RealmId))
       {
-        //TODO: Log prices already checked info.
+        diagnostics.RecordLogsAlreadyChecked(currentEpoch, league.LeagueId, realm.RealmId);
         continue;
       }
 
@@ -118,6 +110,8 @@ public sealed class CurrencyPriceLogWorker(
           realm.RealmId))
         .ToList();
 
+      diagnostics.RecordLogs(currentEpoch, league.LeagueId, priceLogs.Count, realm.RealmId);
+      
       if (priceLogs.Count > 0)
       {
         await priceLogRepository.RecordPriceBulk(priceLogs, currentEpoch);

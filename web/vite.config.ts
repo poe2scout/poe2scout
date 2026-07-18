@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: "https://api.poe2scout.com",
+        target: "http://localhost:5281",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
