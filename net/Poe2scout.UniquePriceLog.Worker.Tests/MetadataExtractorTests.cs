@@ -18,16 +18,36 @@ public class MetadataExtractorTests
       "descrText": "Description [one|display]",
       "properties": [{"name":"[Quality]|Quality:","values":[["20"]]}],
       "requirements": [{"name":"[Level]|Level]","values":[["70"]]}],
-      "implicitMods": ["Adds 1 to [Fire|Fire] Damage"],
-      "explicitMods": ["Damage-10"],
+      "implicitMods": ["+14 to [Strength|Strength]"],
+      "explicitMods": [{
+          "description":"10% increased maximum Life",
+          "hash":"stat.explicit.stat_983749596",
+          "mods":[{
+            "magnitudes":[{"min":"10","max":"20"}]
+            }]
+        },
+        {
+          "description":"+56% to [Resistances|Fire Resistance]",
+          "hash":"stat.explicit.stat_3372524247",
+          "mods":[{
+            "magnitudes":[{"min":"50","max":"100"}]
+            }]
+        },
+        {
+          "description":"Enemies in your [Presence] have -25% to Fire Resistance",
+          "hash":"stat.explicit.stat_990363519",
+          "mods":[{
+            "level":66,
+            "magnitudes":[{"min":"-25","max":"-25"}]
+            }]
+        }],
       "extended": {
         "mods": {
-          "implicit": [{"magnitudes":[{"min":"1","max":"2"}]}],
-          "explicit": [{"magnitudes":[{"min":"10","max":"20"}]}]
+          "implicit": [{"name":"","tier":"","level":10,"magnitudes":[{"hash":"implicit.stat_4080418644","min":"10","max":"15"}]}]
         },
         "hashes": {
-          "implicit": [["hash",[0]]],
-          "explicit": [["hash",[0]]]
+          "implicit": [["implicit.stat_4080418644",[0]]],
+          "explicit": [["explicit.stat_983749596",[0]],["explicit.stat_3372524247",[2]],["explicit.stat_990363519",[1]]]
         }
       }
     }
@@ -39,8 +59,12 @@ public class MetadataExtractorTests
     Assert.Equal("first\nsecond", metadata["flavor_text"] as string);
     Assert.Equal("20", ((Dictionary<string, object>)metadata["properties"])["Quality"]);
     Assert.Equal("64", ((Dictionary<string, object>)metadata["requirements"])["Level"]);
-    Assert.Equal("Adds (1-2) to Fire Damage", Assert.Single((List<string>)metadata["implicit_mods"]));
-    Assert.Equal("Damage(10-20)", Assert.Single((List<string>)metadata["explicit_mods"]));
+    Assert.Equal("+(10-15) to Strength", Assert.Single((List<string>)metadata["implicit_mods"]));
+    Assert.Equal([
+      "(10-20)% increased maximum Life",
+      "+(50-100)% to Fire Resistance",
+      "Enemies in your Presence have -25% to Fire Resistance"
+    ], (List<string>)metadata["explicit_mods"]);
   }
 
   [Fact]

@@ -1,5 +1,8 @@
+using System.Diagnostics.Metrics;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Poe2scout;
 using Poe2scout.Models;
@@ -48,6 +51,11 @@ internal sealed class WorkerFixture
 
   public WorkerFixture(Func<TimeSpan, CancellationToken, Task>? delay = null)
   {
+    var services = new ServiceCollection();
+    services.AddMetrics();
+    var serviceProvider = services.BuildServiceProvider();
+
+    var factory = serviceProvider.GetRequiredService<IMeterFactory>();
     Leagues.Setup(repository => repository.GetLeague(23)).ReturnsAsync(League);
     UniqueItems.Setup(repository => repository.GetCurrentUniqueItems(2))
       .ReturnsAsync([UniqueItem]);
@@ -74,6 +82,8 @@ internal sealed class WorkerFixture
       CurrencyItems.Object,
       Items.Object,
       PriceLogs.Object,
+      new UniquePriceLogDiagnostics(factory, new Logger<UniquePriceLogDiagnostics>(new LoggerFactory()),
+        TestConfig.Create()),
       delay ?? ((_, _) => Task.CompletedTask));
   }
 

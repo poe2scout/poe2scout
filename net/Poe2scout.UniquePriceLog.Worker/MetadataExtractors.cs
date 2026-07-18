@@ -83,9 +83,25 @@ internal static class UniqueItemMetadataExtractor
       var index = 0;
       foreach (var mod in explicitValues.EnumerateArray())
       {
-        var cleanMod = CleanBracketText(mod.GetString() ?? string.Empty);
-        if (explicitRanges.TryGetValue(index, out var range)
-            && !(range.Min == "1" && range.Max == "1"))
+        var cleanMod = CleanBracketText(mod.ValueKind == JsonValueKind.Object
+          ? StringProperty(mod, "description") ?? string.Empty
+          : mod.GetString() ?? string.Empty);
+        ModRange? range = null;
+        var isEmbeddedRange = false;
+        if (TryGetEmbeddedRange(mod, out var embeddedRange))
+        {
+          range = embeddedRange;
+          isEmbeddedRange = true;
+        }
+        else if (explicitRanges.TryGetValue(index, out var extendedRange))
+        {
+          range = extendedRange;
+        }
+
+        if (range is not null
+            && (isEmbeddedRange
+              ? range.Min != range.Max
+              : !(range.Min == "1" && range.Max == "1")))
         {
           cleanMod = AddRange(cleanMod, range, new Regex(@"-?\d+"), trimDash: true);
         }
@@ -131,6 +147,37 @@ internal static class UniqueItemMetadataExtractor
     {
       PopulateRangeMap(explicitMods, explicitHashes, explicitRanges);
     }
+  }
+
+  private static bool TryGetEmbeddedRange(JsonElement mod, out ModRange range)
+  {
+    range = null!;
+    if (mod.ValueKind != JsonValueKind.Object
+        || !TryGetArray(mod, "mods", out var mods))
+    {
+      return false;
+    }
+
+    foreach (var nestedMod in mods.EnumerateArray())
+    {
+      if (!TryGetArray(nestedMod, "magnitudes", out var magnitudes))
+      {
+        continue;
+      }
+
+      foreach (var magnitude in magnitudes.EnumerateArray())
+      {
+        var min = StringProperty(magnitude, "min");
+        var max = StringProperty(magnitude, "max");
+        if (min is not null && max is not null)
+        {
+          range = new ModRange(min, max);
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   private static void PopulateRangeMap(

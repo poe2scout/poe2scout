@@ -21,41 +21,29 @@ public sealed class UniquePriceLogWorker(
   ICurrencyItemRepository currencyItemRepository,
   IItemRepository itemRepository,
   IPriceLogRepository priceLogRepository,
+  UniquePriceLogDiagnostics diagnostics,
   Func<TimeSpan, CancellationToken, Task>? delay = null) : BackgroundService
 {
   private const int GameId = 2;
   private const int LeagueId = 23;
   private const int RealmId = 4;
-  private const string Realm = "poe2";
-  private const string BaseUrl = "https://www.pathofexile.com/api/trade2";
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
-    var backoffSeconds = config.BackoffInitialSeconds;
-    while (!stoppingToken.IsCancellationRequested)
+    try
     {
-      try
+      while (!stoppingToken.IsCancellationRequested)
       {
         await RunIteration(stoppingToken);
-        backoffSeconds = config.BackoffInitialSeconds;
       }
-      catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-      {
-        return;
-      }
-      catch (Exception)
-      {
-        try
-        {
-          await Delay(TimeSpan.FromSeconds(backoffSeconds), stoppingToken);
-        }
-        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-        {
-          return;
-        }
+    }
+    catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+    { }
+    catch (Exception ex)
+    {
+      diagnostics.RecordException(ex);
 
-        backoffSeconds = Math.Min(backoffSeconds * 2, config.BackoffMaxSeconds);
-      }
+      throw;
     }
   }
 
@@ -81,7 +69,7 @@ public sealed class UniquePriceLogWorker(
       await Delay(TimeSpan.FromMinutes(5), cancellationToken);
       return;
     }
-
+    
     await ProcessUniques(uniqueItems, league, cancellationToken);
 
     foreach (var currencyItem in baseCurrencyItems)
@@ -115,6 +103,7 @@ public sealed class UniquePriceLogWorker(
 
         if (prices.Count == 0)
         {
+          diagnostics.RecordFailure(uniqueItem.Name);
           continue;
         }
 
@@ -167,6 +156,7 @@ public sealed class UniquePriceLogWorker(
     CancellationToken cancellationToken)
   {
     var query = await client.SearchUniqueAsync(uniqueItem, league, currency, cancellationToken);
+    diagnostics.RecordSearch();
     if (query.Result.Count == 0)
     {
       return new PriceFetchResult(-1, 0, currency);
@@ -176,6 +166,7 @@ public sealed class UniquePriceLogWorker(
     TradeFetchResponse fetchData;
     try
     {
+      diagnostics.RecordFetch();
       fetchData = await client.FetchAsync(itemIds, query.Id, cancellationToken);
     }
     catch (TradeClientException exception) when (exception.IsUnknownItemName)
@@ -226,6 +217,8 @@ public sealed class UniquePriceLogWorker(
     TradeSearchResponse query;
     try
     {
+      diagnostics.RecordSearch();
+      
       query = await client.SearchCurrencyAsync(currencyItem, league, cancellationToken);
     }
     catch (TradeClientException)
@@ -239,6 +232,8 @@ public sealed class UniquePriceLogWorker(
     }
 
     var itemIds = query.Result.Take(10).ToList();
+    
+    diagnostics.RecordFetch();
     var fetchData = await client.FetchAsync(itemIds, query.Id, cancellationToken);
     var firstItem = fetchData.Result[0]?.Item
                     ?? throw new InvalidOperationException("Trade fetch result did not contain an item.");
