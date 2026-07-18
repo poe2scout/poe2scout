@@ -110,7 +110,7 @@ public sealed class CurrencyPriceLogWorker(
           realm.RealmId))
         .ToList();
 
-      diagnostics.RecordLogs(currentEpoch, league.LeagueId, priceLogs.Count, realm.RealmId);
+      diagnostics.RecordLogs(currentEpoch, league.LeagueId, realm.RealmId, priceLogs.Count);
       
       if (priceLogs.Count > 0)
       {
