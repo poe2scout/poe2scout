@@ -29,7 +29,7 @@ builder.Services.AddDataSource(apiConfig.DbConnectionString);
 builder.Services.AddPoe2scoutRepositories();
 builder.Services.AddSingleton<EconomyCache>();
 builder.Services.AddSingleton<ItemsCache>();
-builder.Services.AddScoutMetrics(apiConfig);
+builder.Services.AddScoutMetrics(apiConfig, builder.Environment.EnvironmentName);
 builder.Logging.AddOpenTelemetry(logging =>
 {
   logging.IncludeFormattedMessage = true;

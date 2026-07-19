@@ -25,7 +25,7 @@ builder.Services.AddOpenTelemetry()
   .ConfigureResource(resource => resource
     .AddService("poe2scout.currency_exchange", serviceNamespace: "Poe2scout.CurrencyExchange")
     .AddAttributes([
-      new KeyValuePair<string, object>("deployment.environment", config.DeploymentEnvironment)]))
+      new KeyValuePair<string, object>("deployment.environment", builder.Environment.EnvironmentName)]))
   .WithMetrics(metrics =>
   {
     metrics.AddMeter(CurrencyExchangeDiagnostics.MeterName);

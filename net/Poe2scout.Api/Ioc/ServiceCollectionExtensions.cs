@@ -11,7 +11,7 @@ public static class ServiceCollectionExtensions
 {
   extension(IServiceCollection services)
   {
-    public void AddScoutMetrics(ApiConfig config)
+    public void AddScoutMetrics(ApiConfig config, string environmentName)
     {
       services.AddSingleton<ApiDiagnostics>();
 
@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
         .ConfigureResource(resource => resource
           .AddService("poe2scout.api", serviceNamespace: "Poe2scout.Api")
           .AddAttributes([
-            new KeyValuePair<string, object>("deployment.environment", config.DeploymentEnvironment)]))
+            new KeyValuePair<string, object>("deployment.environment", environmentName)]))
         .WithTracing(tracing => tracing
           .AddAspNetCoreInstrumentation()
           .AddHttpClientInstrumentation()

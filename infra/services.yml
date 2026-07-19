@@ -10,6 +10,9 @@ services:
     restart: "no"
     environment:
       DbConnectionString: ${DB_CONNECTION_STRING}
+      GrafanaApiToken: ${GRAFANA_API_TOKEN}
+      GrafanaEndpoint: ${GRAFANA_ENDPOINT}
+      GrafanaInstanceId: ${GRAFANA_INSTANCE_ID}
       PoeApiClientId: ${POEAPI_CLIENT_ID}
       PoeApiClientSecret: ${POEAPI_CLIENT_SECRET}
 
@@ -18,12 +21,18 @@ services:
     restart: "no"
     environment:
       DbConnectionString: ${DB_CONNECTION_STRING}
+      GrafanaApiToken: ${GRAFANA_API_TOKEN}
+      GrafanaEndpoint: ${GRAFANA_ENDPOINT}
+      GrafanaInstanceId: ${GRAFANA_INSTANCE_ID}
 
   currency-exchange-service:
     image: ghcr.io/poe2scout/poe2scout-currency-exchange:${IMAGE_TAG:-release}
     restart: "no"
     environment:
       DbConnectionString: ${DB_CONNECTION_STRING}
+      GrafanaApiToken: ${GRAFANA_API_TOKEN}
+      GrafanaEndpoint: ${GRAFANA_ENDPOINT}
+      GrafanaInstanceId: ${GRAFANA_INSTANCE_ID}
       PoeApiClientId: ${POEAPI_CLIENT_ID}
       PoeApiClientSecret: ${POEAPI_CLIENT_SECRET}
 

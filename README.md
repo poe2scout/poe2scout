@@ -73,8 +73,8 @@ dotnet run --project net/Poe2scout/Poe2scout.CurrencyExchange.Worker
 ### .NET API
 
 The API binds the following environment variables: `DbConnectionString`,
-`GrafanaEndpoint`, `GrafanaApiToken`, `GrafanaInstanceId`, and
-`DeploymentEnvironment`. Set them before starting the API locally, then run:
+`GrafanaEndpoint`, `GrafanaApiToken`, and `GrafanaInstanceId`. Set them before
+starting the API locally, then run:
 
 ```bash
 dotnet run --project net/Poe2scout/Poe2scout.Api
@@ -105,6 +105,7 @@ Run item sync first so the database has base data, then apply any required SQL m
 - Production infrastructure is split into `infra/core.yml`, `infra/services.yml`, and `infra/observability.yml`.
 - Host Caddy owns public routing. The API is deployed outside Compose with blue/green containers and Caddy imports `/etc/caddy/api-upstream.caddy` for the active upstream.
 - The API deployment reads `DB_CONNECTION_STRING`, `GRAFANA_ENDPOINT`, `GRAFANA_API_TOKEN`, and `GRAFANA_INSTANCE_ID` from GitHub Actions secrets and maps them to the .NET runtime configuration.
+- The worker deployment reads the same database and Grafana Cloud secrets, plus `POEAPI_CLIENT_ID` and `POEAPI_CLIENT_SECRET`, and maps them to the migrated .NET workers. The .NET host defaults to `Production` when `DOTNET_ENVIRONMENT` is unset, and Grafana telemetry uses that host environment for its `deployment.environment` label.
 - `poe2scout.com` serves the React Router web app through Cloudflare Pages, `old.poe2scout.com` serves the legacy web app, and `api.poe2scout.com` serves the canonical API.
 - `poe2scout.com/api/*` is kept as a temporary compatibility route by the Cloudflare Pages Function in `apps/new-web/functions/api/[[path]].ts`; it strips `/api` and proxies to `api.poe2scout.com/*`.
 - `beta.poe2scout.com` is kept in TLS routing and redirects to `poe2scout.com`.

@@ -57,8 +57,6 @@ jobs:
           GrafanaEndpoint=${{ secrets.GRAFANA_ENDPOINT }}
           GrafanaApiToken=${{ secrets.GRAFANA_API_TOKEN }}
           GrafanaInstanceId=${{ secrets.GRAFANA_INSTANCE_ID }}
-          DeploymentEnvironment=production
-          ASPNETCORE_ENVIRONMENT=Production
           ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
           ASPNETCORE_URLS=http://+:8080
           EOF

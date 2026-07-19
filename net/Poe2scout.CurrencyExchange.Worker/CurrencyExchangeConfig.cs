@@ -10,5 +10,4 @@ public sealed class CurrencyExchangeConfig : BaseConfig
   public string GrafanaEndpoint { get; private set; } = string.Empty;
   public string GrafanaApiToken { get; private set; } = string.Empty;
   public string GrafanaInstanceId { get; private set; } = string.Empty;
-  public string DeploymentEnvironment { get; private set; } = string.Empty;
 }

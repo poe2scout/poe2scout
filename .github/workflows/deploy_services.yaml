@@ -53,8 +53,10 @@ jobs:
       - name: Write production env file
         run: |
           cat > .deploy.env <<'EOF'
-          DBSTRING=${{ secrets.DBSTRING }}
           DB_CONNECTION_STRING=${{ secrets.DB_CONNECTION_STRING }}
+          GRAFANA_API_TOKEN=${{ secrets.GRAFANA_API_TOKEN }}
+          GRAFANA_ENDPOINT=${{ secrets.GRAFANA_ENDPOINT }}
+          GRAFANA_INSTANCE_ID=${{ secrets.GRAFANA_INSTANCE_ID }}
           POEAPI_CLIENT_ID=${{ secrets.POEAPI_CLIENT_ID }}
           POEAPI_CLIENT_SECRET=${{ secrets.POEAPI_CLIENT_SECRET }}
           EOF
