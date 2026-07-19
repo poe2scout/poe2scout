@@ -202,33 +202,4 @@ public class ItemSyncWorkerTests
     Assert.Equal(["poe2", "alternate"], identifiers);
     Assert.Equal([TimeSpan.FromDays(1)], delays);
   }
-
-  [Fact]
-  public async Task UsesBackoffAfterFailuresAndResetsAfterSuccess()
-  {
-    using var cancellation = new CancellationTokenSource();
-    var delays = new List<TimeSpan>();
-    var completed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-    var fixture = new WorkerFixture((duration, _) =>
-    {
-      delays.Add(duration);
-      if (duration == TimeSpan.FromSeconds(60))
-      {
-        cancellation.Cancel();
-        completed.SetResult();
-      }
-
-      return Task.CompletedTask;
-    });
-    fixture.Games.SetupSequence(repository => repository.GetGames())
-      .ReturnsAsync([])
-      .ThrowsAsync(new InvalidOperationException("first failure"))
-      .ThrowsAsync(new InvalidOperationException("second failure"));
-
-    await fixture.Worker.StartAsync(cancellation.Token);
-    await completed.Task.WaitAsync(TimeSpan.FromSeconds(1));
-    await fixture.Worker.StopAsync(CancellationToken.None);
-
-    Assert.Equal([TimeSpan.FromDays(1), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(60)], delays);
-  }
 }

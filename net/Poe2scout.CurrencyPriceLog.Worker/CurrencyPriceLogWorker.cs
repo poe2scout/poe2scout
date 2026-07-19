@@ -8,7 +8,6 @@ using Poe2scout.Repositories.PriceLog.Models;
 using Poe2scout.Repositories.Realm;
 using Poe2scout.Repositories.Realm.Models;
 using Poe2scout.Repositories.Service;
-using Poe2scout.UniquePriceLog.Worker;
 
 namespace Poe2scout.CurrencyPriceLog.Worker;
 

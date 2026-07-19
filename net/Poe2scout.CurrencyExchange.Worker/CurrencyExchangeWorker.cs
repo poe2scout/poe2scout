@@ -20,6 +20,7 @@ public sealed class CurrencyExchangeWorker(
   ICurrencyItemRepository currencyItemRepository,
   IPriceLogRepository priceLogRepository,
   ICurrencyExchangeRepository currencyExchangeRepository,
+  CurrencyExchangeDiagnostics diagnostics,
   Func<TimeSpan, CancellationToken, Task>? delay = null) : BackgroundService
 {
   private const string ExchangeCacheKey = "CurrencyExchange";
@@ -28,31 +29,22 @@ public sealed class CurrencyExchangeWorker(
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
-    var backoffSeconds = config.BackoffInitialSeconds;
 
     while (!stoppingToken.IsCancellationRequested)
     {
       try
       {
         await RunIteration(stoppingToken);
-        backoffSeconds = config.BackoffInitialSeconds;
       }
       catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
       {
         return;
       }
-      catch (Exception)
+      catch (Exception ex)
       {
-        try
-        {
-          await Delay(TimeSpan.FromSeconds(backoffSeconds), stoppingToken);
-        }
-        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-        {
-          return;
-        }
+        diagnostics.RecordException(ex);
 
-        backoffSeconds = Math.Min(backoffSeconds * 2, config.BackoffMaxSeconds);
+        throw;
       }
     }
   }
@@ -70,9 +62,7 @@ public sealed class CurrencyExchangeWorker(
       return;
     }
 
-    var timeToFetch = lastExchange is null
-      ? (int?)null
-      : checked(lastExchange.Value + 60 * 60);
+    var timeToFetch = lastExchange?.Value + 60 * 60;
 
     if (timeToFetch is not null)
     {
@@ -144,7 +134,7 @@ public sealed class CurrencyExchangeWorker(
     foreach (var league in leagues)
     {
       var prices = leaguePrices[league.LeagueId];
-      if (!prices.Any(price => price.Price != 0))
+      if (prices.All(price => price.Price == 0))
       {
         continue;
       }
@@ -214,17 +204,17 @@ public sealed class CurrencyExchangeWorker(
     var volumeTraded = pair.VolumeTraded[currency.ApiId];
     var valueTraded = volumeTraded * currencyPrice.Price;
     var relativePrice = volumeTraded == 0
-      ? 0m
-      : ((decimal)pair.VolumeTraded[otherCurrency.ApiId] / volumeTraded)
+      ? 0
+      : (double)pair.VolumeTraded[otherCurrency.ApiId] / volumeTraded
         * priceLookup[otherCurrency.ItemId].Price;
     var highestStock = pair.HighestStock[currency.ApiId];
 
     return new CurrencyExchangeSnapshotPairData(
-      valueTraded,
-      relativePrice,
+      (decimal)valueTraded,
+      (decimal)relativePrice,
       volumeTraded,
       highestStock,
-      highestStock * currencyPrice.Price);
+      (decimal)(highestStock * currencyPrice.Price));
   }
 
   private Task Delay(TimeSpan duration, CancellationToken cancellationToken)

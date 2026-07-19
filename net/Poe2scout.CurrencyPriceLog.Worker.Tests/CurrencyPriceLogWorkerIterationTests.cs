@@ -1,3 +1,6 @@
+using System.Diagnostics.Metrics;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Poe2scout.Models;
 using Poe2scout.Repositories.CurrencyItem;
@@ -136,6 +139,12 @@ public class CurrencyPriceLogWorkerIterationTests
 
     public WorkerFixture(CurrencyExchangeResponse? response = null)
     {
+      var services = new ServiceCollection();
+      services.AddMetrics();
+      var serviceProvider = services.BuildServiceProvider();
+
+      var factory = serviceProvider.GetRequiredService<IMeterFactory>();
+
       CurrentEpoch = checked((int)(DateTime.UtcNow - DateTime.UnixEpoch).TotalSeconds - 4000);
       response ??= new CurrencyExchangeResponse(5000,
       [
@@ -164,16 +173,18 @@ public class CurrencyPriceLogWorkerIterationTests
         .ReturnsAsync([new ItemPriceBefore(1, 0)]);
       PriceLogs.Setup(repository => repository.RecordPriceBulk(It.IsAny<List<RecordPriceModel>>(), CurrentEpoch))
         .Returns(Task.CompletedTask);
+      
+
 
       Worker = new CurrencyPriceLogWorker(
-        TestConfig.Create(),
         Client.Object,
         Services.Object,
         Realms.Object,
         Leagues.Object,
         CurrencyItems.Object,
         Games.Object,
-        PriceLogs.Object);
+        PriceLogs.Object,
+        new CurrencyPriceLogDiagnostics(factory, new Logger<CurrencyPriceLogDiagnostics>(new LoggerFactory()), TestConfig.Create()));
     }
 
     private static CurrencyItem Item(int itemId, string apiId)

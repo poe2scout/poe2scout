@@ -1,3 +1,6 @@
+using System.Diagnostics.Metrics;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Poe2scout.CurrencyExchange.Worker;
 using Poe2scout.Repositories.CurrencyExchange.Models;
@@ -16,8 +19,6 @@ public class CurrencyExchangeWorkerTests
     Assert.Equal("Host=test", config.DbConnectionString);
     Assert.Equal("client-id", config.PoeApiClientId);
     Assert.Equal("client-secret", config.PoeApiClientSecret);
-    Assert.Equal(7, config.BackoffInitialSeconds);
-    Assert.Equal(77, config.BackoffMaxSeconds);
   }
 
   [Fact]
@@ -181,8 +182,8 @@ public class CurrencyExchangeWorkerTests
         It.IsAny<DateTime>()))
       .ReturnsAsync(
       [
-        new ItemPriceInRange(100, 1m, 10m),
-        new ItemPriceInRange(101, .1m, 10m)
+        new ItemPriceInRange(100, 1, 10),
+        new ItemPriceInRange(101, .1, 10)
       ]);
     CurrencyExchangeSnapshot? captured = null;
     fixture.Exchange
@@ -236,43 +237,6 @@ public class CurrencyExchangeWorkerTests
       repository => repository.SetServiceCacheValue(It.IsAny<string>(), It.IsAny<int>()),
       Times.Never);
     fixture.Exchange.Verify(repository => repository.UpdatePairHistories(), Times.Never);
-  }
-
-  [Fact]
-  public async Task UsesBackoffAfterFailureAndStopsWhenCancellationIsRequested()
-  {
-    using var cancellation = new CancellationTokenSource();
-    var completed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-    var delays = new List<TimeSpan>();
-    var fixture = new WorkerFixture();
-    fixture.Services.Setup(repository => repository.GetServiceCacheValue(It.IsAny<string>()))
-      .ThrowsAsync(new InvalidOperationException("failure"));
-    var worker = new CurrencyExchangeWorker(
-      TestConfig.Create(),
-      fixture.Client.Object,
-      fixture.Services.Object,
-      fixture.Realms.Object,
-      fixture.Leagues.Object,
-      fixture.CurrencyItems.Object,
-      fixture.PriceLogs.Object,
-      fixture.Exchange.Object,
-      (duration, _) =>
-      {
-        delays.Add(duration);
-        if (duration == TimeSpan.FromSeconds(30))
-        {
-          cancellation.Cancel();
-          completed.SetResult();
-        }
-
-        return Task.CompletedTask;
-      });
-
-    await worker.StartAsync(cancellation.Token);
-    await completed.Task.WaitAsync(TimeSpan.FromSeconds(1));
-    await worker.StopAsync(CancellationToken.None);
-
-    Assert.Equal([TimeSpan.FromSeconds(30)], delays);
   }
 
   public static TradingPair Pair(

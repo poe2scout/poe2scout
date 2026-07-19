@@ -5,7 +5,6 @@ using Poe2scout;
 using Poe2scout.CurrencyPriceLog.Worker;
 using Poe2scout.CurrencyPriceLog.Worker.Ioc;
 using Poe2scout.Repositories;
-using Poe2scout.UniquePriceLog.Worker;
 
 var builder = Host.CreateApplicationBuilder(args);
 var config = BaseConfig.FromConfig<CurrencyPriceLogConfig>(builder.Configuration);

@@ -1,6 +1,8 @@
+using System.Diagnostics.Metrics;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
-using Poe2scout.CurrencyExchange.Worker;
 using Poe2scout.Models;
 using Poe2scout.Repositories.CurrencyExchange;
 using Poe2scout.Repositories.CurrencyExchange.Models;
@@ -52,6 +54,12 @@ internal sealed class WorkerFixture
 
   public WorkerFixture(CurrencyExchangeResponse? response = null)
   {
+    var services = new ServiceCollection();
+    services.AddMetrics();
+    var serviceProvider = services.BuildServiceProvider();
+
+    var factory = serviceProvider.GetRequiredService<IMeterFactory>();
+    
     response ??= new CurrencyExchangeResponse(
       CurrentEpoch + 3600,
       [CurrencyExchangeWorkerTests.Pair("exalted|chaos", 10, 100, 5, 20)]);
@@ -92,8 +100,8 @@ internal sealed class WorkerFixture
         It.IsAny<DateTime>()))
       .ReturnsAsync(
       [
-        new ItemPriceInRange(100, 1m, 10m),
-        new ItemPriceInRange(101, .1m, 100m)
+        new ItemPriceInRange(100, 1, 10),
+        new ItemPriceInRange(101, .1, 100)
       ]);
     Exchange.Setup(repository => repository.CreateSnapshot(It.IsAny<CurrencyExchangeSnapshot>()))
       .ReturnsAsync(1);
@@ -109,6 +117,7 @@ internal sealed class WorkerFixture
       CurrencyItems.Object,
       PriceLogs.Object,
       Exchange.Object,
+      new CurrencyExchangeDiagnostics(factory, new Logger<CurrencyExchangeDiagnostics>(new LoggerFactory()), TestConfig.Create()),
       (duration, _) =>
       {
         Delays.Add(duration);

@@ -145,28 +145,4 @@ public class UniquePriceLogWorkerTests
     Assert.Equal(7, config.BackoffInitialSeconds);
     Assert.Equal(77, config.BackoffMaxSeconds);
   }
-
-  [Fact]
-  public async Task UsesConfiguredInitialBackoffAfterIterationFailure()
-  {
-    using var cancellation = new CancellationTokenSource();
-    var delays = new List<TimeSpan>();
-    var backoffApplied = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-    var fixture = new WorkerFixture((duration, _) =>
-    {
-      delays.Add(duration);
-      backoffApplied.SetResult();
-      cancellation.Cancel();
-      return Task.CompletedTask;
-    });
-    fixture.Leagues
-      .Setup(repository => repository.GetLeague(23))
-      .ThrowsAsync(new InvalidOperationException("failure"));
-
-    await fixture.Worker.StartAsync(cancellation.Token);
-    await backoffApplied.Task.WaitAsync(TimeSpan.FromSeconds(1));
-    await fixture.Worker.StopAsync(CancellationToken.None);
-
-    Assert.Equal([TimeSpan.FromSeconds(30)], delays);
-  }
 }

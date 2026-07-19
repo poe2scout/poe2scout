@@ -1,8 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using Poe2scout.CurrencyPriceLog.Worker;
 
-namespace Poe2scout.UniquePriceLog.Worker;
+namespace Poe2scout.CurrencyPriceLog.Worker;
 
 public sealed partial class CurrencyPriceLogDiagnostics
 {
