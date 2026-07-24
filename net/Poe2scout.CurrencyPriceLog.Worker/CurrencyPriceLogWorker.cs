@@ -77,12 +77,19 @@ public sealed class CurrencyPriceLogWorker(
     }
 
     var leagues = await leagueRepository.GetLeagues(realm.GameId);
-    var currencyItems = await currencyItemRepository.GetAllCurrencyItems(realm.GameId);
+    var currencyItems = await currencyItemRepository.GetAllCurrencyItemsWithBaseId(realm.GameId);
     var bridgeCurrencies = await gameRepository.GetBridgeCurrencies(realm.GameId);
-    var itemIdLookup = new Dictionary<string, int>();
-    foreach (var currencyItem in currencyItems)
+    var itemIdLookup = currencyItems.ToDictionary(item => item.BaseItemTypeId, item => item.ItemId);
+
+    var unknownBaseIds = data.Markets
+      .SelectMany(market => market.MarketPair)
+      .Where(baseId => !itemIdLookup.ContainsKey(baseId))
+      .Distinct(StringComparer.Ordinal)
+      .ToList();
+
+    if (unknownBaseIds.Count > 0)
     {
-      itemIdLookup[currencyItem.ApiId] = currencyItem.ItemId;
+      diagnostics.RecordUnknownBaseIds(currentEpoch, realm.RealmId, unknownBaseIds);
     }
 
     foreach (var league in leagues)
@@ -143,7 +150,10 @@ public sealed class CurrencyPriceLogWorker(
       {
         if (bridgePrices[index].Price != 0)
         {
-          historicalBridgePrices[bridgeCurrencies[index].ApiId] = bridgePrices[index].Price;
+          var bridgeBaseId = bridgeCurrencies[index].BaseItemTypeId
+                             ?? throw new InvalidOperationException(
+                               $"Bridge currency {bridgeCurrencies[index].Text} is missing a base item type ID.");
+          historicalBridgePrices[bridgeBaseId] = bridgePrices[index].Price;
         }
       }
     }

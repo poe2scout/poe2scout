@@ -48,19 +48,26 @@ public static class GetPairHistoryHandler
     return TypedResults.Ok(new GetPairHistoryResponse(
       pairHistory,
       league.BaseCurrencyApiId,
+      league.BaseCurrencyBaseItemTypeId,
       league.BaseCurrencyText));
   }
 
   public record GetPairHistoryResponse(
     IEnumerable<GetPairHistoryResponse.Pair> History,
     GetPairHistoryResponse.MetaModel Meta,
-    string BaseCurrencyApiId,
+    string? BaseCurrencyApiId,
+    string? BaseCurrencyBaseItemTypeId,
     string BaseCurrencyText)
   {
-    public GetPairHistoryResponse(PairHistory pairHistory, string baseCurrencyApiId, string baseCurrencyText) : this(
+    public GetPairHistoryResponse(
+      PairHistory pairHistory,
+      string? baseCurrencyApiId,
+      string? baseCurrencyBaseItemTypeId,
+      string baseCurrencyText) : this(
       History: pairHistory.History.Select(h => new Pair(h)),
       Meta: new MetaModel(HasMore: pairHistory.Meta.TryGetValue("has_more", out var hasMore) && (bool)hasMore),
       BaseCurrencyApiId: baseCurrencyApiId,
+      BaseCurrencyBaseItemTypeId: baseCurrencyBaseItemTypeId,
       BaseCurrencyText: baseCurrencyText) {} 
     public record MetaModel(bool HasMore);
     

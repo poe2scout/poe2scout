@@ -9,7 +9,8 @@ type SnapshotHistoryPayload = {
   meta?: {
     hasMore?: boolean;
   };
-  baseCurrencyApiId?: string;
+  baseCurrencyApiId?: string | null;
+  baseCurrencyBaseItemTypeId?: string | null;
   baseCurrencyText?: string;
 };
 
@@ -39,7 +40,9 @@ export function getSnapshotHistoryQueryOptions({
       return {
         data: (payload.data ?? []).map(normalizeSnapshot),
         hasMore: Boolean(payload.meta?.hasMore),
-        baseCurrencyApiId: payload.baseCurrencyApiId ?? "",
+        baseCurrencyApiId: payload.baseCurrencyApiId ?? null,
+        baseCurrencyBaseItemTypeId:
+          payload.baseCurrencyBaseItemTypeId ?? null,
         baseCurrencyText: payload.baseCurrencyText ?? "",
       };
     },

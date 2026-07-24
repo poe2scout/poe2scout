@@ -328,15 +328,28 @@ function getPairName(pair: ExchangeSnapshotPair) {
 }
 
 function getPairSearchText(pair: ExchangeSnapshotPair) {
+  const currencyOneIdentifiers = [
+    pair.currencyOne.apiId,
+    pair.currencyOne.baseItemTypeId,
+  ].filter((identifier): identifier is string => Boolean(identifier));
+  const currencyTwoIdentifiers = [
+    pair.currencyTwo.apiId,
+    pair.currencyTwo.baseItemTypeId,
+  ].filter((identifier): identifier is string => Boolean(identifier));
+
   return [
     pair.currencyOne.text,
     pair.currencyTwo.text,
-    pair.currencyOne.apiId,
-    pair.currencyTwo.apiId,
+    ...currencyOneIdentifiers,
+    ...currencyTwoIdentifiers,
     `${pair.currencyOne.text}/${pair.currencyTwo.text}`,
     `${pair.currencyOne.text} / ${pair.currencyTwo.text}`,
-    `${pair.currencyOne.apiId}/${pair.currencyTwo.apiId}`,
-    `${pair.currencyOne.apiId} / ${pair.currencyTwo.apiId}`,
+    ...currencyOneIdentifiers.flatMap((currencyOne) =>
+      currencyTwoIdentifiers.flatMap((currencyTwo) => [
+        `${currencyOne}/${currencyTwo}`,
+        `${currencyOne} / ${currencyTwo}`,
+      ]),
+    ),
   ]
     .join(" ")
     .toLowerCase();

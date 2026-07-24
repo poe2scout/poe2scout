@@ -59,7 +59,8 @@ public static class GetHandler
     bool IsCurrent,
     double DivinePrice,
     double ChaosDivinePrice,
-    string BaseCurrencyApiId,
+    string? BaseCurrencyApiId,
+    string? BaseCurrencyBaseItemTypeId,
     string BaseCurrencyText,
     string? BaseCurrencyIconUrl,
     string ExaltedCurrencyText,
@@ -70,7 +71,12 @@ public static class GetHandler
     string? ChaosCurrencyIconUrl,
     GetResponse.LeagueCurrency DefaultCurrency)
   {
-    public record LeagueCurrency(string ApiId, string Text, string? IconUrl, double RelativePrice);
+    public record LeagueCurrency(
+      string? ApiId,
+      string? BaseItemTypeId,
+      string Text,
+      string? IconUrl,
+      double RelativePrice);
 
     public GetResponse(League league, CurrencyItem exalt, CurrencyItem chaos, CurrencyItem divine, double divinePrice, double chaosDivinePrice) : this(
       Value: league.Value,
@@ -79,6 +85,7 @@ public static class GetHandler
       DivinePrice: divinePrice,
       ChaosDivinePrice: chaosDivinePrice,
       BaseCurrencyApiId: league.BaseCurrencyApiId,
+      BaseCurrencyBaseItemTypeId: league.BaseCurrencyBaseItemTypeId,
       BaseCurrencyText: league.BaseCurrencyText,
       BaseCurrencyIconUrl: league.BaseCurrencyIconUrl,
       ExaltedCurrencyText: exalt.Text,
@@ -87,6 +94,11 @@ public static class GetHandler
       DivineCurrencyIconUrl: divine.IconUrl,
       ChaosCurrencyText: chaos.Text,
       ChaosCurrencyIconUrl: chaos.IconUrl,
-      DefaultCurrency: new LeagueCurrency(ApiId: league.BaseCurrencyApiId, Text: league.BaseCurrencyText, IconUrl: league.BaseCurrencyIconUrl, RelativePrice: 1)) {}
+      DefaultCurrency: new LeagueCurrency(
+        ApiId: league.BaseCurrencyApiId,
+        BaseItemTypeId: league.BaseCurrencyBaseItemTypeId,
+        Text: league.BaseCurrencyText,
+        IconUrl: league.BaseCurrencyIconUrl,
+        RelativePrice: 1)) {}
   }
 }

@@ -1,7 +1,7 @@
+using Poe2scout.Models;
 using Poe2scout.Repositories.CurrencyExchange;
 using Poe2scout.Repositories.CurrencyExchange.Models;
 using Poe2scout.Repositories.CurrencyItem;
-using Poe2scout.Repositories.League.Models;
 using Poe2scout.Repositories.League;
 using Poe2scout.Repositories.PriceLog;
 using Poe2scout.Repositories.PriceLog.Models;
@@ -12,7 +12,6 @@ using Poe2scout.Repositories.Service;
 namespace Poe2scout.CurrencyExchange.Worker;
 
 public sealed class CurrencyExchangeWorker(
-  CurrencyExchangeConfig config,
   ICurrencyExchangeClient client,
   IServiceRepository serviceRepository,
   IRealmRepository realmRepository,
@@ -25,7 +24,15 @@ public sealed class CurrencyExchangeWorker(
 {
   private const string ExchangeCacheKey = "CurrencyExchange";
   private const string PriceFetchCacheKey = "PriceFetch_Currency";
+  private const int SnapshotIntervalSeconds = 60 * 60;
+  private const int PrefetchDepth = 20;
+  private const int MaxConcurrentPrefetchBatches = 16;
+  private const int PublicationDelaySeconds = 60 * 5;
   private static readonly TimeSpan PriceFetchWait = TimeSpan.FromMinutes(10);
+  private readonly Dictionary<int, Task<SnapshotBatch>> prefetchedSnapshots = [];
+  private readonly SemaphoreSlim prefetchSlots = new(
+    MaxConcurrentPrefetchBatches,
+    MaxConcurrentPrefetchBatches);
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
@@ -51,29 +58,38 @@ public sealed class CurrencyExchangeWorker(
 
   public async Task RunIteration(CancellationToken cancellationToken)
   {
-    var lastExchange = await serviceRepository.GetServiceCacheValue(ExchangeCacheKey);
+    var lastExchange = await serviceRepository.GetServiceCacheValue(ExchangeCacheKey)
+                       ?? throw new InvalidOperationException(
+                         $"Missing service cache value: {ExchangeCacheKey}");
     var lastPriceFetch = await serviceRepository.GetServiceCacheValue(PriceFetchCacheKey)
                          ?? throw new InvalidOperationException(
                            $"Missing service cache value: {PriceFetchCacheKey}");
 
-    if (lastExchange is not null && lastPriceFetch.Value <= lastExchange.Value)
+    if (lastPriceFetch.Value <= lastExchange.Value)
     {
+      var availableRealms = await realmRepository.GetRealms();
+      PrefetchAvailableSnapshots(
+        lastExchange.Value + SnapshotIntervalSeconds,
+        availableRealms,
+        cancellationToken);
       await Delay(PriceFetchWait, cancellationToken);
       return;
     }
 
-    var timeToFetch = lastExchange?.Value + 60 * 60;
-
-    if (timeToFetch is not null)
-    {
-      var currentEpoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-      var delaySeconds = Math.Max(timeToFetch.Value + 60 * 5 - currentEpoch, 0);
-      await Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
-    }
+    var timeToFetch = lastExchange.Value + SnapshotIntervalSeconds;
+    var currentEpoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    var delaySeconds = Math.Max(timeToFetch + PublicationDelaySeconds - currentEpoch, 0);
+    await Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
 
     var realms = await realmRepository.GetRealms();
+    
+    PrefetchAvailableSnapshots(timeToFetch, realms, cancellationToken);
+    var snapshotBatch = await GetPrefetchedSnapshot(timeToFetch);
     var nextChangeIds = await Task.WhenAll(
-      realms.Select(realm => ProcessRealmSnapshot(realm, timeToFetch, cancellationToken)));
+      snapshotBatch.Realms.Select(snapshot => ProcessRealmSnapshot(
+        snapshot.Realm,
+        snapshot.Response,
+        cancellationToken)));
 
     if (nextChangeIds.Any(nextChangeId => nextChangeId is null))
     {
@@ -84,17 +100,17 @@ public sealed class CurrencyExchangeWorker(
                        ?? throw new InvalidOperationException("No realm snapshot was returned.");
     await serviceRepository.SetServiceCacheValue(
       ExchangeCacheKey,
-      checked(nextChangeId - 60 * 60));
+      nextChangeId - SnapshotIntervalSeconds);
+    prefetchedSnapshots.Remove(timeToFetch);
     await currencyExchangeRepository.UpdatePairHistories();
   }
 
   private async Task<int?> ProcessRealmSnapshot(
     Realm realm,
-    int? timeToFetch,
+    CurrencyExchangeResponse data,
     CancellationToken cancellationToken)
   {
-    var data = await client.GetSnapshot(realm.ApiId, timeToFetch, cancellationToken);
-    var targetEpoch = checked(data.NextChangeId - 60 * 60);
+    var targetEpoch = data.NextChangeId - SnapshotIntervalSeconds;
     var targetTime = DateTimeOffset.FromUnixTimeSeconds(targetEpoch).LocalDateTime;
 
     if (!await serviceRepository.GetCurrencyFetchStatus(targetTime))
@@ -104,6 +120,7 @@ public sealed class CurrencyExchangeWorker(
     }
 
     var leagues = await leagueRepository.GetLeagues(realm.GameId);
+
     var existingSnapshotLeagueIds = (await currencyExchangeRepository.GetExistingSnapshotLeagueIds(
       targetEpoch,
       realm.RealmId)).ToHashSet();
@@ -116,10 +133,22 @@ public sealed class CurrencyExchangeWorker(
       return data.NextChangeId;
     }
 
-    var currencies = await currencyItemRepository.GetAllCurrencyItems(realm.GameId);
-    var currencyLookup = currencies.ToDictionary(currency => currency.ApiId);
+    var currencyLookup = (await currencyItemRepository.GetAllCurrencyItemsWithBaseId(realm.GameId))
+      .ToDictionary(x => x.BaseItemTypeId, x => x);
+
+    var unknownBaseIds = data.Markets
+      .SelectMany(market => market.MarketPair)
+      .Where(baseId => !currencyLookup.ContainsKey(baseId))
+      .Distinct(StringComparer.Ordinal)
+      .ToList();
+
+    if (unknownBaseIds.Count != 0)
+    {
+      diagnostics.RecordUnknownBaseIds(targetEpoch, realm.RealmId, unknownBaseIds);
+    }
+    
     var leaguePrices = new Dictionary<int, IReadOnlyList<ItemPriceInRange>>();
-    var currencyItemIds = currencies.Select(currency => currency.ItemId).ToList();
+    var currencyItemIds = currencyLookup.Values.Select(currency => currency.ItemId).ToList();
 
     foreach (var league in leagues)
     {
@@ -143,9 +172,8 @@ public sealed class CurrencyExchangeWorker(
       var snapshotPairs = new List<CurrencyExchangeSnapshotPair>();
       foreach (var pair in data.Markets.Where(pair => pair.League == league.Value))
       {
-        var pairCurrencies = pair.MarketId.Split('|');
-        if (!currencyLookup.TryGetValue(pairCurrencies[0], out var currencyOne)
-            || !currencyLookup.TryGetValue(pairCurrencies[1], out var currencyTwo))
+        if (!currencyLookup.TryGetValue(pair.MarketPair[0], out var currencyOne)
+            || !currencyLookup.TryGetValue(pair.MarketPair[1], out var currencyTwo))
         {
           continue;
         }
@@ -194,20 +222,82 @@ public sealed class CurrencyExchangeWorker(
     return data.NextChangeId;
   }
 
+  private void PrefetchAvailableSnapshots(
+    int firstEpoch,
+    IReadOnlyList<Realm> realms,
+    CancellationToken cancellationToken)
+  {
+    var latestAvailableEpoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                               - PublicationDelaySeconds;
+    var lastPrefetchEpoch = Math.Min(
+      firstEpoch + (PrefetchDepth - 1L) * SnapshotIntervalSeconds,
+      latestAvailableEpoch);
+
+    for (var epoch = firstEpoch;
+         epoch <= lastPrefetchEpoch;
+         epoch += SnapshotIntervalSeconds)
+    {
+      if (!prefetchedSnapshots.ContainsKey(epoch))
+      {
+        prefetchedSnapshots.Add(
+          epoch,
+          DownloadSnapshotBatch(epoch, realms, cancellationToken));
+      }
+    }
+  }
+
+  private async Task<SnapshotBatch> GetPrefetchedSnapshot(int epoch)
+  {
+    if (!prefetchedSnapshots.TryGetValue(epoch, out var snapshotTask))
+    {
+      throw new InvalidOperationException($"Snapshot epoch {epoch} was not prefetched.");
+    }
+
+    try
+    {
+      return await snapshotTask;
+    }
+    catch
+    {
+      prefetchedSnapshots.Remove(epoch);
+      throw;
+    }
+  }
+
+  private async Task<SnapshotBatch> DownloadSnapshotBatch(
+    int epoch,
+    IReadOnlyList<Realm> realms,
+    CancellationToken cancellationToken)
+  {
+    await prefetchSlots.WaitAsync(cancellationToken);
+    try
+    {
+      var snapshots = await Task.WhenAll(realms.Select(async realm =>
+        new RealmSnapshot(
+          realm,
+          await client.GetSnapshot(realm.ApiId, epoch, cancellationToken))));
+      return new SnapshotBatch(snapshots);
+    }
+    finally
+    {
+      prefetchSlots.Release();
+    }
+  }
+
   private static CurrencyExchangeSnapshotPairData GetPairData(
-    Poe2scout.Models.CurrencyItem currency,
-    IReadOnlyDictionary<int, ItemPriceInRange> priceLookup,
+    CurrencyItemWithBaseId currency,
+    Dictionary<int, ItemPriceInRange> priceLookup,
     TradingPair pair,
-    Poe2scout.Models.CurrencyItem otherCurrency)
+    CurrencyItemWithBaseId otherCurrency)
   {
     var currencyPrice = priceLookup[currency.ItemId];
-    var volumeTraded = pair.VolumeTraded[currency.ApiId];
+    var volumeTraded = pair.VolumeTraded[currency.BaseItemTypeId];
     var valueTraded = volumeTraded * currencyPrice.Price;
     var relativePrice = volumeTraded == 0
       ? 0
-      : (double)pair.VolumeTraded[otherCurrency.ApiId] / volumeTraded
+      : (double)pair.VolumeTraded[otherCurrency.BaseItemTypeId] / volumeTraded
         * priceLookup[otherCurrency.ItemId].Price;
-    var highestStock = pair.HighestStock[currency.ApiId];
+    var highestStock = pair.HighestStock[currency.BaseItemTypeId];
 
     return new CurrencyExchangeSnapshotPairData(
       (decimal)valueTraded,
@@ -219,4 +309,11 @@ public sealed class CurrencyExchangeWorker(
 
   private Task Delay(TimeSpan duration, CancellationToken cancellationToken)
     => delay is null ? Task.Delay(duration, cancellationToken) : delay(duration, cancellationToken);
+
+  private sealed record RealmSnapshot(
+    Realm Realm,
+    CurrencyExchangeResponse Response);
+
+  private sealed record SnapshotBatch(
+    IReadOnlyList<RealmSnapshot> Realms);
 }

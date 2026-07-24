@@ -8,7 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 var apiConfig = BaseConfig.FromConfig<ApiConfig>(builder.Configuration);
 
 builder.Services.AddSingleton(apiConfig);
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+  options.CreateSchemaReferenceId = OpenApiSchemaIdGenerator.Create;
+  options.AddSchemaTransformer<RequireAllSchemaPropertiesTransformer>();
+});
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
   options.SerializerOptions.PropertyNamingPolicy = null;

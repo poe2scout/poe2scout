@@ -46,6 +46,7 @@ WHERE item_id IS NOT NULL
                    l.short_name,
                    l.base_currency_item_id,
                    ci.api_id AS base_currency_api_id,
+                   ci.base_item_type_id AS base_currency_base_item_type_id,
                    ci.text AS base_currency_text,
                    ci.icon_url AS base_currency_icon_url,
                    l.current_league
@@ -68,6 +69,7 @@ WHERE item_id IS NOT NULL
                    l.short_name,
                    l.base_currency_item_id,
                    ci.api_id AS base_currency_api_id,
+                   ci.base_item_type_id AS base_currency_base_item_type_id,
                    ci.text AS base_currency_text,
                    ci.icon_url AS base_currency_icon_url,
                    l.current_league
@@ -89,6 +91,7 @@ WHERE item_id IS NOT NULL
                    l.short_name,
                    l.base_currency_item_id,
                    ci.api_id AS base_currency_api_id,
+                   ci.base_item_type_id AS base_currency_base_item_type_id,
                    ci.text AS base_currency_text,
                    ci.icon_url AS base_currency_icon_url,
                    l.current_league
@@ -111,6 +114,7 @@ WHERE item_id IS NOT NULL
                    l.short_name,
                    l.base_currency_item_id,
                    ci.api_id AS base_currency_api_id,
+                   ci.base_item_type_id AS base_currency_base_item_type_id,
                    ci.text AS base_currency_text,
                    ci.icon_url AS base_currency_icon_url,
                    l.current_league

@@ -46,19 +46,27 @@ public static class GetByCategoryHandler
       return TypedResults.BadRequest("Invalid league.");
     }
 
-    var referenceCurrencyApiId = referenceCurrency ?? league.BaseCurrencyApiId;
-    var referenceCurrencyItem = await currencyItemRepository.GetCurrencyItem(referenceCurrencyApiId, validatedRealm.GameId);
+    var referenceCurrencyIdentifier = referenceCurrency
+                                      ?? league.BaseCurrencyApiId
+                                      ?? league.BaseCurrencyBaseItemTypeId
+                                      ?? throw new Exception();
+    var referenceCurrencyItem = await currencyItemRepository.GetCurrencyItem(
+      referenceCurrencyIdentifier,
+      validatedRealm.GameId);
     if (referenceCurrencyItem is null)
     {
       return TypedResults.BadRequest("Invalid reference currency.");
     }
+    referenceCurrencyIdentifier = referenceCurrencyItem.ApiId
+                                  ?? referenceCurrencyItem.BaseItemTypeId
+                                  ?? throw new Exception();
 
     var items = await economyCache.GetUniquePage(
       league.LeagueId,
       validatedRealm.RealmId,
       validatedRealm.GameId,
       category,
-      referenceCurrencyApiId,
+      referenceCurrencyIdentifier,
       dataPoints,
       frequencyHours,
       search);

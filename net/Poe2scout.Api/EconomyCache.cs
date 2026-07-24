@@ -55,7 +55,11 @@ public class EconomyCache(
 
     if (!string.IsNullOrEmpty(search))
     {
-      result = result.Where(i => i.Text == search).ToList();
+      result = result
+        .Where(item =>
+          string.Equals(item.ApiId ?? item.BaseItemTypeId, search, StringComparison.Ordinal)
+          || string.Equals(item.Text, search, StringComparison.Ordinal))
+        .ToList();
     }
 
     return result;
@@ -266,6 +270,7 @@ public class EconomyCache(
           item.ItemId,
           item.CurrencyCategoryId,
           item.ApiId,
+          item.BaseItemTypeId,
           item.Text,
           item.CategoryApiId,
           item.IconUrl,

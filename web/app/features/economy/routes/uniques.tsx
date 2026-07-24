@@ -16,6 +16,7 @@ import {
   getLeagueContextTitle,
 } from "~/shared/meta/page-title";
 import { getEconomyItemRouteSegment } from "../utils";
+import { getLeagueBaseCurrencyIdentifier } from "~/features/league/currency-identifier";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: ({ params }) => ({
@@ -88,7 +89,7 @@ export default function UniqueCategory({
     }),
   );
   const referenceCurrency =
-    loaderData.referenceCurrency ?? league.baseCurrencyApiId;
+    loaderData.referenceCurrency ?? getLeagueBaseCurrencyIdentifier(league);
   const columns = getEconomyTableColumns({
     realm,
     league,

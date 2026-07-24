@@ -240,6 +240,7 @@ public sealed class ItemSyncWorker(
               itemId,
               categoryId,
               currency.Id!,
+              null,
               currency.Text!,
               imageUrl));
           if (!createResult.Ok)

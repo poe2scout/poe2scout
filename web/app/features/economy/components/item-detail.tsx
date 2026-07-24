@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import type { League, LeagueCurrency, Realm } from "~/features/league/types";
+import { getLeagueCurrencyIdentifier } from "~/features/league/currency-identifier";
 import { queryClient } from "~/shared/api/query-client";
 import SelectField from "~/shared/components/select";
 import { getNextHourEndTime } from "~/shared/utils/chart-cursor";
@@ -636,7 +637,7 @@ function getMetadataSubtitle(
 
 function getReferenceCurrencyOptions(referenceCurrencies: LeagueCurrency[]) {
   return referenceCurrencies.map((currency) => ({
-    apiId: currency.apiId,
+    apiId: getLeagueCurrencyIdentifier(currency),
     label: currency.text,
   }));
 }
@@ -650,7 +651,7 @@ function getValidReferenceCurrency(
     (option) => option.apiId === apiId,
   )
     ? apiId
-    : league.defaultCurrency.apiId;
+    : getLeagueCurrencyIdentifier(league.defaultCurrency);
 }
 
 function getCurrencyLabel(

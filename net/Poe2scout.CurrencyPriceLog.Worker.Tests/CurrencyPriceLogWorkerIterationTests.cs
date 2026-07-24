@@ -67,13 +67,15 @@ public class CurrencyPriceLogWorkerIterationTests
   }
 
   [Fact]
-  public async Task EmptyMarketAdvancesCacheWithoutLoadingRealmData()
+  public async Task EmptyMarketAdvancesCacheAfterRequiredMappingPreflight()
   {
     var fixture = new WorkerFixture(new CurrencyExchangeResponse(5000, []));
 
     await fixture.Worker.RunIteration(CancellationToken.None);
 
-    fixture.Leagues.Verify(repository => repository.GetLeagues(It.IsAny<int>()), Times.Never);
+    fixture.CurrencyItems.Verify(
+      repository => repository.GetAllCurrencyItems(It.IsAny<int>()),
+      Times.Never);
     fixture.Services.Verify(
       repository => repository.SetServiceCacheValue("PriceFetch_Currency", fixture.CurrentEpoch),
       Times.Once);
@@ -160,7 +162,7 @@ public class CurrencyPriceLogWorkerIterationTests
       Client.Setup(client => client.GetSnapshot("pc", CurrentEpoch, It.IsAny<CancellationToken>()))
         .ReturnsAsync(response);
       Leagues.Setup(repository => repository.GetLeagues(1)).ReturnsAsync([CurrencyPriceCalculatorTests.League()]);
-      CurrencyItems.Setup(repository => repository.GetAllCurrencyItems(1)).ReturnsAsync(
+      CurrencyItems.Setup(repository => repository.GetAllCurrencyItemsWithBaseId(1)).ReturnsAsync(
       [
         Item(100, "exalted"),
         Item(101, "chaos"),
@@ -187,7 +189,7 @@ public class CurrencyPriceLogWorkerIterationTests
         new CurrencyPriceLogDiagnostics(factory, new Logger<CurrencyPriceLogDiagnostics>(new LoggerFactory()), TestConfig.Create()));
     }
 
-    private static CurrencyItem Item(int itemId, string apiId)
+    private static CurrencyItemWithBaseId Item(int itemId, string apiId)
       => new(itemId, itemId, 1, apiId, apiId, "currency", null, null);
   }
 }

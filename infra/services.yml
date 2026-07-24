@@ -13,8 +13,16 @@ services:
       GrafanaApiToken: ${GRAFANA_API_TOKEN}
       GrafanaEndpoint: ${GRAFANA_ENDPOINT}
       GrafanaInstanceId: ${GRAFANA_INSTANCE_ID}
-      PoeApiClientId: ${POEAPI_CLIENT_ID}
-      PoeApiClientSecret: ${POEAPI_CLIENT_SECRET}
+
+  currency-item-mapping-service:
+    image: ghcr.io/poe2scout/poe2scout-currency-item-mapping:${IMAGE_TAG:-release}
+    restart: always
+    environment:
+      DbConnectionString: ${DB_CONNECTION_STRING}
+      ApplyChanges: ${CURRENCY_MAPPING_APPLY_CHANGES:-false}
+      ApplyCommandTimeoutSeconds: 900
+      PollIntervalMinutes: 60
+      RePoeRefreshHours: 24
 
   unique-price-log-service:
     image: ghcr.io/poe2scout/poe2scout-unique-price-log:${IMAGE_TAG:-release}
@@ -33,8 +41,6 @@ services:
       GrafanaApiToken: ${GRAFANA_API_TOKEN}
       GrafanaEndpoint: ${GRAFANA_ENDPOINT}
       GrafanaInstanceId: ${GRAFANA_INSTANCE_ID}
-      PoeApiClientId: ${POEAPI_CLIENT_ID}
-      PoeApiClientSecret: ${POEAPI_CLIENT_SECRET}
 
 networks:
   default:

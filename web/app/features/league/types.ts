@@ -1,5 +1,6 @@
 export interface LeagueCurrency {
-  apiId: string;
+  apiId: string | null;
+  baseItemTypeId: string | null;
   text: string;
   iconUrl: string | null;
   relativePrice: number;
@@ -11,7 +12,8 @@ export interface League {
   isCurrent: boolean;
   divinePrice: number;
   chaosDivinePrice: number;
-  baseCurrencyApiId: string;
+  baseCurrencyApiId: string | null;
+  baseCurrencyBaseItemTypeId: string | null;
   baseCurrencyText: string;
   baseCurrencyIconUrl: string | null;
   exaltedCurrencyText: string;

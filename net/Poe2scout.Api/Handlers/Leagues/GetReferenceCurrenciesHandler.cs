@@ -41,6 +41,7 @@ public static class GetReferenceCurrenciesHandler
       new(
         league.BaseCurrencyItemId,
         league.BaseCurrencyApiId,
+        league.BaseCurrencyBaseItemTypeId,
         league.BaseCurrencyText,
         league.BaseCurrencyIconUrl)
     };
@@ -59,6 +60,7 @@ public static class GetReferenceCurrenciesHandler
     return TypedResults.Ok(baseCurrencies
       .Select(currency => new ReferenceCurrency(
         currency.ApiId,
+        currency.BaseItemTypeId,
         currency.Text,
         currency.IconUrl,
         currency.ItemId == league.BaseCurrencyItemId
@@ -69,19 +71,22 @@ public static class GetReferenceCurrenciesHandler
 
   private record BaseCurrency(
     int ItemId,
-    string ApiId,
+    string? ApiId,
+    string? BaseItemTypeId,
     string Text,
     string? IconUrl)
   {
     public BaseCurrency(BridgeCurrency currency) : this(
       currency.ItemId,
       currency.ApiId,
+      currency.BaseItemTypeId,
       currency.Text,
       currency.IconUrl) {}
   }
 
   public record ReferenceCurrency(
-    string ApiId,
+    string? ApiId,
+    string? BaseItemTypeId,
     string Text,
     string? IconUrl,
     double RelativePrice);

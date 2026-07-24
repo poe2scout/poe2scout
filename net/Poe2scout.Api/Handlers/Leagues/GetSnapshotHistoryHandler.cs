@@ -44,19 +44,26 @@ public static class GetSnapshotHistoryHandler
     return TypedResults.Ok(new GetSnapshotHistoryResponse(
       snapshotHistory,
       league.BaseCurrencyApiId,
+      league.BaseCurrencyBaseItemTypeId,
       league.BaseCurrencyText));
   }
 
   public record GetSnapshotHistoryResponse(
     IEnumerable<GetSnapshotHistoryResponse.DataModel> Data,
     GetSnapshotHistoryResponse.MetaModel Meta,
-    string BaseCurrencyApiId,
+    string? BaseCurrencyApiId,
+    string? BaseCurrencyBaseItemTypeId,
     string BaseCurrencyText)
   {
-    public GetSnapshotHistoryResponse(CurrencyExchangeHistory model, string baseCurrencyApiId, string baseCurrencyText) : this(
+    public GetSnapshotHistoryResponse(
+      CurrencyExchangeHistory model,
+      string? baseCurrencyApiId,
+      string? baseCurrencyBaseItemTypeId,
+      string baseCurrencyText) : this(
       model.Data.Select(data => new DataModel(data)),
       new MetaModel(model.Meta.GetValueOrDefault("has_more", false)),
       baseCurrencyApiId,
+      baseCurrencyBaseItemTypeId,
       baseCurrencyText) {}
 
     public record DataModel(int Epoch, decimal MarketCap, decimal Volume)
