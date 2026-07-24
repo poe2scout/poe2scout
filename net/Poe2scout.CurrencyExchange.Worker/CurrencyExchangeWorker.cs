@@ -1,7 +1,7 @@
+using Poe2scout.Models;
 using Poe2scout.Repositories.CurrencyExchange;
 using Poe2scout.Repositories.CurrencyExchange.Models;
 using Poe2scout.Repositories.CurrencyItem;
-using Poe2scout.Repositories.League.Models;
 using Poe2scout.Repositories.League;
 using Poe2scout.Repositories.PriceLog;
 using Poe2scout.Repositories.PriceLog.Models;
@@ -12,7 +12,6 @@ using Poe2scout.Repositories.Service;
 namespace Poe2scout.CurrencyExchange.Worker;
 
 public sealed class CurrencyExchangeWorker(
-  CurrencyExchangeConfig config,
   ICurrencyExchangeClient client,
   IServiceRepository serviceRepository,
   IRealmRepository realmRepository,
@@ -51,29 +50,30 @@ public sealed class CurrencyExchangeWorker(
 
   public async Task RunIteration(CancellationToken cancellationToken)
   {
-    var lastExchange = await serviceRepository.GetServiceCacheValue(ExchangeCacheKey);
+    var lastExchange = await serviceRepository.GetServiceCacheValue(ExchangeCacheKey)
+                       ?? throw new InvalidOperationException(
+                         $"Missing service cache value: {ExchangeCacheKey}");
     var lastPriceFetch = await serviceRepository.GetServiceCacheValue(PriceFetchCacheKey)
                          ?? throw new InvalidOperationException(
                            $"Missing service cache value: {PriceFetchCacheKey}");
 
-    if (lastExchange is not null && lastPriceFetch.Value <= lastExchange.Value)
+    if (lastPriceFetch.Value <= lastExchange.Value)
     {
       await Delay(PriceFetchWait, cancellationToken);
       return;
     }
 
-    var timeToFetch = lastExchange?.Value + 60 * 60;
-
-    if (timeToFetch is not null)
-    {
-      var currentEpoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-      var delaySeconds = Math.Max(timeToFetch.Value + 60 * 5 - currentEpoch, 0);
-      await Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
-    }
+    var timeToFetch = lastExchange.Value + 60 * 60;
+    var currentEpoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    var delaySeconds = Math.Max(timeToFetch + 60 * 5 - currentEpoch, 0);
+    await Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
 
     var realms = await realmRepository.GetRealms();
     var nextChangeIds = await Task.WhenAll(
-      realms.Select(realm => ProcessRealmSnapshot(realm, timeToFetch, cancellationToken)));
+      realms.Select(realm => ProcessRealmSnapshot(
+        realm,
+        timeToFetch,
+        cancellationToken)));
 
     if (nextChangeIds.Any(nextChangeId => nextChangeId is null))
     {
@@ -84,7 +84,7 @@ public sealed class CurrencyExchangeWorker(
                        ?? throw new InvalidOperationException("No realm snapshot was returned.");
     await serviceRepository.SetServiceCacheValue(
       ExchangeCacheKey,
-      checked(nextChangeId - 60 * 60));
+      nextChangeId - 60 * 60);
     await currencyExchangeRepository.UpdatePairHistories();
   }
 
@@ -94,7 +94,7 @@ public sealed class CurrencyExchangeWorker(
     CancellationToken cancellationToken)
   {
     var data = await client.GetSnapshot(realm.ApiId, timeToFetch, cancellationToken);
-    var targetEpoch = checked(data.NextChangeId - 60 * 60);
+    var targetEpoch = data.NextChangeId - 60 * 60;
     var targetTime = DateTimeOffset.FromUnixTimeSeconds(targetEpoch).LocalDateTime;
 
     if (!await serviceRepository.GetCurrencyFetchStatus(targetTime))
@@ -104,6 +104,7 @@ public sealed class CurrencyExchangeWorker(
     }
 
     var leagues = await leagueRepository.GetLeagues(realm.GameId);
+
     var existingSnapshotLeagueIds = (await currencyExchangeRepository.GetExistingSnapshotLeagueIds(
       targetEpoch,
       realm.RealmId)).ToHashSet();
@@ -116,10 +117,22 @@ public sealed class CurrencyExchangeWorker(
       return data.NextChangeId;
     }
 
-    var currencies = await currencyItemRepository.GetAllCurrencyItems(realm.GameId);
-    var currencyLookup = currencies.ToDictionary(currency => currency.ApiId);
+    var currencyLookup = (await currencyItemRepository.GetAllCurrencyItemsWithBaseId(realm.GameId))
+      .ToDictionary(x => x.BaseItemTypeId, x => x);
+
+    var unknownBaseIds = data.Markets
+      .SelectMany(market => market.MarketPair)
+      .Where(baseId => !currencyLookup.ContainsKey(baseId))
+      .Distinct(StringComparer.Ordinal)
+      .ToList();
+
+    if (unknownBaseIds.Count != 0)
+    {
+      diagnostics.RecordUnknownBaseIds(targetEpoch, realm.RealmId, unknownBaseIds);
+    }
+    
     var leaguePrices = new Dictionary<int, IReadOnlyList<ItemPriceInRange>>();
-    var currencyItemIds = currencies.Select(currency => currency.ItemId).ToList();
+    var currencyItemIds = currencyLookup.Values.Select(currency => currency.ItemId).ToList();
 
     foreach (var league in leagues)
     {
@@ -143,9 +156,8 @@ public sealed class CurrencyExchangeWorker(
       var snapshotPairs = new List<CurrencyExchangeSnapshotPair>();
       foreach (var pair in data.Markets.Where(pair => pair.League == league.Value))
       {
-        var pairCurrencies = pair.MarketId.Split('|');
-        if (!currencyLookup.TryGetValue(pairCurrencies[0], out var currencyOne)
-            || !currencyLookup.TryGetValue(pairCurrencies[1], out var currencyTwo))
+        if (!currencyLookup.TryGetValue(pair.MarketPair[0], out var currencyOne)
+            || !currencyLookup.TryGetValue(pair.MarketPair[1], out var currencyTwo))
         {
           continue;
         }
@@ -195,19 +207,19 @@ public sealed class CurrencyExchangeWorker(
   }
 
   private static CurrencyExchangeSnapshotPairData GetPairData(
-    Poe2scout.Models.CurrencyItem currency,
-    IReadOnlyDictionary<int, ItemPriceInRange> priceLookup,
+    CurrencyItemWithBaseId currency,
+    Dictionary<int, ItemPriceInRange> priceLookup,
     TradingPair pair,
-    Poe2scout.Models.CurrencyItem otherCurrency)
+    CurrencyItemWithBaseId otherCurrency)
   {
     var currencyPrice = priceLookup[currency.ItemId];
-    var volumeTraded = pair.VolumeTraded[currency.ApiId];
+    var volumeTraded = pair.VolumeTraded[currency.BaseItemTypeId];
     var valueTraded = volumeTraded * currencyPrice.Price;
     var relativePrice = volumeTraded == 0
       ? 0
-      : (double)pair.VolumeTraded[otherCurrency.ApiId] / volumeTraded
+      : (double)pair.VolumeTraded[otherCurrency.BaseItemTypeId] / volumeTraded
         * priceLookup[otherCurrency.ItemId].Price;
-    var highestStock = pair.HighestStock[currency.ApiId];
+    var highestStock = pair.HighestStock[currency.BaseItemTypeId];
 
     return new CurrencyExchangeSnapshotPairData(
       (decimal)valueTraded,

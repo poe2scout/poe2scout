@@ -40,8 +40,15 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
       }
 
       const string insertQuery = """
-            INSERT INTO currency_item (item_id, item_category_id, api_id, text, icon_url)
-            VALUES (@ItemId, @ItemCategoryId, @ApiId, @Text, @Image)
+            INSERT INTO currency_item (
+                item_id,
+                item_category_id,
+                api_id,
+                base_item_type_id,
+                text,
+                icon_url
+            )
+            VALUES (@ItemId, @ItemCategoryId, @ApiId, @BaseItemTypeId, @Text, @Image)
             RETURNING currency_item_id
 """;
 
@@ -71,6 +78,7 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
                  , ci.item_id
                  , ci.item_category_id AS currency_category_id
                  , ci.api_id
+                 , ci.base_item_type_id
                  , ci.text
                  , cc.api_id as category_api_id
                  , ci.icon_url
@@ -84,6 +92,31 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
 
       return (await connection.QueryAsync<Poe2scout.Models.CurrencyItem>(query, new { GameId = gameId })).AsList();
     });
+  
+  public async Task<IReadOnlyList<Poe2scout.Models.CurrencyItemWithBaseId>> GetAllCurrencyItemsWithBaseId(int gameId)
+    => await WithConnection(async connection =>
+    {
+      const string query = @"
+   SELECT ci.currency_item_id
+        , ci.item_id
+        , ci.item_category_id AS currency_category_id
+        , ci.api_id
+        , ci.base_item_type_id
+        , ci.text
+        , cc.api_id as category_api_id
+        , ci.icon_url
+        , ci.item_metadata
+     FROM currency_item as ci
+     JOIN item_category as cc on ci.item_category_id = cc.item_category_id
+     JOIN item as i ON ci.item_id = i.item_id
+     JOIN base_item as bi ON bi.base_item_id = i.base_item_id
+    WHERE bi.game_id = @GameId
+      AND ci.base_item_type_id IS NOT NULL;
+";
+
+      return (await connection.QueryAsync<Poe2scout.Models.CurrencyItemWithBaseId>(query, new { GameId = gameId })).AsList();
+    });
+
 
   public async Task<IReadOnlyList<CategoryIcon>> GetCategoryIcons(int gameId)
     => await WithConnection(async connection =>
@@ -103,7 +136,7 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
       return (await connection.QueryAsync<CategoryIcon>(query, new { GameId = gameId })).AsList();
     });
 
-  public async Task<Poe2scout.Models.CurrencyItem?> GetCurrencyItem(string apiId, int gameId)
+  public async Task<Poe2scout.Models.CurrencyItem?> GetCurrencyItem(string identifier, int gameId)
     => await WithConnection(connection =>
     {
       const string query = """
@@ -111,6 +144,7 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
                 ci.item_id,
                 ci.item_category_id AS currency_category_id,
                 ci.api_id,
+                ci.base_item_type_id,
                 ci.text,
                 cc.api_id as category_api_id,
                 ci.icon_url,
@@ -119,13 +153,13 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
             JOIN item_category as cc on ci.item_category_id = cc.item_category_id
             JOIN item AS i ON i.item_id = ci.item_id
             JOIN base_item AS bi ON bi.base_item_id = i.base_item_id
-            WHERE ci.api_id = @ApiId
+            WHERE (ci.api_id = @Identifier OR ci.base_item_type_id = @Identifier)
               AND bi.game_id = @GameId
 """;
 
       return connection.QuerySingleOrDefaultAsync<Poe2scout.Models.CurrencyItem>(
         query,
-        new { ApiId = apiId, GameId = gameId });
+        new { Identifier = identifier, GameId = gameId });
     });
 
   public async Task<Poe2scout.Models.CurrencyItem> GetDivineItem(int gameId)
@@ -145,6 +179,7 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
                 ci.item_id,
                 ci.item_category_id AS currency_category_id,
                 ci.api_id,
+                ci.base_item_type_id,
                 ci.text,
                 cc.api_id AS category_api_id,
                 ci.icon_url,
@@ -162,7 +197,9 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
         new { ItemId = itemId, GameId = gameId });
     });
 
-  public async Task<IReadOnlyList<Poe2scout.Models.CurrencyItem>> GetCurrencyItems(List<string> apiIds, int gameId)
+  public async Task<IReadOnlyList<Poe2scout.Models.CurrencyItem>> GetCurrencyItems(
+    List<string> identifiers,
+    int gameId)
     => await WithConnection(async connection =>
     {
       const string query = """
@@ -170,6 +207,7 @@ SELECT ci.currency_item_id
     , ci.item_id
     , ci.item_category_id AS currency_category_id
     , ci.api_id
+    , ci.base_item_type_id
     , ci.text
     , cc.api_id AS category_api_id
     , ci.icon_url
@@ -178,13 +216,13 @@ FROM currency_item AS ci
 JOIN item_category AS cc ON ci.item_category_id = cc.item_category_id
 JOIN item AS i ON ci.item_id = i.item_id
 JOIN base_item AS bi ON i.base_item_id = bi.base_item_id
-WHERE ci.api_id = ANY(@ApiIds)
+WHERE (ci.api_id = ANY(@Identifiers) OR ci.base_item_type_id = ANY(@Identifiers))
   AND bi.game_id = @GameId
 """;
 
       return (await connection.QueryAsync<Poe2scout.Models.CurrencyItem>(
         query,
-        new { ApiIds = apiIds.ToArray(), GameId = gameId })).AsList();
+        new { Identifiers = identifiers.ToArray(), GameId = gameId })).AsList();
     });
 
   public async Task<IReadOnlyList<Poe2scout.Models.CurrencyItem>> GetCurrencyItemsByCategory(string category)
@@ -195,6 +233,7 @@ WHERE ci.api_id = ANY(@ApiIds)
                 , ci.item_id
                 , ci.item_category_id AS currency_category_id
                 , ci.api_id
+                , ci.base_item_type_id
                 , ci.text
                 , cc.api_id as category_api_id
                 , ci.icon_url
@@ -244,13 +283,14 @@ WHERE ci.api_id = ANY(@ApiIds)
     => await WithConnection(async connection =>
     {
       const string query = """
-            SELECT 1
-            FROM currency_item as ci
-            WHERE ci.item_id = @ItemId
+            SELECT EXISTS (
+                SELECT 1
+                  FROM currency_item AS ci
+                 WHERE ci.item_id = @ItemId
+            )
 """;
 
-      var rows = await connection.QueryAsync<int>(query, new { ItemId = itemId });
-      return rows.Count() == 1;
+      return await connection.QuerySingleAsync<bool>(query, new { ItemId = itemId });
     });
 
   public async Task SetCurrencyItemMetadata(Dictionary<string, object> itemMetadata, int currencyItemId)

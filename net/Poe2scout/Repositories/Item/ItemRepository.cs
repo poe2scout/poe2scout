@@ -193,7 +193,7 @@ public class ItemRepository(DbDataSource dbDataSource) : BaseRepository(dbDataSo
             SELECT
                 ci.text AS display_name,
                 cc.api_id AS category,
-                ci.text AS identifier,
+                COALESCE(ci.api_id, ci.base_item_type_id) AS identifier,
                 'currency' AS item_kind
             FROM currency_item ci
             JOIN item i ON ci.item_id = i.item_id

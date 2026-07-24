@@ -146,7 +146,13 @@ public class ItemSyncWorkerTests
         && model.ItemMetadata!["id"].Equals("exalted")
         && model.ItemMetadata["text"].Equals("Exalted Orb"))), Times.Once);
     fixture.CurrencyItems.Verify(repository => repository.CreateCurrencyItem(
-      new CreateCurrencyItemModel(5, 7, "exalted", "Exalted Orb", "https://web.poecdn.com/items/exalted.png")), Times.Once);
+      new CreateCurrencyItemModel(
+        5,
+        7,
+        "exalted",
+        null,
+        "Exalted Orb",
+        "https://web.poecdn.com/items/exalted.png")), Times.Once);
   }
 
   [Fact]

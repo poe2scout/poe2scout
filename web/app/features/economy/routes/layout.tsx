@@ -14,6 +14,7 @@ import getReferenceCurrenciesQueryOptions from "~/features/league/queries/refere
 import { useLeagueContext } from "~/features/league/context";
 import ReferenceCurrencySelect from "../components/reference-currency-select";
 import SelectField from "~/shared/components/select";
+import { getLeagueCurrencyIdentifier } from "~/features/league/currency-identifier";
 
 const routeKindByItemKind: Record<
   Filter["itemKind"],
@@ -65,14 +66,18 @@ export default function EconomyLayout({
   const currentSearchParams = new URLSearchParams(location.search);
   const activeSearchValue = currentSearchParams.get("search") ?? "";
   const referenceCurrencyParam = currentSearchParams.get("referenceCurrency");
+  const defaultCurrencyIdentifier = getLeagueCurrencyIdentifier(
+    league.defaultCurrency,
+  );
   const selectedReferenceCurrency =
-    referenceCurrencyParam ?? league.defaultCurrency.apiId;
+    referenceCurrencyParam ?? defaultCurrencyIdentifier;
   const categoryQuery = getCategoryQuery(location.search);
   const validReferenceCurrency = loaderData.referenceCurrencies.some(
-    (currency) => currency.apiId === selectedReferenceCurrency,
+    (currency) =>
+      getLeagueCurrencyIdentifier(currency) === selectedReferenceCurrency,
   )
     ? selectedReferenceCurrency
-    : league.defaultCurrency.apiId;
+    : defaultCurrencyIdentifier;
   const currencyCategoryOptions = loaderData.currencyCategories.map(
     (category) => ({
       ...category,

@@ -17,8 +17,6 @@ public class CurrencyExchangeWorkerTests
     var config = TestConfig.Create(7, 77);
 
     Assert.Equal("Host=test", config.DbConnectionString);
-    Assert.Equal("client-id", config.PoeApiClientId);
-    Assert.Equal("client-secret", config.PoeApiClientSecret);
   }
 
   [Fact]
@@ -52,29 +50,17 @@ public class CurrencyExchangeWorkerTests
   }
 
   [Fact]
-  public async Task RequestsAnInitialSnapshotWithoutAnEpochWhenExchangeCacheIsMissing()
+  public async Task MissingExchangeCursorFailsBeforeRequestingCdn()
   {
     var fixture = new WorkerFixture();
     fixture.Services.Setup(repository => repository.GetServiceCacheValue("CurrencyExchange"))
       .ReturnsAsync((ServiceCacheValue?)null);
-    fixture.Client.Reset();
-    fixture.Client.Setup(client => client.GetSnapshot(
-        "pc",
-        null,
-        It.IsAny<CancellationToken>()))
-      .ReturnsAsync(new CurrencyExchangeResponse(
-        fixture.CurrentEpoch + 3600,
-        [Pair("exalted|chaos", 10, 100, 5, 20)]));
 
-    await fixture.Worker.RunIteration(CancellationToken.None);
+    var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+      () => fixture.Worker.RunIteration(CancellationToken.None));
 
-    fixture.Client.Verify(client => client.GetSnapshot(
-      "pc",
-      null,
-      It.IsAny<CancellationToken>()), Times.Once);
-    fixture.Services.Verify(
-      repository => repository.SetServiceCacheValue("CurrencyExchange", fixture.CurrentEpoch),
-      Times.Once);
+    Assert.Contains("CurrencyExchange", exception.Message);
+    fixture.Client.VerifyNoOtherCalls();
   }
 
   [Fact]
@@ -239,23 +225,85 @@ public class CurrencyExchangeWorkerTests
     fixture.Exchange.Verify(repository => repository.UpdatePairHistories(), Times.Never);
   }
 
+  [Fact]
+  public async Task MissingRequiredBridgeBaseIdFailsIteration()
+  {
+    var fixture = new WorkerFixture();
+    fixture.Games.Setup(repository => repository.GetBridgeCurrencies(1)).ReturnsAsync(
+    [
+      new Poe2scout.Repositories.Game.Models.BridgeCurrency(
+        101,
+        101,
+        "chaos",
+        null,
+        "Chaos Orb",
+        null,
+        1)
+    ]);
+
+    var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+      () => fixture.Worker.RunIteration(CancellationToken.None));
+
+    Assert.Contains("missing a base item type ID", exception.Message);
+    fixture.Exchange.Verify(
+      repository => repository.CreateSnapshot(It.IsAny<CurrencyExchangeSnapshot>()),
+      Times.Never);
+  }
+
+  [Fact]
+  public async Task MissingRequiredLeagueBaseIdFailsBeforeRequestingCdn()
+  {
+    var fixture = new WorkerFixture();
+    fixture.Leagues.Setup(repository => repository.GetLeagues(1)).ReturnsAsync(
+    [
+      new Poe2scout.Repositories.League.Models.League(
+        1,
+        "Test League",
+        "Test",
+        100,
+        "exalted",
+        null,
+        "Exalted Orb",
+        null,
+        true)
+    ]);
+
+    var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+      () => fixture.Worker.RunIteration(CancellationToken.None));
+
+    Assert.Contains("missing a base item type ID", exception.Message);
+    fixture.Client.VerifyNoOtherCalls();
+  }
+
   public static TradingPair Pair(
     string marketId,
     int currencyOneVolume,
     int currencyTwoVolume,
     int currencyOneStock,
     int currencyTwoStock)
-    => new(
+  {
+    var legacyParts = marketId.Split('|');
+    var baseIds = legacyParts
+      .Select(part => part switch
+      {
+        "exalted" => "Metadata/Items/Currency/ExaltedOrb",
+        "chaos" => "Metadata/Items/Currency/CurrencyRerollRare",
+        _ => $"Metadata/Items/Currency/{part}"
+      })
+      .ToList();
+    return new TradingPair(
       "Test League",
       marketId,
+      baseIds,
       new Dictionary<string, int>
       {
-        [marketId.Split('|')[0]] = currencyOneVolume,
-        [marketId.Split('|')[1]] = currencyTwoVolume
+        [baseIds[0]] = currencyOneVolume,
+        [baseIds[1]] = currencyTwoVolume
       },
       new Dictionary<string, int>
       {
-        [marketId.Split('|')[0]] = currencyOneStock,
-        [marketId.Split('|')[1]] = currencyTwoStock
+        [baseIds[0]] = currencyOneStock,
+        [baseIds[1]] = currencyTwoStock
       });
+  }
 }

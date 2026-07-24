@@ -7,11 +7,10 @@ namespace Poe2scout.CurrencyExchange.Worker.Tests;
 public class CurrencyExchangeClientTests
 {
   [Fact]
-  public async Task AcquiresAndCachesTokenAndBuildsRealmUrlsWithAndWithoutEpoch()
+  public async Task BuildsCdnRealmUrlsWithoutOAuth()
   {
     var handler = new QueueHandler(
     [
-      _ => Json(HttpStatusCode.OK, """{"access_token":"token-one"}"""),
       _ => Json(HttpStatusCode.OK, SnapshotJson),
       _ => Json(HttpStatusCode.OK, SnapshotJson),
       _ => Json(HttpStatusCode.OK, SnapshotJson)
@@ -22,37 +21,34 @@ public class CurrencyExchangeClientTests
     await client.GetSnapshot("pc", 123, CancellationToken.None);
     await client.GetSnapshot("xbox", 456, CancellationToken.None);
 
-    Assert.Equal("https://www.pathofexile.com/oauth/token", handler.Requests[0].Url);
-    Assert.Contains("grant_type=client_credentials", handler.Requests[0].Body);
-    Assert.Contains("scope=service%3Acxapi", handler.Requests[0].Body);
-    Assert.Equal("https://www.pathofexile.com/api/currency-exchange", handler.Requests[1].Url);
-    Assert.Equal("https://www.pathofexile.com/api/currency-exchange/123", handler.Requests[2].Url);
-    Assert.Equal("https://www.pathofexile.com/api/currency-exchange/xbox/456", handler.Requests[3].Url);
-    Assert.Equal(1, handler.Requests.Count(request => request.Url.EndsWith("/oauth/token")));
-    Assert.All(handler.Requests.Skip(1), request =>
+    Assert.Equal("https://web.poecdn.com/api/currency-exchange", handler.Requests[0].Url);
+    Assert.Equal("https://web.poecdn.com/api/currency-exchange/123", handler.Requests[1].Url);
+    Assert.Equal("https://web.poecdn.com/api/currency-exchange/xbox/456", handler.Requests[2].Url);
+    Assert.DoesNotContain(handler.Requests, request => request.Url.Contains("oauth"));
+    Assert.All(handler.Requests, request =>
     {
-      Assert.Equal("Bearer token-one", request.Authorization);
-      Assert.Equal("OAuth client-id/1.0.0 (contact: b@girardet.co.nz)", request.UserAgent);
+      Assert.Null(request.Authorization);
+      Assert.Equal("Poe2scout/1.0.0 (contact: b@girardet.co.nz)", request.UserAgent);
     });
   }
 
   [Fact]
-  public async Task RefreshesTokenAfterUnauthorizedResponse()
+  public async Task RejectsMalformedMarketPair()
   {
     var handler = new QueueHandler(
     [
-      _ => Json(HttpStatusCode.OK, """{"access_token":"token-one"}"""),
-      _ => new HttpResponseMessage(HttpStatusCode.Unauthorized),
-      _ => Json(HttpStatusCode.OK, """{"access_token":"token-two"}"""),
-      _ => Json(HttpStatusCode.OK, SnapshotJson)
+      _ => Json(HttpStatusCode.OK, SnapshotJson.Replace(
+        """
+        "market_pair": ["Metadata/Items/Currency/ExaltedOrb", "Metadata/Items/Currency/CurrencyRerollRare"]
+        """,
+        """
+        "market_pair": ["Metadata/Items/Currency/ExaltedOrb"]
+        """))
     ]);
     var client = CreateClient(handler);
 
-    await client.GetSnapshot("pc", 123, CancellationToken.None);
-
-    Assert.Equal("Bearer token-one", handler.Requests[1].Authorization);
-    Assert.Equal("Bearer token-two", handler.Requests[3].Authorization);
-    Assert.Equal(2, handler.Requests.Count(request => request.Url.EndsWith("/oauth/token")));
+    await Assert.ThrowsAsync<System.Text.Json.JsonException>(
+      () => client.GetSnapshot("pc", 123, CancellationToken.None));
   }
 
   [Theory]
@@ -63,7 +59,6 @@ public class CurrencyExchangeClientTests
   {
     var handler = new QueueHandler(
     [
-      _ => Json(HttpStatusCode.OK, """{"access_token":"token"}"""),
       _ => new HttpResponseMessage(statusCode)
     ]);
     var client = CreateClient(handler);
@@ -72,16 +67,13 @@ public class CurrencyExchangeClientTests
       () => client.GetSnapshot("pc", 123, CancellationToken.None));
 
     Assert.Equal(statusCode, exception.StatusCode);
-    Assert.Equal(2, handler.Requests.Count);
+    Assert.Single(handler.Requests);
   }
 
   [Fact]
   public async Task RetriesServiceUnavailableAndFailsAfterMaximumAttempts()
   {
-    var responses = new List<Func<RequestSnapshot, HttpResponseMessage>>
-    {
-      _ => Json(HttpStatusCode.OK, """{"access_token":"token"}""")
-    };
+    var responses = new List<Func<RequestSnapshot, HttpResponseMessage>>();
     responses.AddRange(Enumerable.Repeat<Func<RequestSnapshot, HttpResponseMessage>>(
       _ => new HttpResponseMessage(HttpStatusCode.ServiceUnavailable),
       5));
@@ -92,11 +84,11 @@ public class CurrencyExchangeClientTests
       () => client.GetSnapshot("pc", 123, CancellationToken.None));
 
     Assert.Equal(HttpStatusCode.ServiceUnavailable, exception.StatusCode);
-    Assert.Equal(6, handler.Requests.Count);
+    Assert.Equal(5, handler.Requests.Count);
   }
 
   private static PoeCurrencyExchangeClient CreateClient(QueueHandler handler)
-    => new(new HttpClient(handler), TestConfig.Create(), (_, _) => Task.CompletedTask);
+    => new(new HttpClient(handler), (_, _) => Task.CompletedTask);
 
   private static HttpResponseMessage Json(HttpStatusCode statusCode, string json)
     => new(statusCode)
@@ -111,8 +103,15 @@ public class CurrencyExchangeClientTests
         {
           "league": "Test League",
           "market_id": "exalted|chaos",
-          "volume_traded": { "exalted": 10, "chaos": 100 },
-          "highest_stock": { "exalted": 5, "chaos": 20 }
+          "market_pair": ["Metadata/Items/Currency/ExaltedOrb", "Metadata/Items/Currency/CurrencyRerollRare"],
+          "volume_traded": {
+            "Metadata/Items/Currency/ExaltedOrb": 10,
+            "Metadata/Items/Currency/CurrencyRerollRare": 100
+          },
+          "highest_stock": {
+            "Metadata/Items/Currency/ExaltedOrb": 5,
+            "Metadata/Items/Currency/CurrencyRerollRare": 20
+          }
         }
       ]
     }

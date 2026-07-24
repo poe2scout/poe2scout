@@ -78,6 +78,7 @@ public static class GetHandler
     string? Name,
     string? Type,
     string? ApiId,
+    string? BaseItemTypeId,
     double CurrentPrice,
     string? IconUrl)
   {
@@ -88,6 +89,7 @@ public static class GetHandler
       Name: null,
       Type: null,
       ApiId: ci.ApiId,
+      BaseItemTypeId: ci.BaseItemTypeId,
       CurrentPrice: p,
       IconUrl: ci.IconUrl) {}
     
@@ -98,6 +100,7 @@ public static class GetHandler
       Name: ui.Name,
       Type: ui.Type,
       ApiId: null,
+      BaseItemTypeId: null,
       CurrentPrice: p,
       IconUrl: ui.IconUrl) {}
   }

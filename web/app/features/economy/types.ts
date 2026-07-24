@@ -38,7 +38,8 @@ type EconomyItemBase = {
 export type CurrencyEconomyItem = EconomyItemBase & {
   currencyItemId: number;
   currencyCategoryId: number;
-  apiId: string;
+  apiId: string | null;
+  baseItemTypeId: string | null;
   text: string;
 };
 
@@ -66,6 +67,7 @@ export type ItemSummary = {
   name: string | null;
   type: string | null;
   apiId: string | null;
+  baseItemTypeId: string | null;
   currentPrice: number | null;
   iconUrl: string | null;
 };
@@ -88,6 +90,7 @@ export type DailyStatEntry = {
 export type ItemDailyStatsHistoryResponse = {
   dailyStats: DailyStatEntry[];
   hasMore: boolean;
-  baseCurrencyApiId: string;
+  baseCurrencyApiId: string | null;
+  baseCurrencyBaseItemTypeId: string | null;
   baseCurrencyText: string;
 };

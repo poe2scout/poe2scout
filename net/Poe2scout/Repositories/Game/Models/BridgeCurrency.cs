@@ -3,7 +3,8 @@ namespace Poe2scout.Repositories.Game.Models;
 public record BridgeCurrency(
   int ItemId,
   int CurrencyItemId,
-  string ApiId,
+  string? ApiId,
+  string? BaseItemTypeId,
   string Text,
   string? IconUrl,
   int BridgeRank);

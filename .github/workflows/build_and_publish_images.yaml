@@ -33,6 +33,9 @@ jobs:
           - image: poe2scout-currency-exchange
             context: ./net
             dockerfile: ./net/Poe2scout.CurrencyExchange.Worker/Dockerfile
+          - image: poe2scout-currency-item-mapping
+            context: ./net
+            dockerfile: ./net/Poe2scout.CurrencyItemMapping.Worker/Dockerfile
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -61,7 +64,6 @@ jobs:
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
-          build-args: ${{ matrix.build_args || '' }}
           push: true
           tags: |
             ${{ env.REGISTRY }}/poe2scout/${{ matrix.image }}:${{ steps.image-tag.outputs.alias_tag }}

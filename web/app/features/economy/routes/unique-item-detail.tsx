@@ -16,6 +16,7 @@ import {
   getItemTitle,
   getLeagueContextTitle,
 } from "~/shared/meta/page-title";
+import { getLeagueCurrencyIdentifier } from "~/features/league/currency-identifier";
 
 export const handle: BreadcrumbHandle = {
   breadcrumb: ({ data, params }) => ({
@@ -74,7 +75,8 @@ export async function clientLoader({
   }
 
   const referenceCurrency =
-    referenceCurrencyParam ?? league.defaultCurrency.apiId;
+    referenceCurrencyParam ??
+    getLeagueCurrencyIdentifier(league.defaultCurrency);
 
   return { item, chartMode, referenceCurrency, referenceCurrencies };
 }

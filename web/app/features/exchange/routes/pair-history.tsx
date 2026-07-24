@@ -7,6 +7,7 @@ import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 import { findLeagueByRouteId } from "~/features/league/route-id";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 import type { LeagueCurrency } from "~/features/league/types";
+import { getLeagueCurrencyIdentifier } from "~/features/league/currency-identifier";
 import { queryClient } from "~/shared/api/query-client";
 import SelectField from "~/shared/components/select";
 import { getNextHourEndEpoch } from "~/shared/utils/chart-cursor";
@@ -547,7 +548,7 @@ function prependUniqueHistory(
 }
 
 function getBaseCurrencyApiIds(referenceCurrencies: LeagueCurrency[]) {
-  return referenceCurrencies.map((currency) => currency.apiId);
+  return referenceCurrencies.map(getLeagueCurrencyIdentifier);
 }
 
 function getStatePair(state: unknown) {

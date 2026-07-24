@@ -14,6 +14,15 @@ on:
         description: Image tag to deploy
         required: false
         default: release
+      currency_cutover_stage:
+        description: Currency CDN rollout stage (use price, verify an hour, then exchange)
+        required: true
+        type: choice
+        default: none
+        options:
+          - none
+          - price
+          - exchange
 
 env:
   DEPLOY_ROOT: /opt/poe2scout/services
@@ -39,6 +48,23 @@ jobs:
             echo "IMAGE_TAG=release" >> "$GITHUB_ENV"
           fi
 
+      - name: Set currency cutover stage
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            stage="${{ inputs.currency_cutover_stage }}"
+          else
+            stage="${{ vars.CURRENCY_CUTOVER_STAGE }}"
+          fi
+          stage="${stage:-none}"
+          case "$stage" in
+            none|price|exchange) ;;
+            *)
+              echo "Invalid currency cutover stage: $stage" >&2
+              exit 1
+              ;;
+          esac
+          echo "CURRENCY_CUTOVER_STAGE=$stage" >> "$GITHUB_ENV"
+
       - name: Check out repository
         uses: actions/checkout@v4
         with:
@@ -57,8 +83,7 @@ jobs:
           GRAFANA_API_TOKEN=${{ secrets.GRAFANA_API_TOKEN }}
           GRAFANA_ENDPOINT=${{ secrets.GRAFANA_ENDPOINT }}
           GRAFANA_INSTANCE_ID=${{ secrets.GRAFANA_INSTANCE_ID }}
-          POEAPI_CLIENT_ID=${{ secrets.POEAPI_CLIENT_ID }}
-          POEAPI_CLIENT_SECRET=${{ secrets.POEAPI_CLIENT_SECRET }}
+          CURRENCY_MAPPING_APPLY_CHANGES=${{ vars.CURRENCY_MAPPING_APPLY_CHANGES || 'false' }}
           EOF
           printf 'IMAGE_TAG=%s\n' "${IMAGE_TAG}" >> .deploy.env
 
@@ -73,14 +98,27 @@ jobs:
 
       - name: Deploy services
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            bash -se -- "$CURRENCY_CUTOVER_STAGE" <<'REMOTE'
           set -euo pipefail
           export GHCR_USERNAME='${{ vars.GHCR_USERNAME || secrets.GHCR_USERNAME }}'
           export GHCR_TOKEN='${{ secrets.GHCR_READ_PACKAGES_TOKEN }}'
-          export DOCKER_CONFIG=\$(mktemp -d)
-          trap 'docker logout ghcr.io >/dev/null 2>&1 || true; rm -rf \"\$DOCKER_CONFIG\"' EXIT
-          echo \"\$GHCR_TOKEN\" | docker login ghcr.io -u \"\$GHCR_USERNAME\" --password-stdin
+          export DOCKER_CONFIG=$(mktemp -d)
+          trap 'docker logout ghcr.io >/dev/null 2>&1 || true; rm -rf "$DOCKER_CONFIG"' EXIT
+          echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
           cd ${{ env.DEPLOY_ROOT }}
           docker compose -p poe2scout-services -f infra/services.yml --env-file .env pull
-          docker compose -p poe2scout-services -f infra/services.yml --env-file .env up -d
-          "
+          docker compose -p poe2scout-services -f infra/services.yml --env-file .env up -d \
+            item-sync-service \
+            currency-item-mapping-service \
+            unique-price-log-service
+          stage="$1"
+          if [ "$stage" = price ] || [ "$stage" = exchange ]; then
+            docker compose -p poe2scout-services -f infra/services.yml --env-file .env up -d \
+              currency-price-log-service
+          fi
+          if [ "$stage" = exchange ]; then
+            docker compose -p poe2scout-services -f infra/services.yml --env-file .env up -d \
+              currency-exchange-service
+          fi
+          REMOTE

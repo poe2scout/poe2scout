@@ -54,6 +54,16 @@ public sealed partial class CurrencyPriceLogDiagnostics
     logger.LogError("{epoch} No markets found for {realmId}", epoch,  realmId);
   }
 
+  public void RecordUnknownBaseIds(int epoch, int realmId, IReadOnlyCollection<string> baseIds)
+  {
+    logger.LogWarning(
+      "{epoch} | Skipping {count} unknown CDN base item IDs for realm:{realmId}: {baseIds}",
+      epoch,
+      baseIds.Count,
+      realmId,
+      string.Join(", ", baseIds.Order(StringComparer.Ordinal)));
+  }
+
   [LoggerMessage(LogLevel.Information, "{epoch} | {count} logs recorded for realm:{realmId} league:{leagueId}")]
   partial void LogCount(int epoch, int count, int leagueId, int realmId);
 

@@ -23,6 +23,7 @@ import getLeaguesQueryOptions from "~/features/league/queries/leagues";
 import { findLeagueByRouteId } from "~/features/league/route-id";
 import getReferenceCurrenciesQueryOptions from "~/features/league/queries/reference-currencies";
 import type { LeagueCurrency } from "~/features/league/types";
+import { getLeagueCurrencyIdentifier } from "~/features/league/currency-identifier";
 import {
   createPageMeta,
   formatTitle,
@@ -228,7 +229,7 @@ function prependUniqueSnapshotHistory(
 }
 
 function getBaseCurrencyApiIds(referenceCurrencies: LeagueCurrency[]) {
-  return referenceCurrencies.map((currency) => currency.apiId);
+  return referenceCurrencies.map(getLeagueCurrencyIdentifier);
 }
 
 function getExchangeTableState(

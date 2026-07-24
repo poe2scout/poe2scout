@@ -39,7 +39,7 @@ export default function HeaderBreadcrumbs() {
     if (!hasBreadcrumbHandle(match.handle)) return [];
 
     const crumb = match.handle.breadcrumb({
-      data: match.data,
+      data: match.loaderData,
       params: match.params,
       pathname: match.pathname,
     });

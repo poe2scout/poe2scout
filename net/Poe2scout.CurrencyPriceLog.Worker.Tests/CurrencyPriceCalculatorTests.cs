@@ -168,12 +168,22 @@ public class CurrencyPriceCalculatorTests
     Assert.Equal(4004, prices.Count);
   }
 
-  internal static League League() => new(1, "Test League", "Test", 100, "exalted", "Exalted Orb", null, true);
-  internal static BridgeCurrency Bridge(string apiId, int rank) => new(rank, rank, apiId, apiId, null, rank);
+  internal static League League() => new(
+    1,
+    "Test League",
+    "Test",
+    100,
+    "exalted",
+    "exalted",
+    "Exalted Orb",
+    null,
+    true);
+  internal static BridgeCurrency Bridge(string apiId, int rank)
+    => new(rank, rank, apiId, apiId, apiId, null, rank);
   internal static PriceObservation Observation(string baseItem, string targetItem, double price, int quantity)
     => new(baseItem, targetItem, price, quantity);
   internal static TradingPair Pair(string marketId, Dictionary<string, int> volumes, string league = "Test League")
-    => new(league, marketId, volumes, []);
+    => new(league, marketId, marketId.Split('|').ToList(), volumes, volumes.Keys.ToDictionary(key => key, _ => 0));
 
   private static Dictionary<string, CurrencyPrice> Build(
     IReadOnlyList<PriceObservation> observations,

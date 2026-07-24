@@ -40,6 +40,7 @@ public static class GetSnapshotPairsHandler
       .Select(pair => new GetSnapshotPairsResponse(
         pair,
         league.BaseCurrencyApiId,
+        league.BaseCurrencyBaseItemTypeId,
         league.BaseCurrencyText))
       .ToList());
   }
@@ -48,18 +49,24 @@ public static class GetSnapshotPairsHandler
     int CurrencyExchangeSnapshotPairId,
     int CurrencyExchangeSnapshotId,
     decimal Volume,
-    string BaseCurrencyApiId,
+    string? BaseCurrencyApiId,
+    string? BaseCurrencyBaseItemTypeId,
     string BaseCurrencyText,
     GetSnapshotPairsResponse.CurrencyItemModel CurrencyOne,
     GetSnapshotPairsResponse.CurrencyItemModel CurrencyTwo,
     GetSnapshotPairsResponse.PairDataModel CurrencyOneData,
     GetSnapshotPairsResponse.PairDataModel CurrencyTwoData)
   {
-    public GetSnapshotPairsResponse(SnapshotPair model, string baseCurrencyApiId, string baseCurrencyText) : this(
+    public GetSnapshotPairsResponse(
+      SnapshotPair model,
+      string? baseCurrencyApiId,
+      string? baseCurrencyBaseItemTypeId,
+      string baseCurrencyText) : this(
       model.CurrencyExchangeSnapshotPairId,
       model.CurrencyExchangeSnapshotId,
       model.Volume,
       baseCurrencyApiId,
+      baseCurrencyBaseItemTypeId,
       baseCurrencyText,
       new CurrencyItemModel(model.CurrencyOne),
       new CurrencyItemModel(model.CurrencyTwo),
@@ -70,7 +77,8 @@ public static class GetSnapshotPairsHandler
       int CurrencyItemId,
       int ItemId,
       int CurrencyCategoryId,
-      string ApiId,
+      string? ApiId,
+      string? BaseItemTypeId,
       string Text,
       string CategoryApiId,
       string? IconUrl,
@@ -81,6 +89,7 @@ public static class GetSnapshotPairsHandler
         model.ItemId,
         model.CurrencyCategoryId,
         model.ApiId,
+        model.BaseItemTypeId,
         model.Text,
         model.CategoryApiId,
         model.IconUrl,

@@ -65,15 +65,27 @@ public static class GetDailyStatsHistoryHandler
       dailyStats: dailyStats,
       hasMore: hasMore,
       baseCurrencyApiId: league.BaseCurrencyApiId,
+      baseCurrencyBaseItemTypeId: league.BaseCurrencyBaseItemTypeId,
       baseCurrencyText: league.BaseCurrencyText));
   }
 
-  public record GetDailyStatsHistoryResponse(IEnumerable<GetDailyStatsHistoryResponse.DailyStat> DailyStats, bool HasMore, string BaseCurrencyApiId, string BaseCurrencyText)
+  public record GetDailyStatsHistoryResponse(
+    IEnumerable<GetDailyStatsHistoryResponse.DailyStat> DailyStats,
+    bool HasMore,
+    string? BaseCurrencyApiId,
+    string? BaseCurrencyBaseItemTypeId,
+    string BaseCurrencyText)
   {
-    public GetDailyStatsHistoryResponse(IEnumerable<DailyStatsHistoryEntry> dailyStats, bool hasMore, string baseCurrencyApiId, string baseCurrencyText) : this(
+    public GetDailyStatsHistoryResponse(
+      IEnumerable<DailyStatsHistoryEntry> dailyStats,
+      bool hasMore,
+      string? baseCurrencyApiId,
+      string? baseCurrencyBaseItemTypeId,
+      string baseCurrencyText) : this(
       DailyStats: dailyStats.Select(ds => new DailyStat(ds)),
       HasMore: hasMore,
       BaseCurrencyApiId: baseCurrencyApiId,
+      BaseCurrencyBaseItemTypeId: baseCurrencyBaseItemTypeId,
       BaseCurrencyText: baseCurrencyText) {}
     
     public record DailyStat(

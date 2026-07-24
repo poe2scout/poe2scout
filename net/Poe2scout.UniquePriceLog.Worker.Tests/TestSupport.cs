@@ -46,7 +46,16 @@ internal sealed class WorkerFixture
   public Mock<IItemRepository> Items { get; } = new();
   public Mock<IPriceLogRepository> PriceLogs { get; } = new();
   public UniquePriceLogWorker Worker { get; }
-  public League League { get; } = new(23, "Standard", "Standard", 100, "exalted", "Exalted Orb", null, true);
+  public League League { get; } = new(
+    23,
+    "Standard",
+    "Standard",
+    100,
+    "exalted",
+    null,
+    "Exalted Orb",
+    null,
+    true);
   public UniqueItem UniqueItem { get; } = new(1, 101, null, "Test", "Test Unique", "body_armour", null, "Armour", null, true);
 
   public WorkerFixture(Func<TimeSpan, CancellationToken, Task>? delay = null)
@@ -61,15 +70,15 @@ internal sealed class WorkerFixture
       .ReturnsAsync([UniqueItem]);
     CurrencyItems.Setup(repository => repository.GetAllCurrencyItems(2))
       .ReturnsAsync([
-        new CurrencyItem(1, 100, 1, "exalted", "Exalted Orb", "currency", null, new Dictionary<string, object>()),
-        new CurrencyItem(2, 102, 1, "chaos", "Chaos Orb", "currency", "chaos-icon", new Dictionary<string, object>())
+        new CurrencyItem(1, 100, 1, "exalted", null, "Exalted Orb", "currency", null, new Dictionary<string, object>()),
+        new CurrencyItem(2, 102, 1, "chaos", null, "Chaos Orb", "currency", "chaos-icon", new Dictionary<string, object>())
       ]);
     Services.Setup(repository => repository.GetFetchedItemIds(It.IsAny<string>(), 23))
       .ReturnsAsync([]);
     Items.Setup(repository => repository.GetAllItems(2))
       .ReturnsAsync([new Poe2scout.Repositories.Item.Models.Item(101, 1, "unique")]);
     CurrencyItems.Setup(repository => repository.GetCurrencyItem("chaos", 2))
-      .ReturnsAsync(new CurrencyItem(2, 102, 1, "chaos", "Chaos Orb", "currency", "chaos-icon", null));
+      .ReturnsAsync(new CurrencyItem(2, 102, 1, "chaos", null, "Chaos Orb", "currency", "chaos-icon", null));
     PriceLogs.Setup(repository => repository.GetItemPrice(102, 23, 4, null))
       .ReturnsAsync(10);
 
