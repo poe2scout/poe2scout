@@ -2,7 +2,7 @@ const footerLinks = [
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Discord", href: "https://discord.gg/EHXVdQCpBq" },
   { label: "GitHub", href: "https://github.com/poe2scout/poe2scout" },
-  { label: "API Docs", href: "/api/swagger" },
+  { label: "API Docs", href: "https://api.poe2scout.com/swagger" },
 ];
 
 export default function Footer() {
