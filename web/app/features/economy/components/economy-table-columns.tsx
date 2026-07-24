@@ -8,6 +8,9 @@ import type {
   UniqueEconomyItem,
 } from "../types";
 import type { League, Realm } from "~/features/league/types";
+import {
+  getLeagueBaseCurrencyIdentifier,
+} from "~/features/league/currency-identifier";
 import PriceHistoryCell from "./price-history-cell";
 import type { CategoryPriceHistoryConfig } from "../history-config";
 
@@ -177,6 +180,8 @@ function ActionLinks({
   league: League;
   realm: Realm;
 }) {
+  const tradeUrl = getTradeUrl(item, league, realm);
+
   return (
     <div
       className="flex justify-center gap-1.5 text-xs"
@@ -191,15 +196,19 @@ function ActionLinks({
       >
         Wiki
       </a>
-      <span className="text-white/25">/</span>
-      <a
-        href={getTradeUrl(item, league, realm)}
-        target="_blank"
-        rel="noreferrer"
-        className="text-white/60 transition hover:text-secondary"
-      >
-        Trade
-      </a>
+      {tradeUrl && (
+        <>
+          <span className="text-white/25">/</span>
+          <a
+            href={tradeUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="text-white/60 transition hover:text-secondary"
+          >
+            Trade
+          </a>
+        </>
+      )}
     </div>
   );
 }
@@ -237,7 +246,7 @@ function getDivinePriceForReference(referenceCurrency: string, league: League) {
 }
 
 function getCurrencyDisplay(apiId: string, league: League): CurrencyDisplay {
-  if (apiId === league.baseCurrencyApiId) {
+  if (apiId === getLeagueBaseCurrencyIdentifier(league)) {
     return {
       label: league.baseCurrencyText,
       iconUrl: league.baseCurrencyIconUrl,
@@ -288,6 +297,10 @@ function getTradeUrl(item: EconomyItem, league: League, realm: Realm) {
   const encodedLeague = encodeURIComponent(league.value.toLowerCase());
 
   if (isCurrencyItem(item)) {
+    if (!item.apiId || !league.baseCurrencyApiId) {
+      return null;
+    }
+
     return `${tradeBaseUrl}/exchange/${realm.realmApiId}/${encodedLeague}?q=${encodeURIComponent(
       JSON.stringify({
         exchange: {

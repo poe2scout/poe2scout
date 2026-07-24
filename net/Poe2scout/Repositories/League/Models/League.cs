@@ -5,7 +5,8 @@ public record League(
   string Value,
   string ShortName,
   int BaseCurrencyItemId,
-  string BaseCurrencyApiId,
+  string? BaseCurrencyApiId,
+  string? BaseCurrencyBaseItemTypeId,
   string BaseCurrencyText,
   string? BaseCurrencyIconUrl,
   bool CurrentLeague);

@@ -53,31 +53,34 @@ public static class GetPriceHistoryHandler
       logFrequency,
       endTime.Value);
     
-    var referenceCurrencyApiId = referenceCurrency ?? league.BaseCurrencyApiId;
-
-    if (referenceCurrencyApiId != league.BaseCurrencyApiId)
+    if (referenceCurrency is not null)
     {
-      var referenceCurrencyItem = await currencyItemRepository.GetCurrencyItem(referenceCurrencyApiId, validatedRealm.GameId);
+      var referenceCurrencyItem = await currencyItemRepository.GetCurrencyItem(
+        referenceCurrency,
+        validatedRealm.GameId);
 
       if (referenceCurrencyItem is null)
       {
         return TypedResults.BadRequest("Invalid reference currency.");
       }
 
-      var referenceCurrencyHistory = await priceLogRepository.GetItemPriceHistory(
-        referenceCurrencyItem.ItemId,
-        league.LeagueId,
-        validatedRealm.RealmId,
-        logCount,
-        logFrequency,
-        endTime.Value);
-
-      history = history with
+      if (referenceCurrencyItem.ItemId != league.BaseCurrencyItemId)
       {
-        PriceHistory = PriceHelper.ConvertPriceHistoryFromBase(
-          history.PriceHistory,
-          referenceCurrencyHistory.PriceHistory)
-      };
+        var referenceCurrencyHistory = await priceLogRepository.GetItemPriceHistory(
+          referenceCurrencyItem.ItemId,
+          league.LeagueId,
+          validatedRealm.RealmId,
+          logCount,
+          logFrequency,
+          endTime.Value);
+
+        history = history with
+        {
+          PriceHistory = PriceHelper.ConvertPriceHistoryFromBase(
+            history.PriceHistory,
+            referenceCurrencyHistory.PriceHistory)
+        };
+      }
     }
 
     return TypedResults.Ok(new GetPriceHistoryResponse(history));

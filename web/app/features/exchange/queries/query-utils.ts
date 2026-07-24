@@ -6,6 +6,7 @@ import type {
   ExchangeSnapshot,
   ExchangeSnapshotPair,
 } from "../types";
+import { getCurrencyIdentifier } from "~/features/league/currency-identifier";
 
 export type NumberLike = string | number | null | undefined;
 
@@ -13,7 +14,8 @@ export type ExchangeSnapshotPayload = {
   epoch: number;
   volume: NumberLike;
   marketCap: NumberLike;
-  baseCurrencyApiId: string;
+  baseCurrencyApiId: string | null;
+  baseCurrencyBaseItemTypeId: string | null;
   baseCurrencyText: string;
 };
 
@@ -30,7 +32,8 @@ export type ExchangeSnapshotPairPayload = {
   currencyExchangeSnapshotPairId: number;
   currencyExchangeSnapshotId: number;
   volume: NumberLike;
-  baseCurrencyApiId: string;
+  baseCurrencyApiId: string | null;
+  baseCurrencyBaseItemTypeId: string | null;
   baseCurrencyText: string;
   currencyOne: ExchangeCurrencyItem;
   currencyTwo: ExchangeCurrencyItem;
@@ -67,6 +70,7 @@ export function normalizeSnapshot(
     volume: toNumber(snapshot.volume),
     marketCap: toNumber(snapshot.marketCap),
     baseCurrencyApiId: snapshot.baseCurrencyApiId,
+    baseCurrencyBaseItemTypeId: snapshot.baseCurrencyBaseItemTypeId,
     baseCurrencyText: snapshot.baseCurrencyText,
   };
 }
@@ -112,7 +116,7 @@ function isBaseCurrency(
   item: ExchangeCurrencyItem,
   baseCurrencyApiIds: Set<string>,
 ) {
-  return baseCurrencyApiIds.has(item.apiId);
+  return baseCurrencyApiIds.has(getCurrencyIdentifier(item));
 }
 
 function buildSnapshotPair(
@@ -127,6 +131,7 @@ function buildSnapshotPair(
     currencyExchangeSnapshotId: row.currencyExchangeSnapshotId,
     volume: toNumber(row.volume),
     baseCurrencyApiId: row.baseCurrencyApiId,
+    baseCurrencyBaseItemTypeId: row.baseCurrencyBaseItemTypeId,
     baseCurrencyText: row.baseCurrencyText,
     currencyOne,
     currencyTwo,

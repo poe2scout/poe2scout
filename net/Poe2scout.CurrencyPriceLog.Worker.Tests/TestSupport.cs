@@ -12,8 +12,6 @@ internal static class TestConfig
       .AddInMemoryCollection(new Dictionary<string, string?>
       {
         ["DbConnectionString"] = "Host=test",
-        ["PoeApiClientId"] = "client-id",
-        ["PoeApiClientSecret"] = "client-secret",
         ["BackoffInitialSeconds"] = initialBackoff.ToString(),
         ["BackoffMaxSeconds"] = maximumBackoff.ToString()
       })

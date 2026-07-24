@@ -15,6 +15,7 @@ public sealed record PriceObservation(
 public sealed record TradingPair(
   [property: JsonPropertyName("league")] string League,
   [property: JsonPropertyName("market_id")] string MarketId,
+  [property: JsonPropertyName("market_pair")] List<string> MarketPair,
   [property: JsonPropertyName("volume_traded")] Dictionary<string, int> VolumeTraded,
   [property: JsonPropertyName("highest_stock")] Dictionary<string, int> HighestStock);
 

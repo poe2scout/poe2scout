@@ -42,6 +42,7 @@ public static class GetExchangeSnapshotHandler
     return TypedResults.Ok(new GetExchangeSnapshotResponse(
       snapshot,
       league.BaseCurrencyApiId,
+      league.BaseCurrencyBaseItemTypeId,
       league.BaseCurrencyText));
   }
 
@@ -49,14 +50,20 @@ public static class GetExchangeSnapshotHandler
     int Epoch,
     decimal Volume,
     decimal MarketCap,
-    string BaseCurrencyApiId,
+    string? BaseCurrencyApiId,
+    string? BaseCurrencyBaseItemTypeId,
     string BaseCurrencyText)
   {
-    public GetExchangeSnapshotResponse(CurrencyExchangeData model, string baseCurrencyApiId, string baseCurrencyText) : this(
+    public GetExchangeSnapshotResponse(
+      CurrencyExchangeData model,
+      string? baseCurrencyApiId,
+      string? baseCurrencyBaseItemTypeId,
+      string baseCurrencyText) : this(
       model.Epoch,
       model.Volume,
       model.MarketCap,
       baseCurrencyApiId,
+      baseCurrencyBaseItemTypeId,
       baseCurrencyText) {}
   }
 }

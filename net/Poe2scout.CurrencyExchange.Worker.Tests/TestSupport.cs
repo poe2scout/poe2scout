@@ -7,6 +7,7 @@ using Poe2scout.Models;
 using Poe2scout.Repositories.CurrencyExchange;
 using Poe2scout.Repositories.CurrencyExchange.Models;
 using Poe2scout.Repositories.CurrencyItem;
+using Poe2scout.Repositories.Game;
 using Poe2scout.Repositories.League;
 using Poe2scout.Repositories.League.Models;
 using Poe2scout.Repositories.PriceLog;
@@ -28,8 +29,6 @@ internal static class TestConfig
       .AddInMemoryCollection(new Dictionary<string, string?>
       {
         ["DbConnectionString"] = "Host=test",
-        ["PoeApiClientId"] = "client-id",
-        ["PoeApiClientSecret"] = "client-secret",
         ["BackoffInitialSeconds"] = initialBackoff.ToString(),
         ["BackoffMaxSeconds"] = maximumBackoff.ToString()
       })
@@ -46,14 +45,20 @@ internal sealed class WorkerFixture
   public Mock<IRealmRepository> Realms { get; } = new();
   public Mock<ILeagueRepository> Leagues { get; } = new();
   public Mock<ICurrencyItemRepository> CurrencyItems { get; } = new();
+  public Mock<IGameRepository> Games { get; } = new();
   public Mock<IPriceLogRepository> PriceLogs { get; } = new();
   public Mock<ICurrencyExchangeRepository> Exchange { get; } = new();
-  public int CurrentEpoch { get; } = checked((int)DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 3600);
+  public int CurrentEpoch { get; }
   public List<TimeSpan> Delays { get; } = [];
   public CurrencyExchangeWorker Worker { get; }
 
-  public WorkerFixture(CurrencyExchangeResponse? response = null)
+  public WorkerFixture(
+    CurrencyExchangeResponse? response = null,
+    int hoursBehind = 1)
   {
+    CurrentEpoch = checked(
+      (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds() - hoursBehind * 3600);
+
     var services = new ServiceCollection();
     services.AddMetrics();
     var serviceProvider = services.BuildServiceProvider();
@@ -81,13 +86,23 @@ internal sealed class WorkerFixture
         It.IsAny<CancellationToken>()))
       .ReturnsAsync(response);
     Leagues.Setup(repository => repository.GetLeagues(1))
-      .ReturnsAsync([new League(1, "Test League", "Test", 100, "exalted", "Exalted Orb", null, true)]);
-    CurrencyItems.Setup(repository => repository.GetAllCurrencyItems(1))
+      .ReturnsAsync([new League(
+        1,
+        "Test League",
+        "Test",
+        100,
+        "exalted",
+        "Metadata/Items/Currency/ExaltedOrb",
+        "Exalted Orb",
+        null,
+        true)]);
+    CurrencyItems.Setup(repository => repository.GetAllCurrencyItemsWithBaseId(1))
       .ReturnsAsync(
       [
-        Item(100, "exalted"),
-        Item(101, "chaos")
+        Item(100, "Metadata/Items/Currency/ExaltedOrb"),
+        Item(101, "Metadata/Items/Currency/CurrencyRerollRare")
       ]);
+    Games.Setup(repository => repository.GetBridgeCurrencies(1)).ReturnsAsync([]);
     Exchange.Setup(repository => repository.GetExistingSnapshotLeagueIds(
         It.IsAny<int>(),
         It.IsAny<int>()))
@@ -109,7 +124,6 @@ internal sealed class WorkerFixture
       .Returns(Task.CompletedTask);
 
     Worker = new CurrencyExchangeWorker(
-      TestConfig.Create(),
       Client.Object,
       Services.Object,
       Realms.Object,
@@ -125,6 +139,6 @@ internal sealed class WorkerFixture
       });
   }
 
-  public static CurrencyItem Item(int itemId, string apiId)
-    => new(itemId, itemId, 1, apiId, apiId, "currency", null, null);
+  public static CurrencyItemWithBaseId Item(int itemId, string baseItemTypeId)
+    => new(itemId, itemId, 1, baseItemTypeId, baseItemTypeId, "currency", null, null);
 }

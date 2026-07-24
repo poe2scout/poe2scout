@@ -12,7 +12,7 @@ const DEFAULT_META_KEYWORDS = [
 
 type RouteMetaMatch = {
   id: string;
-  data: unknown;
+  loaderData: unknown;
 };
 
 type RouteMetaMatches = ReadonlyArray<RouteMetaMatch | undefined>;
@@ -138,7 +138,7 @@ function getLeagueRouteData(matches: RouteMetaMatches) {
     entry?.id.endsWith("/features/league/routes/layout"),
   );
 
-  return isLeagueRouteData(match?.data) ? match.data : null;
+  return isLeagueRouteData(match?.loaderData) ? match.loaderData : null;
 }
 
 function getCategoryRouteData(matches: RouteMetaMatches) {
@@ -146,7 +146,7 @@ function getCategoryRouteData(matches: RouteMetaMatches) {
     entry?.id.endsWith("/features/economy/routes/layout"),
   );
 
-  return isCategoryRouteData(match?.data) ? match.data : null;
+  return isCategoryRouteData(match?.loaderData) ? match.loaderData : null;
 }
 
 function isLeagueRouteData(value: unknown): value is LeagueRouteData {

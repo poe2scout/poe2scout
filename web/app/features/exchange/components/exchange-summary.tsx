@@ -2,6 +2,7 @@ import type { League } from "~/features/league/types";
 import formatNumber from "~/shared/utils/format-number";
 import type { ExchangeSnapshot } from "../types";
 import formatEpoch from "../utils/format-epoch";
+import { getLeagueBaseCurrencyIdentifier } from "~/features/league/currency-identifier";
 
 export default function ExchangeSummary({
   league,
@@ -76,8 +77,10 @@ function getBaseCurrencyIconUrl(
   league: League,
   snapshot: ExchangeSnapshot,
 ): string | null {
-  switch (snapshot.baseCurrencyApiId) {
-    case league.baseCurrencyApiId:
+  const snapshotIdentifier =
+    snapshot.baseCurrencyApiId ?? snapshot.baseCurrencyBaseItemTypeId;
+  switch (snapshotIdentifier) {
+    case getLeagueBaseCurrencyIdentifier(league):
       return league.baseCurrencyIconUrl;
     case "exalted":
       return league.exaltedCurrencyIconUrl;

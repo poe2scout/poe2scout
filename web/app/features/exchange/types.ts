@@ -2,7 +2,8 @@ export type ExchangeSnapshot = {
   epoch: number;
   volume: number;
   marketCap: number;
-  baseCurrencyApiId: string;
+  baseCurrencyApiId: string | null;
+  baseCurrencyBaseItemTypeId: string | null;
   baseCurrencyText: string;
 };
 
@@ -20,7 +21,8 @@ export type ExchangeCurrencyItem = {
   currencyItemId: number;
   itemId: number;
   currencyCategoryId: number;
-  apiId: string;
+  apiId: string | null;
+  baseItemTypeId: string | null;
   text: string;
   categoryApiId: string;
   iconUrl: string | null;
@@ -40,7 +42,8 @@ export type ExchangeSnapshotPair = {
   currencyExchangeSnapshotPairId: number;
   currencyExchangeSnapshotId: number;
   volume: number;
-  baseCurrencyApiId: string;
+  baseCurrencyApiId: string | null;
+  baseCurrencyBaseItemTypeId: string | null;
   baseCurrencyText: string;
   currencyOne: ExchangeCurrencyItem;
   currencyTwo: ExchangeCurrencyItem;
@@ -63,14 +66,16 @@ export type ExchangePairHistoryEntry = {
 export type ExchangePairHistoryResponse = {
   history: ExchangePairHistoryEntry[];
   hasMore: boolean;
-  baseCurrencyApiId: string;
+  baseCurrencyApiId: string | null;
+  baseCurrencyBaseItemTypeId: string | null;
   baseCurrencyText: string;
 };
 
 export type SnapshotHistoryResponse = {
   data: ExchangeSnapshot[];
   hasMore: boolean;
-  baseCurrencyApiId: string;
+  baseCurrencyApiId: string | null;
+  baseCurrencyBaseItemTypeId: string | null;
   baseCurrencyText: string;
 };
 

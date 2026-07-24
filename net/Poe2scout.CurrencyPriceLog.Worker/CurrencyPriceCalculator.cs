@@ -11,6 +11,9 @@ public static class CurrencyPriceCalculator
     IReadOnlyList<BridgeCurrency> bridgeCurrencies,
     IReadOnlyDictionary<string, double> fallbackBridgePrices)
   {
+    var baseCurrencyId = league.BaseCurrencyBaseItemTypeId
+                         ?? throw new InvalidOperationException(
+                           $"League {league.Value} base currency is missing a base item type ID.");
     var observationsByTarget = new Dictionary<string, List<PriceObservation>>();
     foreach (var observation in observations)
     {
@@ -25,25 +28,28 @@ public static class CurrencyPriceCalculator
 
     var resolvedPrices = new Dictionary<string, CurrencyPrice>
     {
-      [league.BaseCurrencyApiId] = new(
-        league.BaseCurrencyApiId,
+      [baseCurrencyId] = new(
+        baseCurrencyId,
         1.0,
-        Math.Max(GetTotalQuantity(observationsByTarget, league.BaseCurrencyApiId), 1))
+        Math.Max(GetTotalQuantity(observationsByTarget, baseCurrencyId), 1))
     };
-    var resolvedQuoteItems = new HashSet<string> { league.BaseCurrencyApiId };
+    var resolvedQuoteItems = new HashSet<string> { baseCurrencyId };
 
     foreach (var bridgeItem in bridgeCurrencies)
     {
-      var targetObservations = observationsByTarget.GetValueOrDefault(bridgeItem.ApiId) ?? [];
+      var bridgeId = bridgeItem.BaseItemTypeId
+                     ?? throw new InvalidOperationException(
+                       $"Bridge currency {bridgeItem.Text} is missing a base item type ID.");
+      var targetObservations = observationsByTarget.GetValueOrDefault(bridgeId) ?? [];
       double? bridgePrice = null;
-      if (targetObservations.Any(observation => observation.BaseItem == league.BaseCurrencyApiId))
+      if (targetObservations.Any(observation => observation.BaseItem == baseCurrencyId))
       {
         bridgePrice = AggregateTargetPrice(targetObservations, resolvedPrices, resolvedQuoteItems);
       }
 
       if (bridgePrice is null)
       {
-        if (!fallbackBridgePrices.TryGetValue(bridgeItem.ApiId, out var fallbackPrice))
+        if (!fallbackBridgePrices.TryGetValue(bridgeId, out var fallbackPrice))
         {
           continue;
         }
@@ -51,23 +57,27 @@ public static class CurrencyPriceCalculator
         bridgePrice = fallbackPrice;
       }
 
-      resolvedPrices[bridgeItem.ApiId] = new CurrencyPrice(
-        bridgeItem.ApiId,
+      resolvedPrices[bridgeId] = new CurrencyPrice(
+        bridgeId,
         bridgePrice.Value,
-        GetTotalQuantity(observationsByTarget, bridgeItem.ApiId));
-      resolvedQuoteItems.Add(bridgeItem.ApiId);
+        GetTotalQuantity(observationsByTarget, bridgeId));
+      resolvedQuoteItems.Add(bridgeId);
     }
 
-    var bridgeApiIds = bridgeCurrencies.Select(item => item.ApiId).ToHashSet();
-    foreach (var itemApiId in observationsByTarget.Keys.Order(StringComparer.Ordinal))
+    var bridgeBaseIds = bridgeCurrencies
+      .Select(item => item.BaseItemTypeId
+                      ?? throw new InvalidOperationException(
+                        $"Bridge currency {item.Text} is missing a base item type ID."))
+      .ToHashSet();
+    foreach (var itemBaseId in observationsByTarget.Keys.Order(StringComparer.Ordinal))
     {
-      if (itemApiId == league.BaseCurrencyApiId || bridgeApiIds.Contains(itemApiId))
+      if (itemBaseId == baseCurrencyId || bridgeBaseIds.Contains(itemBaseId))
       {
         continue;
       }
 
       var itemPrice = AggregateTargetPrice(
-        observationsByTarget[itemApiId],
+        observationsByTarget[itemBaseId],
         resolvedPrices,
         resolvedQuoteItems);
       if (itemPrice is null)
@@ -75,10 +85,10 @@ public static class CurrencyPriceCalculator
         continue;
       }
 
-      resolvedPrices[itemApiId] = new CurrencyPrice(
-        itemApiId,
+      resolvedPrices[itemBaseId] = new CurrencyPrice(
+        itemBaseId,
         itemPrice.Value,
-        GetTotalQuantity(observationsByTarget, itemApiId));
+        GetTotalQuantity(observationsByTarget, itemBaseId));
     }
 
     return resolvedPrices;
@@ -91,13 +101,11 @@ public static class CurrencyPriceCalculator
     var observations = new List<PriceObservation>();
     foreach (var listing in data.Markets.Where(pair => pair.League == league.Value))
     {
-      var items = listing.MarketId.Split('|');
-      if (items.Length != 2)
-      {
-        throw new InvalidOperationException($"Invalid market id: {listing.MarketId}");
-      }
 
-      observations.AddRange(CreatePairObservations(listing, items[0], items[1]));
+      observations.AddRange(CreatePairObservations(
+        listing,
+        listing.MarketPair[0],
+        listing.MarketPair[1]));
     }
 
     return observations;

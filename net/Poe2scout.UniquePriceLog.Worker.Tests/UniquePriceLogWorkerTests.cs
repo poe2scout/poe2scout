@@ -109,7 +109,7 @@ public class UniquePriceLogWorkerTests
       .ReturnsAsync([new Poe2scout.Repositories.Item.Models.Item(999, 1, "currency")]);
     fixture.CurrencyItems.Setup(repository => repository.GetAllCurrencyItems(2))
       .ReturnsAsync([
-        new Poe2scout.Models.CurrencyItem(2, 102, 1, "chaos", "Chaos Orb", "currency", null, null)
+        new Poe2scout.Models.CurrencyItem(2, 102, 1, "chaos", null, "Chaos Orb", "currency", null, null)
       ]);
     fixture.Client
       .Setup(client => client.SearchCurrencyAsync(

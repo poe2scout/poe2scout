@@ -36,7 +36,9 @@ public static class GetHandler
       return TypedResults.BadRequest("Invalid league.");
     }
     
-    var currencyItem = await currencyItemRepository.GetCurrencyItem(apiId, validatedRealm.GameId);
+    var currencyItem = await currencyItemRepository.GetCurrencyItem(
+      Uri.UnescapeDataString(apiId),
+      validatedRealm.GameId);
 
     if (currencyItem is null)
     {
@@ -55,7 +57,8 @@ public static class GetHandler
     int CurrencyItemId,
     int ItemId,
     int CurrencyCategoryId,
-    string ApiId,
+    string? ApiId,
+    string? BaseItemTypeId,
     string Text,
     string CategoryApiId,
     string? IconUrl,
@@ -68,6 +71,7 @@ public static class GetHandler
       ItemId: c.ItemId,
       CurrencyItemId: c.CurrencyItemId,
       ApiId: c.ApiId,
+      BaseItemTypeId: c.BaseItemTypeId,
       Text: c.Text,
       CategoryApiId: c.CategoryApiId,
       IconUrl: c.IconUrl,

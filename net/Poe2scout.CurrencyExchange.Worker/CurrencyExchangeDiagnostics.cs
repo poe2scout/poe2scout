@@ -20,4 +20,14 @@ public sealed partial class CurrencyExchangeDiagnostics
   {
     logger.LogError(ex, "Unexpected exception encountered.");
   }
+
+  public void RecordUnknownBaseIds(int epoch, int realmId, IReadOnlyCollection<string> baseIds)
+  {
+    logger.LogWarning(
+      "{epoch} | Skipping {count} unknown CDN base item IDs for realm:{realmId}: {baseIds}",
+      epoch,
+      baseIds.Count,
+      realmId,
+      string.Join(", ", baseIds.Order(StringComparer.Ordinal)));
+  }
 }

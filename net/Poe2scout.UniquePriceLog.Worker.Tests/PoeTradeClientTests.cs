@@ -74,7 +74,7 @@ public class PoeTradeClientTests
 
     var exception = await Assert.ThrowsAsync<TradeClientException>(() =>
       client.SearchCurrencyAsync(
-        new CurrencyItem(1, 100, 1, "exalted", "Exalted Orb", "currency", null, null),
+        new CurrencyItem(1, 100, 1, "exalted", null, "Exalted Orb", "currency", null, null),
         League(),
         CancellationToken.None));
 
@@ -89,7 +89,7 @@ public class PoeTradeClientTests
     => new(1, 101, null, "Test", "Test Unique", category, null, "Armour", null, true);
 
   private static League League()
-    => new(23, "Standard", "Standard", 100, "exalted", "Exalted Orb", null, true);
+    => new(23, "Standard", "Standard", 100, "exalted", null, "Exalted Orb", null, true);
 
   private static HttpResponseMessage Json(HttpStatusCode statusCode, string json)
     => new(statusCode)

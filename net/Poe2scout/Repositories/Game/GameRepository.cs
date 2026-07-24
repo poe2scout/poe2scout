@@ -13,6 +13,7 @@ public class GameRepository(DbDataSource dbDataSource) : BaseRepository(dbDataSo
             SELECT ci.item_id,
                    ci.currency_item_id,
                    ci.api_id,
+                   ci.base_item_type_id,
                    ci.text,
                    ci.icon_url,
                    gcb.bridge_rank
