@@ -38,6 +38,8 @@ public sealed class CurrencyItemMappingWorker(
       catch (Exception exception)
       {
         diagnostics.RecordFailure(exception);
+
+        throw;
       }
 
       await Delay(TimeSpan.FromMinutes(config.PollIntervalMinutes), stoppingToken);

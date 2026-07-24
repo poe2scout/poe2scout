@@ -48,12 +48,17 @@ internal sealed class WorkerFixture
   public Mock<IGameRepository> Games { get; } = new();
   public Mock<IPriceLogRepository> PriceLogs { get; } = new();
   public Mock<ICurrencyExchangeRepository> Exchange { get; } = new();
-  public int CurrentEpoch { get; } = checked((int)DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 3600);
+  public int CurrentEpoch { get; }
   public List<TimeSpan> Delays { get; } = [];
   public CurrencyExchangeWorker Worker { get; }
 
-  public WorkerFixture(CurrencyExchangeResponse? response = null)
+  public WorkerFixture(
+    CurrencyExchangeResponse? response = null,
+    int hoursBehind = 1)
   {
+    CurrentEpoch = checked(
+      (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds() - hoursBehind * 3600);
+
     var services = new ServiceCollection();
     services.AddMetrics();
     var serviceProvider = services.BuildServiceProvider();

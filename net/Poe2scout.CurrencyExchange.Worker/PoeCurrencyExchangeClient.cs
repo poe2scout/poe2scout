@@ -17,7 +17,6 @@ public sealed class PoeCurrencyExchangeClient(
 {
   private const string BaseUrl = "https://web.poecdn.com/api/currency-exchange";
   private const int MaxAttempts = 5;
-  private static readonly TimeSpan RequestDelay = TimeSpan.FromSeconds(3);
   private static readonly TimeSpan RetryDelay = TimeSpan.FromMinutes(5);
   public async Task<CurrencyExchangeResponse> GetSnapshot(
     string realmApiId,
@@ -28,7 +27,6 @@ public sealed class PoeCurrencyExchangeClient(
 
     for (var attempt = 1; attempt <= MaxAttempts; attempt++)
     {
-      await Delay(RequestDelay, cancellationToken);
       using var response = await SendGet(url, cancellationToken);
 
       if (response.StatusCode == HttpStatusCode.OK)

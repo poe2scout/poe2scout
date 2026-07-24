@@ -26,4 +26,11 @@ CREATE INDEX IF NOT EXISTS idx_currency_item_base_item_type_id
     ON currency_item (base_item_type_id)
     WHERE base_item_type_id IS NOT NULL;
 
+
+TRUNCATE TABLE currency_exchange_history, currency_exchange_snapshot_pair, currency_exchange_snapshot, currency_exchange_snapshot_pair_data;
+
+UPDATE service_cache
+SET "value" = 1722024000
+WHERE service_cache.service_name = 'CurrencyExchange';
+
 COMMIT;

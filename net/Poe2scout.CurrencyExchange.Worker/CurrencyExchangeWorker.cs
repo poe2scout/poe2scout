@@ -24,7 +24,15 @@ public sealed class CurrencyExchangeWorker(
 {
   private const string ExchangeCacheKey = "CurrencyExchange";
   private const string PriceFetchCacheKey = "PriceFetch_Currency";
+  private const int SnapshotIntervalSeconds = 60 * 60;
+  private const int PrefetchDepth = 20;
+  private const int MaxConcurrentPrefetchBatches = 16;
+  private const int PublicationDelaySeconds = 60 * 5;
   private static readonly TimeSpan PriceFetchWait = TimeSpan.FromMinutes(10);
+  private readonly Dictionary<int, Task<SnapshotBatch>> prefetchedSnapshots = [];
+  private readonly SemaphoreSlim prefetchSlots = new(
+    MaxConcurrentPrefetchBatches,
+    MaxConcurrentPrefetchBatches);
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
   {
@@ -59,20 +67,28 @@ public sealed class CurrencyExchangeWorker(
 
     if (lastPriceFetch.Value <= lastExchange.Value)
     {
+      var availableRealms = await realmRepository.GetRealms();
+      PrefetchAvailableSnapshots(
+        lastExchange.Value + SnapshotIntervalSeconds,
+        availableRealms,
+        cancellationToken);
       await Delay(PriceFetchWait, cancellationToken);
       return;
     }
 
-    var timeToFetch = lastExchange.Value + 60 * 60;
+    var timeToFetch = lastExchange.Value + SnapshotIntervalSeconds;
     var currentEpoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-    var delaySeconds = Math.Max(timeToFetch + 60 * 5 - currentEpoch, 0);
+    var delaySeconds = Math.Max(timeToFetch + PublicationDelaySeconds - currentEpoch, 0);
     await Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
 
     var realms = await realmRepository.GetRealms();
+    
+    PrefetchAvailableSnapshots(timeToFetch, realms, cancellationToken);
+    var snapshotBatch = await GetPrefetchedSnapshot(timeToFetch);
     var nextChangeIds = await Task.WhenAll(
-      realms.Select(realm => ProcessRealmSnapshot(
-        realm,
-        timeToFetch,
+      snapshotBatch.Realms.Select(snapshot => ProcessRealmSnapshot(
+        snapshot.Realm,
+        snapshot.Response,
         cancellationToken)));
 
     if (nextChangeIds.Any(nextChangeId => nextChangeId is null))
@@ -84,17 +100,17 @@ public sealed class CurrencyExchangeWorker(
                        ?? throw new InvalidOperationException("No realm snapshot was returned.");
     await serviceRepository.SetServiceCacheValue(
       ExchangeCacheKey,
-      nextChangeId - 60 * 60);
+      nextChangeId - SnapshotIntervalSeconds);
+    prefetchedSnapshots.Remove(timeToFetch);
     await currencyExchangeRepository.UpdatePairHistories();
   }
 
   private async Task<int?> ProcessRealmSnapshot(
     Realm realm,
-    int? timeToFetch,
+    CurrencyExchangeResponse data,
     CancellationToken cancellationToken)
   {
-    var data = await client.GetSnapshot(realm.ApiId, timeToFetch, cancellationToken);
-    var targetEpoch = data.NextChangeId - 60 * 60;
+    var targetEpoch = data.NextChangeId - SnapshotIntervalSeconds;
     var targetTime = DateTimeOffset.FromUnixTimeSeconds(targetEpoch).LocalDateTime;
 
     if (!await serviceRepository.GetCurrencyFetchStatus(targetTime))
@@ -206,6 +222,68 @@ public sealed class CurrencyExchangeWorker(
     return data.NextChangeId;
   }
 
+  private void PrefetchAvailableSnapshots(
+    int firstEpoch,
+    IReadOnlyList<Realm> realms,
+    CancellationToken cancellationToken)
+  {
+    var latestAvailableEpoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                               - PublicationDelaySeconds;
+    var lastPrefetchEpoch = Math.Min(
+      firstEpoch + (PrefetchDepth - 1L) * SnapshotIntervalSeconds,
+      latestAvailableEpoch);
+
+    for (var epoch = firstEpoch;
+         epoch <= lastPrefetchEpoch;
+         epoch += SnapshotIntervalSeconds)
+    {
+      if (!prefetchedSnapshots.ContainsKey(epoch))
+      {
+        prefetchedSnapshots.Add(
+          epoch,
+          DownloadSnapshotBatch(epoch, realms, cancellationToken));
+      }
+    }
+  }
+
+  private async Task<SnapshotBatch> GetPrefetchedSnapshot(int epoch)
+  {
+    if (!prefetchedSnapshots.TryGetValue(epoch, out var snapshotTask))
+    {
+      throw new InvalidOperationException($"Snapshot epoch {epoch} was not prefetched.");
+    }
+
+    try
+    {
+      return await snapshotTask;
+    }
+    catch
+    {
+      prefetchedSnapshots.Remove(epoch);
+      throw;
+    }
+  }
+
+  private async Task<SnapshotBatch> DownloadSnapshotBatch(
+    int epoch,
+    IReadOnlyList<Realm> realms,
+    CancellationToken cancellationToken)
+  {
+    await prefetchSlots.WaitAsync(cancellationToken);
+    try
+    {
+      var snapshots = await Task.WhenAll(realms.Select(async realm =>
+        new RealmSnapshot(
+          realm,
+          await client.GetSnapshot(realm.ApiId, epoch, cancellationToken))));
+      return new SnapshotBatch(snapshots);
+    }
+    finally
+    {
+      prefetchSlots.Release();
+    }
+  }
+
   private static CurrencyExchangeSnapshotPairData GetPairData(
     CurrencyItemWithBaseId currency,
     Dictionary<int, ItemPriceInRange> priceLookup,
@@ -231,4 +309,11 @@ public sealed class CurrencyExchangeWorker(
 
   private Task Delay(TimeSpan duration, CancellationToken cancellationToken)
     => delay is null ? Task.Delay(duration, cancellationToken) : delay(duration, cancellationToken);
+
+  private sealed record RealmSnapshot(
+    Realm Realm,
+    CurrencyExchangeResponse Response);
+
+  private sealed record SnapshotBatch(
+    IReadOnlyList<RealmSnapshot> Realms);
 }

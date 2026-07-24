@@ -9,13 +9,14 @@ public class CurrencyExchangeClientTests
   [Fact]
   public async Task BuildsCdnRealmUrlsWithoutOAuth()
   {
+    var delays = new List<TimeSpan>();
     var handler = new QueueHandler(
     [
       _ => Json(HttpStatusCode.OK, SnapshotJson),
       _ => Json(HttpStatusCode.OK, SnapshotJson),
       _ => Json(HttpStatusCode.OK, SnapshotJson)
     ]);
-    var client = CreateClient(handler);
+    var client = CreateClient(handler, delays);
 
     await client.GetSnapshot("pc", null, CancellationToken.None);
     await client.GetSnapshot("pc", 123, CancellationToken.None);
@@ -30,6 +31,7 @@ public class CurrencyExchangeClientTests
       Assert.Null(request.Authorization);
       Assert.Equal("Poe2scout/1.0.0 (contact: b@girardet.co.nz)", request.UserAgent);
     });
+    Assert.Empty(delays);
   }
 
   [Theory]
@@ -54,22 +56,34 @@ public class CurrencyExchangeClientTests
   [Fact]
   public async Task RetriesServiceUnavailableAndFailsAfterMaximumAttempts()
   {
+    var delays = new List<TimeSpan>();
     var responses = new List<Func<RequestSnapshot, HttpResponseMessage>>();
     responses.AddRange(Enumerable.Repeat<Func<RequestSnapshot, HttpResponseMessage>>(
       _ => new HttpResponseMessage(HttpStatusCode.ServiceUnavailable),
       5));
     var handler = new QueueHandler(responses);
-    var client = CreateClient(handler);
+    var client = CreateClient(handler, delays);
 
     var exception = await Assert.ThrowsAsync<PoeCurrencyExchangeException>(
       () => client.GetSnapshot("pc", 123, CancellationToken.None));
 
     Assert.Equal(HttpStatusCode.ServiceUnavailable, exception.StatusCode);
     Assert.Equal(5, handler.Requests.Count);
+    Assert.Equal(
+      Enumerable.Repeat(TimeSpan.FromMinutes(5), 4),
+      delays);
   }
 
-  private static PoeCurrencyExchangeClient CreateClient(QueueHandler handler)
-    => new(new HttpClient(handler), (_, _) => Task.CompletedTask);
+  private static PoeCurrencyExchangeClient CreateClient(
+    QueueHandler handler,
+    List<TimeSpan>? delays = null)
+    => new(
+      new HttpClient(handler),
+      (duration, _) =>
+      {
+        delays?.Add(duration);
+        return Task.CompletedTask;
+      });
 
   private static HttpResponseMessage Json(HttpStatusCode statusCode, string json)
     => new(statusCode)

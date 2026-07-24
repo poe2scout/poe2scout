@@ -100,7 +100,6 @@ public class CurrencyItemRepository(DbDataSource dbDataSource) : BaseRepository(
    SELECT ci.currency_item_id
         , ci.item_id
         , ci.item_category_id AS currency_category_id
-        , ci.api_id
         , ci.base_item_type_id
         , ci.text
         , cc.api_id as category_api_id
