@@ -11,6 +11,7 @@ builder.Services.AddSingleton(apiConfig);
 builder.Services.AddOpenApi(options =>
 {
   options.CreateSchemaReferenceId = OpenApiSchemaIdGenerator.Create;
+  options.AddSchemaTransformer<RequireAllSchemaPropertiesTransformer>();
 });
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
