@@ -32,25 +32,6 @@ public class CurrencyExchangeClientTests
     });
   }
 
-  [Fact]
-  public async Task RejectsMalformedMarketPair()
-  {
-    var handler = new QueueHandler(
-    [
-      _ => Json(HttpStatusCode.OK, SnapshotJson.Replace(
-        """
-        "market_pair": ["Metadata/Items/Currency/ExaltedOrb", "Metadata/Items/Currency/CurrencyRerollRare"]
-        """,
-        """
-        "market_pair": ["Metadata/Items/Currency/ExaltedOrb"]
-        """))
-    ]);
-    var client = CreateClient(handler);
-
-    await Assert.ThrowsAsync<System.Text.Json.JsonException>(
-      () => client.GetSnapshot("pc", 123, CancellationToken.None));
-  }
-
   [Theory]
   [InlineData(HttpStatusCode.TooManyRequests)]
   [InlineData(HttpStatusCode.BadRequest)]

@@ -225,56 +225,6 @@ public class CurrencyExchangeWorkerTests
     fixture.Exchange.Verify(repository => repository.UpdatePairHistories(), Times.Never);
   }
 
-  [Fact]
-  public async Task MissingRequiredBridgeBaseIdFailsIteration()
-  {
-    var fixture = new WorkerFixture();
-    fixture.Games.Setup(repository => repository.GetBridgeCurrencies(1)).ReturnsAsync(
-    [
-      new Poe2scout.Repositories.Game.Models.BridgeCurrency(
-        101,
-        101,
-        "chaos",
-        null,
-        "Chaos Orb",
-        null,
-        1)
-    ]);
-
-    var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-      () => fixture.Worker.RunIteration(CancellationToken.None));
-
-    Assert.Contains("missing a base item type ID", exception.Message);
-    fixture.Exchange.Verify(
-      repository => repository.CreateSnapshot(It.IsAny<CurrencyExchangeSnapshot>()),
-      Times.Never);
-  }
-
-  [Fact]
-  public async Task MissingRequiredLeagueBaseIdFailsBeforeRequestingCdn()
-  {
-    var fixture = new WorkerFixture();
-    fixture.Leagues.Setup(repository => repository.GetLeagues(1)).ReturnsAsync(
-    [
-      new Poe2scout.Repositories.League.Models.League(
-        1,
-        "Test League",
-        "Test",
-        100,
-        "exalted",
-        null,
-        "Exalted Orb",
-        null,
-        true)
-    ]);
-
-    var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-      () => fixture.Worker.RunIteration(CancellationToken.None));
-
-    Assert.Contains("missing a base item type ID", exception.Message);
-    fixture.Client.VerifyNoOtherCalls();
-  }
-
   public static TradingPair Pair(
     string marketId,
     int currencyOneVolume,

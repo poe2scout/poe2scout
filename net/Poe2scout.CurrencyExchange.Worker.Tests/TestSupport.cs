@@ -91,11 +91,11 @@ internal sealed class WorkerFixture
         "Exalted Orb",
         null,
         true)]);
-    CurrencyItems.Setup(repository => repository.GetAllCurrencyItems(1))
+    CurrencyItems.Setup(repository => repository.GetAllCurrencyItemsWithBaseId(1))
       .ReturnsAsync(
       [
-        Item(100, "exalted", "Metadata/Items/Currency/ExaltedOrb"),
-        Item(101, "chaos", "Metadata/Items/Currency/CurrencyRerollRare")
+        Item(100, "Metadata/Items/Currency/ExaltedOrb"),
+        Item(101, "Metadata/Items/Currency/CurrencyRerollRare")
       ]);
     Games.Setup(repository => repository.GetBridgeCurrencies(1)).ReturnsAsync([]);
     Exchange.Setup(repository => repository.GetExistingSnapshotLeagueIds(
@@ -134,6 +134,6 @@ internal sealed class WorkerFixture
       });
   }
 
-  public static CurrencyItem Item(int itemId, string apiId, string baseItemTypeId)
-    => new(itemId, itemId, 1, apiId, baseItemTypeId, apiId, "currency", null, null);
+  public static CurrencyItemWithBaseId Item(int itemId, string baseItemTypeId)
+    => new(itemId, itemId, 1, baseItemTypeId, baseItemTypeId, "currency", null, null);
 }

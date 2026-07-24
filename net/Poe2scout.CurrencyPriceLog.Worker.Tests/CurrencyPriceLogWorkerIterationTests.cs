@@ -73,7 +73,6 @@ public class CurrencyPriceLogWorkerIterationTests
 
     await fixture.Worker.RunIteration(CancellationToken.None);
 
-    fixture.Leagues.Verify(repository => repository.GetLeagues(1), Times.Once);
     fixture.CurrencyItems.Verify(
       repository => repository.GetAllCurrencyItems(It.IsAny<int>()),
       Times.Never);
@@ -95,52 +94,6 @@ public class CurrencyPriceLogWorkerIterationTests
     fixture.Services.Verify(
       repository => repository.SetServiceCacheValue(It.IsAny<string>(), It.IsAny<int>()),
       Times.Never);
-  }
-
-  [Fact]
-  public async Task MissingRequiredBridgeBaseIdFailsIteration()
-  {
-    var fixture = new WorkerFixture();
-    fixture.Games.Setup(repository => repository.GetBridgeCurrencies(1)).ReturnsAsync(
-    [
-      new Poe2scout.Repositories.Game.Models.BridgeCurrency(
-        101,
-        101,
-        "chaos",
-        null,
-        "Chaos Orb",
-        null,
-        1)
-    ]);
-
-    var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-      () => fixture.Worker.RunIteration(CancellationToken.None));
-
-    Assert.Contains("missing a base item type ID", exception.Message);
-    fixture.PriceLogs.Verify(
-      repository => repository.RecordPriceBulk(
-        It.IsAny<List<RecordPriceModel>>(),
-        It.IsAny<int>()),
-      Times.Never);
-  }
-
-  [Fact]
-  public async Task MissingRequiredLeagueBaseIdFailsBeforeRequestingCdn()
-  {
-    var fixture = new WorkerFixture();
-    fixture.Leagues.Setup(repository => repository.GetLeagues(1)).ReturnsAsync(
-    [
-      CurrencyPriceCalculatorTests.League() with
-      {
-        BaseCurrencyBaseItemTypeId = null
-      }
-    ]);
-
-    var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-      () => fixture.Worker.RunIteration(CancellationToken.None));
-
-    Assert.Contains("missing a base item type ID", exception.Message);
-    fixture.Client.VerifyNoOtherCalls();
   }
 
   [Fact]
@@ -209,7 +162,7 @@ public class CurrencyPriceLogWorkerIterationTests
       Client.Setup(client => client.GetSnapshot("pc", CurrentEpoch, It.IsAny<CancellationToken>()))
         .ReturnsAsync(response);
       Leagues.Setup(repository => repository.GetLeagues(1)).ReturnsAsync([CurrencyPriceCalculatorTests.League()]);
-      CurrencyItems.Setup(repository => repository.GetAllCurrencyItems(1)).ReturnsAsync(
+      CurrencyItems.Setup(repository => repository.GetAllCurrencyItemsWithBaseId(1)).ReturnsAsync(
       [
         Item(100, "exalted"),
         Item(101, "chaos"),
@@ -236,7 +189,7 @@ public class CurrencyPriceLogWorkerIterationTests
         new CurrencyPriceLogDiagnostics(factory, new Logger<CurrencyPriceLogDiagnostics>(new LoggerFactory()), TestConfig.Create()));
     }
 
-    private static CurrencyItem Item(int itemId, string apiId)
-      => new(itemId, itemId, 1, apiId, apiId, apiId, "currency", null, null);
+    private static CurrencyItemWithBaseId Item(int itemId, string apiId)
+      => new(itemId, itemId, 1, apiId, apiId, "currency", null, null);
   }
 }

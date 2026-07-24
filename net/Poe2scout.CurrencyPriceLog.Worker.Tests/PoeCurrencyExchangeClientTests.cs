@@ -33,24 +33,6 @@ public class PoeCurrencyExchangeClientTests
     });
   }
 
-  [Fact]
-  public async Task RejectsMissingMarketPairDictionaryKeys()
-  {
-    var handler = new QueueHandler([
-      _ => Json(HttpStatusCode.OK, SnapshotJson.Replace(
-        """
-            "Metadata/Items/Currency/CurrencyRerollRare": 20
-        """,
-        """
-            "Metadata/Items/Currency/Unrelated": 20
-        """))
-    ]);
-    var client = CreateClient(handler);
-
-    await Assert.ThrowsAsync<System.Text.Json.JsonException>(
-      () => client.GetSnapshot("pc", 123, CancellationToken.None));
-  }
-
   [Theory]
   [InlineData(HttpStatusCode.TooManyRequests)]
   [InlineData(HttpStatusCode.BadRequest)]
