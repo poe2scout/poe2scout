@@ -228,7 +228,8 @@ public sealed class CurrencyExchangeWorker(
     CancellationToken cancellationToken)
   {
     var latestAvailableEpoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-                               - PublicationDelaySeconds;
+                               - PublicationDelaySeconds - SnapshotIntervalSeconds;
+    
     var lastPrefetchEpoch = Math.Min(
       firstEpoch + (PrefetchDepth - 1L) * SnapshotIntervalSeconds,
       latestAvailableEpoch);
