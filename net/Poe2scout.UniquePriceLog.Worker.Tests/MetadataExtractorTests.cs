@@ -18,7 +18,15 @@ public class MetadataExtractorTests
       "descrText": "Description [one|display]",
       "properties": [{"name":"[Quality]|Quality:","values":[["20"]]}],
       "requirements": [{"name":"[Level]|Level]","values":[["70"]]}],
-      "implicitMods": ["+14 to [Strength|Strength]"],
+      "implicitMods": [{
+        "description": "+14 to [Strength|Strength]",
+        "domain": "implicit",
+        "hash": "stat.implicit.stat_4080418644",
+        "mods": [{
+          "level": 10,
+          "magnitudes": [{"min": "10", "max": "15"}]
+        }]
+      }],
       "explicitMods": [{
           "description":"10% increased maximum Life",
           "hash":"stat.explicit.stat_983749596",
@@ -42,9 +50,6 @@ public class MetadataExtractorTests
             }]
         }],
       "extended": {
-        "mods": {
-          "implicit": [{"name":"","tier":"","level":10,"magnitudes":[{"hash":"implicit.stat_4080418644","min":"10","max":"15"}]}]
-        },
         "hashes": {
           "implicit": [["implicit.stat_4080418644",[0]]],
           "explicit": [["explicit.stat_983749596",[0]],["explicit.stat_3372524247",[2]],["explicit.stat_990363519",[1]]]

@@ -67,10 +67,25 @@ internal static class UniqueItemMetadataExtractor
       var index = 0;
       foreach (var mod in implicitValues.EnumerateArray())
       {
-        var cleanMod = CleanBracketText(mod.GetString() ?? string.Empty);
-        if (implicitRanges.TryGetValue(index, out var range))
+        var cleanMod = CleanBracketText(mod.ValueKind == JsonValueKind.Object
+          ? StringProperty(mod, "description") ?? string.Empty
+          : mod.GetString() ?? string.Empty);
+        ModRange? range = null;
+        var isEmbeddedRange = false;
+        if (TryGetEmbeddedRange(mod, out var embeddedRange))
         {
-          cleanMod = AddRange(cleanMod, range, new Regex(@"\d+"));
+          range = embeddedRange;
+          isEmbeddedRange = true;
+        }
+        else if (implicitRanges.TryGetValue(index, out var extendedRange))
+        {
+          range = extendedRange;
+        }
+
+        if (range is not null
+            && (!isEmbeddedRange || range.Min != range.Max))
+        {
+          cleanMod = AddRange(cleanMod, range, new Regex(@"-?\d+(?:\.\d+)?"), trimDash: true);
         }
 
         implicitMods.Add(cleanMod);
