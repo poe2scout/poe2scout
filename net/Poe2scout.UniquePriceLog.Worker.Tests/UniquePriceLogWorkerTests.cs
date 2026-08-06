@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using Moq;
 using Poe2scout.Repositories.PriceLog.Models;
-using Poe2scout.UniquePriceLog.Worker;
+using Xunit;
 
 namespace Poe2scout.UniquePriceLog.Worker.Tests;
 

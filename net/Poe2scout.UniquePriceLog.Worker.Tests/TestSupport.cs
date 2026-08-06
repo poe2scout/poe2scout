@@ -1,10 +1,13 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.Metrics;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Poe2scout;
 using Poe2scout.Models;
 using Poe2scout.Repositories.CurrencyItem;
 using Poe2scout.Repositories.Item;
@@ -13,8 +16,6 @@ using Poe2scout.Repositories.League.Models;
 using Poe2scout.Repositories.PriceLog;
 using Poe2scout.Repositories.Service;
 using Poe2scout.Repositories.UniqueItem;
-using Poe2scout.Repositories.Service.Models;
-using Poe2scout.UniquePriceLog.Worker;
 
 namespace Poe2scout.UniquePriceLog.Worker.Tests;
 

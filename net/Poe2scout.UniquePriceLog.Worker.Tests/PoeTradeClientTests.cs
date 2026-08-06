@@ -1,9 +1,13 @@
+using System;
+using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Text;
-using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using Poe2scout.Models;
 using Poe2scout.Repositories.League.Models;
-using Poe2scout.UniquePriceLog.Worker;
+using Xunit;
 
 namespace Poe2scout.UniquePriceLog.Worker.Tests;
 

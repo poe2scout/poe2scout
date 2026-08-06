@@ -1,5 +1,6 @@
+using System.Collections.Generic;
 using System.Text.Json;
-using Poe2scout.UniquePriceLog.Worker;
+using Xunit;
 
 namespace Poe2scout.UniquePriceLog.Worker.Tests;
 

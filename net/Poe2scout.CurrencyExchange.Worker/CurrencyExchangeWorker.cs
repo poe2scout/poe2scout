@@ -26,7 +26,7 @@ public sealed class CurrencyExchangeWorker(
   private const string PriceFetchCacheKey = "PriceFetch_Currency";
   private const int SnapshotIntervalSeconds = 60 * 60;
   private const int PrefetchDepth = 20;
-  private const int MaxConcurrentPrefetchBatches = 16;
+  private const int MaxConcurrentPrefetchBatches = 4;
   private const int PublicationDelaySeconds = 60 * 5;
   private static readonly TimeSpan PriceFetchWait = TimeSpan.FromMinutes(10);
   private readonly Dictionary<int, Task<SnapshotBatch>> prefetchedSnapshots = [];
@@ -67,24 +67,20 @@ public sealed class CurrencyExchangeWorker(
 
     if (lastPriceFetch.Value <= lastExchange.Value)
     {
-      var availableRealms = await realmRepository.GetRealms();
-      PrefetchAvailableSnapshots(
-        lastExchange.Value + SnapshotIntervalSeconds,
-        availableRealms,
-        cancellationToken);
-      await Delay(PriceFetchWait, cancellationToken);
+      await Delay(TimeSpan.FromSeconds(60), cancellationToken);
       return;
     }
 
-    var timeToFetch = lastExchange.Value + SnapshotIntervalSeconds;
+    var nextEpochToFetch = lastExchange.Value + SnapshotIntervalSeconds;
     var currentEpoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-    var delaySeconds = Math.Max(timeToFetch + PublicationDelaySeconds - currentEpoch, 0);
+    var delaySeconds = Math.Max(nextEpochToFetch + SnapshotIntervalSeconds + PublicationDelaySeconds - currentEpoch, 0);
     await Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
 
     var realms = await realmRepository.GetRealms();
     
-    PrefetchAvailableSnapshots(timeToFetch, realms, cancellationToken);
-    var snapshotBatch = await GetPrefetchedSnapshot(timeToFetch);
+    PrefetchAvailableSnapshots(nextEpochToFetch, realms, cancellationToken);
+
+    var snapshotBatch = await GetPrefetchedSnapshot(nextEpochToFetch);
     var nextChangeIds = await Task.WhenAll(
       snapshotBatch.Realms.Select(snapshot => ProcessRealmSnapshot(
         snapshot.Realm,
@@ -101,7 +97,7 @@ public sealed class CurrencyExchangeWorker(
     await serviceRepository.SetServiceCacheValue(
       ExchangeCacheKey,
       nextChangeId - SnapshotIntervalSeconds);
-    prefetchedSnapshots.Remove(timeToFetch);
+    prefetchedSnapshots.Remove(nextEpochToFetch);
     await currencyExchangeRepository.UpdatePairHistories();
   }
 
@@ -227,8 +223,7 @@ public sealed class CurrencyExchangeWorker(
     IReadOnlyList<Realm> realms,
     CancellationToken cancellationToken)
   {
-    var latestAvailableEpoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-                               - PublicationDelaySeconds;
+    var latestAvailableEpoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - SnapshotIntervalSeconds;
     var lastPrefetchEpoch = Math.Min(
       firstEpoch + (PrefetchDepth - 1L) * SnapshotIntervalSeconds,
       latestAvailableEpoch);

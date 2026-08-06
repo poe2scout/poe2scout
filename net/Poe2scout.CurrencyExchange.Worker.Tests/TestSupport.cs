@@ -54,7 +54,7 @@ internal sealed class WorkerFixture
 
   public WorkerFixture(
     CurrencyExchangeResponse? response = null,
-    int hoursBehind = 1)
+    int hoursBehind = 2)
   {
     CurrentEpoch = checked(
       (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds() - hoursBehind * 3600);

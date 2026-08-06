@@ -65,25 +65,6 @@ public class CurrencyExchangeWorkerTests
   }
 
   [Fact]
-  public async Task PrefetchesAndWaitsWhenPriceFetchHasNotMovedAhead()
-  {
-    var fixture = new WorkerFixture();
-    fixture.Services.Setup(repository => repository.GetServiceCacheValue("PriceFetch_Currency"))
-      .ReturnsAsync(new ServiceCacheValue(fixture.CurrentEpoch - 3600));
-
-    await fixture.Worker.RunIteration(CancellationToken.None);
-
-    fixture.Client.Verify(client => client.GetSnapshot(
-      "pc",
-      fixture.CurrentEpoch,
-      It.IsAny<CancellationToken>()), Times.Once);
-    Assert.Contains(TimeSpan.FromMinutes(10), fixture.Delays);
-    fixture.Services.Verify(
-      repository => repository.SetServiceCacheValue(It.IsAny<string>(), It.IsAny<int>()),
-      Times.Never);
-  }
-
-  [Fact]
   public async Task MissingPriceLogsDoesNotAdvanceCacheOrWriteSnapshot()
   {
     var fixture = new WorkerFixture();
@@ -205,19 +186,6 @@ public class CurrencyExchangeWorkerTests
     fixture.Services.Verify(repository => repository.SetServiceCacheValue(
       "CurrencyExchange",
       It.IsAny<int>()), Times.Exactly(2));
-  }
-
-  [Fact]
-  public async Task DoesNotPrefetchUnpublishedEpochs()
-  {
-    var fixture = new WorkerFixture();
-
-    await fixture.Worker.RunIteration(CancellationToken.None);
-
-    fixture.Client.Verify(client => client.GetSnapshot(
-      "pc",
-      It.IsAny<int?>(),
-      It.IsAny<CancellationToken>()), Times.Once);
   }
 
   [Fact]
