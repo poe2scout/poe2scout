@@ -101,7 +101,7 @@ public class EconomyCache(
 
   private async Task<List<UniqueItemExtended>> FetchUniquePage(CacheKey cacheKey)
   {
-    var leagueItemsTask = leagueRepository.GetItemsInCurrentLeague(cacheKey.LeagueId, cacheKey.RealmId);
+    var leagueItemsTask = GetItemsInCurrentLeague(cacheKey);
     var categoryItemsTask = uniqueItemRepository.GetUniqueItemsByCategory(cacheKey.Category);
 
     await Task.WhenAll(leagueItemsTask, categoryItemsTask);
