@@ -191,7 +191,7 @@ public class EconomyCache(
   private async Task<List<CurrencyItemExtended>> FetchCurrencyPage(CacheKey cacheKey)
   {
     DateTime expirationTimeUtc;
-    var leagueItemsTask = leagueRepository.GetItemsInCurrentLeague(cacheKey.LeagueId, cacheKey.RealmId);
+    var leagueItemsTask = GetItemsInCurrentLeague(cacheKey);
     var categoryItemsTask = currencyItemRepository.GetCurrencyItemsByCategory(cacheKey.Category);
 
     await Task.WhenAll(leagueItemsTask, categoryItemsTask);
@@ -445,5 +445,42 @@ public class EconomyCache(
       DateTimeKind.Utc);
     
     return nextHourExactUtc + TimeSpan.FromMinutes(5 + random.NextSingle() * 5);
+  }
+
+  private readonly SemaphoreSlim semaphore = new(5);
+  private readonly ConcurrentDictionary<(int LeagueId, int RealmId), CacheEntry<int>> itemsInLeagueCache = new();
+
+  private async Task<IReadOnlyList<int>> GetItemsInCurrentLeague(CacheKey cacheKey)
+  {
+    if (itemsInLeagueCache.TryGetValue((cacheKey.LeagueId, cacheKey.RealmId), out var cacheEntry))
+    {
+      if (cacheEntry.ExpiresUtc > DateTime.UtcNow)
+      {
+        return cacheEntry.Value;
+      }
+    }
+
+    await semaphore.WaitAsync();
+
+    try
+    {
+      if (itemsInLeagueCache.TryGetValue((cacheKey.LeagueId, cacheKey.RealmId), out cacheEntry))
+      {
+        if (cacheEntry.ExpiresUtc > DateTime.UtcNow)
+        {
+          return cacheEntry.Value;
+        }
+      }
+      
+      var toCache = await leagueRepository.GetItemsInCurrentLeague(cacheKey.LeagueId, cacheKey.RealmId);
+
+      itemsInLeagueCache[(cacheKey.LeagueId, cacheKey.RealmId)] = new CacheEntry<int>(toCache.ToList(), DateTime.UtcNow.AddDays(1));
+      
+      return toCache;
+    }
+    finally
+    {
+      semaphore.Release();
+    }
   }
 }
