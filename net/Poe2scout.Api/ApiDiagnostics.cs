@@ -14,12 +14,14 @@ public sealed class ApiDiagnostics
 {
   public const string MeterName = "Poe2scout.Api";
   public const string RequestCountInstrumentName = "poe2scout.api.http.requests";
+  public const string AllRequestCountInstrumentName = "poe2scout.api.http.all.requests";
   public const string RequestDurationInstrumentName = "poe2scout.api.http.request.duration";
 
   private static readonly EventId RequestFailedEvent = new(1001, "ApiRequestFailed");
   private static readonly EventId RequestSlowEvent = new(1002, "ApiRequestSlow");
 
   private readonly Counter<long> requestCount;
+  private readonly Counter<long> allRequestCount;
   private readonly Histogram<double> requestDuration;
   private readonly ILogger<ApiDiagnostics> logger;
   private readonly int slowRequestThresholdMs;
@@ -34,6 +36,10 @@ public sealed class ApiDiagnostics
       RequestCountInstrumentName,
       "{request}",
       "Completed product API requests.");
+    allRequestCount = meter.CreateCounter<long>(
+      AllRequestCountInstrumentName,
+      "{request}",
+      "All requests completed by the API pipeline, including unmatched routes and preflight requests.");
     requestDuration = meter.CreateHistogram<double>(
       RequestDurationInstrumentName,
       "s",
@@ -50,6 +56,23 @@ public sealed class ApiDiagnostics
     return statusCode >= StatusCodes.Status400BadRequest
       ? ApiRequestOutcome.ClientError
       : ApiRequestOutcome.Success;
+  }
+
+  public void RecordAllRequest(string route, string method, int statusCode)
+  {
+    var normalizedMethod = method switch
+    {
+      "GET" or "HEAD" or "POST" or "PUT" or "DELETE" or "CONNECT" or
+        "OPTIONS" or "TRACE" or "PATCH" => method,
+      _ => "_OTHER"
+    };
+    var tags = new TagList
+    {
+      { "http.route", route },
+      { "http.request.method", normalizedMethod },
+      { "http.response.status_code", statusCode }
+    };
+    allRequestCount.Add(1, tags);
   }
 
   public void RecordRequest(

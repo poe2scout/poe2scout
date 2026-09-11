@@ -42,6 +42,7 @@ builder.Logging.AddOpenTelemetry(logging =>
 });
 var app = builder.Build();
 
+app.UseMiddleware<AllRequestsDiagnosticsMiddleware>();
 app.UseCors();
 app.UseMiddleware<ApiDiagnosticsMiddleware>();
 app.MapOpenApi().ExcludeFromApiDiagnostics();
