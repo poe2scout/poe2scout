@@ -25,7 +25,7 @@ public sealed class UniquePriceLogWorker(
   Func<TimeSpan, CancellationToken, Task>? delay = null) : BackgroundService
 {
   private const int GameId = 2;
-  private const int LeagueId = 23;
+  private const int LeagueId = 29;
   private const int RealmId = 4;
 
   protected override async Task ExecuteAsync(CancellationToken stoppingToken)
