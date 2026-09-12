@@ -54,7 +54,12 @@ public sealed class CurrencyPriceLogWorker(
     await Task.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken);
 
     var realms = await realmRepository.GetRealms();
-    await Task.WhenAll(realms.Select(realm => ProcessRealm(currentEpoch, realm, cancellationToken)));
+
+    foreach (var realm in realms)
+    {
+      await ProcessRealm(currentEpoch, realm, cancellationToken);
+    }
+    
     await serviceRepository.SetServiceCacheValue(CacheKey, currentEpoch);
   }
 
