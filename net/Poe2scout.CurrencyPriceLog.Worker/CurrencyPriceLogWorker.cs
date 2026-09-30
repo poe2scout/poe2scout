@@ -39,7 +39,7 @@ public sealed class CurrencyPriceLogWorker(
       {
         diagnostics.RecordException(ex);
 
-        throw;
+        await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
       }
     }
   }
