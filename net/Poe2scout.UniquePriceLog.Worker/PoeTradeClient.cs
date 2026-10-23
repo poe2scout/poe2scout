@@ -29,7 +29,8 @@ public interface IPoeTradeClient
 
 public sealed class PoeTradeClient(
   HttpClient httpClient,
-  Func<TimeSpan, CancellationToken, Task>? delay = null) : IPoeTradeClient
+  Func<TimeSpan, CancellationToken, Task>? delay = null,
+  ILogger<PoeTradeClient>? logger = null) : IPoeTradeClient
 {
   private const string BaseUrl = "https://www.pathofexile.com/api/trade2";
   private const string Realm = "poe2";
@@ -115,6 +116,20 @@ public sealed class PoeTradeClient(
       if (response.StatusCode == HttpStatusCode.OK)
       {
         return response;
+      }
+
+      if (response.StatusCode == HttpStatusCode.TooManyRequests)
+      {
+        TimeSpan retryAfter;
+        using (response)
+        {
+          retryAfter = response.Headers.RetryAfter!.Delta!.Value;
+        }
+
+        logger?.LogWarning("Trade API rate limited. Pausing trade requests until {CooldownUntil}", DateTimeOffset.UtcNow + retryAfter);
+        await Delay(retryAfter, cancellationToken);
+        attempt--;
+        continue;
       }
 
       var statusCode = response.StatusCode;
