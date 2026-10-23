@@ -7,7 +7,7 @@ services:
 
   currency-price-log-service:
     image: ghcr.io/poe2scout/poe2scout-currency-price-log:${IMAGE_TAG:-release}
-    restart: "no"
+    restart: always
     environment:
       DbConnectionString: ${DB_CONNECTION_STRING}
       GrafanaApiToken: ${GRAFANA_API_TOKEN}
@@ -26,7 +26,7 @@ services:
 
   unique-price-log-service:
     image: ghcr.io/poe2scout/poe2scout-unique-price-log:${IMAGE_TAG:-release}
-    restart: "no"
+    restart: always
     environment:
       DbConnectionString: ${DB_CONNECTION_STRING}
       GrafanaApiToken: ${GRAFANA_API_TOKEN}
@@ -35,7 +35,7 @@ services:
 
   currency-exchange-service:
     image: ghcr.io/poe2scout/poe2scout-currency-exchange:${IMAGE_TAG:-release}
-    restart: "no"
+    restart: always
     environment:
       DbConnectionString: ${DB_CONNECTION_STRING}
       GrafanaApiToken: ${GRAFANA_API_TOKEN}
