@@ -76,25 +76,27 @@ public class PoeTradeClientTests
   {
     var delays = new List<TimeSpan>();
     var content = new TrackingContent();
-    var handler = new QueueHandler(_ => delays.Count == 1
+    var responses = 0;
+    var handler = new QueueHandler(_ => ++responses == 1
       ? RateLimited(3600, content)
       : SearchSuccess());
     var client = new PoeTradeClient(new HttpClient(handler), (duration, _) =>
     {
       delays.Add(duration);
-      if (duration == TimeSpan.FromHours(1))
+      if (duration == TimeSpan.FromSeconds(3602))
       {
         Assert.Single(handler.Requests);
-        Assert.True(content.Disposed);
+        Assert.False(content.Disposed);
       }
       return Task.CompletedTask;
     });
 
     await client.SearchUniqueAsync(Item("jewel"), League(), "chaos", CancellationToken.None);
 
-    Assert.Equal(new[] { TimeSpan.FromSeconds(17), TimeSpan.FromHours(1), TimeSpan.FromSeconds(17) }, delays);
+    Assert.Equal(new[] { TimeSpan.FromSeconds(3602), TimeSpan.FromSeconds(4) }, delays);
     Assert.Equal(2, handler.Requests.Count);
     Assert.Equal(handler.Requests[0], handler.Requests[1]);
+    Assert.True(content.Disposed);
   }
 
   [Fact]
@@ -112,7 +114,7 @@ public class PoeTradeClientTests
     await client.SearchUniqueAsync(Item("jewel"), League(), "chaos", CancellationToken.None);
 
     Assert.Equal(7, handler.Requests.Count);
-    Assert.Equal(6, delays.FindAll(duration => duration == TimeSpan.FromSeconds(60)).Count);
+    Assert.Equal(6, delays.FindAll(duration => duration == TimeSpan.FromSeconds(62)).Count);
   }
 
   [Theory]
@@ -127,7 +129,7 @@ public class PoeTradeClientTests
       : fetch ? Json(HttpStatusCode.OK, "{\"result\":[]}") : SearchSuccess());
     var client = new PoeTradeClient(new HttpClient(handler), (duration, _) =>
     {
-      if (duration == TimeSpan.FromSeconds(60))
+      if (duration == TimeSpan.FromSeconds(62))
       {
         Assert.Single(handler.Requests);
       }
@@ -146,8 +148,7 @@ public class PoeTradeClientTests
         League(), CancellationToken.None);
     }
 
-    var spacing = TimeSpan.FromSeconds(fetch ? 3 : 17);
-    Assert.Equal(new[] { spacing, TimeSpan.FromSeconds(60), spacing }, delays);
+    Assert.Equal(new[] { TimeSpan.FromSeconds(62), TimeSpan.FromSeconds(4) }, delays);
     Assert.Equal(2, handler.Requests.Count);
   }
 
@@ -159,7 +160,7 @@ public class PoeTradeClientTests
     var handler = new QueueHandler(_ => RateLimited(60));
     var client = new PoeTradeClient(new HttpClient(handler), async (duration, token) =>
     {
-      if (duration == TimeSpan.FromSeconds(60))
+      if (duration == TimeSpan.FromSeconds(62))
       {
         waiting.SetResult();
         await Task.Delay(Timeout.InfiniteTimeSpan, token);
@@ -174,6 +175,136 @@ public class PoeTradeClientTests
     Assert.Single(handler.Requests);
   }
 
+  [Fact]
+  public async Task UsesStrictestWindowAcrossAllRulesAndRefreshesAfterEachResponse()
+  {
+    var delays = new List<TimeSpan>();
+    var responses = 0;
+    var handler = new QueueHandler(_ => ++responses == 1
+      ? WithRateLimits(SearchSuccess(), "ip, account", "12:4:600, 16:12:600", "8:10:600, 4:30:600")
+      : WithRateLimits(SearchSuccess(), ip: "4:3:600"));
+    var client = new PoeTradeClient(new HttpClient(handler), (duration, _) =>
+    {
+      // Every delay follows its corresponding HTTP request, including the first.
+      Assert.Equal(delays.Count + 1, handler.Requests.Count);
+      delays.Add(duration);
+      return Task.CompletedTask;
+    });
+
+    await client.SearchUniqueAsync(Item("jewel"), League(), "chaos", CancellationToken.None);
+    await client.SearchUniqueAsync(Item("jewel"), League(), "divine", CancellationToken.None);
+
+    Assert.Equal(new[] { TimeSpan.FromSeconds(9.5), TimeSpan.FromSeconds(2.75) }, delays);
+  }
+
+  [Fact]
+  public async Task RateLimitIntervalCanExceedRetryAfter()
+  {
+    var delays = new List<TimeSpan>();
+    var responses = 0;
+    var handler = new QueueHandler(_ => ++responses == 1
+      ? WithRateLimits(RateLimited(1), ip: "1:10:300") : SearchSuccess());
+    var client = new PoeTradeClient(new HttpClient(handler), (duration, _) =>
+    {
+      delays.Add(duration);
+      return Task.CompletedTask;
+    });
+
+    await client.SearchUniqueAsync(Item("jewel"), League(), "chaos", CancellationToken.None);
+
+    Assert.Equal(new[] { TimeSpan.FromSeconds(12), TimeSpan.FromSeconds(4) }, delays);
+  }
+
+  [Theory]
+  [InlineData(403, 30, 60, 300)]
+  [InlineData(405, 30, 60, 300)]
+  [InlineData(503, 1, 600, 602)]
+  public async Task RetryBackoffAndRateLimitUseOneCombinedWait(int status, int hits, int window, int expectedSeconds)
+  {
+    var delays = new List<TimeSpan>();
+    var content = new TrackingContent();
+    var responses = 0;
+    var handler = new QueueHandler(_ => ++responses == 1
+      ? WithRateLimits(new HttpResponseMessage((HttpStatusCode)status) { Content = content }, ip: $"{hits}:{window}:300")
+      : SearchSuccess());
+    var client = new PoeTradeClient(new HttpClient(handler), (duration, _) =>
+    {
+      Assert.Equal(delays.Count > 0, content.Disposed);
+      delays.Add(duration);
+      return Task.CompletedTask;
+    });
+
+    await client.SearchUniqueAsync(Item("jewel"), League(), "chaos", CancellationToken.None);
+
+    Assert.Equal(new[] { TimeSpan.FromSeconds(expectedSeconds), TimeSpan.FromSeconds(4) }, delays);
+  }
+
+  [Fact]
+  public async Task RetryExhaustionStillDelaysBeforeThrowing()
+  {
+    var delays = new List<TimeSpan>();
+    var handler = new QueueHandler(_ => Json(HttpStatusCode.ServiceUnavailable, "unavailable"));
+    var client = new PoeTradeClient(new HttpClient(handler), (duration, _) =>
+    {
+      delays.Add(duration);
+      return Task.CompletedTask;
+    });
+
+    await Assert.ThrowsAsync<TradeClientException>(() =>
+      client.SearchUniqueAsync(Item("jewel"), League(), "chaos", CancellationToken.None));
+
+    Assert.Equal(5, handler.Requests.Count);
+    Assert.Equal(new[] { TimeSpan.FromSeconds(300), TimeSpan.FromSeconds(300),
+      TimeSpan.FromSeconds(300), TimeSpan.FromSeconds(300), TimeSpan.FromSeconds(4) }, delays);
+  }
+
+  [Fact]
+  public async Task ClientErrorIsDisposedAndDelayedBeforeThrowing()
+  {
+    var content = new TrackingContent();
+    var handler = new QueueHandler(_ => WithRateLimits(
+      new HttpResponseMessage(HttpStatusCode.BadRequest) { Content = content }));
+    var waited = false;
+    var client = new PoeTradeClient(new HttpClient(handler), (duration, _) =>
+    {
+      Assert.False(content.Disposed);
+      Assert.Equal(TimeSpan.FromSeconds(4), duration);
+      waited = true;
+      return Task.CompletedTask;
+    });
+
+    await Assert.ThrowsAsync<TradeClientException>(() =>
+      client.SearchUniqueAsync(Item("jewel"), League(), "chaos", CancellationToken.None));
+
+    Assert.True(waited);
+    Assert.True(content.Disposed);
+  }
+
+  [Fact]
+  public async Task CancellationDisposesSuccessfulResponseWhileWaiting()
+  {
+    var waiting = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+    using var cancellation = new CancellationTokenSource();
+    var content = new TrackingContent();
+    var handler = new QueueHandler(_ => WithRateLimits(
+      new HttpResponseMessage(HttpStatusCode.OK) { Content = content }));
+    var client = new PoeTradeClient(new HttpClient(handler), async (_, token) =>
+    {
+      waiting.SetResult();
+      await Task.Delay(Timeout.InfiniteTimeSpan, token);
+    });
+
+    var search = client.SearchUniqueAsync(Item("jewel"), League(), "chaos", cancellation.Token);
+    await waiting.Task.WaitAsync(TimeSpan.FromSeconds(5));
+    Assert.False(search.IsCompleted);
+    Assert.False(content.Disposed);
+    cancellation.Cancel();
+
+    await Assert.ThrowsAnyAsync<OperationCanceledException>(() => search.WaitAsync(TimeSpan.FromSeconds(5)));
+    Assert.True(content.Disposed);
+    Assert.Single(handler.Requests);
+  }
+
   private static HttpResponseMessage SearchSuccess()
     => Json(HttpStatusCode.OK, "{\"id\":\"query\",\"result\":[],\"total\":0}");
 
@@ -184,7 +315,7 @@ public class PoeTradeClientTests
       Content = content ?? new StringContent("rate limited")
     };
     response.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(seconds));
-    return response;
+    return WithRateLimits(response);
   }
 
   private sealed class TrackingContent() : StringContent("rate limited")
@@ -207,10 +338,29 @@ public class PoeTradeClientTests
     => new(23, "Standard", "Standard", 100, "exalted", null, "Exalted Orb", null, true);
 
   private static HttpResponseMessage Json(HttpStatusCode statusCode, string json)
-    => new(statusCode)
+    => WithRateLimits(new HttpResponseMessage(statusCode)
     {
       Content = new StringContent(json, Encoding.UTF8, "application/json")
-    };
+    });
+
+  private static HttpResponseMessage WithRateLimits(
+    HttpResponseMessage response,
+    string rules = "ip",
+    string ip = "30:60:300",
+    string? account = null)
+  {
+    response.Headers.Remove("X-Rate-Limit-Policy");
+    response.Headers.Remove("X-Rate-Limit-Rules");
+    response.Headers.Remove("X-Rate-Limit-Ip");
+    response.Headers.TryAddWithoutValidation("X-Rate-Limit-Policy", "trade-test");
+    response.Headers.TryAddWithoutValidation("X-Rate-Limit-Rules", rules);
+    response.Headers.TryAddWithoutValidation("X-Rate-Limit-Ip", ip);
+    if (account is not null)
+    {
+      response.Headers.TryAddWithoutValidation("X-Rate-Limit-Account", account);
+    }
+    return response;
+  }
 
   private sealed class QueueHandler(Func<HttpRequestMessage, HttpResponseMessage> responseFactory)
     : HttpMessageHandler

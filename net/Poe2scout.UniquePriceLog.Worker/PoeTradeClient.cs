@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -36,8 +37,6 @@ public sealed class PoeTradeClient(
   private const string Realm = "poe2";
   private const string UserAgent = "POE2SCOUT (contact: b@girardet.co.nz)";
   private const int MaxRetries = 5;
-  private static readonly TimeSpan PostDelay = TimeSpan.FromSeconds(17);
-  private static readonly TimeSpan GetDelay = TimeSpan.FromSeconds(3);
   private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(300);
   private static readonly JsonSerializerOptions JsonOptions = new()
   {
@@ -102,77 +101,136 @@ public sealed class PoeTradeClient(
   {
     for (var attempt = 1; attempt <= MaxRetries; attempt++)
     {
-      await Delay(method == HttpMethod.Post ? PostDelay : GetDelay, cancellationToken);
-
-      using var request = new HttpRequestMessage(method, url)
-      {
-        Content = content is null
-          ? null
-          : new StringContent(content, Encoding.UTF8, "application/json")
-      };
+      using var request = new HttpRequestMessage(method, url);
+      request.Content = content is null
+        ? null
+        : new StringContent(content, Encoding.UTF8, "application/json");
       request.Headers.UserAgent.ParseAdd(UserAgent);
       var response = await httpClient.SendAsync(request, cancellationToken);
 
-      if (response.StatusCode == HttpStatusCode.OK)
+      try
       {
-        return response;
-      }
+        var retryable = response.StatusCode is HttpStatusCode.Forbidden
+          or HttpStatusCode.MethodNotAllowed
+          or HttpStatusCode.ServiceUnavailable;
 
-      if (response.StatusCode == HttpStatusCode.TooManyRequests)
-      {
-        TimeSpan retryAfter;
+        await HandleDelay(
+          response: response,
+          retryable: retryable,
+          attempt: attempt,
+          cancellationToken: cancellationToken);
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+          return response;
+        }
+
         using (response)
         {
-          retryAfter = response.Headers.RetryAfter!.Delta!.Value;
+          if (response.StatusCode == HttpStatusCode.TooManyRequests)
+          {
+            attempt--;
+            continue;
+          }
+
+          var body = await response.Content.ReadAsStringAsync(cancellationToken);
+
+          if (retryable)
+          {
+            if (attempt < MaxRetries)
+            {
+              continue;
+            }
+
+            throw new TradeClientException(
+              $"Max retries ({MaxRetries}) exceeded. Last status: {(int)response.StatusCode}",
+              response.StatusCode,
+              body);
+          }
+
+          throw CreateException(response, body);
         }
-
-        logger?.LogWarning("Trade API rate limited. Pausing trade requests until {CooldownUntil}", DateTimeOffset.UtcNow + retryAfter);
-        await Delay(retryAfter, cancellationToken);
-        attempt--;
-        continue;
       }
-
-      var statusCode = response.StatusCode;
-      var body = await response.Content.ReadAsStringAsync(cancellationToken);
-      if (statusCode is HttpStatusCode.Forbidden
-          or HttpStatusCode.MethodNotAllowed
-          or HttpStatusCode.ServiceUnavailable)
+      catch
       {
         response.Dispose();
-        if (attempt < MaxRetries)
-        {
-          await Task.Delay(RetryDelay, cancellationToken);
-          continue;
-        }
-
-        throw new TradeClientException(
-          $"Max retries ({MaxRetries}) exceeded. Last status: {(int)statusCode}",
-          statusCode,
-          body);
+        throw;
       }
-
-      response.Dispose();
-      throw CreateException(statusCode, body);
     }
 
     throw new InvalidOperationException("Trade API retry loop completed unexpectedly.");
   }
 
+  private async Task HandleDelay(
+    HttpResponseMessage response,
+    bool retryable,
+    int attempt,
+    CancellationToken cancellationToken)
+  {
+    var (intervalSeconds, controllingRule) = GetStrictestRateLimit(response.Headers);
+    var policy = string.Join(",", response.Headers.GetValues("X-Rate-Limit-Policy"));
+    var statusCode = response.StatusCode;
+    var wait = TimeSpan.FromSeconds(intervalSeconds + 2);
+
+    if (statusCode != HttpStatusCode.OK)
+    {
+      if (statusCode == HttpStatusCode.TooManyRequests)
+      {
+        wait = TimeSpan.FromSeconds(Math.Max(
+          response.Headers.RetryAfter!.Delta!.Value.TotalSeconds, intervalSeconds) + 2);
+      }
+
+      if (retryable && attempt < MaxRetries && RetryDelay > wait)
+      {
+        wait = RetryDelay;
+      }
+    }
+
+    logger?.LogInformation(
+      "Trade API policy {Policy}, controlling rule {Rule}: delaying {DelaySeconds} seconds",
+      policy,
+      controllingRule,
+      wait.TotalSeconds);
+    if (statusCode == HttpStatusCode.TooManyRequests)
+    {
+      logger?.LogWarning("Trade API rate limited. Pausing trade requests until {CooldownUntil}", DateTimeOffset.UtcNow + wait);
+    }
+
+    await Delay(wait, cancellationToken);
+  }
+
+  private static (double IntervalSeconds, string ControllingRule) GetStrictestRateLimit(HttpResponseHeaders headers)
+  {
+    return headers.GetValues("X-Rate-Limit-Rules")
+      .SelectMany(value => value.Split(',', StringSplitOptions.TrimEntries))
+      .SelectMany(rule => headers.GetValues($"X-Rate-Limit-{rule}")
+        .SelectMany(value => value.Split(',', StringSplitOptions.TrimEntries))
+        .Select(value =>
+        {
+          var parts = value.Split(':');
+          var hits = int.Parse(parts[0], CultureInfo.InvariantCulture);
+          var window = int.Parse(parts[1], CultureInfo.InvariantCulture);
+          return (IntervalSeconds: (double)window / hits, ControllingRule: $"{rule} {value}");
+        }))
+      .MaxBy(rule => rule.IntervalSeconds);
+  }
+
   private Task Delay(TimeSpan duration, CancellationToken cancellationToken)
     => delay is null ? Task.Delay(duration, cancellationToken) : delay(duration, cancellationToken);
 
-  private static TradeClientException CreateException(HttpStatusCode statusCode, string body)
+  private static TradeClientException CreateException(HttpResponseMessage response, string body)
   {
-    var message = statusCode switch
+    var message = response.StatusCode switch
     {
       HttpStatusCode.TooManyRequests => "Rate limit exceeded",
       >= HttpStatusCode.BadRequest and < HttpStatusCode.InternalServerError => "Client error occurred",
       >= HttpStatusCode.InternalServerError => "Server error occurred",
       _ => "Trade API request failed"
     };
+
     return new TradeClientException(
-      $"{message} - Status Code: {(int)statusCode} | {body}",
-      statusCode,
+      $"{message} - Status Code: {(int)response.StatusCode} | {body}",
+      response.StatusCode,
       body);
   }
 
@@ -231,7 +289,7 @@ public sealed class TradeClientException(
   HttpStatusCode statusCode,
   string responseBody) : Exception(message)
 {
-  public HttpStatusCode StatusCode { get; } = statusCode;
+  private HttpStatusCode StatusCode { get; } = statusCode;
   public string ResponseBody { get; } = responseBody;
   public bool IsUnknownItemName
     => StatusCode == HttpStatusCode.BadRequest

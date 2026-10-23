@@ -91,7 +91,7 @@ public class UniquePriceLogWorkerTests
   {
     var fixture = new WorkerFixture();
     fixture.Services
-      .Setup(repository => repository.GetFetchedItemIds(It.IsAny<string>(), 23))
+      .Setup(repository => repository.GetFetchedItemIds(It.IsAny<string>(), 29))
       .ReturnsAsync([101]);
 
     await fixture.Worker.RunIteration(CancellationToken.None);
